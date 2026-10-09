@@ -1,0 +1,1 @@
+2026-10-05-l4-model-chosen-by-pattern-discrimination · pending · six small L4 models scored on a pre-registered pattern-discrimination series (A catch · B stay quiet · C digest-limited) with a blind audit, giving the founder a quality-vs-footprint table · → andromeda-pulse-0.3.0/chunks/2026-10-05-l4-model-chosen-by-pattern-discrimination/

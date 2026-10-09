@@ -19,15 +19,28 @@ describe("PresetPromptList", () => {
     }
   });
 
-  it("each button carries aria-label 'Insert prompt: {label}'", () => {
+  it("each button's accessible name is its visible label", () => {
     render(<PresetPromptList prompts={PRESET_PROMPTS} onPick={vi.fn()} />);
     for (const prompt of PRESET_PROMPTS) {
-      const btn = screen.getByRole("button", {
-        name: `Insert prompt: ${prompt.label}`,
-      });
-      expect(btn.getAttribute("aria-label")).toBe(
-        `Insert prompt: ${prompt.label}`,
-      );
+      const btn = screen.getByRole("button", { name: prompt.label });
+      expect(btn.textContent).toBe(prompt.label);
+      expect(btn.getAttribute("aria-label")).toBeNull();
+    }
+  });
+
+  it("busyId marks the running button aria-busy and disables all buttons", () => {
+    const target = PRESET_PROMPTS[1];
+    render(
+      <PresetPromptList
+        prompts={PRESET_PROMPTS}
+        onPick={vi.fn()}
+        busyId={target.id}
+      />,
+    );
+    const running = screen.getByTestId(`preset-prompt-${target.id}`);
+    expect(running.getAttribute("aria-busy")).toBe("true");
+    for (const btn of screen.getAllByRole("button")) {
+      expect((btn as HTMLButtonElement).disabled).toBe(true);
     }
   });
 
@@ -36,7 +49,7 @@ describe("PresetPromptList", () => {
     const user = userEvent.setup();
     render(<PresetPromptList prompts={PRESET_PROMPTS} onPick={onPick} />);
     const first = screen.getByRole("button", {
-      name: `Insert prompt: ${PRESET_PROMPTS[0].label}`,
+      name: `${PRESET_PROMPTS[0].label}`,
     });
     first.focus();
     await user.keyboard("{Enter}");
@@ -48,7 +61,7 @@ describe("PresetPromptList", () => {
     const user = userEvent.setup();
     render(<PresetPromptList prompts={PRESET_PROMPTS} onPick={onPick} />);
     const second = screen.getByRole("button", {
-      name: `Insert prompt: ${PRESET_PROMPTS[1].label}`,
+      name: `${PRESET_PROMPTS[1].label}`,
     });
     second.focus();
     await user.keyboard(" ");
@@ -82,7 +95,7 @@ describe("PresetPromptList", () => {
     render(<PresetPromptList prompts={PRESET_PROMPTS} onPick={onPick} />);
     const target = PRESET_PROMPTS[2];
     const btn = screen.getByRole("button", {
-      name: `Insert prompt: ${target.label}`,
+      name: `${target.label}`,
     });
     await user.click(btn);
     expect(onPick).toHaveBeenCalledTimes(1);

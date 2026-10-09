@@ -20,7 +20,8 @@ pub trait StreamsApi {
 
 #[derive(Clone)]
 pub struct StreamsApiImpl {
-    senders: Arc<BroadcastSenders>,
+    #[doc(hidden)]
+    pub senders: Arc<BroadcastSenders>,
 }
 
 impl StreamsApiImpl {
@@ -96,26 +97,5 @@ async fn forward_loop(
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use buffer::broadcast as broadcast_module;
-
-    #[test]
-    fn streams_api_impl_constructor_holds_senders() {
-        let senders = Arc::new(broadcast_module::create());
-        let api = StreamsApiImpl::new(Arc::clone(&senders));
-        assert_eq!(api.senders.spans.receiver_count(), 0);
-        assert_eq!(api.senders.metrics.receiver_count(), 0);
-        assert_eq!(api.senders.logs.receiver_count(), 0);
-    }
-
-    #[test]
-    fn streams_api_impl_clones_share_senders() {
-        let senders = Arc::new(broadcast_module::create());
-        let api1 = StreamsApiImpl::new(Arc::clone(&senders));
-        let api2 = api1.clone();
-        let _r1 = api1.senders.spans.subscribe();
-        assert_eq!(api2.senders.spans.receiver_count(), 1);
-    }
-}
+// Tests migrated to `pulse-app/tests/unit_streams_api.rs` — a src-level `mod tests`
+// compiles but never runs under `[lib] test = false` (2026-05-20 precedent).

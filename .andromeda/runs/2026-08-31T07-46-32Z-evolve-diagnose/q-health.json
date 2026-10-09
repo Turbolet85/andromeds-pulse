@@ -1,0 +1,170 @@
+{
+ "epoch_records": 1096,
+ "step": 564,
+ "friction": 532,
+ "unparseable": 0,
+ "null_epoch_records": 2,
+ "null_epoch_detail": [
+  {
+   "ts": "2026-08-16T16:08:11Z",
+   "kind": "step",
+   "skill": "andromeda-wrap-session",
+   "step": "curation",
+   "chunk": null
+  },
+  {
+   "ts": "2026-08-16T16:08:11Z",
+   "kind": "friction",
+   "skill": "andromeda-wrap-session",
+   "step": "curation",
+   "chunk": null
+  }
+ ],
+ "session_starts_new_session": 42,
+ "chunk_null_step_records": {
+  "new-session": 42,
+  "wrap-session": 12
+ },
+ "chunks_covered": 39,
+ "chunks_exact_expected": 36,
+ "coverage_deviations": {
+  "2026-08-21-delegated-timing-observables": {
+   "dev": {
+    "implement": [
+     4,
+     3
+    ]
+   },
+   "extra": {},
+   "all": {
+    "phase": 5,
+    "implement": 4,
+    "wrap-session": 5
+   }
+  },
+  "2026-08-26-cadence-runaway-blocking-pool": {
+   "dev": {
+    "phase": [
+     4,
+     5
+    ]
+   },
+   "extra": {},
+   "all": {
+    "phase": 4,
+    "implement": 3,
+    "wrap-session": 5
+   }
+  },
+  "2026-08-28-duplicate-span-replay-fails-loudly": {
+   "dev": {
+    "implement": [
+     6,
+     3
+    ]
+   },
+   "extra": {},
+   "all": {
+    "phase": 5,
+    "implement": 6,
+    "wrap-session": 5
+   }
+  }
+ },
+ "step_ids_per_skill": {
+  "new-session": {
+   "orientation": 42
+  },
+  "wrap-session": {
+   "route-resolve": 45,
+   "curation": 44,
+   "report": 39,
+   "reconcile": 39,
+   "gates": 40
+  },
+  "phase": {
+   "take-up": 39,
+   "distill": 39,
+   "research": 39,
+   "plan": 38,
+   "validate": 39
+  },
+  "implement": {
+   "code": 40,
+   "fix-loop": 41,
+   "smoke": 40
+  }
+ },
+ "untyped_per_step": {
+  "implement/code": {
+   "untyped": 3,
+   "friction": 40
+  },
+  "implement/fix-loop": {
+   "untyped": 11,
+   "friction": 63
+  },
+  "implement/smoke": {
+   "untyped": 8,
+   "friction": 37
+  },
+  "new-session/orientation": {
+   "untyped": 7,
+   "friction": 42
+  },
+  "phase/distill": {
+   "untyped": 2,
+   "friction": 38
+  },
+  "phase/plan": {
+   "untyped": 6,
+   "friction": 30
+  },
+  "phase/research": {
+   "untyped": 5,
+   "friction": 42
+  },
+  "phase/take-up": {
+   "untyped": 5,
+   "friction": 35
+  },
+  "phase/validate": {
+   "untyped": 1,
+   "friction": 39
+  },
+  "wrap-session/curation": {
+   "untyped": 2,
+   "friction": 37
+  },
+  "wrap-session/gates": {
+   "untyped": 6,
+   "friction": 32
+  },
+  "wrap-session/reconcile": {
+   "untyped": 4,
+   "friction": 43
+  },
+  "wrap-session/report": {
+   "untyped": 3,
+   "friction": 18
+  },
+  "wrap-session/route-resolve": {
+   "untyped": 12,
+   "friction": 36
+  }
+ },
+ "problem_fact_fill": {
+  "populated": 210,
+  "step_records": 564
+ },
+ "id_fill_post_boundary": {
+  "with_id": 850,
+  "post_boundary_records": 850
+ },
+ "retracted": {
+  "ids": [
+   "2026-08-23T22:09:53Z-a"
+  ],
+  "problems": []
+ }
+}

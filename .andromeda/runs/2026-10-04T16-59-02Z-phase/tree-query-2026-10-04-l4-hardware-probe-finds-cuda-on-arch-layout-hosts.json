@@ -1,0 +1,88 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee_name = 'detect_gpu_present' AND callee_kind = 'fn' ORDER BY file, line;",
+"rows": 1,
+"result": [
+{
+"caller": "rust-analyzer cargo interpretation 0.1.0 hardware/detect_real().",
+"file": "crates/interpretation/src/hardware.rs",
+"line": 102
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee_name = 'HardwareProfileDetector' ORDER BY file, line;",
+"rows": 13,
+"result": [
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "crates/interpretation/src/hardware.rs",
+"line": 41
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "crates/interpretation/src/hardware.rs",
+"line": 81
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "crates/interpretation/src/hardware.rs",
+"line": 87
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "crates/interpretation/src/hardware.rs",
+"line": 256
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "crates/interpretation/src/hardware.rs",
+"line": 262
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "crates/interpretation/src/hardware.rs",
+"line": 268
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "crates/interpretation/src/hardware.rs",
+"line": 274
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 49
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 489
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "pulse-app/src/hardware_profile.rs",
+"line": 14
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "pulse-app/src/main.rs",
+"line": 509
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 39
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 hardware/HardwareProfileDetector#",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 95
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

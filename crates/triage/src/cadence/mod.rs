@@ -24,7 +24,10 @@ mod broadcast;
 mod config;
 mod coordinator;
 
-pub use broadcast::{CadenceEvent, CadenceEventBroadcast, STREAM_NAME_CADENCE_EVENTS};
+pub use broadcast::{
+    CadenceEvent, CadenceEventBroadcast, DigestTrigger, DigestTriggerBroadcast,
+    STREAM_NAME_CADENCE_EVENTS,
+};
 pub use config::{
     CADENCE_ACCELERATED_SECONDS_MIN, CADENCE_BASELINE_SECONDS_MIN, CADENCE_REFLECTION_SECONDS_MIN,
     CadenceConfig, CadenceConfigError, DEFAULT_CADENCE_ACCELERATED_SECONDS,
@@ -47,4 +50,4 @@ pub(crate) const TARGET_CADENCE_CONFIG_RELOAD_APPLIED: &str = "cadence.config.re
 // `cadence.config.load` + `cadence.config.safety_floor` are emitted from
 // `pulse-app/src/main.rs` boot wiring (Settings-load path) — string
 // literal at emit site mirrors chunk #62 precedent for emit-only targets
-// owned by а different crate than the consumer.
+// owned by a different crate than the consumer.

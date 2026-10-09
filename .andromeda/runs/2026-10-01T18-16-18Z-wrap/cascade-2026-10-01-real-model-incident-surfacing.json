@@ -1,0 +1,79 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "1550f3bc",
+"ts": "2026-10-01T18:25:27Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline 09d08091 (pre-CI parent — the oldest of 2 pre-CI commit(s), 69f0b930)",
+"stages5 · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:244 (prose)",
+"stagecount · new 0 · standing 2 · leaf 1 · curation 1 · base 0 · control test-plan.md:325 (prose)",
+"lineage · new 0 · standing 2 · leaf 0 · curation 1 · base 0 · control security-plan.md:139 (prose)",
+"prepush-list · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:244 (prose)",
+".claude/rules/verification-harness.md:94 stages5 leaf …erified), then runs `script-modes` · `npm` · `clippy` · `test` ·…",
+".claude/docs/tests-summary.md:88 stages5 leaf …id verified) and runs `script-modes` · `npm` · `clippy` · `test` · `ci-g…",
+".andromeda/test-plan.md:326 stagecount standing edited …d green 2026-09-29 (5/5 stages, 2408 → 2411 Linux tests; ~12 mi…",
+".andromeda/test-plan.md:530 stagecount standing …evoke mutation reddens FIVE stages (widget-close, findings-window, rep…",
+".claude/rules/verification-harness.md:129 stagecount curation @c2868/4039 …is guarded by five stages, not one — two of …",
+".claude/rules/testing.md:51 stagecount leaf … capability-revoke is still by hand (one revoke cycle reddens five stages).",
+".andromeda/security-plan.md:139 lineage standing @c1497/2404 … B (sparse-digest v2.2 legs ran 6,386–6,387 B) — session …",
+".andromeda/security-plan.md:458 lineage standing … 2026-08-26 sustained v2.2 range was 6715..=6830 B with the citable-e…",
+".claude/rules/security.md:170 lineage curation … (`§`, `≤`) rode every v2.2 prompt through 3,678 clean generations beca…",
+".andromeda/architecture.md:244 prepush-list standing edited @c12034/15413 …y` · `test` · `ci-gates` in order — six stag…",
+".claude/docs/tests-summary.md:88 prepush-list leaf …· `clippy` · `test` · `ci-gates` in order, first failure stops; exi…",
+"stages5 · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:244 (prose)",
+"stagecount · new 0 · standing 2 · leaf 1 · curation 1 · base 0 · control test-plan.md:325 (prose)",
+"lineage · new 0 · standing 2 · leaf 0 · curation 1 · base 0 · control security-plan.md:139 (prose)",
+"prepush-list · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:244 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "09d08091d392745c38062f0400c2b4bd32a06179",
+"how": "pre-CI parent — the oldest of 2 pre-CI commit(s), 69f0b930",
+"counts": {
+"stages5": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"stagecount": {
+"new": 0,
+"standing": 2,
+"leaf": 1,
+"curation": 1,
+"base": 0
+},
+"lineage": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 1,
+"base": 0
+},
+"prepush-list": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

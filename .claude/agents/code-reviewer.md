@@ -43,7 +43,7 @@ Stack-tailored code reviewer installed by `/andromeda-setup-project` for androme
 - Every OTLP-receiving handler MUST run post-decode invariant checks: `span_id` is 8 bytes, `trace_id` is 16 bytes, attribute keys/values bounded — flag missing checks.
 
 ### Path env var canonicalization (CWE-22 defense)
-- Every `ANDROMEDA_PULSE_*_PATH` / `*_DIR` env var read MUST canonicalize via `strict-path` and assert resolved path under data dir — flag missing canonicalization.
+- Every `ANDROMEDA_PULSE_*_PATH` / `*_DIR` env var read MUST canonicalize via `std` both-sides-canonicalize (the `publish_workspace_key` precedent — the single path primitive since 2026-08-29; `strict-path` dropped, never used) and assert resolved path under data dir — flag missing canonicalization.
 
 ### Tauri capability sync
 - Adding a `#[taurpc::procedure]` REQUIRES corresponding entry in `pulse-app/capabilities/` JSON — flag if not added in same PR.

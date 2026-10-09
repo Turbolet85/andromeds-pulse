@@ -1,0 +1,43 @@
+[[pattern]]
+id = "fixed-frame"
+fixed = 'no WebGPU adapter in this run'
+
+[[pattern]]
+id = "fmt-only"
+regex = 'formatting only|format_markdown` only|bounds formatting|times formatting|formatting, not generation'
+
+[[pattern]]
+id = "adapter-state"
+regex = 'adapter-state (record|event)|no truthful adapter|records no adapter'
+
+[[pattern]]
+id = "owner-perfinst"
+fixed = 'Perf instruments measure what their budgets name'
+
+[[pattern]]
+id = "roster-5"
+regex = 'roster 4 → 5|5th `TelemetryApi`|(five|5) `?telemetry\.frontend|telemetry\.frontend\.\*`? \((five|5)'
+
+[[pattern]]
+id = "close-unspec"
+regex = 'not yet specified|needs a close (that )?read'
+
+[[pattern]]
+id = "bare-list"
+fixed = 'npx playwright test --list'
+
+[[pattern]]
+id = "cache-onfail"
+regex = 'save(s)? on failure|cache-on-failure'
+
+[[pattern]]
+id = "pin-15"
+regex = 'pinned by 15|15 unit tests|15 pins'
+
+[[pattern]]
+id = "gpu-undef"
+regex = 'if `navigator\.gpu` is undefined|when `navigator\.gpu` is undefined'
+
+[[pattern]]
+id = "no-adapter-ci"
+regex = 'no WebGPU adapter under|exposed no WebGPU adapter'

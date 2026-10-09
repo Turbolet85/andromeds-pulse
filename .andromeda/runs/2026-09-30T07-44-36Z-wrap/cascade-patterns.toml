@@ -1,0 +1,15 @@
+[[pattern]]
+id = 'drift-last'
+regex = 'capability-drift[^|]{0,80}\bLAST\b'
+
+[[pattern]]
+id = 'runs-last'
+fixed = 'runs LAST'
+
+[[pattern]]
+id = 'crate-count'
+regex = 'twelve library crates|fourteen workspace members'
+
+[[pattern]]
+id = 'module-12'
+fixed = '12-module'

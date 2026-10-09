@@ -30,6 +30,7 @@
 //!   migration
 
 pub mod contract;
+pub mod disposition;
 
 pub(crate) mod db;
 pub(crate) mod encryption;

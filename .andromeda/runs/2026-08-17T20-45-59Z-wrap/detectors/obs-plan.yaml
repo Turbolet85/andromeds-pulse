@@ -1,0 +1,15 @@
+- id: D-obs-instrumentation
+  doc: obs-plan
+  invariant: new hot-path operations the chunk adds carry the spans / metrics / logs §4–§6 require.
+  check: agent-read — for each new operation symbol in the report, confirm instrumentation per §4 / §5 / §6; an uninstrumented hot path is drift.
+  severity: warning
+- id: D-obs-stack
+  doc: obs-plan
+  invariant: the logging / telemetry library the chunk uses matches the obs harness §3.
+  check: agent-read — compare the report's telemetry Dependencies / symbols against §3; an off-spec logger or OTel setup is drift.
+  severity: warning
+- id: D-obs-pii
+  doc: obs-plan
+  invariant: the chunk does not log raw user input / PII (§8 PII Scrubbing).
+  check: agent-read — if the report adds logging that touches user data, confirm redaction per §8; raw PII in logs is drift.
+  severity: escalate

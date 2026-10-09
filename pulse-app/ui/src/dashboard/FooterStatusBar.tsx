@@ -4,6 +4,8 @@
 // Empty in chunk #33 — control population (time-range picker, service filter,
 // read-only ingest/error indicators) lands in chunks #34/#35.
 
+import { ConnectionStatusLine } from "./ConnectionStatusLine";
+
 export function FooterStatusBar() {
   return (
     <footer
@@ -21,6 +23,8 @@ export function FooterStatusBar() {
         fontFamily: "var(--font-body)",
         fontSize: "12px",
       }}
-    />
+    >
+      <ConnectionStatusLine />
+    </footer>
   );
 }

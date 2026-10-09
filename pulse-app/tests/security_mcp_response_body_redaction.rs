@@ -5,18 +5,18 @@
 //! MCP tool response bodies") + obs-plan §5 Section 5 Vector 4:
 //!
 //! Spawn the `andromeda-pulse-mcp` rmcp sidecar subprocess (feature-gated by
-//! `mcp-server` per chunk #50 precedent), invoke а `query_traces` JSON-RPC
+//! `mcp-server` per chunk #50 precedent), invoke a `query_traces` JSON-RPC
 //! tool call, capture the sidecar's stderr (JSON-formatted `tracing` output
 //! per obs-plan §3 sidecar discipline), and assert the captured stderr does
-//! NOT contain а verbatim copy of the response body — only structured
+//! NOT contain a verbatim copy of the response body — only structured
 //! metadata fields (`result_type` / `result_count` / etc.) per the
 //! redaction discipline.
 //!
 //! Note: this test extends the chunk #49 e2e_p3 sidecar-subprocess precedent.
-//! The sidecar boots с its OWN ephemeral DuckDB; query_* tools return empty
+//! The sidecar boots with its OWN ephemeral DuckDB; query_* tools return empty
 //! `items` per the e2e_p3 docstring. The test's negative-canary discipline
 //! is that EVEN the empty response shape doesn't surface the raw response
-//! object в stderr tracing — only the structured-metadata form.
+//! object in stderr tracing — only the structured-metadata form.
 
 #![cfg(feature = "mcp-server")]
 
@@ -41,9 +41,9 @@ fn sidecar_binary_path() -> std::path::PathBuf {
     target_dir.join(binary_name)
 }
 
-/// Spawn the sidecar, send а JSON-RPC tools/call request, collect both the
+/// Spawn the sidecar, send a JSON-RPC tools/call request, collect both the
 /// JSON-RPC response on stdout AND any tracing output on stderr (the sidecar
-/// writes tracing JSON к stderr per obs-plan §3 sidecar discipline).
+/// writes tracing JSON to stderr per obs-plan §3 sidecar discipline).
 async fn spawn_and_collect(
     tmp_path: &std::path::Path,
     request_id: u64,
@@ -118,8 +118,8 @@ async fn mcp_query_traces_stderr_does_not_leak_response_body_verbatim() {
     .await;
 
     // The JSON-RPC response body shape. Per the e2e_p3 docstring, query_traces
-    // returns empty `items` because the sidecar boots с its own ephemeral
-    // DuckDB. Verify the shape is а valid JSON-RPC envelope с а result или
+    // returns empty `items` because the sidecar boots with its own ephemeral
+    // DuckDB. Verify the shape is a valid JSON-RPC envelope with a result or
     // an error.
     assert!(
         parsed.get("result").is_some() || parsed.get("error").is_some(),
@@ -128,12 +128,12 @@ async fn mcp_query_traces_stderr_does_not_leak_response_body_verbatim() {
 
     // The KEY redaction invariant per security plan §Anti-Pattern Logging row 1
     // + obs-plan §5 Vector 4: the FULL response body MUST NOT appear verbatim
-    // в stderr tracing. Serialize the response to its byte representation
+    // in stderr tracing. Serialize the response to its byte representation
     // and grep stderr for the substring.
     let response_serialized = serde_json::to_string(&parsed).expect("serialize response");
 
     // The full serialized response (~50-200 bytes for empty result) should not
-    // appear verbatim в the stderr tracing stream.
+    // appear verbatim in the stderr tracing stream.
     assert!(
         !stderr.contains(&response_serialized),
         "stderr tracing leaked verbatim MCP response body per Vector 4. \
@@ -141,31 +141,31 @@ async fn mcp_query_traces_stderr_does_not_leak_response_body_verbatim() {
         stderr.chars().take(2000).collect::<String>()
     );
 
-    // Stronger: if the response carries а `content` / `result_content` /
+    // Stronger: if the response carries a `content` / `result_content` /
     // `text` field (rmcp tool-result frame), assert that specific field's
-    // value substring is NOT в stderr. Empty-items result is ~"[]" string;
+    // value substring is NOT in stderr. Empty-items result is ~"[]" string;
     // exercise the assertion for whatever shape rmcp emits.
-    if let Some(result) = parsed.get("result") {
-        if let Some(content) = result.get("content") {
-            let content_serialized = serde_json::to_string(content).expect("serialize content");
-            // For empty content this may be "[]" which trivially appears in
-            // most stderr — skip the assertion if content is empty array.
-            if content_serialized != "[]" && content_serialized.len() > 4 {
-                assert!(
-                    !stderr.contains(&content_serialized),
-                    "stderr tracing leaked verbatim MCP result.content per Vector 4. \
+    if let Some(result) = parsed.get("result")
+        && let Some(content) = result.get("content")
+    {
+        let content_serialized = serde_json::to_string(content).expect("serialize content");
+        // For empty content this may be "[]" which trivially appears in
+        // most stderr — skip the assertion if content is empty array.
+        if content_serialized != "[]" && content_serialized.len() > 4 {
+            assert!(
+                !stderr.contains(&content_serialized),
+                "stderr tracing leaked verbatim MCP result.content per Vector 4. \
                      content: {content_serialized}\n stderr (truncated): {}",
-                    stderr.chars().take(2000).collect::<String>()
-                );
-            }
+                stderr.chars().take(2000).collect::<String>()
+            );
         }
     }
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn mcp_invalid_tool_call_stderr_does_not_leak_full_request_arguments() {
-    // Send а tool call с а distinctive canary marker в the `arguments` field
-    // к а valid tool that will likely reject the unrecognized argument shape.
+    // Send a tool call with a distinctive canary marker in the `arguments` field
+    // to a valid tool that will likely reject the unrecognized argument shape.
     // The sidecar's tracing of the error MUST NOT echo the verbatim arguments
     // value into stderr — only structured error type + tool name metadata.
     let tmp = tempfile::tempdir().expect("tempdir");
@@ -183,7 +183,7 @@ async fn mcp_invalid_tool_call_stderr_does_not_leak_full_request_arguments() {
     )
     .await;
 
-    // The response may be а successful envelope (rmcp ignores extra fields)
+    // The response may be a successful envelope (rmcp ignores extra fields)
     // OR an error. Either way, stderr MUST NOT contain the canary verbatim
     // per security plan §Anti-Pattern Logging row 1 + Vector 4 discipline
     // (response/request bodies are not loggable verbatim).

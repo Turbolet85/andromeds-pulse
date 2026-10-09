@@ -1,7 +1,7 @@
 //! Storm observer adapter — chunk #66.
 //!
 //! Bridges `buffer::fingerprint::FingerprintObserver` (trait declared in
-//! the lower buffer crate) к `triage::pattern::storm::observe_and_dispatch_storm`
+//! the lower buffer crate) to `triage::pattern::storm::observe_and_dispatch_storm`
 //! (chunk #66 retry-storm dispatch helper). Lives at the pulse-app binary
 //! boundary per arch §Cross-cutting Patterns Module dependency direction —
 //! preserves the DAG flow (deps flow toward pulse-app; library crates
@@ -49,42 +49,5 @@ impl FingerprintObserver for StormObserverAdapter {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use triage::contract::{AttentionCueBroadcast, CueKind, PriorityTier, RetryStormDetector};
-
-    const NANOS_PER_SEC: i64 = 1_000_000_000;
-    const FP: [u8; 16] = [0xCC; 16];
-
-    fn fresh_detector() -> Arc<RetryStormDetector> {
-        Arc::new(RetryStormDetector::new(60, 30, 5, 10))
-    }
-
-    #[test]
-    fn storm_adapter_dispatches_observe_fingerprint_to_detector() {
-        let detector = fresh_detector();
-        let broadcast = Arc::new(AttentionCueBroadcast::new());
-        let mut rx = broadcast.subscribe();
-        let adapter = StormObserverAdapter::new(Arc::clone(&detector), Arc::clone(&broadcast));
-
-        for i in 0..5 {
-            let ts = (1_000 + i) * NANOS_PER_SEC;
-            adapter.on_fingerprint(FP, "svc", ts);
-        }
-
-        let cue = rx.try_recv().expect("Suggested cue broadcast");
-        assert_eq!(cue.kind, CueKind::RetryStorm);
-        assert_eq!(cue.priority_tier, PriorityTier::Suggested);
-        assert_eq!(detector.storms_detected_total(), 1);
-    }
-
-    #[test]
-    fn storm_adapter_can_be_held_as_dyn_fingerprint_observer() {
-        let detector = fresh_detector();
-        let broadcast = Arc::new(AttentionCueBroadcast::new());
-        let observer: Arc<dyn FingerprintObserver> =
-            Arc::new(StormObserverAdapter::new(detector, broadcast));
-        observer.on_fingerprint(FP, "svc", 1_000 * NANOS_PER_SEC);
-    }
-}
+// Tests migrated to `pulse-app/tests/unit_span_observers.rs` — a src-level `mod tests`
+// compiles but never runs under `[lib] test = false` (2026-05-20 precedent).

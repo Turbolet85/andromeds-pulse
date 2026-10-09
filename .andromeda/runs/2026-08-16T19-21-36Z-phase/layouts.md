@@ -1,0 +1,40 @@
+# layouts extract
+
+## Relevance
+**Partial** — the two decisions are backend semantics, but Layer 2's open research question #2 (Findings window, unread badge, per-service constellation severity join) lands directly on layout-templates' desktop-webview surfaces; Layer 1 has no layout surface.
+
+## Constraints
+- The Findings window is a separate borderless always-on-top disclosure window docked below the compact widget (positioned from the widget's live geometry, work-area/multi-monitor clamped), opened from the compact-widget unread badge, and **must size itself to the incident count** — fits the rows, caps ~8, then the list scrolls (per layout-templates §Surface: desktop-webview → Primary screens, Findings window). If Layer 2 lands **incident-per-identity**, per-service incident count can exceed 1 and this sizing/clamping mandate must still hold; whether the current code's geometry math already tolerates >1 concurrent incident per service is research's question.
+- Selecting a findings row must open the Report window — the six-section `Report` in the `Modal` **`fill`** variant (edge-to-edge on `--color-base`, no backdrop), positioned left of the findings window and clamped (per layout-templates §Primary screens, Report window). A second concurrent incident for one service must still resolve row → report 1:1.
+- The constellation hero renders **one dot per service** with always-on per-dot name + severity-token labels (P-069) (per layout-templates §Wireframe — Full dashboard (Traces primary screen) notes; §Component — Halo State Pulse canvas). The `scope_id` severity join must therefore collapse to a single severity per dot — no duplicate dots, no double-count.
+- The compact widget is a **fixed quarter-screen** surface with no CSS media-query breakpoints and no reflow (per layout-templates §IA notes → Responsive behavior). An unread-badge count change from Layer 2 may not resize or reflow the widget.
+- The Traces route is a flex column **bounded to the shell's `main` height** (`overflow:hidden`) so the dashboard shows **no outer page scrollbar at any window size** — only the table's own bounded region scrolls, with fixed (`flex-shrink:0`) hero + toolbar above it (per layout-templates §Wireframe — Full dashboard (Traces primary screen); §Component — Trace data table → Internal scroll region, P-082).
+- Any incident list is a user-facing data list: the **error variant must be checked BEFORE the empty branch**, with a static message (never the raw `AppError`) and no exporter hint, so a failure never masquerades as "no data" (per layout-templates §Component — Empty / error state; note that § scopes its `EmptyState` to the Metrics/Logs/Snapshots data views).
+
+## Patterns to follow
+- Findings rows **reuse the P-080 FindingsDropdown row content** on the opaque `--color-raised-2` popover surface (per layout-templates §Primary screens, Findings window) — a Layer 2 identity change should flow through that existing row component, not a new one.
+- One shared component backing several surfaces so they "read as one system" (the shared `EmptyState` across Metrics/Logs/Snapshots) (per layout-templates §Component — Empty / error state).
+- Fixed regions stacked above a single internally-scrolling region (`flex-shrink:0` hero + toolbar; `flex:1 / min-height:0 / overflow-y:auto` list with sticky opaque `color-base` header) (per layout-templates §Component — Trace data table → Internal scroll region).
+- Right-aligned `aria-pressed` toggle in its own toolbar row directly above a list, to narrow it (the `Errors only` toggle) — the established precedent should incident-per-identity ever need list narrowing (per layout-templates §Component — Trace data table → Filter toolbar).
+- **Sketch-lag handoff pattern**: ASCII wireframes are allowed to lag current truth and are corrected by a *future targeted touch-up*, not folded into unrelated work (per layout-templates §Primary screens, Findings window parenthetical; §Wireframe — Full dashboard notes, P-070/P-082 handoff).
+
+## Anti-patterns to avoid
+- Do **not** reintroduce an in-widget upward popover for incidents — layout-templates §Primary screens (Findings window) requires the separate floating window and records the in-widget popover as the *replaced* interim.
+- Do **not** let a larger incident set grow the compact widget or introduce an outer page scrollbar on the dashboard (per layout-templates §IA notes → Responsive behavior; §Wireframe — Full dashboard (Traces primary screen), P-082 bounded route).
+- Do **not** render raw `AppError` text or let a query failure present as an empty/zero-incident state (per layout-templates §Component — Empty / error state).
+
+## Contract bindings
+- **a11y** — Findings window is opened from the compact-widget unread badge and the Report window is a `Modal` variant: modal/disclosure focus semantics (Escape dismiss + restore focus to the invoking badge/row) are a11y's §Modal focus trap; layouts only fixes placement and the focus-order position of the badge → row → report chain.
+- **design** — per-dot severity **tokens** on the constellation hero, and the "never color alone" discipline for incident/error signalling, are design-owned; layouts fixes only that one dot carries one severity label.
+- **Layer 2 backend decision** — the findings row → Report window 1:1 mapping binds to whichever incident key the chunk decides (`(kind, scope, scope_id)` vs. adding `fingerprint`); the layout mandates above are the downstream surfaces that research question #2 must evaluate against.
+
+## Acceptance criteria contributions
+- With two concurrent incidents on one service, the Findings window still sizes to the incident count (fits rows, caps ~8 then the list scrolls) and stays docked below the compact widget, work-area/multi-monitor clamped (per layout-templates §Surface: desktop-webview → Primary screens, Findings window).
+- The constellation hero renders exactly one dot per service with one always-on name + severity-token label under the decided semantic — no duplicate dots and no double-counted severity from the `scope_id` join (per layout-templates §Wireframe — Full dashboard (Traces primary screen); §Component — Halo State Pulse canvas).
+- Selecting a findings row opens exactly one Report window in the `Modal` `fill` variant, positioned left of the findings window and clamped (per layout-templates §Primary screens, Report window).
+- The compact-widget unread badge reflects the decided incident count without reflowing the fixed quarter-screen widget, and the Traces route still shows no outer page scrollbar at any window size (per layout-templates §IA notes → Responsive behavior; §Wireframe — Full dashboard (Traces primary screen), P-082).
+
+## Relevant amendment history
+- **2026-07-10-incidents-floating-window-disclosure** — added the Findings window and the Report window to §Primary screens (findings sizes to incident count, reuses P-080 row content, replaces the interim in-widget popover; report uses the new `Modal` `fill` variant, positioned relative to findings). *Why relevant:* these are precisely the surfaces Layer 2's "what would the UI incident list do?" question interrogates, and they were registered as current truth only one month before this chunk. **ASCII wireframes were deliberately deferred** for both, so this chunk has no wireframe to check against — only the prose mandates.
+- **2026-07-09-traces-table-layout-polish** — registered the bounded/internal-scroll Traces route (P-082) and the `Errors only` toolbar (P-068), and recorded the HANDOFF that the hero's per-dot labels (P-069) remain illustrative-lag in the ASCII. *Why relevant:* the per-dot severity-label truth that the `scope_id` join feeds lives in the prose, not the sketch — read the notes, not the ASCII.
+- **2026-07-08-self-explaining-empty-states** — added the shared `EmptyState` §Component with the honest-error-before-empty ordering. *Why relevant:* precedent for how a zero-row or failed-load incident list must read; note its stated applies-to is the Metrics/Logs/Snapshots data views, so extending it to the findings list would itself be a layout decision.

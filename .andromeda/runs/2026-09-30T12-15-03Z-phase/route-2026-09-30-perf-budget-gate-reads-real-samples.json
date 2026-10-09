@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T12:16:41Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-09-30-perf-budget-gate-reads-real-samples",
+"--expect-prefix",
+"Perf-budget gate reads real samples",
+"--record-file",
+".andromeda/runs/2026-09-30T12-15-03Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-09-30T12-15-03Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:140 - [2026-09-30-perf-budget-gate-reads-real-samples]",
+"record master-route.md:83 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-09-30-perf-budget-gate-reads-real-samples - working-route:140 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\working-route.md",
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+}
+]

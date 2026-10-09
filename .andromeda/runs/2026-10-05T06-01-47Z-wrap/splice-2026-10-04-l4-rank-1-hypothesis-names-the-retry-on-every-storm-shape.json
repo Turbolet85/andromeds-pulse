@@ -1,0 +1,164 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T06:11:16Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap/architecture-entry.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+11 at line 691 · lines 690→701 · bytes 100491→102842 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T06-01-47Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 690,
+"bytes": 100491,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 701,
+"bytes": 102842
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T06:11:16Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap/security-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 523 · lines 522→528 · bytes 96881→97956 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T06-01-47Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 522,
+"bytes": 96881,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 528,
+"bytes": 97956
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T06:11:16Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap/test-plan-entry.md",
+"--lines",
+"8",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+8 at line 599 · lines 598→606 · bytes 101885→103279 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T06-01-47Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 598,
+"bytes": 101885,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 606,
+"bytes": 103279
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T06:13:36Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap/route-insert.md",
+"--lines",
+"2",
+"--after-line",
+"169",
+"--expect-last-prefix",
+"   ↓",
+"--if-absent-prefix",
+"L4 runs on a small current model",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append working-route.md:+2 at line 170 · lines 170→172 · bytes 26807→28707 · term lf",
+"last line now: pre-push:linux runs natively on Linux — the local Linux pre-push check runs on"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 170,
+"bytes": 26807,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 172,
+"bytes": 28707
+}
+}
+]

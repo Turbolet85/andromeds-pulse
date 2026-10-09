@@ -1,0 +1,19 @@
+[[pattern]]
+id = "wt-4803"
+fixed = '48.0.3'
+
+[[pattern]]
+id = "cl-01353"
+fixed = '0.135.3'
+
+[[pattern]]
+id = "wt-4901-r196"
+fixed = '49.0.1'
+
+[[pattern]]
+id = "resolved"
+regex = 'lockfile-resolved|resolved \*{0,2}4[0-9]\.[0-9]'
+
+[[pattern]]
+id = "wt-sweep"
+regex = 'wasmtime[` ]+(v?4[0-9]|48\.x|25\+)'

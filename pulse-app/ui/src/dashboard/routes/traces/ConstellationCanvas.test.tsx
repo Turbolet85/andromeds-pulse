@@ -30,15 +30,26 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+// The component reads Date.now() at render for the recency gate (P-067), so
+// fixtures are dated relative to it: 20s ago is comfortably live (< 60s
+// window, with slack for the test-file duration), 2min ago is stale.
+const LIVE_OFFSET_NANOS = 20 * 1_000_000_000;
+const STALE_OFFSET_NANOS = 120 * 1_000_000_000;
+
+function nowNano(): number {
+  return Date.now() * 1_000_000;
+}
+
 function item(
   service: string,
   state: ServiceLifecycleState,
   priorityTier: ServiceListItem["priority_tier"] = null,
+  lastSeenUnixNano: number = nowNano() - LIVE_OFFSET_NANOS,
 ): ServiceListItem {
   return {
     service,
     state,
-    last_seen_unix_nano: 1_000,
+    last_seen_unix_nano: lastSeenUnixNano,
     manual_override: null,
     priority_tier: priorityTier,
   };
@@ -47,22 +58,42 @@ function item(
 const ITEMS: ServiceListItem[] = [item("svc-a", "active", "autonomous"), item("svc-b", "quiet")];
 
 describe("ConstellationCanvas (dashboard)", () => {
-  it("renders a <section> region (implicit role) with the summary as accessible name", async () => {
+  it("renders a <section> region (implicit role) under the STABLE landmark name", async () => {
     render(<ConstellationCanvas items={ITEMS} />);
-    const wrapper = await screen.findByRole("region", {
-      name: /Service constellation: 2 services/,
-    });
+    // a11y-plan §7 names this landmark literally. The name must NOT vary with
+    // the data — a mutating landmark name churns the screen-reader rotor.
+    const wrapper = await screen.findByRole("region", { name: "Telemetry traces chart" });
     expect(wrapper.tagName).toBe("SECTION");
     expect(wrapper.hasAttribute("role")).toBe(false);
+    expect(wrapper.getAttribute("aria-label")).toBe("Telemetry traces chart");
   });
 
-  it("conveys per-state counts + active findings in the accessible name (not color-alone)", () => {
+  it("conveys per-state counts + active findings via the description (not color-alone)", () => {
     render(<ConstellationCanvas items={ITEMS} />);
     const wrapper = screen.getByTestId("constellation-canvas");
-    const label = wrapper.getAttribute("aria-label") ?? "";
-    expect(label).toContain("1 active");
-    expect(label).toContain("1 quiet");
-    expect(label).toContain("1 with active findings");
+    // The live summary survives the stable-name change — it moved from the
+    // name to an aria-describedby target, so the information is still exposed.
+    const describedBy = wrapper.getAttribute("aria-describedby") ?? "";
+    expect(describedBy).not.toBe("");
+    const summary = document.getElementById(describedBy);
+    expect(summary).not.toBeNull();
+    const text = summary?.textContent ?? "";
+    expect(text).toContain("Service constellation: 2 services");
+    expect(text).toContain("1 active");
+    expect(text).toContain("1 quiet");
+    expect(text).toContain("1 with active findings");
+  });
+
+  it("labels each visible dot with its service name and a non-color severity token (P-069)", () => {
+    render(<ConstellationCanvas items={ITEMS} />);
+    // Names + severity are DOM text (not canvas-only) → SR- and agent-reachable.
+    expect(screen.getByTestId("constellation-labels")).toBeTruthy();
+    expect(screen.getByText("svc-a")).toBeTruthy();
+    expect(screen.getByText("svc-b")).toBeTruthy();
+    // Severity carried by a text token, not hue alone (SC 1.4.1): svc-a is
+    // autonomous, svc-b (null tier) reads "healthy".
+    expect(screen.getByText("autonomous")).toBeTruthy();
+    expect(screen.getByText("healthy")).toBeTruthy();
   });
 
   it("exposes the visible-dot count via data-service-count", () => {
@@ -73,6 +104,42 @@ describe("ConstellationCanvas (dashboard)", () => {
   it("hides Archived services from the dot count", () => {
     render(<ConstellationCanvas items={[item("svc-a", "active"), item("svc-z", "archived")]} />);
     expect(screen.getByTestId("constellation-canvas").getAttribute("data-service-count")).toBe("1");
+  });
+
+  it("shows no live services when every service is stale (zero live telemetry — P-067)", async () => {
+    const stale = [
+      item("svc-a", "active", "autonomous", nowNano() - STALE_OFFSET_NANOS),
+      item("svc-b", "quiet", null, nowNano() - STALE_OFFSET_NANOS),
+    ];
+    render(<ConstellationCanvas items={stale} />);
+    const wrapper = await screen.findByRole("region", { name: "Telemetry traces chart" });
+    expect(wrapper.getAttribute("data-service-count")).toBe("0");
+    expect(screen.getByTestId("constellation-summary").textContent).toContain(
+      "no active services",
+    );
+  });
+
+  it("ages out a service that goes quiet past the live window (now recomputed each render)", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      // 55s ago → live (within the 60s window).
+      const items = [item("svc-a", "active", null, nowNano() - 55 * 1_000_000_000)];
+      const { rerender } = render(<ConstellationCanvas items={items} />);
+      const wrapper = screen.getByTestId("constellation-canvas");
+      expect(wrapper.getAttribute("data-service-count")).toBe("1");
+
+      // Advance 15s → the same service is now 70s stale (past the window). A
+      // re-render must recompute Date.now() (not cache it at mount) to drop it.
+      vi.setSystemTime(Date.now() + 15_000);
+      rerender(<ConstellationCanvas items={items} />);
+
+      expect(wrapper.getAttribute("data-service-count")).toBe("0");
+      expect(screen.getByTestId("constellation-summary").textContent).toContain(
+        "no active services",
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("renders Fallback (no canvas) when the WebGPU adapter is unavailable", async () => {
@@ -90,7 +157,24 @@ describe("ConstellationCanvas (dashboard)", () => {
 
   it("handles empty items without crashing", async () => {
     render(<ConstellationCanvas items={[]} />);
-    const wrapper = await screen.findByRole("region", { name: /no active services/ });
+    const wrapper = await screen.findByRole("region", { name: "Telemetry traces chart" });
     expect(wrapper.getAttribute("data-service-count")).toBe("0");
+    expect(screen.getByTestId("constellation-summary").textContent).toContain(
+      "no active services",
+    );
+  });
+
+  it("keeps an always-on label for every dot after collision-avoidance (P-069)", () => {
+    const items = [
+      item("alpha", "active"),
+      item("bravo", "active"),
+      item("charlie", "active"),
+      item("delta", "active"),
+    ];
+    render(<ConstellationCanvas items={items} />);
+    expect(screen.getByTestId("constellation-labels")).toBeTruthy();
+    for (const name of ["alpha", "bravo", "charlie", "delta"]) {
+      expect(screen.getByText(name)).toBeTruthy();
+    }
   });
 });

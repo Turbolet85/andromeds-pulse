@@ -1,0 +1,94 @@
+[
+{
+"sql": "SELECT caller_name, callee_name, file, line FROM calls WHERE callee_name IN ('init','install_panic_hook','log_basename','resolve_data_dir','write_pid_file','emit_boot_spans') AND callee_crate = 'pulse-app' ORDER BY callee_name, file, line",
+"rows": 14,
+"result": [
+{
+"caller_name": "main",
+"callee_name": "emit_boot_spans",
+"file": "pulse-app/src/main.rs",
+"line": 295
+},
+{
+"caller_name": "main",
+"callee_name": "init",
+"file": "pulse-app/src/main.rs",
+"line": 292
+},
+{
+"caller_name": "p003_panic_propagates_to_receiver_panicked_broadcast_within_2s",
+"callee_name": "init",
+"file": "pulse-app/tests/e2e_p003_panic_hook_propagation.rs",
+"line": 50
+},
+{
+"caller_name": "perf_budget_samples_are_produced_by_the_real_pipeline",
+"callee_name": "init",
+"file": "pulse-app/tests/perf_budget_samples.rs",
+"line": 114
+},
+{
+"caller_name": "init",
+"callee_name": "install_panic_hook",
+"file": "pulse-app/src/observability.rs",
+"line": 2648
+},
+{
+"caller_name": "write_pid_file",
+"callee_name": "log_basename",
+"file": "pulse-app/src/main.rs",
+"line": 229
+},
+{
+"caller_name": "write_pid_file",
+"callee_name": "log_basename",
+"file": "pulse-app/src/main.rs",
+"line": 231
+},
+{
+"caller_name": "write_pid_file",
+"callee_name": "log_basename",
+"file": "pulse-app/src/main.rs",
+"line": 245
+},
+{
+"caller_name": "init",
+"callee_name": "log_basename",
+"file": "pulse-app/src/observability.rs",
+"line": 2660
+},
+{
+"caller_name": "log_basename_returns_filename_only",
+"callee_name": "log_basename",
+"file": "pulse-app/tests/observability_pins.rs",
+"line": 353
+},
+{
+"caller_name": "log_basename_returns_filename_only",
+"callee_name": "log_basename",
+"file": "pulse-app/tests/observability_pins.rs",
+"line": 359
+},
+{
+"caller_name": "log_basename_returns_filename_only",
+"callee_name": "log_basename",
+"file": "pulse-app/tests/observability_pins.rs",
+"line": 364
+},
+{
+"caller_name": "main",
+"callee_name": "resolve_data_dir",
+"file": "pulse-app/src/main.rs",
+"line": 291
+},
+{
+"caller_name": "main",
+"callee_name": "write_pid_file",
+"file": "pulse-app/src/main.rs",
+"line": 294
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

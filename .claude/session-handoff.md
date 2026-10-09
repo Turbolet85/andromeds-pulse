@@ -1,81 +1,81 @@
 # Session Handoff
 
-**Last Updated:** 2026-06-12T19:46:30Z
-**Branch:** main
-**Session End Status:** clean (session 186 — post-route-complete maintenance wrap: /andromeda-setup-project --delta propagated both chunk #100 capability-spec amendments (commit `aae34e5`) → `git push origin main` (30078fd..aae34e5) → THIS wrap archives both amendments + heals State H + fixes a bindings.ts staged-staleness defect found by the wrap's own test pass)
-**Last Commit:** `<session 186 wrap commit — pending this wrap: chore(wrap): session 186>` (prior HEAD: `aae34e5` chore(setup-project): delta-rerun for 2 amendments)
+**Last Updated:** 2026-10-09T08:20:29Z
+**Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (this wrap's commit and its push follow it)
+**Status:** clean
+**Last Commit:** 0-pending wrap — chore(route): operator-requested adaptation, 0.3.0 closed as it stands (after `18a872d`)
 
-## Current State
+## Position
+- **Done:** andromeda-pulse 0.3.0 is closed as it stands, on the founder's ruling of 2026-10-09 (his pick «Закрыть
+  как есть (Рекомендую)», relayed verbatim by the pc overseer). Master reads 83 of 83 complete, the matrix 22 of 22
+  verified, the working route 0 markerless and 0 gated: version-done by the letters, with no chunk of its own.
+- **Next:** `/andromeda-route` for the next version, when the founder says so. Its Phase A intake dispositions the 15
+  `open` lines of `.andromeda/residuals.md`.
+- **The founder's own hand, not done here:** PR #39 (`chore/migrate-pulse-to-v3` into `main`) is merged by him at the
+  close (his ruling of 2026-10-07 12:14). This wrap did not merge it, mark it ready or rebase it. No tag, no release,
+  no version bump.
 
-- **Route:** **100/100 chunks implemented — COMPLETE** (since session 185; commit_sha for chunk #100 healed to `21d4de5` this wrap).
-- **Next chunk:** (none — route exhausted).
-- **In-progress phase:** none (`in_progress: null`).
-- **Spec amendments:** **0 active** — the P-017 + P-008 capability-spec pair completed its full lifecycle this session (applied 185 → noted 185 → propagated `aae34e5` → archived THIS wrap; archive 88 → 90).
-- **Origin:** pushed through `aae34e5` (30078fd..aae34e5). ⚠️ This wrap's commit (bindings fix + ecosystem) needs a `git push` — see Key Decision 1: origin's `21d4de5`/`aae34e5` carry a stale no-mcp `bindings/index.ts` that FAILS the `cargo xtask capability-drift` CI gate until this wrap's commit is pushed.
-- **v0.2.0 tag gate:** ONLY the chunk #3 release-signing deferreds remain (Azure Key Vault EV cert + Apple Developer ID + GitHub Environment `production-release`). Everything code- and pipeline-side is done.
-- **This session (186):** /andromeda-setup-project --delta (lifecycle-progression-only; empty delta scope; commit `aae34e5`) → git push → /andromeda-wrap-session (THIS): full workspace nextest re-run (caught the bindings staleness) + webview tsc/vitest + curation + reconcile + archive + State H heal.
+## Work done
+- The five markerless entries left the route: three retired unbuilt ("The Linux boot smoke is deterministic", "L4
+  generation records render unredacted", "Model observations without a cue surface quietly"), two carried to the
+  next version as residuals ("Without a GPU, L4 analysis is programmatic" as the report without a model;
+  "pre-push:linux runs natively on Linux" as the local pre-push check without WSL). Their text is copied whole in
+  `.andromeda/runs/2026-10-09T08-07-22Z-wrap/retired-entries.md`.
+- Eleven residual lines appended: the quiet-observations ruling, the two carried entries, the stale doc comment above
+  `select_corpus_matches`, and seven known limits of 0.3.0 (the boot smoke, the half-hour digest's rate, commits in
+  the digest, the MCP telemetry tools, what a span keeps, metrics and logs, model grading). The Halo residual's text
+  was corrected (its sketch folder is gone) and it stays `open`.
+- The dispositions, the authority behind each and every re-derived relay claim: that run dir's
+  `adaptation-record.md`.
 
-## Andromeda State Detection (states A-K)
+## Drift resolved
+- No report and no fan-out on this path. Five amendments recording facts this wrap produced or measured
+  (architecture, design-system, layout-templates, test-plan with one key file, obs-plan), each with its sidecar
+  entry; eight leaf passages re-derived; the sweep's rows are in that run dir's `cascade-dispositions.md`.
 
-- **All clear.** H healed THIS wrap (commit_sha "pending" → `21d4de5`, HEAD-reachable). E does not fire (route complete — no next chunk to plan). A–D, F, G, I–K clear; I clear specifically because both amendments completed their lifecycle (no pending propagation).
+## Notes
+- **Five master citations stand wrong, known and left on the operator's word:** `architecture.md:242` cites
+  `agent-run.sh:22` and `agent-run.ps1:15` (the reads are at `:29` and `:24`), `architecture.md:243` cites
+  `agent-run.sh:23` and `agent-run.ps1:16` (`:30` and `:25`), `test-plan.md:493` cites `xtask/src/main.rs:174`
+  (`:306`). The 0-pending path runs no citation sweep; the first sweep is the next chunk wrap's, and
+  `first-sweep-read.md` in this wrap's run dir holds the reading.
+- **`architecture-amendments.md` is past the whole-read bound** (121,849 B against 120,000 B): a history read goes
+  through its index. A consolidation would not shrink it (set 0, nothing prunable). `test-plan-amendments.md`
+  118,000 B, `security-plan-amendments.md` 112,285 B.
+- **The next dashboard will nudge an evolve diagnosis of Epoch 4** (complete now; only an epoch-to-date diagnosis
+  exists). It is the founder's to invoke.
+- **The Halo residual's disposition** (`dropped` is the pc overseer's expectation: the next version has no window)
+  belongs to the next version's route intake, on the founder's say-so.
+- **Boot smoke:** the artifact `logs-boot-Linux` (`11504892957`) expires 2026-10-21T19:04:35Z; nothing owns reading
+  it now.
+- **Outside the tree:** `andromeda-pulse-0.4.0-incubator/` (gitignored) holds four files; `signature-orb/` is gone.
+  The captures were deleted on 2026-10-08 (the operator's word). Conductor 0.3.0 is closed at `97dea7f` (the
+  operator's word; that sha is its HEAD).
+- **Host:** ports 4317/4318 are shared with conductor-builder: ask the operator before any run that binds them. A
+  failed job's log reads through `gh api --allow-escape-sequences repos/{owner}/{repo}/actions/jobs/{id}/logs`. The
+  cwd guard refuses a leading `cd` out of the project: use a `( cd DIR && … )` subshell. `grep` is ugrep here and
+  refuses a bounded-repeat window.
+- **Pre-existing tool verdicts (seen again):** `route.py` UNPARSED/INDETERMINATE on frozen lines 52–125;
+  `matrix.py` `UNPARSED: P-072 — legacy notes placement`.
+- **Carried, not re-read this wrap** (the operator's word: it keeps riding the handoff): `test-plan-amendments.md`
+  carries one UNRESOLVED `Supersedes` (and `a11y-plan-amendments.md` one, as `sidecar.py summary` printed at this
+  wrap); upgrade items U09, U10, U36; CLAUDE.md's pointer-table rows cite `test-plan.md §3` / `§Infrastructure
+  Patterns` through each section's stub line; obs-plan §8 has no row for `interpretation.hardware.detect`; the
+  `contract.jointly-contradictory-instructions` evolve record; the `sidecar.py` Ref defect relayed to overseer1; the
+  `.gitattributes` re-checkout (the founder's hand); `digest.corpus.retrieve`'s `row_count_returned` counts
+  candidates, so no record carries the lines kept after the narrowing; what happens to a critical advisory disclosed
+  before the first release and still open at it (not ruled); `architecture.md:73` still calls Conductor's sixth
+  series "the first live reading" in the future sense.
+- **Last failed command:** none.
 
-## Drift Detection (6 dimensions)
-
-- **All 6 CLEAR.** D1 (reconciled 2026-06-12T19:45:59Z > code mtime 17:58:38Z). D2 (dep-tree 418 zero-diff; api-surface pulse-app fresh-replaced, 30 sub-block markers intact). D3 (no registry delta; capability-drift clean against the CORRECTED bindings). D4 (no plan touched). D5 (no upstream regenerated; amendments archived). D6 (no chunk() commit this session; SHA healed).
-
-## Spec Amendments (this session)
-
-**Archived this session: 2** — `2026-06-12T18-51-27-p017-line-insensitive-fingerprints` + `2026-06-12T18-52-00-p008-root-weighting-model-side` (both: capability-spec §P-017/§P-008 + Changelog v2.1; propagated by `.andromeda/runs/2026-06-12T19-24-54-setup-project-delta/` commit `aae34e5`, EMPTY delta scope per the markers' explicit empty expected_propagation + 0-hit grep-expansion; archived 2026-06-12T19:45:59Z; markers fully ticked ×4). Active list now empty; archive 88 → 90.
-
-## Key Decisions This Session
-
-1. **bindings.ts staged-staleness found + fixed (the wrap's own test pass caught it):** session 185's wrap committed `pulse-app/ui/src/bindings/index.ts` in the no-mcp shape — the new "llvm-cov last-and-alone" sequencing rule placed the coverage run (a default-features workspace nextest) AFTER the bindings regen, clobbering it between regen-time verification and `git add`. Consequence: origin's `21d4de5`/`aae34e5` fail the capability-drift CI gate (tsc stays green — the use-mcp-delivery hook is deliberately defensive). Fix rides this wrap. NEW discipline (security.md Session Addition 2026-06-12): the regen is the absolute LAST cargo-adjacent step (after llvm-cov), and the pre-commit gate verifies the STAGED copy via `git show :pulse-app/ui/src/bindings/index.ts | grep -c '"mcp":'`.
-2. **UTC stamp discipline:** session 185's stamps (`noted_at: 20:05:00Z` etc.) were local-clock (UTC+2) values mislabeled Z — discovered via `git log -1 --format=%cI` (21:22+02:00 = 19:22Z). Harmless (lifecycle is checkbox-order-driven), but all stamps now come from `date -u` at write time. Tier 3 entry + pipeline patch P28 filed.
-3. **Delta-rerun empty-scope precedent reconfirmed:** capability-spec amendments cascade nowhere (no Tier 1/2/3 file derives from it); lifecycle-progression-only commit shape per the session-145 P24 precedent; grep-expansion 0 hits validated the markers' empty expected_propagation.
-
-## Files Modified
-
-**This wrap's commit:** `pulse-app/ui/src/bindings/index.ts` (regen fix — the load-bearing change) · `.claude/rules/security.md` (+1 Session Addition) · `.claude/docs/session-learnings.md` (+1) · `docs/andromeda-improvements.md` (+P28) · `.andromeda/context/{dependency-tree,api-surface}.md` · `.andromeda/state.yaml` · `.claude/session-handoff.md`.
-**Gitignored (forensic):** delta run-dir `2026-06-12T19-24-54-setup-project-delta/` + both amendment markers (Propagated + Archived ticks).
-**NOT committed (intentional carryover):** `experiments/`, `ui/`, `crates/ingest/examples/inject_demo.rs`.
-
-## Curation Summary (this wrap)
-
-- **Tier 1 / Tier 2 / Tier 3:** 0 / 1 / 1.
-  - Tier 2 (security.md): bindings regen must run AFTER llvm-cov (absolute last cargo-adjacent step) + pre-commit gate verifies the STAGED copy (`git show :path`), not the worktree.
-  - Tier 3 (session-learnings.md): all lifecycle stamps from `date -u` at write time; git committer clock is the audit cross-check.
-- **Filtered:** 3 duplicates (rlib-race recurrence — sessions 163/165 decision tree applied as documented; `| tail` exit-masking trap — 2026-06-05 entry; delta empty-scope — session-145 P24 precedent).
-- **Andromeda pipeline:** 1 patch proposal filed — **P28** (triangle skills should mandate `date -u` sourcing for all stamps). Mode P this wrap. A1 steady-state (count 0); A2 dormant.
-- **Living artifacts:** dep-tree **418 zero-diff** (no-op + refresh). api-surface **pulse-app 2801 lines** replacing the 2211-line session-171 capture (chunks #95–#100 surface incl. `corpus_retrieval` — the R1-accepted pulse-app lag CLOSED); cursor **pulse-app → security** (cycle 4, position 9/16).
-
-## Last Failed Command
-
-(none) — the initial `cargo nextest run --workspace` hit the documented rlib cold-build race (libduckdb_sys/wasmtime/buffer cluster); recovered in-session via the sessions-163/165 double-pass (`cargo build --workspace --tests` ×2), suite then green.
-
-## Tests Status
-
-**PASS.** Workspace nextest **1676/1676 + 1 skip** · webview **tsc clean + 640/640** (against the corrected bindings) · `cargo xtask capability-drift` **clean (0/0)** · bindings staged-copy gate verified pre-commit. Dead-test scan: 16 blocks in 16 pulse-app/src files — unchanged carryover, warning-not-fatal.
-
-## Next Recommended Action
-
-1. **`git push origin main`** — ships the bindings fix; until then origin HEAD fails the capability-drift CI gate (see Key Decision 1).
-2. **v0.2.0 tag preparation** — the only remaining gate: chunk #3 release-signing deferreds (Azure Key Vault EV + Apple Developer ID + GitHub Environment `production-release`).
-3. (Optional) review **P28** in `docs/andromeda-improvements.md` (~6 lines of shared-contract text across 2 skill reference files).
-
-## Session Goals (carry-over)
-
-(none — this session's goals completed end-to-end: amendments propagated + archived, branch pushed, pipeline state fully clean.)
-
-## Deferred decisions
-
-1. **Release-signing deferreds (chunk #3)** — THE gate for the v0.2.0 tag push.
-2. **§Design Philosophy / CLAUDE.md narrative crate-count staleness** (carries forward): fix = `/andromeda-arch` re-plan or manual edit.
-3. **arch-body "equal-tier output channel" framing** (carries forward, P27).
-4. **security.md BODY stale widening-note** (carries forward): superseded by the session-183 Session Addition; body regenerates at next full setup-project re-derive.
-5. **chunk #97 `diagnostics.history()` numeric-metric-history producer** (carries forward): validated stub; real producer is post-v0.2.0 scope.
-6. **P-032 `recent_commits` producer** (carries forward): production `DigestProjectContext.recent_commits` still the empty chunk #81 stub — runtime-inert until a git-log collection producer lands. Post-v0.2.0 candidate.
-7. **api-surface per-crate R1-accepted lag** (carries forward, shrinking): pulse-app CLOSED this wrap; remaining stale sub-blocks: corpus (#95 load_all_incidents + #100 since-query/purge), config-watcher, triage (#100 retrieval module); cursor now at **security** — each captures as cycle-4 reaches it.
-8. **`spec_amendments.archive` at 90** (> 50 soft-cap) — pruning deferred; markers forensic.
-9. **agent-run.ps1 boot latent issue** + **`l4-latency-p99.ps1` PowerShell 5.1 incompatibility** (carry forward unchanged).
-10. **Coverage functions-metric** (carries forward, informational): llvm-cov functions 82.42% vs test-plan §10's 85% target — lines gate (83.36% ≥ 75%) is operative in CI.
-11. **Untracked carryover:** `experiments/`, `ui/`, `crates/ingest/examples/inject_demo.rs` — intentional.
+## Deferred learnings
+- **This wrap:** one candidate, rejected at the confidence filter and not written: a disposition that stands in the
+  option text the founder himself picked is his own word, not the relay's application.
+- **Still open from prior wraps:** `recurrence-despite-learning: host leaf Session Additions 2026-10-05` (the Bash
+  guard refuses a leading `cd` out of the project); a job's log is readable while its run is in progress through
+  `gh api repos/{repo}/actions/jobs/{id}/logs`; the evidence path-scan sweep hazard; the selection-optimism reading;
+  the plan-authoring operator-pass CHECK; the `producer | grep -q` under pipefail CHECK; the scope guard omitting new
+  files; mutation applied?; run-dir hygiene trip; bindings clobber; a writer census at the wrong layer; targeted
+  nextest `timeout` sizing; the implement report-step CHECK; the bindings-regen PIPELINE half; macOS `SystemTime` µs
+  ticks; Windows `.ico` vs palette PNG; the deferral-destination generalization; `inject_demo --sustained` cannot
+  form an incident.

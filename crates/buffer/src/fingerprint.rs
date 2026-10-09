@@ -1,7 +1,7 @@
 //! Exception fingerprint computation + observer trait — chunk #66.
 //!
 //! L1c distillation layer per pulse v0.2.0 plan Phase 2: hash
-//! `(exception.type + normalized first-3-frame stacktrace)` к a deterministic
+//! `(exception.type + normalized first-3-frame stacktrace)` to a deterministic
 //! 16-byte fingerprint that is BOTH written to the `span_events.fingerprint`
 //! BLOB column (via `appender::build_span_events_record_batch`) AND fed to
 //! `triage::pattern::storm::RetryStormDetector` for retry-storm pattern
@@ -26,7 +26,7 @@
 //!   cannot influence the broadcast fingerprint OR the DuckDB column bytes.
 //! - Normalization strips absolute paths, memory addresses, and line numbers
 //!   BEFORE hashing so the hash is stable across host-environment differences
-//!   AND incidental path/address secrets do not co-mingle с the fingerprint.
+//!   AND incidental path/address secrets do not co-mingle with the fingerprint.
 //! - Output is 16 bytes (truncated `blake3` hash); ample collision-resistance
 //!   for in-memory `DashMap<[u8; 16], _>` cardinality bounds.
 
@@ -98,7 +98,7 @@ pub fn compute_exception_fingerprint(
 /// Format the fingerprint's first 4 bytes as 8-char lowercase hex for use as
 /// a bounded-cardinality tracing field value. Mirrors the `cue_kind_label`
 /// pattern from `triage::cue::classify` — opaque-but-stable identifier safe
-/// to log в self-observation events.
+/// to log in self-observation events.
 pub fn fingerprint_to_hex_prefix(fingerprint: &ExceptionFingerprint) -> String {
     let mut out = String::with_capacity(8);
     for byte in &fingerprint[..4] {
@@ -112,7 +112,7 @@ pub fn fingerprint_to_hex_prefix(fingerprint: &ExceptionFingerprint) -> String {
 /// hex memory addresses, and `:line(:col)?` suffixes; join with `\n`.
 ///
 /// The first-3-frame truncation per chunk #66 spec keeps the fingerprint
-/// stable when callers вызывают the same function from different deep stack
+/// stable when callers call the same function from different deep stack
 /// contexts — same proximate failure surface = same fingerprint regardless
 /// of how deep the rest of the stack goes.
 pub(crate) fn normalize_stacktrace(raw: &str) -> String {
@@ -131,7 +131,9 @@ pub(crate) fn normalize_stacktrace(raw: &str) -> String {
 }
 
 /// Strip variable parts of a single stack frame line:
-/// - absolute file paths (Unix `/...` or Windows `C:\...`)
+/// - absolute file paths (Unix `/...` or Windows `C:\...`) — ONLY absolute ones;
+///   a relative path such as `src/a.rs` is identity-significant and is preserved
+///   in full (see `is_token_boundary`)
 /// - hex memory addresses (`0x...`)
 /// - line/column suffixes after a colon-anchored path remnant (`:42` or `:42:7`)
 ///
@@ -183,7 +185,20 @@ fn skip_hex_address(bytes: &[u8], mut i: usize) -> usize {
     i
 }
 
+/// A path token counts as ABSOLUTE only when it STARTS a token (position 0, or
+/// preceded by a non-path byte). Without this precondition the Unix arm fires on
+/// every `/`, and since `is_path_char` itself admits `/`, `skip_absolute_path`
+/// then swallows the remainder of the token so only the leading segment survives
+/// — making `src/a.rs` and `src/b/c.rs` one fingerprint. Relative path structure
+/// is identity-significant.
+fn is_token_boundary(bytes: &[u8], i: usize) -> bool {
+    i == 0 || !is_path_char(bytes[i - 1])
+}
+
 fn is_absolute_path_start(bytes: &[u8], i: usize) -> bool {
+    if !is_token_boundary(bytes, i) {
+        return false;
+    }
     if i < bytes.len() && bytes[i] == b'/' && i + 1 < bytes.len() && is_path_char(bytes[i + 1]) {
         return true;
     }
@@ -293,7 +308,7 @@ mod tests {
             .expect("fingerprint computed");
         assert_eq!(
             a, b,
-            "same type+frame-function-names с different paths/line numbers MUST hash к same fingerprint"
+            "same type+frame-function-names with different paths/line numbers MUST hash to same fingerprint"
         );
     }
 
@@ -375,6 +390,34 @@ mod tests {
         let raw = "    at com.example.Foo.bar\n\n    at com.example.Foo.baz";
         let normalized = normalize_stacktrace(raw);
         assert_eq!(normalized.lines().count(), 2);
+    }
+
+    #[test]
+    fn compute_differs_for_relative_paths_differing_below_leading_segment() {
+        let stack_a = "    at handler(src/a.rs:10)";
+        let stack_b = "    at handler(src/b/c.rs:10)";
+        let a = compute_exception_fingerprint(Some(SAMPLE_TYPE), Some(stack_a)).expect("ok");
+        let b = compute_exception_fingerprint(Some(SAMPLE_TYPE), Some(stack_b)).expect("ok");
+        assert_ne!(
+            a, b,
+            "relative path structure is identity-significant — src/a.rs and src/b/c.rs are distinct faults"
+        );
+    }
+
+    #[test]
+    fn normalize_stacktrace_preserves_relative_paths_in_full() {
+        assert_eq!(
+            normalize_stacktrace("    at handler(src/b/c.rs:10)"),
+            "at handler(src/b/c.rs)"
+        );
+    }
+
+    #[rstest]
+    #[case("/usr/lib/thing.rs", "")]
+    #[case("    at handler(/usr/lib/thing.rs:10)", "at handler()")]
+    #[case("    at handler(C:\\proj\\thing.rs:10)", "at handler()")]
+    fn normalize_stacktrace_strips_only_absolute_paths(#[case] raw: &str, #[case] expected: &str) {
+        assert_eq!(normalize_stacktrace(raw), expected);
     }
 
     #[test]

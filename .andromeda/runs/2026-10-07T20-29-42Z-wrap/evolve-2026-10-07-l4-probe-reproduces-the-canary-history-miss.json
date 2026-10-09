@@ -1,0 +1,202 @@
+[
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "1d16bdcd",
+"ts": "2026-10-07T20:34:08Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"4",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 4 record(s) · friction-log.ndjson lines 2292→2296 · bytes 2335071→2339674 · term lf",
+"ts 2026-10-07T20:33:38Z · clock 2026-10-07T20:34:08Z · bound 2026-10-07T18:37:04Z (line 2292)",
+"ids 2026-10-07T20:33:38Z-a … 2026-10-07T20:33:38Z-d (4)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2292,
+"bytes": 2335071,
+"terminator": "LF",
+"bound": "2026-10-07T18:37:04Z"
+},
+"after": {
+"lines": 2296,
+"bytes": 2339674
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "1d16bdcd",
+"ts": "2026-10-07T20:49:43Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"5",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 5 record(s) · friction-log.ndjson lines 2296→2301 · bytes 2339674→2345688 · term lf",
+"ts 2026-10-07T20:49:09Z · clock 2026-10-07T20:49:43Z · bound 2026-10-07T20:33:38Z (line 2296)",
+"ids 2026-10-07T20:49:09Z-a … 2026-10-07T20:49:09Z-e (5)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2296,
+"bytes": 2339674,
+"terminator": "LF",
+"bound": "2026-10-07T20:33:38Z"
+},
+"after": {
+"lines": 2301,
+"bytes": 2345688
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "1d16bdcd",
+"ts": "2026-10-07T20:52:55Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"4",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 4 record(s) · friction-log.ndjson lines 2301→2305 · bytes 2345688→2349220 · term lf",
+"ts 2026-10-07T20:52:42Z · clock 2026-10-07T20:52:55Z · bound 2026-10-07T20:49:09Z (line 2301)",
+"ids 2026-10-07T20:52:42Z-a … 2026-10-07T20:52:42Z-d (4)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2301,
+"bytes": 2345688,
+"terminator": "LF",
+"bound": "2026-10-07T20:49:09Z"
+},
+"after": {
+"lines": 2305,
+"bytes": 2349220
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "1d16bdcd",
+"ts": "2026-10-07T20:55:23Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"5",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 5 record(s) · friction-log.ndjson lines 2305→2310 · bytes 2349220→2353044 · term lf",
+"ts 2026-10-07T20:55:09Z · clock 2026-10-07T20:55:23Z · bound 2026-10-07T20:52:42Z (line 2305)",
+"ids 2026-10-07T20:55:09Z-a … 2026-10-07T20:55:09Z-e (5)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2305,
+"bytes": 2349220,
+"terminator": "LF",
+"bound": "2026-10-07T20:52:42Z"
+},
+"after": {
+"lines": 2310,
+"bytes": 2353044
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "1d16bdcd",
+"ts": "2026-10-07T20:58:33Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 2310→2312 · bytes 2353044→2355010 · term lf",
+"ts 2026-10-07T20:58:21Z · clock 2026-10-07T20:58:32Z · bound 2026-10-07T20:55:09Z (line 2310)",
+"ids 2026-10-07T20:58:21Z-a … 2026-10-07T20:58:21Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2310,
+"bytes": 2353044,
+"terminator": "LF",
+"bound": "2026-10-07T20:55:09Z"
+},
+"after": {
+"lines": 2312,
+"bytes": 2355010
+}
+}
+]

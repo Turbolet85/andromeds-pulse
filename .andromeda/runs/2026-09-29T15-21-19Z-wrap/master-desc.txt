@@ -1,0 +1,1 @@
+P-025 hue-shift observable made gradable — hue_update_ms measures tier-effective instant → paint per changed service (Conductor contract); the first real CI in two months worked to green 6/6 over 8 fix pushes; cargo audit loads again (pin #22 discharged)

@@ -3,7 +3,7 @@
 # base-branch lcov-baseline.info; computes line/branch/function delta via awk
 # over LCOV LF/LH/BRF/BRH/FNF/FNH counters. Fails if any metric regresses by
 # more than the threshold (default +0.0pp — strict no-decrease per test-plan
-# §11 "NEVER lower coverage thresholds к pass build"). NEUTRAL (exit 0) when
+# §11 "NEVER lower coverage thresholds to pass build"). NEUTRAL (exit 0) when
 # baseline missing — first PR / new branch / local dev runs without artifact.
 #
 # Usage: coverage-regression-check.sh <current-lcov.info> <baseline-lcov.info>

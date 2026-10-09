@@ -1,0 +1,73 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%record_findings_counter_refresh%' ORDER BY file, line",
+"rows": 2,
+"result": [
+{
+"caller": "rust-analyzer cargo ui-bridge 0.1.0 telemetry/tests/record_findings_counter_refresh_emits_exact_target().",
+"file": "crates/ui-bridge/src/telemetry.rs",
+"line": 670
+},
+{
+"caller": "rust-analyzer cargo ui-bridge 0.1.0 telemetry/tests/delegated_timing_resolvers_reject_non_finite_duration().",
+"file": "crates/ui-bridge/src/telemetry.rs",
+"line": 721
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%record_findings_counter_refresh%' OR callee LIKE '%copyMarkdown%' ORDER BY file, line",
+"rows": 9,
+"result": [
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/canvas/`frame-metrics.test.ts`/MockProxy#telemetry.typeLiteral0:frontend.typeLiteral1:record_findings_counter_refresh.",
+"file": "pulse-app/ui/src/canvas/frame-metrics.test.ts",
+"line": 31
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/canvas/`frame-metrics.test.ts`/MockProxy#telemetry.typeLiteral0:frontend.typeLiteral1:record_findings_counter_refresh.",
+"file": "pulse-app/ui/src/canvas/frame-metrics.test.ts",
+"line": 229
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/canvas/`frame-metrics.test.ts`/MockProxy#telemetry.typeLiteral0:frontend.typeLiteral1:record_findings_counter_refresh.",
+"file": "pulse-app/ui/src/canvas/frame-metrics.test.ts",
+"line": 236
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/UseReportResult#copyMarkdown.",
+"file": "pulse-app/ui/src/report/Report.tsx",
+"line": 23
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/UseReportResult#copyMarkdown.",
+"file": "pulse-app/ui/src/report/use-report.test.ts",
+"line": 47
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/UseReportResult#copyMarkdown.",
+"file": "pulse-app/ui/src/report/use-report.test.ts",
+"line": 61
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/UseReportResult#copyMarkdown.",
+"file": "pulse-app/ui/src/report/use-report.test.ts",
+"line": 73
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/UseReportResult#copyMarkdown.",
+"file": "pulse-app/ui/src/report/use-report.test.ts",
+"line": 94
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/UseReportResult#copyMarkdown.",
+"file": "pulse-app/ui/src/report/use-report.ts",
+"line": 102
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+}
+]

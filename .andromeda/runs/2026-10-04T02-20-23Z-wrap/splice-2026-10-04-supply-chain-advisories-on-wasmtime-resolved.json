@@ -1,0 +1,80 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T02:26:46Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap/architecture-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 598 · lines 597→603 · bytes 83732→85151 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T02-20-23Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 597,
+"bytes": 83732,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 603,
+"bytes": 85151
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T02:26:46Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap/test-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+6 at line 556 · lines 555→561 · bytes 93480→94192 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T02-20-23Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 555,
+"bytes": 93480,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 561,
+"bytes": 94192
+}
+}
+]

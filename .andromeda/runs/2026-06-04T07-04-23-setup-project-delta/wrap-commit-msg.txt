@@ -1,0 +1,36 @@
+chore(wrap): session 174 — chunk #96 Configuration hot reload + prospective threshold application route-append Type 7 Form 1 single-cycle META wrap + amendment archival + api-surface triage cycle-3 reconcile + 0 curation
+
+Type 7 Form 1 route-append single-cycle (19th instance): /andromeda-new-session
+-> /andromeda-evolve --allow-route-append (chunk #96 registered) ->
+/andromeda-setup-project --delta (CLAUDE.md pointer-table 95->96; commit 9c75071)
+-> this wrap archives the amendment.
+
+CLAUDE.md curation:
+  Tier 1: none
+  Tier 2: none
+  Tier 3: none
+  Filtered: 0 dups + 0 task-specific + 0 conflicts + 0 deferred
+
+Living artifacts reconciled:
+  - dependency-tree.md: 468 lines (zero-diff vs session 173; META, zero workspace-dep delta) — timestamp refresh
+  - api-surface.md: triage sub-block cycle-3 reconcile = 2087 lines (+4 vs cycle-2 session-159 baseline; captures chunk #91/#92 triage pub items); cursor triage->ui-bridge
+
+Drift detected: none (all 6 dimensions CLEAR)
+
+Spec amendments:
+  Active: 0
+  Archived this session: 1 (2026-06-04T06-33-54-append-chunk-96-config-hot-reload — route.md)
+  Lifecycle progressions this wrap: 1 noted + 1 archived; archive 79 -> 80
+
+Cyrillic check: 0 newly-introduced (state.yaml carries pre-existing historical-comment Cyrillic — allowed audit-trail)
+
+Andromeda states: all 11 (A-K) CLEAR
+
+Dead tests: 16 blocks in 16 files (pulse-app/src; carryover, warning-not-fatal)
+
+Session count: 174
+
+Next recommended:
+  /andromeda-phase to plan chunk #96 (route target now registered)
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>

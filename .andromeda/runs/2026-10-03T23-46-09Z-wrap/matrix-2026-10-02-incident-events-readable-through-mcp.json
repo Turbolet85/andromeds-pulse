@@ -1,0 +1,100 @@
+[
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-04T00:43:33Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-02-incident-events-readable-through-mcp",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-02-incident-events-readable-through-mcp)",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-04T00:44:44Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-02-incident-events-readable-through-mcp",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-02-incident-events-readable-through-mcp)",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-04T00:44:44Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--id",
+"P-075",
+"--text-file",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/note-P-075.md",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"note P-075: +1138 chars (total 13185) · status verified · ref/acceptance untouched",
+"wrote andromeda-pulse-0.3.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/verification-matrix.json"
+],
+"before": {
+"id": "P-075",
+"chunk": "2026-10-01-conductor-return",
+"status": "verified",
+"method": "dynamic-external",
+"ref": "Conductor 2a494804f6d91bb61718fc9a520cebc73b29af86 (CI#36970919487 green), round on Pulse S 03ec94481b0d6c3ba574626e7acb… (690 chars)",
+"acceptance": "Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set on the app child, a fresh data dir) again… (1397 chars)",
+"notes_chars": 12045
+},
+"after": {
+"id": "P-075",
+"chunk": "2026-10-01-conductor-return",
+"status": "verified",
+"method": "dynamic-external",
+"ref": "Conductor 2a494804f6d91bb61718fc9a520cebc73b29af86 (CI#36970919487 green), round on Pulse S 03ec94481b0d6c3ba574626e7acb… (690 chars)",
+"acceptance": "Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set on the app child, a fresh data dir) again… (1397 chars)",
+"notes_chars": 13185
+}
+}
+]

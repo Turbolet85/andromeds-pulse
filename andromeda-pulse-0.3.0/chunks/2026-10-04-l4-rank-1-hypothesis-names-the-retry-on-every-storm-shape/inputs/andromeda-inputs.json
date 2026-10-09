@@ -1,0 +1,38 @@
+[
+  {
+    "id": "I1",
+    "kind": "relay",
+    "repo": null,
+    "path": "message: overseer (founder-delegated), /andromeda-phase args, 2026-10-04T23:29Z",
+    "form": "copy",
+    "state": "message",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "228fb29ae4376c105ed2f06e7ead6e12ade97332320aa2f922fb9e9216c2cd1a",
+    "copy": "I1-relay-1.md.txt",
+    "link": false,
+    "read_at": "2026-10-04T23:30:50Z",
+    "step": "phase:P1",
+    "why": "the 4317/4318 slot and the model slot are granted for this chunk; conductor-builder idle until its wrap; leg env unchanged"
+  },
+  {
+    "id": "I2",
+    "kind": "sibling",
+    "repo": null,
+    "path": "../additional/pc-overseer/l4-env.sh",
+    "form": "copy",
+    "state": "no-repo",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "4a28d0fdd0c8fb6dcfb68259fd2dd85610da5e3bdf6ccd25b946c7ade4f77647",
+    "copy": "I2-l4-env.sh.txt",
+    "link": false,
+    "read_at": "2026-10-04T23:30:50Z",
+    "step": "phase:P1",
+    "why": "the real-model leg env: llama.cpp b9305 CUDA binary, CPU binary and GGUF path exports"
+  }
+]

@@ -1,0 +1,175 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%run_consumer%' OR callee LIKE '%dispatch_batch%' OR callee LIKE '%append_record_batch_to_table%' ORDER BY file, line",
+"rows": 33,
+"result": [
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_spans_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 668
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_metrics_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 692
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_logs_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 717
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_span_events_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 742
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/tests/drain_pii_canary_email_redacted_in_log_templates().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1998
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/",
+"file": "crates/buffer/src/consumer.rs",
+"line": 11
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/run_consumer().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 62
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/append_table_traced().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 188
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/tests/run_consumer_drains_receiver_and_records_rows().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 414
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/tests/run_consumer_broadcasts_encoded_arrow_to_subscriber().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 453
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/tests/run_consumer_three_subscribers_each_receive_same_payload().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 495
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/tests/run_consumer_with_no_subscribers_still_appends_to_duckdb().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 536
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/tests/dispatch_batch_writes_span_events_alongside_spans_under_same_lock_guard().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 575
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/tests/dispatch_folds_redactions_after_a_successful_append().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 623
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/tests/dispatch_folds_no_redactions_when_the_append_is_rejected().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 654
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/tests/run_consumer_invokes_fingerprint_observer_on_exception_span_events().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 762
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 crate/",
+"file": "crates/buffer/src/lib.rs",
+"line": 14
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/src/main.rs",
+"line": 8
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 main().",
+"file": "pulse-app/src/main.rs",
+"line": 1154
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/e2e_drain_template_assignment.rs",
+"line": 29
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 chunk_69_phase_b_drain_assigns_template_id_persists_log_templates_redacts_pii().",
+"file": "pulse-app/tests/e2e_drain_template_assignment.rs",
+"line": 154
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/e2e_p1_otlp_grpc_to_traces_query.rs",
+"line": 14
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 p1_otlp_grpc_to_traces_query_returns_ingested_rows().",
+"file": "pulse-app/tests/e2e_p1_otlp_grpc_to_traces_query.rs",
+"line": 100
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/e2e_p6_channel_arrow_ipc.rs",
+"line": 12
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 p6_channel_spans_emits_arrow_ipc_decodable_payload().",
+"file": "pulse-app/tests/e2e_p6_channel_arrow_ipc.rs",
+"line": 84
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/e2e_pii_bare_credential_stored_field.rs",
+"line": 17
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 impl#[Harness]start().",
+"file": "pulse-app/tests/e2e_pii_bare_credential_stored_field.rs",
+"line": 89
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 20
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 chunk_66_storm_detector_emits_suggested_at_5th_autonomous_at_10th().",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 150
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/perf_load_profiles.rs",
+"line": 37
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 boot_rig().",
+"file": "pulse-app/tests/perf_load_profiles.rs",
+"line": 79
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/perf_slo_10k_spans.rs",
+"line": 25
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 perf_slo_sustained_10k_spans_per_sec_ingest_throughput_holds().",
+"file": "pulse-app/tests/perf_slo_10k_spans.rs",
+"line": 125
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

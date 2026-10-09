@@ -1,0 +1,7 @@
+Found 32 mutants to test
+ok       Unmutated baseline in 7s build + 1s test
+ INFO Auto-set test timeout to 20s
+MISSED   crates/workspace-detector/src/contract.rs:117:20: replace > with >= in read_published_workspace_key in 1s build + 1s test
+MISSED   crates/workspace-detector/src/vcs.rs:50:16: replace < with == in sha_basename in 1s build + 1s test
+MISSED   crates/workspace-detector/src/vcs.rs:50:16: replace < with <= in sha_basename in 1s build + 1s test
+32 mutants tested in 2m: 3 missed, 27 caught, 2 unviable

@@ -45,6 +45,11 @@ interface ModalProps {
   liveMessage?: string;
   clickOutsideDeactivates?: boolean;
   initialFocus?: RefObject<HTMLElement | null>;
+  // "overlay" (default): centered card over a dimming backdrop (in-page modal).
+  // "fill": the dialog fills its window edge-to-edge with a solid --color-base
+  // background — for a modal that IS a dedicated window (no page behind it to
+  // dim, so a translucent backdrop would just show as a grey frame).
+  variant?: "overlay" | "fill";
 }
 
 export function Modal({
@@ -59,9 +64,11 @@ export function Modal({
   liveMessage = "",
   clickOutsideDeactivates = false,
   initialFocus,
+  variant = "overlay",
 }: ModalProps) {
   const [closeButtonHovered, setCloseButtonHovered] = useState(false);
   const dialogRef = useRef<HTMLDivElement | null>(null);
+  const isFill = variant === "fill";
 
   useEffect(() => {
     if (!open || !clickOutsideDeactivates) {
@@ -108,9 +115,9 @@ export function Modal({
           inset: 0,
           zIndex: 200,
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "rgba(15, 17, 23, 0.6)",
+          alignItems: isFill ? "stretch" : "center",
+          justifyContent: isFill ? "stretch" : "center",
+          background: isFill ? "var(--color-base)" : "rgba(15, 17, 23, 0.6)",
         }}
       >
         <div
@@ -122,17 +129,19 @@ export function Modal({
           data-testid="modal-dialog"
           style={{
             background: "var(--color-raised-3)",
-            border: "1px solid rgba(74, 144, 226, 0.3)",
-            borderRadius: "var(--radius-lg)",
+            border: isFill ? "none" : "1px solid rgba(74, 144, 226, 0.3)",
+            borderRadius: isFill ? 0 : "var(--radius-lg)",
             padding: "var(--spacing-md)",
             display: "flex",
             flexDirection: "column",
             gap: "var(--spacing-sm)",
             color: "var(--color-text-primary)",
             fontFamily: "var(--font-body)",
-            maxWidth: "80vw",
-            maxHeight: "80vh",
-            minWidth: "320px",
+            maxWidth: isFill ? "none" : "80vw",
+            maxHeight: isFill ? "none" : "80vh",
+            minWidth: isFill ? 0 : "320px",
+            width: isFill ? "100%" : undefined,
+            height: isFill ? "100%" : undefined,
             overflow: "hidden",
           }}
         >

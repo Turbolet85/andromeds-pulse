@@ -1,0 +1,10 @@
+## m4-summary.txt
+# m4 (beyond the plan) — the fixpoint re-mask removed (single pass only)
+# mutation: for _ in 0..0 * MAX_MASK_PASSES  [restored after this run]
+        FAIL [   0.152s] (33/45) security scrubber::tests::span_mask_reaches_a_fixpoint_when_a_mask_exposes_a_fused_digit_run
+        FAIL [   0.404s] (42/45) security scrubber::tests::span_mask_is_idempotent_for_secret_mixes
+     Summary [   0.661s] 45 tests run: 43 passed, 2 failed, 2484 skipped
+# proptest shrunk counterexample (secret-mix idempotence):
+    Test failed: assertion failed: `(left == right)` 
+      left: `"<credit_card><secret_kv>"`,
+     right: `"<CANARY:card><secret_kv>"` at crates\security\src\scrubber.rs:793.

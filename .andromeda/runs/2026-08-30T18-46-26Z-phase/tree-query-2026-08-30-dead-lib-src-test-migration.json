@@ -1,0 +1,67 @@
+[
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'pulse-app'",
+"rows": 0,
+"result": [],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%sanitize_window_label%' ORDER BY file, line",
+"rows": 10,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/handle_close_to_tray().",
+"file": "pulse-app/src/window.rs",
+"line": 119
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/maybe_show_close_signpost().",
+"file": "pulse-app/src/window.rs",
+"line": 169
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/on_window_event().",
+"file": "pulse-app/src/window.rs",
+"line": 204
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/on_window_event().",
+"file": "pulse-app/src/window.rs",
+"line": 213
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/tests/sanitize_window_label_collapses_unknown_to_constant().",
+"file": "pulse-app/src/window.rs",
+"line": 589
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/tests/sanitize_window_label_collapses_unknown_to_constant().",
+"file": "pulse-app/src/window.rs",
+"line": 590
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/tests/sanitize_window_label_collapses_unknown_to_constant().",
+"file": "pulse-app/src/window.rs",
+"line": 591
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/tests/sanitize_window_label_collapses_unknown_to_constant().",
+"file": "pulse-app/src/window.rs",
+"line": 592
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/tests/sanitize_window_label_collapses_unknown_to_constant().",
+"file": "pulse-app/src/window.rs",
+"line": 593
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/tests/sanitize_window_label_collapses_unknown_to_constant().",
+"file": "pulse-app/src/window.rs",
+"line": 594
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

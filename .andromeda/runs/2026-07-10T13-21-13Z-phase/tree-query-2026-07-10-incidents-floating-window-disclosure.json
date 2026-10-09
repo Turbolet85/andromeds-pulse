@@ -1,0 +1,44 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%sanitize_window_label%' ORDER BY file, line",
+"rows": 7,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/handle_close_to_tray().",
+"file": "pulse-app/src/window.rs",
+"line": 115
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/on_window_event().",
+"file": "pulse-app/src/window.rs",
+"line": 196
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/on_window_event().",
+"file": "pulse-app/src/window.rs",
+"line": 205
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/tests/sanitize_window_label_collapses_unknown_to_constant().",
+"file": "pulse-app/src/window.rs",
+"line": 525
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/tests/sanitize_window_label_collapses_unknown_to_constant().",
+"file": "pulse-app/src/window.rs",
+"line": 526
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/tests/sanitize_window_label_collapses_unknown_to_constant().",
+"file": "pulse-app/src/window.rs",
+"line": 527
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/tests/sanitize_window_label_collapses_unknown_to_constant().",
+"file": "pulse-app/src/window.rs",
+"line": 528
+}
+],
+"db_state": "fresh"
+}
+]

@@ -1,0 +1,9 @@
+
+## 2026-10-04-corpus-key-creation-is-race-free — locked corpus-key creation; the lock file is the second data-dir escape
+**Section:** §Occupied Resources → Corpus SQLite → At-rest posture · §Occupied Resources → Filesystem locations (new "Out-of-data-dir lock file (corpus-key creation)" bullet; the training-export sink bullet)
+**Change:**
+- At-rest posture: concurrent first creation converges on one key — `OsKeychainBackend::fetch_from_os_store` is a locked create-or-read (exclusive `std::fs::File::lock` on the entry's lock file, then get → only on `NoEntry` generate → set → read back → return the read-back key → unlock); no unlocked generate-and-set path remains. Measured: 8 re-exec processes → 1 distinct key (8 distinct, 7 not stored on the prior code). A lock failure maps to `KeychainError::Unavailable` / `Failed` → `Error::KeyringUnavailable`, degrading like an unreachable store.
+- Filesystem locations: registers `andromeda-pulse-corpus-key-{h16}.lock` (first 16 hex of BLAKE3 over service ‖ 0x00 ‖ account) — per-user, content-free, mode 0600, never deleted, written by the app and the MCP sidecar through `Corpus::open`; in `$XDG_RUNTIME_DIR` on Linux, else `std::env::temp_dir()`; a set-but-unusable `XDG_RUNTIME_DIR` fails closed. Four residuals stated in the body (XDG disagreement, shared-`/tmp` denial, passphrase degrade, no lock timeout).
+- The training-export sink was "the ONE deliberate exception" to data-dir confinement; now "one of TWO", the other being the lock file.
+**Why:** concurrent first-run processes each minted a key and the last write won, so a losing process's rows were undecryptable to its peers. The lock is keyed on the credential entry, not the data dir, because racing processes may resolve different data dirs. A boundary widening the founder ratified live on 2026-10-04 (relayed by the overseer), confirmed by the operator at this wrap.
+**Ref:** .andromeda/runs/2026-10-04T09-16-41Z-wrap/

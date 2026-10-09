@@ -1,0 +1,218 @@
+[
+{
+"sql": "SELECT caller, callee_name, file, line FROM calls WHERE callee_name IN ('build_llama_cli_args','generate_constrained','handle_parse_outcome') ORDER BY callee_name, file, line;",
+"rows": 20,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 120
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 compose_argv().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 902
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 llamacli_inference/impl#[LlamaCliInference][LlmInferenceRunner]generate_constrained().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/src/llamacli_inference.rs",
+"line": 783
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 34
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_max_tokens_cap_arg().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 49
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_single_turn_flag().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 58
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_fixed_context_size().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 66
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_reasoning_off().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 76
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_simple_io_and_no_display_prompt_flags().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 89
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_model_path_and_schema_file_args().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 104
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_ngl_routing_per_profile().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 125
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_ngl_routing_per_profile().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 132
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_prompt_via_p_arg().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 145
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_log_disable_flag().",
+"callee_name": "build_llama_cli_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 440
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/handle_digest_outcome().",
+"callee_name": "generate_constrained",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 442
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 investigate_router/impl#[InvestigateApiImpl][InvestigateApi]run_action().",
+"callee_name": "generate_constrained",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 256
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 real_subprocess_round_trip_returns_schema_conformant_l4_output().",
+"callee_name": "generate_constrained",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 143
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 runner_is_loaded_and_returns_canned_output().",
+"callee_name": "generate_constrained",
+"file": "pulse-app/tests/unit_deterministic_inference.rs",
+"line": 142
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 generate_constrained_returns_not_configured_when_env_vars_missing().",
+"callee_name": "generate_constrained",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 245
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/handle_digest_outcome().",
+"callee_name": "handle_parse_outcome",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 456
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee_name = 'handle_digest_outcome' AND callee_kind = 'fn' ORDER BY file, line;",
+"rows": 16,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/process_digest().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 248
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/handle_digest().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 385
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 17
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 storm_incident_is_found_by_the_resolver_derived_filter_key().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 169
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 14
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 deterministic_mode_yields_reproducible_red_dot_incident().",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 105
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 deterministic_mode_yields_reproducible_red_dot_incident().",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 109
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/integration_resolution_summary_attachment.rs",
+"line": 22
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 handle_digest_outcome_on_resolution_summary_digest_returns_success_when_runner_ok().",
+"file": "pulse-app/tests/integration_resolution_summary_attachment.rs",
+"line": 342
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 handle_digest_outcome_on_malformed_resolution_summary_returns_parse_failure().",
+"file": "pulse-app/tests/integration_resolution_summary_attachment.rs",
+"line": 359
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 20
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 run_storm().",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 117
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 cueless_digest_creates_no_incident().",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 179
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/security_l4_parse_failure_does_not_leak_output.rs",
+"line": 17
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 l4_parse_failure_path_does_not_leak_canary_to_tracing().",
+"file": "pulse-app/tests/security_l4_parse_failure_does_not_leak_output.rs",
+"line": 169
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 l4_schema_violation_path_does_not_leak_canary_to_tracing().",
+"file": "pulse-app/tests/security_l4_parse_failure_does_not_leak_output.rs",
+"line": 211
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

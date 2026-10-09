@@ -1,0 +1,52 @@
+[[pattern]]
+id = "own-route-entry"
+fixed = 'its own route entry'
+
+[[pattern]]
+id = "sym-untouched"
+regex = 'symptom, timeline and (ranked )?hypotheses'
+
+[[pattern]]
+id = "prompt-remedy"
+regex = 'prompt-side remedy'
+ignore_case = true
+
+[[pattern]]
+id = "b6932"
+fixed = '6,932'
+
+[[pattern]]
+id = "x2.4"
+fixed = '~2.4×'
+
+[[pattern]]
+id = "kib9.2"
+fixed = '9.2 KiB'
+
+[[pattern]]
+id = "lineage-v23"
+regex = 'v2\.3\b'
+
+[[pattern]]
+id = "v12-suffix"
+regex = 'v1\.2-(fallback|reflection)'
+
+[[pattern]]
+id = "zero-tests"
+fixed = 'zero tests'
+
+[[pattern]]
+id = "neither-test"
+fixed = 'neither a test nor a gate'
+
+[[pattern]]
+id = "a5-equality"
+fixed = 'content-equality'
+
+[[pattern]]
+id = "corpus-matches"
+fixed = 'CORPUS MATCHES'
+
+[[pattern]]
+id = "decision-probe"
+regex = 'l4[_-]decision[_-]probe'

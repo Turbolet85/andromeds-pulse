@@ -1,0 +1,64 @@
+[
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%BOOTSTRAP_WINDOW_SECONDS%' ORDER BY file, line;",
+"rows": 11,
+"result": [
+{
+"callee": "rust-analyzer cargo triage 0.1.0 baseline/activity_floor/BOOTSTRAP_WINDOW_SECONDS.",
+"file": "crates/triage/src/baseline/activity_floor.rs",
+"line": 54
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 baseline/activity_floor/BOOTSTRAP_WINDOW_SECONDS.",
+"file": "crates/triage/src/baseline/activity_floor.rs",
+"line": 55
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 baseline/activity_floor/BOOTSTRAP_WINDOW_SECONDS.",
+"file": "crates/triage/src/baseline/activity_floor.rs",
+"line": 177
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 baseline/activity_floor/BOOTSTRAP_WINDOW_SECONDS.",
+"file": "crates/triage/src/baseline/activity_floor.rs",
+"line": 315
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 baseline/activity_floor/BOOTSTRAP_WINDOW_SECONDS.",
+"file": "crates/triage/src/baseline/activity_floor.rs",
+"line": 324
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 baseline/activity_floor/BOOTSTRAP_WINDOW_SECONDS.",
+"file": "crates/triage/src/baseline/mod.rs",
+"line": 37
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 baseline/activity_floor/BOOTSTRAP_WINDOW_SECONDS.",
+"file": "crates/triage/src/contract.rs",
+"line": 17
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/thresholds/DEFAULT_BOOTSTRAP_WINDOW_SECONDS.",
+"file": "crates/triage/src/contract.rs",
+"line": 41
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/thresholds/DEFAULT_BOOTSTRAP_WINDOW_SECONDS.",
+"file": "crates/triage/src/cue/mod.rs",
+"line": 33
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/thresholds/DEFAULT_BOOTSTRAP_WINDOW_SECONDS.",
+"file": "crates/triage/src/cue/thresholds.rs",
+"line": 162
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/thresholds/DEFAULT_BOOTSTRAP_WINDOW_SECONDS.",
+"file": "crates/triage/src/cue/thresholds.rs",
+"line": 275
+}
+],
+"db_state": "fresh"
+}
+]

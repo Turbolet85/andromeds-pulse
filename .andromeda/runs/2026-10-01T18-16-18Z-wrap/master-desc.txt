@@ -1,0 +1,1 @@
+the real model surfaces a storm digest for a measured cause: the L4 schema now has it decide after its analysis and the digest's OVERALL line no longer says "nominal" during a storm (synthetic 24/30 → 29/30); a no-incident outcome is now logged with its reason; CI's Cyrillic lint reads on Windows and runs in pre-push

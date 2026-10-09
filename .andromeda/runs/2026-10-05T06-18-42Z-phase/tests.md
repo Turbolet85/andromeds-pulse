@@ -1,0 +1,36 @@
+# tests extract
+
+## Relevance
+partial: the chunk's core is a real-model measurement series, which test-plan keeps out of the deterministic gate set. Its test surface is the probe's collected pins, the L4 prompt-lineage pins that must stay unchanged, the L4 path-guard wiring if the default model resolution moves, and the unconditional per-chunk gate set.
+
+## Constraints
+- Real-model generations are never a gate. test-plan §1 (Pending coverage triggers, `l4-decision-probe-arg-parse-unit-coverage`) gives the reason: a real-model generation cannot give a deterministic verdict. The series' rank1/footprint/no-thinking readings are therefore evidence of record, and no nextest pin may assert a model-quality number. §2 (Agent-runnable invariants) adds: deterministic, no flaky retries.
+- §3 Per-chunk gate discipline requires the standard gate set in the plan's `## Test Commands` with no conditions. `capability-drift` runs BEFORE the default-features workspace nextest, the `--features mcp-server` `emit_taurpc_bindings` regen is the last cargo-adjacent step, and a chunk that adds no procedure closes with `git diff --quiet <chunk-base> -- pulse-app/ui/src/bindings/index.ts`. The webview gates are excluded only if no `pulse-app/ui/**` path is touched.
+- §3 Per-chunk gate discipline (Boot-smoke gate, conditional) adds a runtime boot smoke when the plan touches `pulse-app/src/main.rs` / `crates/ui-bridge/src/` / `pulse-app/src/observability.rs` / tauri.conf / capabilities. Whether the L4 model default and identity surfaces live on that boot path is a P3 research question. A live product leg on the new model that needs env-gated state uses the §3 Direct-binary smoke variant: the GREEN leg must show 0 `app.panic.fatal` and 0 `ERROR`, and teardown is by specific pid with :4317/:4318 confirmed released.
+- §4 (interpretation crate) requires the `PROMPT_VERSION_*` v2.5 / v1.4-fallback / v1.4-reflection lineage pins, the `TRIGGER_FRAMING_INSTRUCTION` placement pin, the first-hypothesis obligation pin and `composed_prompt_templates_are_ascii_clean_for_argv_transport` to stay green. The scope's "no prompt-framing change" boundary means none of them should need editing. If a candidate's chat-template handling would force any of them to change, that is a scope collision to surface, not a pin to update.
+- §1 trigger `l4-decision-probe-arg-parse-unit-coverage`: the probe `[[example]]` must keep `test = true`, or nextest collects nothing. Test-plan names 16 collected pins. Any new probe flag or reader the series needs (a model or candidate selector, a no-thinking or reasoning-block reader, a footprint field) falls inside that row's owed-coverage class.
+- §1 trigger `l4-path-guard-callsite-wiring-coverage`: test-plan states that the production call sites (`LlamaCliInference::new` routing both path reads through `resolve_guarded_path`, and the prompt bound before argv assembly) have no wiring test. If the chunk changes model path resolution or defaults, test-plan names it as owed in `pulse-app/tests/*.rs`. Whether the default-model change touches those call sites is research's question.
+- §2 (Test directory + naming conventions) requires every pulse-app unit-shaped probe to live in `pulse-app/tests/*.rs` against `pub` + `#[doc(hidden)]` surfaces. The `pulse_app_src_carries_no_new_dead_test_attributes` ratchet keeps `pulse-app/src/` at zero `#[test]`; `main.rs` is exempt.
+
+## Patterns to follow
+- Probe flags are pinned through the `parse_args_from(iter)` seam, and each new pin is mutation-checked: widening or collapsing the logic must turn the pin red. Precedents are the `--shapes` pins and the asymmetric stem-grader pair (§1, `l4-decision-probe-arg-parse-unit-coverage`).
+- Closed label sets get a "label set is exactly the closed set" pin, as with `names_trigger` / `names_trigger_stem` (§1, same row). Any new per-generation reading, such as a reasoning-block-present flag, follows the same shape.
+- Real-model exit semantics use the INCONCLUSIVE exit 2 when a precondition is unmet, such as an unset or guard-rejected L4 path (§1, same row). The same shape appears in the §3 scenario legs: 0 PASS · 1 FAIL · 2 INCONCLUSIVE, and an unmet precondition is never a PASS.
+- Lineage versions are asserted through the `PROMPT_VERSION_*` consts without duplicating the literal (§4, interpretation crate). If a model-identity const or default is introduced, it is pinned the same way, through the const and not a copied string.
+
+## Anti-patterns to avoid
+- NEVER turn a real-model reading into a test assertion or a retry-tolerant pin. §11 Quality bans retry-once policies, and §2 requires determinism. Model quality, latency and the no-thinking result are series evidence only.
+- NEVER `std::env::set_var` mid-test to exercise a new default model path or env var without cleanup (§11 Mocking). Use the re-exec or constructor-injection forms instead.
+- NEVER commit an `#[ignore]` test (for example a GPU- or model-file-gated pin) without an open tracking issue (§11 Quality). Model-file-dependent checks belong in the dev-only probe, not in the workspace suite.
+
+## Contract bindings
+- tests ↔ security: the L4 path env vars (`ANDROMEDA_PULSE_MODEL_PATH` / `_LLAMA_{CUDA,CPU}_BIN_PATH` / `_L4_ALLOW_ROOT`) are covered by the §1 `security-vector-coverage: Path canonicalization + confinement` row, whose landed coverage is `pulse-app/tests/unit_llamacli_inference.rs`. Any new default-path logic must keep that guard pinned.
+- tests ↔ obs: the model identity reaches the `interpretation.model.load` records via `ModelLoadEvent`. If the chunk changes the identity strings, any obs-leaf pin that names them binds here. Whether such pins exist is research's question.
+- tests ↔ CI capability matrix: §9 `cargo xtask verify:capability-matrix` fails CI on dangling ids, paths or grep-anchors, and the matrix's env-gated-runtime entries cover real llama-cli integration. A renamed model file or identity anchor that a matrix entry greps would turn this gate red.
+- tests ↔ harness: a live product leg on the new model uses the §3 Direct-binary smoke variant, and its log assertions read `<data_dir>/logs/agent-latest.jsonl*` (bound to obs §Log format).
+
+## Acceptance criteria contributions
+- The standard gate set passes in its mandated order, with `capability-drift` before the workspace nextest and the `emit_taurpc_bindings` regen last. The bindings close with `git diff --quiet <chunk-base> -- pulse-app/ui/src/bindings/index.ts` exit 0, since the chunk adds no procedure (per test-plan §3 Per-chunk gate discipline).
+- `cargo nextest run -p interpretation` stays green with the lineage, framing, obligation and ASCII-clean pins unedited (per test-plan §4 interpretation crate).
+- Every probe flag or reader the series adds carries a collected, mutation-checked pin through `parse_args_from`, the example keeps `test = true`, and the series' quality and footprint figures are recorded as evidence, never asserted by a test (per test-plan §1 `l4-decision-probe-arg-parse-unit-coverage`).
+- If the L4 model default or path resolution changes, a `pulse-app/tests/*.rs` pin shows the new default still routes through the path guard (an out-of-root model yields `model_path == None` with the allow-root set), or the plan states why the call site is untouched (per test-plan §1 `l4-path-guard-callsite-wiring-coverage`).

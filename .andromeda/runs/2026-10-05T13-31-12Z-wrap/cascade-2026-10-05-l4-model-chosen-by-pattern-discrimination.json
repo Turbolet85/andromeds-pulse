@@ -1,0 +1,159 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "9b5fafc7",
+"ts": "2026-10-05T13:39:18Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap",
+"--marker",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 2,
+"stdout": [],
+"stderr": "[[pattern]] #4 (arch-pattern-entry): `id` is 1-16 chars of A-Z a-z 0-9 _ . -",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "9b5fafc7",
+"ts": "2026-10-05T13:39:32Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap",
+"--marker",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline 2dc099a6 (pre-CI parent — the oldest of 1 pre-CI commit(s), c5c3e94d)",
+"arch-chosen-by · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"arch-chooses · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:72 (p…",
+"arch-not-auto · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"arch-pattern · new 4 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"arch-llama · new 0 · standing 2 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"sec-7405 · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control security-plan.md:139 (prose)",
+"sec-ratio · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139 (pr…",
+"sec-headroom · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139 …",
+"tests-29 · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"tests-flags · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+".claude/docs/services/interpretation.md:30 arch-chosen-by leaf …del that ships is chosen by the pattern-discrimination …",
+".claude/docs/services/interpretation.md:30 arch-not-auto leaf … founder's pick — not automatically Qwen3.5-2B (founder …",
+".andromeda/architecture.md:71 arch-pattern standing edited mixed ×2 @c2072,2580/5130 …osen: the pattern-discrimination …",
+".andromeda/architecture.md:72 arch-pattern new ×2 @c8193,8362/8631 …ama-3.2-3B; the pattern-discrimination entry has si…",
+".andromeda/security-plan.md:139 arch-pattern new ×2 @c2118,2421/3386 … the 2026-10-05 pattern-discrimination compositio…",
+".andromeda/security-plan.md:461 arch-pattern new …575 B, the 2026-10-05 pattern-discrimination dev-probe composition (s…",
+".andromeda/test-plan.md:144 arch-pattern new @c2707/5276 …-l4-model-chosen-by-pattern-discrimination to 61 collected pi…",
+".claude/docs/services/interpretation.md:30 arch-pattern leaf ×2 …founder-approved pattern-discrimination design, 2026-1…",
+".andromeda/architecture.md:71 arch-llama standing edited mixed ×2 @c1656,3115/5130 …ed GGUF is Llama-3.2-3B-Instruct-Q4…",
+".andromeda/architecture.md:72 arch-llama standing edited @c6523/8631 …nce/series.md`; Llama-3.2-3B-Instruct-Q4_K_M thro…",
+".claude/docs/services/interpretation.md:30 arch-llama leaf …ipped** model is **Llama-3.2-3B-Instruct-Q4_K_M**. The **co…",
+".andromeda/security-plan.md:139 sec-7405 standing edited @c2090/3386 …sured) measured 7,405 B, and the 2026-10-05 patte…",
+".andromeda/security-plan.md:461 sec-7405 standing edited …er only); before it 7,405 B, the 2026-10-05 v2.5 dev-probe co…",
+".andromeda/test-plan.md:144 tests-29 standing edited @c2109/5276 …n-by-measurement to 29 collected pins** (13 new; `ARM…",
+".andromeda/test-plan.md:144 tests-flags new @c4513/5276 …parse of every flag but `--shapes` / `--sampling` / `--gbnf` /…",
+"arch-chosen-by · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"arch-chooses · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:72 (p…",
+"arch-not-auto · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"arch-pattern · new 4 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"arch-llama · new 0 · standing 2 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"sec-7405 · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control security-plan.md:139 (prose)",
+"sec-ratio · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139 (pr…",
+"sec-headroom · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139 …",
+"tests-29 · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"tests-flags · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "2dc099a6d6219e4e13b8c5d2c1ffef7eb4fed203",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), c5c3e94d",
+"counts": {
+"arch-chosen-by": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"arch-chooses": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"arch-not-auto": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"arch-pattern": {
+"new": 4,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"arch-llama": {
+"new": 0,
+"standing": 2,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"sec-7405": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"sec-ratio": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"sec-headroom": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"tests-29": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"tests-flags": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

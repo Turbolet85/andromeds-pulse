@@ -49,8 +49,8 @@ const DEFAULT_SETTINGS: SettingsResolved = {
   drain_max_clusters: 1000,
   // Chunk #80 — Cadence Coordinator defaults. Surfaced through Settings
   // bindings but not yet form-editable; chunk #86 carries forward the
-  // backend-side defaults к unblock the typecheck gate (Required<Settings>
-  // shape now includes these). Form controls land in а follow-up UI chunk.
+  // backend-side defaults to unblock the typecheck gate (Required<Settings>
+  // shape now includes these). Form controls land in a follow-up UI chunk.
   cadence_baseline_seconds: 60,
   cadence_accelerated_seconds: 20,
   cadence_reflection_seconds: 1800,

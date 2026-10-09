@@ -1,0 +1,9 @@
+### Heartbeat ticks
+
+- **Tick interval:** 15s for long-running subsystems (ingest, buffer, viz, plugins) via `tokio::time::interval(Duration::from_secs(15))`; 100ms for the realtime throughput counter (separate high-frequency ticker for animation smoothness per creator brief)
+- **Tick event format:** `tracing::info!(target: "{module}.tick", span_count=N, buffer_capacity_pct=M, broadcast_subscribers=X, "heartbeat")` — ride the same JSON file sink as the rest of the app
+- **Stall detection (two signals — liveness AND progress):** (a) LIVENESS — agent reads recent ticks via tail of JSON file or CLI `logs` command; missing tick for >45s = stall signal; `health` IPC command exposes the same fields synchronously for active liveness probing per arch Standard Contracts. (b) PROGRESS — tick presence does not certify that work is moving: a wedged buffer consumer keeps ticking while `rows_ingested` stays frozen, which every liveness check reads as healthy (measured 2026-08-26). The companion signal is `rows_ingested_delta` remaining 0 across consecutive `buffer.tick`s while the ingest channel still holds queued work, announced once per transition on `buffer.consumer.stalled` and asserted by `cargo xtask check:ingest-progress`
+
+**Complementarity with the `health` command:** Heartbeat ticks (asynchronous, 15s emission to the JSON log) and the TauRPC `health` command (synchronous status polling) serve different purposes and must not be conflated. Heartbeat ticks enable retroactive log analysis ("was the subsystem alive during this interval?"); the `health` command enables active liveness probing during boot (the test harness polls synchronously until status ok) and at runtime. Implementations emit tick events independent of `health` invocations, and return synchronous `health` status independent of tick history; both mechanisms remain and operate in parallel.
+
+---

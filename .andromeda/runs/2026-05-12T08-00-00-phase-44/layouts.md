@@ -1,0 +1,7 @@
+# layouts extract — phase-44
+
+## No domain coverage
+
+Chunk #47 ("Plugin loader + IPC routers — strict-path canonicalize from ~/.andromeda-pulse/plugins/, plugins.list/reload/invoke + xtask drift check, built-in templates") is out-of-domain for layouts. Reason: this is a pure backend chunk in the `plugins` crate plus three TauRPC procedure additions (`plugins.list` / `plugins.reload` / `plugins.invoke`), an xtask EXPECTED_PROCEDURES list extension (`xtask/src/main.rs`), and filesystem template scaffolding under `plugins-examples/`. The chunk does not render to any of the three surfaces defined in `layout-templates.md` — neither desktop-webview (compact widget / full dashboard / Settings modal) nor desktop-native (tray icon / tray menu / OS notifications). No new component placement, wireframe region, focus order entry, modal structure, navigation pattern, responsive breakpoint behavior, or empty-state design is introduced by this chunk. The eventual "plugin manager" UI noted as a deferred Settings-modal sub-form in §desktop-webview Settings modal is not in scope for chunk #47 (route#47 stops at IPC + loader + templates; any UI surface that lists, reloads, or invokes plugins lands in a later chunk that would need its own /andromeda-phase planning round with active layouts coverage).
+
+Continue to other specialists' extracts.

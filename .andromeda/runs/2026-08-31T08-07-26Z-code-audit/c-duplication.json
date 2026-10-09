@@ -1,0 +1,74 @@
+{
+ "pct": 7.088597244368127,
+ "duplicated_lines": 8669,
+ "total_lines": 122295,
+ "clones": 716,
+ "stats_derived": false,
+ "top": [
+  [
+   "pulse-app/ui/src/dashboard/routes/metrics/MetricsChart.tsx",
+   "pulse-app/ui/src/widget/ConstellationCanvas.tsx",
+   158,
+   "src"
+  ],
+  [
+   "crates/triage/src/baseline/mod.rs",
+   "crates/triage/src/pattern/storm.rs",
+   74,
+   "src"
+  ],
+  [
+   "crates/triage/src/baseline/mod.rs",
+   "crates/triage/src/pattern/detector.rs",
+   70,
+   "src"
+  ],
+  [
+   "crates/triage/src/baseline/mod.rs",
+   "pulse-app/tests/unit_baseline_persistence.rs",
+   64,
+   "mixed"
+  ],
+  [
+   "pulse-app/tests/security_l4_parse_failure_does_not_leak_output.rs",
+   "pulse-app/tests/unit_degraded_mode_runtime.rs",
+   64,
+   "test"
+  ],
+  [
+   "crates/triage/src/baseline/mod.rs",
+   "crates/triage/src/lifecycle/mod.rs",
+   55,
+   "src"
+  ],
+  [
+   "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+   "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+   49,
+   "test"
+  ],
+  [
+   "pulse-app/tests/security_path_env_var_canonicalization.rs",
+   "pulse-app/tests/security_plugin_path_basename_only.rs",
+   49,
+   "test"
+  ],
+  [
+   "crates/buffer/src/appender.rs",
+   "pulse-app/tests/integration_investigate_actions.rs",
+   48,
+   "mixed"
+  ],
+  [
+   "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+   "pulse-app/tests/integration_deterministic_l4_mode.rs",
+   48,
+   "test"
+  ]
+ ],
+ "split": {
+  "src": 382,
+  "test": 293,
+  "mixed": 41
+ }
+}

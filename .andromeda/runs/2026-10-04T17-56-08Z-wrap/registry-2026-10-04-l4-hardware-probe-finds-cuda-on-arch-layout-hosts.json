@@ -1,0 +1,98 @@
+[
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "44404041",
+"ts": "2026-10-04T17:58:11Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/architecture.md",
+"--out",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap/architecture-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap",
+"--marker",
+"2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §Infrastructure Patterns in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "44404041",
+"ts": "2026-10-04T17:58:11Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/test-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap/test-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap",
+"--marker",
+"2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Test Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "44404041",
+"ts": "2026-10-04T17:58:11Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/obs-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap/obs-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap",
+"--marker",
+"2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Observability Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "44404041",
+"ts": "2026-10-04T17:58:12Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/a11y-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap/a11y-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap",
+"--marker",
+"2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. A11y Assertion Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+}
+]

@@ -1,0 +1,22 @@
+[[pattern]]
+id = "sla-name"
+fixed = 'Critical CVE response SLA'
+
+[[pattern]]
+id = "sla-72h"
+regex = '72 ?h(ours?)?\b'
+ignore_case = true
+
+[[pattern]]
+id = "sla-patch-rel"
+fixed = 'tagged patch release'
+ignore_case = true
+
+[[pattern]]
+id = "sla-window"
+regex = 'within the same window|advisory disclosure'
+ignore_case = true
+
+[[pattern]]
+id = "sla-ghsa"
+fixed = 'GHSA-p6vx-979v-rg4c'

@@ -1,0 +1,264 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "43eb863f",
+"ts": "2026-10-05T16:11:50Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [
+"baseline 7663dd91 (pre-CI parent — the oldest of 1 pre-CI commit(s), bc1946de)",
+"trivially · control UNFIRED over the seven masters at 7663dd91"
+],
+"stderr": "control: trivially never fired over the seven masters' pre-pass text (7663dd91) — a sweep runs a positive control or refuses; drop the pattern or control it by hand",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "43eb863f",
+"ts": "2026-10-05T16:12:05Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline 7663dd91 (pre-CI parent — the oldest of 1 pre-CI commit(s), bc1946de)",
+"schema-file · new 1 · standing 2 · leaf 4 · curation 0 · base 0 · control architecture.md:30 (prose)",
+"schema-constr · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:30 (…",
+"shipped-llama · new 2 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"two-outside · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:218 (prose)",
+"gpu-5s · new 1 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"zero-muted · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:553 (prose)",
+"tests-101 · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control test-plan.md:354 (prose)",
+"gbnf-flag · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+".andromeda/architecture.md:72 schema-file standing edited mixed ×3 @c350,3021,5037/7201 …never `--json-schema-file` (th…",
+".andromeda/architecture.md:221 schema-file new …the JSON schema for `--json-schema-file` (`SchemaTempFile`); chunk `202…",
+".andromeda/test-plan.md:144 schema-file standing edited mixed ×2 @c2581,5309/6340 …lace of `--json-schema-file`), throu…",
+".claude/docs/services/interpretation.md:31 schema-file leaf …-disable -n 1024 --json-schema-file -p`**, every value a f…",
+".claude/docs/services/interpretation.md:35 schema-file leaf …n prompt into a `--json-schema-file` grammar. The grammar …",
+".claude/docs/stack.md:24 schema-file leaf …22.3 tok/sec under L4 `--json-schema-file` GBNF constraint, ~4.3 s for a com…",
+".claude/docs/stack.md:28 schema-file leaf …** llama.cpp's native `--json-schema-file <path>` flag → GBNF grammar enforc…",
+".andromeda/architecture.md:72 shipped-llama new @c3205/7201 …d`). Before it the shipped GGUF was Llama-3.2-3B-Instruct-…",
+".andromeda/architecture.md:73 shipped-llama new @c8155/8645 …on.md`), while the shipped model was still Llama-3.2-3B; t…",
+".claude/docs/services/interpretation.md:30 shipped-llama leaf markup …ile stem. The **shipped** model is **Llama-3.2-3B…",
+".claude/rules/security.md:17 two-outside leaf @c4141/4203 … export sink it is one of the two product-written locations …",
+".claude/rules/security.md:56 two-outside leaf …-30, «Да, делай») is a second deliberate NO-SCRUB webview-originated log…",
+".andromeda/architecture.md:72 gpu-5s standing edited @c4355/7201 …t above the then gpu-primary budget of 5000 ms, which…",
+".andromeda/test-plan.md:145 gpu-5s new …de gradable in lockstep — gpu-primary budget 10000 ms, nearest-rank p99 (`.sh` …",
+".claude/docs/services/interpretation.md:30 gpu-5s leaf …h GPU p50 above the 5000 ms gpu-primary budget (chunk 2026-10-0…",
+".claude/rules/testing.md:25 tests-101 leaf …`pulse-app/tests/*.rs` (101 files as of 2026-10-04) and reach internals via…",
+".andromeda/test-plan.md:144 gbnf-flag standing edited mixed ×4 @c2489,4715,4784,4812/6340 …ummary, `--gbnf FILE` and th…",
+".claude/docs/services/interpretation.md:41 gbnf-flag leaf …n `--grammar-file {--gbnf}`; `--sampling` carries allowliste…",
+"schema-file · new 1 · standing 2 · leaf 4 · curation 0 · base 0 · control architecture.md:30 (prose)",
+"schema-constr · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:30 (…",
+"shipped-llama · new 2 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"two-outside · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:218 (prose)",
+"gpu-5s · new 1 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"zero-muted · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:553 (prose)",
+"tests-101 · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control test-plan.md:354 (prose)",
+"gbnf-flag · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control test-plan.md:144 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "7663dd91c4492bc78eb50a827ed18bad860b1701",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), bc1946de",
+"counts": {
+"schema-file": {
+"new": 1,
+"standing": 2,
+"leaf": 4,
+"curation": 0,
+"base": 0
+},
+"schema-constr": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"shipped-llama": {
+"new": 2,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"two-outside": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"gpu-5s": {
+"new": 1,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"zero-muted": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"tests-101": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"gbnf-flag": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+}
+}
+}
+},
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "43eb863f",
+"ts": "2026-10-05T16:15:18Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline 7663dd91 (pre-CI parent — the oldest of 1 pre-CI commit(s), bc1946de)",
+"schema-file · new 1 · standing 2 · leaf 4 · curation 0 · base 0 · control architecture.md:30 (prose)",
+"schema-constr · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:30 (…",
+"shipped-llama · new 2 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"two-outside · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:218 (prose)",
+"gpu-5s · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"zero-muted · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:553 (prose)",
+"tests-101 · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:354 (prose)",
+"gbnf-flag · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+".andromeda/architecture.md:72 schema-file standing edited mixed ×3 @c350,3021,5037/7201 …never `--json-schema-file` (th…",
+".andromeda/architecture.md:221 schema-file new …the JSON schema for `--json-schema-file` (`SchemaTempFile`); chunk `202…",
+".andromeda/test-plan.md:144 schema-file standing edited mixed ×2 @c2581,5309/6340 …lace of `--json-schema-file`), throu…",
+"CLAUDE.md:9 schema-file leaf @c2182/2554 …grammar-file` — never `--json-schema-file`, which b9305 prefills and gemma4 f…",
+".claude/docs/services/interpretation.md:36 schema-file leaf - **Never `--json-schema-file`.** b9305 prefills a thinking…",
+".claude/docs/stack.md:24 schema-file leaf …22.3 tok/sec under L4 `--json-schema-file` GBNF constraint, ~4.3 s for a com…",
+".claude/docs/stack.md:28 schema-file leaf ×2 … requirement). Never `--json-schema-file`: b9305 prefills a thinking temp…",
+".andromeda/architecture.md:72 shipped-llama new @c3205/7201 …d`). Before it the shipped GGUF was Llama-3.2-3B-Instruct-…",
+".andromeda/architecture.md:73 shipped-llama new @c8155/8645 …on.md`), while the shipped model was still Llama-3.2-3B; t…",
+".claude/docs/services/interpretation.md:34 shipped-llama leaf …--min-p 0` is the shipped model's published sampling (`L…",
+".claude/rules/security.md:56 two-outside leaf …-30, «Да, делай») is a second deliberate NO-SCRUB webview-originated log…",
+".andromeda/architecture.md:72 gpu-5s standing edited @c4355/7201 …t above the then gpu-primary budget of 5000 ms, which…",
+".andromeda/test-plan.md:145 gpu-5s new …de gradable in lockstep — gpu-primary budget 10000 ms, nearest-rank p99 (`.sh` …",
+".andromeda/test-plan.md:144 gbnf-flag standing edited mixed ×4 @c2489,4715,4784,4812/6340 …ummary, `--gbnf FILE` and th…",
+".claude/docs/services/interpretation.md:39 gbnf-flag leaf …rmer `gb` arm and `--gbnf` flag are retired (the shipped arg…",
+"schema-file · new 1 · standing 2 · leaf 4 · curation 0 · base 0 · control architecture.md:30 (prose)",
+"schema-constr · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:30 (…",
+"shipped-llama · new 2 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"two-outside · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:218 (prose)",
+"gpu-5s · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:71 (prose)",
+"zero-muted · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:553 (prose)",
+"tests-101 · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:354 (prose)",
+"gbnf-flag · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control test-plan.md:144 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "7663dd91c4492bc78eb50a827ed18bad860b1701",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), bc1946de",
+"counts": {
+"schema-file": {
+"new": 1,
+"standing": 2,
+"leaf": 4,
+"curation": 0,
+"base": 0
+},
+"schema-constr": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"shipped-llama": {
+"new": 2,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"two-outside": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"gpu-5s": {
+"new": 1,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"zero-muted": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"tests-101": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"gbnf-flag": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

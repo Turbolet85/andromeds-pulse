@@ -10,12 +10,18 @@ use crate::state::VizState;
 pub const LIMIT_MAX: u32 = 1_000;
 pub const LIMIT_DEFAULT: u32 = 100;
 
+// Recent-traces ordering is by COMPLETION (end_time), not start: a slow span
+// that just finished is genuinely recent, so a slow erroring service surfaces
+// in the window instead of being ranked "old" by its early start and cut off
+// by LIMIT (intent F8 / P-068). The WHERE still windows on start-time
+// (ts_unix_nano); next_cursor keys on start-time too — a latent pagination
+// caveat only (the Traces route uses a single page, cursor=null).
 const SELECT_TRACES: &str = "SELECT trace_id, span_id, ts_unix_nano, service_name, end_time_unix_nano, status_code \
      FROM spans \
      WHERE ts_unix_nano >= ? AND ts_unix_nano < ? \
-     ORDER BY ts_unix_nano DESC, trace_id LIMIT ?";
+     ORDER BY end_time_unix_nano DESC, trace_id LIMIT ?";
 
-const SELECT_METRICS: &str = "SELECT metric_name, ts_unix_nano, resource_hash, value, data_point_kind \
+const SELECT_METRICS: &str = "SELECT metric_name, ts_unix_nano, resource_hash, value, data_point_kind, labels \
      FROM metrics_points \
      WHERE ts_unix_nano >= ? AND ts_unix_nano < ? \
      ORDER BY ts_unix_nano DESC, metric_name LIMIT ?";
@@ -79,6 +85,9 @@ pub struct MetricRow {
     pub value: f64,
     // 0=Gauge, 1=Sum, 2=Histogram, 3=ExponentialHistogram, 4=Summary per OTLP `metric::Data`.
     pub data_point_kind: u8,
+    // Scrubbed `key=value` pairs, comma-joined, sorted. Empty when the data
+    // point carried no attributes.
+    pub labels: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
@@ -91,6 +100,29 @@ pub struct LogRow {
     // Hex-encoded; empty string when log has no span correlation.
     pub trace_id: String,
     pub span_id: String,
+}
+
+/// DEDICATED read connection cloned from the shared appender connection, per
+/// obs-plan §10 DuckDB Connection Isolation: any consumer issuing multi-second
+/// statements must not hold the shared appender mutex. The Traces surface
+/// re-polls on a timer, so these reads recur for the lifetime of the window and
+/// a slow one on the shared connection stalls the buffer consumer outright.
+/// Mirrors `buffer::retention` + `triage::baseline::sql::TriageSqlState::new`;
+/// falls back to the shared connection if cloning fails — degraded but
+/// functional, and loudly logged.
+pub fn read_connection(conn: &Arc<Mutex<Connection>>) -> Arc<Mutex<Connection>> {
+    let cloned = conn.lock().ok().and_then(|guard| guard.try_clone().ok());
+    match cloned {
+        Some(c) => Arc::new(Mutex::new(c)),
+        None => {
+            tracing::warn!(
+                target: "viz.query",
+                fallback = "shared_connection",
+                "viz read connection clone failed; querying on the shared connection"
+            );
+            Arc::clone(conn)
+        }
+    }
 }
 
 pub fn query_traces(
@@ -228,12 +260,14 @@ pub fn query_metrics(
                 let resource_hash_blob: Vec<u8> = row.get(2)?;
                 let value: f64 = row.get(3)?;
                 let data_point_kind: i32 = row.get(4)?;
+                let labels: String = row.get(5)?;
                 Ok((
                     metric_name,
                     ts_unix_nano,
                     resource_hash_blob,
                     value,
                     data_point_kind,
+                    labels,
                 ))
             },
         )
@@ -243,7 +277,7 @@ pub fn query_metrics(
 
     let mut items: Vec<MetricRow> = Vec::new();
     for row in rows {
-        let (metric_name, ts_unix_nano, resource_hash_blob, value, data_point_kind) =
+        let (metric_name, ts_unix_nano, resource_hash_blob, value, data_point_kind, labels) =
             row.map_err(|e| Error::Decode {
                 reason: format!("row: {}", short_err(&e.to_string())),
             })?;
@@ -253,6 +287,7 @@ pub fn query_metrics(
             resource_hash: hex_encode(&resource_hash_blob),
             value,
             data_point_kind: data_point_kind.clamp(0, u8::MAX as i32) as u8,
+            labels,
         });
     }
 
@@ -459,6 +494,30 @@ mod tests {
     use crate::contract::Error as VizError;
     use std::sync::{Arc, Mutex};
 
+    #[test]
+    fn read_connection_returns_a_distinct_usable_connection() {
+        // The point of the clone is that viz stops queueing on the appender's
+        // mutex, so "distinct Arc" is the property under test, not an
+        // implementation detail — a fallback that handed back the SAME Arc
+        // would satisfy every query assertion while restoring the contention
+        // obs-plan §10 forbids.
+        let shared = open_in_memory_with_schema();
+        let read = read_connection(&shared);
+
+        assert!(
+            !Arc::ptr_eq(&shared, &read),
+            "read_connection must not hand back the shared appender connection",
+        );
+
+        let guard = read.lock().expect("read connection lock");
+        let count: i64 = guard
+            .prepare(COUNT_TRACES)
+            .expect("prepare on the cloned connection")
+            .query_row([0_i64, i64::MAX], |row| row.get(0))
+            .expect("the clone must see the same in-memory database");
+        assert_eq!(count, 0);
+    }
+
     fn open_in_memory_with_schema() -> Arc<Mutex<Connection>> {
         let conn = Connection::open_in_memory().expect("open_in_memory");
         conn.execute_batch(
@@ -479,7 +538,9 @@ mod tests {
                 resource_hash BLOB NOT NULL,
                 value DOUBLE NOT NULL DEFAULT 0.0,
                 data_point_kind INTEGER NOT NULL DEFAULT 0,
-                PRIMARY KEY (metric_name, ts_unix_nano, resource_hash)
+                seq BIGINT NOT NULL,
+                labels VARCHAR NOT NULL DEFAULT '',
+                PRIMARY KEY (metric_name, ts_unix_nano, resource_hash, seq)
             );
             CREATE TABLE IF NOT EXISTS log_records (
                 ts TIMESTAMPTZ NOT NULL,
@@ -490,11 +551,26 @@ mod tests {
                 severity_text VARCHAR NOT NULL DEFAULT '',
                 trace_id BLOB NOT NULL DEFAULT X'',
                 span_id BLOB NOT NULL DEFAULT X'',
-                PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
+                seq BIGINT NOT NULL,
+                PRIMARY KEY (ts_unix_nano, resource_hash, severity_number, seq)
             );",
         )
         .expect("create_schema");
         Arc::new(Mutex::new(conn))
+    }
+
+    // `seq` is a primary-key column, so every seeded row must supply one.
+    // A counter also keeps two same-nanosecond seeds from colliding.
+    static SEED_LOG_SEQ: std::sync::atomic::AtomicI64 = std::sync::atomic::AtomicI64::new(0);
+
+    fn next_log_seq() -> i64 {
+        SEED_LOG_SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+    }
+
+    static SEED_METRIC_SEQ: std::sync::atomic::AtomicI64 = std::sync::atomic::AtomicI64::new(0);
+
+    fn next_metric_seq() -> i64 {
+        SEED_METRIC_SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
     }
 
     fn seed_metric_full(
@@ -508,8 +584,15 @@ mod tests {
         let resource_hash: Vec<u8> = vec![2u8; 16];
         guard
             .execute(
-                "INSERT INTO metrics_points (metric_name, ts, ts_unix_nano, resource_hash, value, data_point_kind) VALUES (?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?)",
-                duckdb::params![name, ts_ns, resource_hash.as_slice(), value, kind],
+                "INSERT INTO metrics_points (metric_name, ts, ts_unix_nano, resource_hash, value, data_point_kind, seq) VALUES (?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?, ?)",
+                duckdb::params![
+                    name,
+                    ts_ns,
+                    resource_hash.as_slice(),
+                    value,
+                    kind,
+                    next_metric_seq()
+                ],
             )
             .expect("insert metric");
     }
@@ -527,7 +610,7 @@ mod tests {
         let resource_hash: Vec<u8> = vec![1u8; 16];
         guard
             .execute(
-                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number, body, severity_text, trace_id, span_id) VALUES ('2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number, body, severity_text, trace_id, span_id, seq) VALUES ('2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?, ?, ?, ?, ?)",
                 duckdb::params![
                     ts_ns,
                     resource_hash.as_slice(),
@@ -536,6 +619,7 @@ mod tests {
                     severity_text,
                     trace_id,
                     span_id,
+                    next_log_seq(),
                 ],
             )
             .expect("insert log");
@@ -578,8 +662,8 @@ mod tests {
         let resource_hash: Vec<u8> = vec![1u8; 16];
         guard
             .execute(
-                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number) VALUES ('2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?)",
-                duckdb::params![ts_ns, resource_hash.as_slice(), severity],
+                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number, seq) VALUES ('2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?)",
+                duckdb::params![ts_ns, resource_hash.as_slice(), severity, next_log_seq()],
             )
             .expect("insert log");
     }
@@ -589,8 +673,8 @@ mod tests {
         let resource_hash: Vec<u8> = vec![2u8; 16];
         guard
             .execute(
-                "INSERT INTO metrics_points (metric_name, ts, ts_unix_nano, resource_hash) VALUES (?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?)",
-                duckdb::params![name, ts_ns, resource_hash.as_slice()],
+                "INSERT INTO metrics_points (metric_name, ts, ts_unix_nano, resource_hash, seq) VALUES (?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?)",
+                duckdb::params![name, ts_ns, resource_hash.as_slice(), next_metric_seq()],
             )
             .expect("insert metric");
     }
@@ -671,6 +755,47 @@ mod tests {
         assert_eq!(resp.next_cursor, None);
         assert!(resp.items[0].ts_unix_nano > resp.items[1].ts_unix_nano);
         assert!(resp.items[1].ts_unix_nano > resp.items[2].ts_unix_nano);
+    }
+
+    #[test]
+    fn query_traces_orders_by_completion_so_slow_erroring_spans_surface() {
+        // A slow span that JUST FINISHED (early start, recent end) must rank
+        // ABOVE a fast span that started later but finished earlier — otherwise
+        // the 2.5s-slow erroring service is ranked "old" by its start, cut off
+        // by LIMIT, and never reaches the Traces table (intent F8 / P-068).
+        let conn = open_in_memory_with_schema();
+        let now = now_ns();
+        // Slow erroring: started 3s ago, just completed now (status_code=2).
+        seed_span_full(&conn, 9, 9, now - 3_000_000_000, "payment-service", now, 2);
+        // Fast healthy: started 100ms ago, completed 90ms ago (status_code=1).
+        seed_span_full(
+            &conn,
+            8,
+            8,
+            now - 100_000_000,
+            "auth-service",
+            now - 90_000_000,
+            1,
+        );
+
+        let state = VizState::new();
+        let resp = query_traces(
+            &conn,
+            &state,
+            &TracesQueryArgs {
+                time_window_seconds: 60,
+                limit: 10,
+                cursor: None,
+            },
+        )
+        .expect("query");
+
+        assert_eq!(resp.items.len(), 2);
+        // Ordered by completion: the slow, just-finished erroring span is first
+        // even though its start-time is the oldest.
+        assert_eq!(resp.items[0].service, "payment-service");
+        assert_eq!(resp.items[0].error_count, 1);
+        assert_eq!(resp.items[1].service, "auth-service");
     }
 
     #[test]
@@ -907,6 +1032,80 @@ mod tests {
         assert_eq!(resp.items[1].data_point_kind, 1); // Sum
     }
 
+    fn seed_metric_with_labels(
+        conn: &Arc<Mutex<Connection>>,
+        name: &str,
+        ts_ns: i64,
+        value: f64,
+        labels: &str,
+    ) {
+        let guard = conn.lock().expect("lock");
+        let resource_hash: Vec<u8> = vec![2u8; 16];
+        guard
+            .execute(
+                "INSERT INTO metrics_points (metric_name, ts, ts_unix_nano, resource_hash, value, data_point_kind, seq, labels) VALUES (?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, 0, ?, ?)",
+                duckdb::params![
+                    name,
+                    ts_ns,
+                    resource_hash.as_slice(),
+                    value,
+                    next_metric_seq(),
+                    labels
+                ],
+            )
+            .expect("insert labelled metric");
+    }
+
+    // The chunk's witness surface: labels must survive the READ path, not just
+    // the write. Two points of one metric differing only by label set come back
+    // distinguishable through `query_metrics` itself.
+    #[test]
+    fn query_metrics_returns_labels_distinguishing_otherwise_identical_points() {
+        let conn = open_in_memory_with_schema();
+        let now = now_ns();
+        seed_metric_with_labels(&conn, "req", now - 1_000_000, 11.0, "http.route=/alpha");
+        seed_metric_with_labels(&conn, "req", now - 2_000_000, 22.0, "http.route=/bravo");
+        let state = VizState::new();
+        let resp = query_metrics(
+            &conn,
+            &state,
+            &MetricsQueryArgs {
+                time_window_seconds: 60,
+                limit: 10,
+                cursor: None,
+            },
+        )
+        .expect("query");
+
+        assert_eq!(resp.items.len(), 2);
+        assert_eq!(resp.items[0].labels, "http.route=/alpha");
+        assert_eq!(resp.items[1].labels, "http.route=/bravo");
+        assert_ne!(
+            resp.items[0].labels, resp.items[1].labels,
+            "read-back must distinguish the pair by labels"
+        );
+    }
+
+    #[test]
+    fn query_metrics_returns_empty_labels_for_attributeless_points() {
+        let conn = open_in_memory_with_schema();
+        let now = now_ns();
+        seed_metric_full(&conn, "cpu", now - 1_000_000, 42.0, 0);
+        let state = VizState::new();
+        let resp = query_metrics(
+            &conn,
+            &state,
+            &MetricsQueryArgs {
+                time_window_seconds: 60,
+                limit: 10,
+                cursor: None,
+            },
+        )
+        .expect("query");
+        assert_eq!(resp.items.len(), 1);
+        assert_eq!(resp.items[0].labels, "");
+    }
+
     #[test]
     fn query_logs_returns_seeded_rows() {
         let conn = open_in_memory_with_schema();
@@ -967,11 +1166,13 @@ mod tests {
             resource_hash: "deadbeef".to_string(),
             value: 7.5,
             data_point_kind: 1,
+            labels: "http.route=/alpha".to_string(),
         };
         let s = serde_json::to_string(&row).expect("serialize");
         let parsed: MetricRow = serde_json::from_str(&s).expect("deserialize");
         assert_eq!(parsed.value, 7.5);
         assert_eq!(parsed.data_point_kind, 1);
+        assert_eq!(parsed.labels, "http.route=/alpha");
     }
 
     #[test]

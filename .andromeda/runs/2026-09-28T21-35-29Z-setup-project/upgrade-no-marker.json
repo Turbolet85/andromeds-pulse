@@ -1,0 +1,62 @@
+[
+{
+"tool": "upgrade",
+"v": "1.0",
+"sha8": "c78f62d3",
+"ts": "2026-09-28T21:40:16Z",
+"argv": [
+"apply",
+"--root",
+".",
+"--id",
+"U11",
+"--run-dir",
+".andromeda/runs/2026-09-28T21-35-29Z-setup-project"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"U11: .andromeda/friction-log.ndjson renormalised in the worktree — 65 CRLF → LF over 1309 lines, read back"
+],
+"stderr": null,
+"wrote": [
+"D:\\dev\\projects\\andromeda-pulse\\.andromeda/friction-log.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "upgrade",
+"v": "1.0",
+"sha8": "c78f62d3",
+"ts": "2026-09-28T21:40:24Z",
+"argv": [
+"apply",
+"--root",
+".",
+"--id",
+"U12",
+"--run-dir",
+".andromeda/runs/2026-09-28T21-35-29Z-setup-project"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"U12: swapped the residuals header (5 → 7 lines, the file's own terminator); 8 entry lines byte-identical — read back"
+],
+"stderr": null,
+"wrote": [
+"D:\\dev\\projects\\andromeda-pulse\\.andromeda/residuals.md"
+],
+"before": {
+"lines": 13,
+"bytes": 4904,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 15,
+"bytes": 5103
+}
+}
+]

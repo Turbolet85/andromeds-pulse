@@ -1,0 +1,45 @@
+gate v1.6 · 9419d56e
+shell /usr/bin/bash (from $SHELL; -c, non-login)
+root /home/turbolet/dev/projects/andromeda-pulse · marker 2026-10-04-supply-chain-advisories-on-wasmtime-resolved · entries 34
+logs <os-temp>/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/run-20261004T011950Z · bound: GNU timeout
+delta docs 38
+prose L50-55: These are the gates for a dependency bump. The bump's own subject comes first: the resolut… (598 chars)
+prose L57-61: Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gat… (601 chars)
+prose L63-72: `cargo xtask pre-push:linux` cannot evaluate on the Linux dev host, because it drives ever… (1103 chars)
+prose L74-77: `evidence/advisory-record.md` and `evidence/lockfile-delta.md`, which a criterion and Step… (405 chars)
+prose L79-80: The CI read waits 2400 s, against the last green run's wall-clock of 1718 s (`a69030a`, re… (148 chars)
+  1 lint        not run — dry-run · cargo fmt --check
+  2 lint        not run — dry-run · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)
+  3 probe       not run — dry-run · grep -c '^wasmtime = { version = "48.0.4", features = \["c… (90 chars)
+  4 probe       not run — dry-run · cargo tree -p wasmtime --depth 0 -e normal
+  5 probe       not run — dry-run · test -f "$HOME/.cargo/advisory-db/crates/wasmtime/RUSTSEC-… (221 chars)
+  6 probe       not run — dry-run · cargo audit
+  7 probe       not run — dry-run · cargo deny check bans licenses sources
+  8 probe       not run — dry-run · cargo deny check advisories
+  9 probe       not run — dry-run · cargo tree -p wasmtime | grep -q cranelift
+ 10 probe       not run — dry-run · grep -cE 'RUSTSEC-2026-032[567]' deny.toml
+ 11 probe       not run — dry-run · test ! -e audit.toml && test ! -e .cargo/audit.toml
+ 12 probe       not run — dry-run · git diff -U1 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- C… (228 chars)
+ 13 probe       not run — dry-run · git diff 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- Cargo… (90 chars)
+ 14 probe       not run — dry-run · git diff --name-only 5988a5f80b7280081fdeb12d9eca16bfa32f4… (125 chars)
+ 15 unit        not run — dry-run · cargo nextest run --workspace --profile ci -E 'package(plu… (65 chars)
+ 16 probe       not run — dry-run · cargo xtask check:english-sources
+ 17 probe       not run — dry-run · cargo xtask capability-widening-check
+ 18 probe       not run — dry-run · cargo xtask check:ingest-progress
+ 19 probe       not run — dry-run · cargo xtask check:staged-artifacts
+ 20 probe       not run — dry-run · cargo xtask capability-drift
+ 21 probe       not run — dry-run · cargo xtask verify:capability-matrix
+ 22 unit        not run — dry-run · cargo nextest run --workspace --profile ci
+ 23 build       not run — dry-run · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)
+ 24 probe       not run — dry-run · git diff --quiet 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 … (95 chars)
+ 25 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-too… (84 chars)
+ 26 integration not run — leg operator (the letter drives it) · git ls-files -s scripts/agent-run.sh
+ 27 integration not run — leg operator (the letter drives it) · env -i HOME="$HOME" PATH="$HOME/.cargo/bin:$(dirname "$(co… (191 chars)
+ 28 integration not run — leg operator (the letter drives it) · cd pulse-app/ui && env -i HOME="$HOME" PATH="$HOME/.cargo/… (364 chars)
+ 29 integration not run — leg operator (the letter drives it) · env -i HOME="$HOME" PATH="$HOME/.cargo/bin:$(dirname "$(co… (226 chars)
+ 30 integration not run — leg operator (the letter drives it) · env -i HOME="$HOME" PATH="$HOME/.cargo/bin:$(dirname "$(co… (174 chars)
+ 31 integration not run — leg operator (the letter drives it) · D="$PWD/target/pre-push/data" && rm -rf "$D" && mkdir -p "… (589 chars)
+ 32 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)
+ 33 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-too… (108 chars)
+ 34 probe       not run — leg operator (the letter drives it) · gh api repos/Turbolet85/andromeds-pulse/actions/cache/usag… (59 chars)
+entries 34 · green 0 · red 0 · recorded 0 · timeout 0 · not-run 34

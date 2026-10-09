@@ -1,0 +1,29 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%generate_constrained%' ORDER BY file, line;",
+"rows": 4,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/handle_digest_outcome().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 336
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 real_subprocess_round_trip_returns_schema_conformant_l4_output().",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 139
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 runner_is_loaded_and_returns_canned_output().",
+"file": "pulse-app/tests/unit_deterministic_inference.rs",
+"line": 49
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 generate_constrained_returns_not_configured_when_env_vars_missing().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 219
+}
+],
+"db_state": "regenerated"
+}
+]

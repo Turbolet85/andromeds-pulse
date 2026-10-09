@@ -1,0 +1,80 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "bcb97ef6",
+"ts": "2026-10-04T15:02:06Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap/architecture-entry-1.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+11 at line 626 · lines 625→636 · bytes 90072→91832 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T14-54-42Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 625,
+"bytes": 90072,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 636,
+"bytes": 91832
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "bcb97ef6",
+"ts": "2026-10-04T15:02:06Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap/architecture-entry-2.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+11 at line 637 · lines 636→647 · bytes 91832→93233 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T14-54-42Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 636,
+"bytes": 91832,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 647,
+"bytes": 93233
+}
+}
+]

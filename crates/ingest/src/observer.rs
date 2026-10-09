@@ -2,7 +2,7 @@
 //! tracker integration.
 //!
 //! Defines the abstraction that lets buffer's consumer hand off decoded
-//! spans к the chunk #61 streaming baseline tracker (`triage::BaselineState`)
+//! spans to the chunk #61 streaming baseline tracker (`triage::BaselineState`)
 //! without buffer depending on triage. Trait lives in ingest because spans
 //! originate from ingest decode; implementation lives at pulse-app boundary
 //! (see `pulse-app/src/baseline_observer.rs`) which already depends on both
@@ -34,7 +34,7 @@ pub trait SpanObserver: Send + Sync {
 }
 
 /// No-op implementation used as default in tests and as a fallback when
-/// no baseline tracker is wired в (e.g., disabled-by-feature paths or
+/// no baseline tracker is wired in (e.g., disabled-by-feature paths or
 /// boot-time fallback if `BaselineState` init fails).
 #[derive(Debug, Default, Clone, Copy)]
 pub struct NoopSpanObserver;

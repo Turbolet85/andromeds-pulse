@@ -1,0 +1,6 @@
+
+## 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings — the per-spawn L4 grammar temp file registered as the third out-of-data-dir write
+**Section:** §Occupied Resources → Filesystem locations (a new bullet; the export-sink bullet; the lock-file bullet)
+**Change:** A new bullet registers `andromeda-pulse-llama-grammar-{pid}-{nanos}.gbnf` in `std::env::temp_dir()`, written by `LlamaCliInference::generate_constrained` through the RAII `GrammarTempFile` before each spawn and removed after the wait; it holds only `L4_OUTPUT_GBNF`, is passed as `--grammar-file`, is never logged, and a write failure is `grammar_tempfile_write_failed`. The location predates the lock file — since chunk #84 it held the JSON schema (`SchemaTempFile`); this chunk changed its content and name, not its location. Was "one of TWO deliberate exceptions" (export sink) and "the SECOND deliberate exception" (lock file); now three, each bullet naming the other two.
+**Why:** A pre-existing reality the masters missed: the measured count of product-written locations outside the data dir is three, not two. The implementation already embodies it, so the doc alone was wrong.
+**Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/

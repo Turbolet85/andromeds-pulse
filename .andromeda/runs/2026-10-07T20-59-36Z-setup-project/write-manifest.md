@@ -1,0 +1,10 @@
+6a66d3b18955da0d1d31e7218ee734a4  .claude/backup/CLAUDE.md.pre-setup-2026-10-07T20-59-36Z
+4be4626b14363aec1fc1b9dbd80f9005  .claude/backup/host-win32.md.pre-setup-2026-10-07T20-59-36Z-setup-project
+b8cc5e6ca3226a20ed9d605224ab5b8e  .claude/docs/session-learnings.md
+628ee262627c9d17930715b09f62d83c  .claude/rules/host-linux.md
+ed24b7f565e727b9ffdaf3ce63c71360  CLAUDE.md
+0aad8333c3cd5e7e3f65ee861998f9a4  .andromeda/runs/2026-10-07T20-59-36Z-setup-project/host-reseed.json
+2f93a562366f2bdb6311344b67899d83  .andromeda/runs/2026-10-07T20-59-36Z-setup-project/host-reseed.md
+9d3e0ff1e73f04815513cc1d16784900  .andromeda/runs/2026-10-07T20-59-36Z-setup-project/materialization-plan.md
+7c84b25037f9537c0bb73183405be32f  .andromeda/runs/2026-10-07T20-59-36Z-setup-project/removed.md
+31b147c0cad2a33766f5ab15de103c43  .andromeda/runs/2026-10-07T20-59-36Z-setup-project/validation-log.md

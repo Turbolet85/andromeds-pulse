@@ -1,0 +1,42 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T10:01:10Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+"/home/turbolet/dev/projects/andromeda-pulse",
+"--run-dir",
+"/home/turbolet/dev/projects/andromeda-pulse/.andromeda/runs/2026-10-05T09-59-40Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 4 of 82 entries · freight blocks 16 · rows are an INDEX, not the text",
+"172 · CONTEXT: · 624 chars · CONTEXT: FOUNDER RULING 2026-10-05 (the founder, at the 2026-10-05-l4-runs-on-a-small-curr…",
+"172 · CONTEXT: · 525 chars · CONTEXT: the design's shapes are A1–A7 (catchable from today's digest, no cue), B1–B3 (no-…",
+"172 · CONTEXT: · 555 chars · CONTEXT: candidates Llama-3.2-3B (baseline) · Qwen3.5-2B · Qwen3.5-4B · gemma-4-E2B · gemm…",
+"172 · CONTEXT: · 240 chars · CONTEXT: slow patterns (a horizon wider than 60 s) are already in the 0.4.0 incubator, out…",
+"172 · CARRY: · 209 chars · CARRY: a zero-generation row reads `thinking absent` and a fast `elapsed_ms` in both worlds …",
+"172 · CARRY: · 436 chars · CARRY: the GPU-idle precondition (ports free and zero GPU compute processes) read red at the…",
+"174 · CONTEXT: · 375 chars · CONTEXT: FOUNDER RULING 2026-10-05 (the founder, at the 2026-10-05-l4-runs-on-a-small-curr…",
+"174 · CONTEXT: · 120 chars · CONTEXT: Conductor v3-09 waits on this entry (founder, same ruling); the Conductor-side ma…",
+"174 · CONTEXT: · 172 chars · CONTEXT: shipping a GBNF widens the product's subprocess boundary and needs the founder's …",
+"174 · CONTEXT: · 358 chars · CONTEXT: the shipped json-schema argv cannot run qwen35 or gemma4 on b9305 — `Failed to in…",
+"176 · CONTEXT: · 427 chars · CONTEXT: FOUNDER RULING 2026-10-05 (relayed by the overseer during the 2026-10-05-l4-runs-…",
+"176 · CONTEXT: · 389 chars · CONTEXT: arch §Established Decisions [LLM Inference Runtime] records the retirement as fou…",
+"178 · CONTEXT: · 546 chars · CONTEXT: the verb needs `wsl.exe` (`xtask/src/pre_push.rs`), and since the 2026-10-03 move…",
+"178 · CARRY: · 560 chars · CARRY: (a) PC22 — a fresh `PUPPETEER_CACHE_DIR` under `target/` reproduces the partial v148 …",
+"178 · CARRY: · 429 chars · CARRY: (b) stage ORDER — run by hand, stage 5 (`cargo xtask test`, default features) re-emit…",
+"178 · CARRY: · 479 chars · CARRY: (c) stage 5's `env -i` isolation also drops `DBUS_SESSION_BUS_ADDRESS`, so every cred…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

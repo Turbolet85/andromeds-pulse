@@ -1,0 +1,8 @@
+
+## 2026-10-01-conductor-return — `app.exit` NO-SCRUB boundary and the exit-handler ban
+**Section:** §Security Anti-Patterns → Logging · §Security Anti-Patterns → Universal
+**Change:**
+- Logging: `app.exit` is a deliberate NO-SCRUB product-originated log boundary — one record per process end behind its own exact leaf `{exit_class, exit_code, exit_code_known, signal}` (two closed labels, an `i32` 0 when unknown, a bool); a panic payload, an error `Display`, a native message and every path excluded; no bare `app` key; re-exec arms read 0 full paths and 0 planted canary. Stated failure mode: the ends it cannot see — SIGKILL, `_exit`, Windows `TerminateProcess`, a Rust `std::process::exit` on Windows (`ExitProcess`, no `atexit`), pre-sink failures.
+- Universal: NEVER log, or run code needing thread-locals, from a C `atexit` or signal handler on the thread ending the process (glibc destroys its TLS before `atexit` handlers; a panic in an `extern "C"` handler aborts). The `libc` exit FFI hands off to a thread spawned at install with a bounded wait; the Unix signal path records from a runtime task, then restores `SIG_DFL` and re-raises the SAME signal — never an exit code standing in for it.
+**Why:** the chunk adds a new log boundary and a new process-lifecycle FFI surface (`libc` as a direct dependency); the closed field set keeps the record bounded by construction, and the ban records the measured failure mode of logging at exit so the hand-off design is not "simplified" away.
+**Ref:** .andromeda/runs/2026-10-02T12-54-57Z-wrap/

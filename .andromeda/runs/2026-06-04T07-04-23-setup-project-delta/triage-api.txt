@@ -1,0 +1,2087 @@
+pub mod triage
+pub mod triage::contract
+pub enum triage::contract::BaselineError
+pub triage::contract::BaselineError::Deserialize
+pub triage::contract::BaselineError::Io
+pub triage::contract::BaselineError::Io::kind: core::io::error::ErrorKind
+pub triage::contract::BaselineError::PathCanonicalize
+pub triage::contract::BaselineError::PathCanonicalize::kind: core::io::error::ErrorKind
+pub triage::contract::BaselineError::PathTraversal
+pub triage::contract::BaselineError::SchemaVersionMismatch
+pub triage::contract::BaselineError::SchemaVersionMismatch::expected: u32
+pub triage::contract::BaselineError::SchemaVersionMismatch::got: u32
+pub triage::contract::BaselineError::Serialize
+pub triage::contract::BaselineError::ServiceCountCapExceeded
+pub triage::contract::BaselineError::ServiceCountCapExceeded::count: usize
+pub triage::contract::BaselineError::ServiceCountCapExceeded::max: usize
+pub triage::contract::BaselineError::SizeCapExceeded
+pub triage::contract::BaselineError::SizeCapExceeded::actual: u64
+pub triage::contract::BaselineError::SizeCapExceeded::max: u64
+impl triage::contract::BaselineError
+pub fn triage::contract::BaselineError::error_category(&self) -> &'static str
+impl core::error::Error for triage::contract::BaselineError
+impl core::fmt::Debug for triage::contract::BaselineError
+pub fn triage::contract::BaselineError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for triage::contract::BaselineError
+pub fn triage::contract::BaselineError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::BaselineError
+impl core::marker::Send for triage::contract::BaselineError
+impl core::marker::Sync for triage::contract::BaselineError
+impl core::marker::Unpin for triage::contract::BaselineError
+impl core::marker::UnsafeUnpin for triage::contract::BaselineError
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::BaselineError
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::BaselineError
+pub enum triage::contract::BootstrapResult
+pub triage::contract::BootstrapResult::Fresh
+pub triage::contract::BootstrapResult::Fresh::reason_kind: &'static str
+pub triage::contract::BootstrapResult::Loaded
+pub triage::contract::BootstrapResult::Loaded::age_nanos: i64
+pub triage::contract::BootstrapResult::Loaded::state: triage::contract::BaselineState
+impl core::fmt::Debug for triage::contract::BootstrapResult
+pub fn triage::contract::BootstrapResult::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl !core::marker::Freeze for triage::contract::BootstrapResult
+impl core::marker::Send for triage::contract::BootstrapResult
+impl core::marker::Sync for triage::contract::BootstrapResult
+impl core::marker::Unpin for triage::contract::BootstrapResult
+impl core::marker::UnsafeUnpin for triage::contract::BootstrapResult
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::BootstrapResult
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::BootstrapResult
+pub enum triage::contract::BootstrapState
+pub triage::contract::BootstrapState::Learning
+pub triage::contract::BootstrapState::Ready
+impl core::clone::Clone for triage::contract::BootstrapState
+pub fn triage::contract::BootstrapState::clone(&self) -> triage::contract::BootstrapState
+impl core::cmp::Eq for triage::contract::BootstrapState
+impl core::cmp::PartialEq for triage::contract::BootstrapState
+pub fn triage::contract::BootstrapState::eq(&self, other: &triage::contract::BootstrapState) -> bool
+impl core::fmt::Debug for triage::contract::BootstrapState
+pub fn triage::contract::BootstrapState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::BootstrapState
+impl core::marker::StructuralPartialEq for triage::contract::BootstrapState
+impl serde_core::ser::Serialize for triage::contract::BootstrapState
+pub fn triage::contract::BootstrapState::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::BootstrapState
+pub fn triage::contract::BootstrapState::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::BootstrapState
+impl core::marker::Send for triage::contract::BootstrapState
+impl core::marker::Sync for triage::contract::BootstrapState
+impl core::marker::Unpin for triage::contract::BootstrapState
+impl core::marker::UnsafeUnpin for triage::contract::BootstrapState
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::BootstrapState
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::BootstrapState
+pub enum triage::contract::BypassReason
+pub triage::contract::BypassReason::Absolute
+pub triage::contract::BypassReason::Relative
+impl triage::contract::BypassReason
+pub fn triage::contract::BypassReason::label(self) -> &'static str
+impl core::clone::Clone for triage::contract::BypassReason
+pub fn triage::contract::BypassReason::clone(&self) -> triage::contract::BypassReason
+impl core::cmp::Eq for triage::contract::BypassReason
+impl core::cmp::PartialEq for triage::contract::BypassReason
+pub fn triage::contract::BypassReason::eq(&self, other: &triage::contract::BypassReason) -> bool
+impl core::fmt::Debug for triage::contract::BypassReason
+pub fn triage::contract::BypassReason::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::BypassReason
+impl core::marker::StructuralPartialEq for triage::contract::BypassReason
+impl serde_core::ser::Serialize for triage::contract::BypassReason
+pub fn triage::contract::BypassReason::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::BypassReason
+pub fn triage::contract::BypassReason::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::BypassReason
+impl core::marker::Send for triage::contract::BypassReason
+impl core::marker::Sync for triage::contract::BypassReason
+impl core::marker::Unpin for triage::contract::BypassReason
+impl core::marker::UnsafeUnpin for triage::contract::BypassReason
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::BypassReason
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::BypassReason
+pub enum triage::contract::CadenceConfigError
+pub triage::contract::CadenceConfigError::AcceleratedBelowFloor
+pub triage::contract::CadenceConfigError::AcceleratedBelowFloor::floor: u32
+pub triage::contract::CadenceConfigError::AcceleratedBelowFloor::requested: u32
+pub triage::contract::CadenceConfigError::BaselineBelowFloor
+pub triage::contract::CadenceConfigError::BaselineBelowFloor::floor: u32
+pub triage::contract::CadenceConfigError::BaselineBelowFloor::requested: u32
+pub triage::contract::CadenceConfigError::ReflectionBelowFloor
+pub triage::contract::CadenceConfigError::ReflectionBelowFloor::floor: u32
+pub triage::contract::CadenceConfigError::ReflectionBelowFloor::requested: u32
+impl core::clone::Clone for triage::contract::CadenceConfigError
+pub fn triage::contract::CadenceConfigError::clone(&self) -> triage::contract::CadenceConfigError
+impl core::cmp::Eq for triage::contract::CadenceConfigError
+impl core::cmp::PartialEq for triage::contract::CadenceConfigError
+pub fn triage::contract::CadenceConfigError::eq(&self, other: &triage::contract::CadenceConfigError) -> bool
+impl core::error::Error for triage::contract::CadenceConfigError
+impl core::fmt::Debug for triage::contract::CadenceConfigError
+pub fn triage::contract::CadenceConfigError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for triage::contract::CadenceConfigError
+pub fn triage::contract::CadenceConfigError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::CadenceConfigError
+impl core::marker::Freeze for triage::contract::CadenceConfigError
+impl core::marker::Send for triage::contract::CadenceConfigError
+impl core::marker::Sync for triage::contract::CadenceConfigError
+impl core::marker::Unpin for triage::contract::CadenceConfigError
+impl core::marker::UnsafeUnpin for triage::contract::CadenceConfigError
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::CadenceConfigError
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::CadenceConfigError
+pub enum triage::contract::CadenceMode
+pub triage::contract::CadenceMode::Reflection
+pub triage::contract::CadenceMode::Tier1
+pub triage::contract::CadenceMode::Tier2
+pub triage::contract::CadenceMode::Tier3
+impl core::clone::Clone for triage::contract::CadenceMode
+pub fn triage::contract::CadenceMode::clone(&self) -> triage::contract::CadenceMode
+impl core::cmp::Eq for triage::contract::CadenceMode
+impl core::cmp::PartialEq for triage::contract::CadenceMode
+pub fn triage::contract::CadenceMode::eq(&self, other: &triage::contract::CadenceMode) -> bool
+impl core::fmt::Debug for triage::contract::CadenceMode
+pub fn triage::contract::CadenceMode::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::CadenceMode
+impl core::marker::StructuralPartialEq for triage::contract::CadenceMode
+impl serde_core::ser::Serialize for triage::contract::CadenceMode
+pub fn triage::contract::CadenceMode::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for triage::contract::CadenceMode
+impl core::marker::Send for triage::contract::CadenceMode
+impl core::marker::Sync for triage::contract::CadenceMode
+impl core::marker::Unpin for triage::contract::CadenceMode
+impl core::marker::UnsafeUnpin for triage::contract::CadenceMode
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::CadenceMode
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::CadenceMode
+pub enum triage::contract::CueKind
+pub triage::contract::CueKind::ErrorRateSpike
+pub triage::contract::CueKind::LatencyRegression
+pub triage::contract::CueKind::RestartEvent
+pub triage::contract::CueKind::RetryStorm
+pub triage::contract::CueKind::ServiceWentSilent
+impl core::clone::Clone for triage::contract::CueKind
+pub fn triage::contract::CueKind::clone(&self) -> triage::contract::CueKind
+impl core::cmp::Eq for triage::contract::CueKind
+impl core::cmp::PartialEq for triage::contract::CueKind
+pub fn triage::contract::CueKind::eq(&self, other: &triage::contract::CueKind) -> bool
+impl core::fmt::Debug for triage::contract::CueKind
+pub fn triage::contract::CueKind::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for triage::contract::CueKind
+pub fn triage::contract::CueKind::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for triage::contract::CueKind
+impl core::marker::StructuralPartialEq for triage::contract::CueKind
+impl serde_core::ser::Serialize for triage::contract::CueKind
+pub fn triage::contract::CueKind::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::NamedType for triage::contract::CueKind
+pub fn triage::contract::CueKind::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::CueKind::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::CueKind::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::CueKind
+pub fn triage::contract::CueKind::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::CueKind::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::CueKind
+pub fn triage::contract::CueKind::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::CueKind
+impl core::marker::Send for triage::contract::CueKind
+impl core::marker::Sync for triage::contract::CueKind
+impl core::marker::Unpin for triage::contract::CueKind
+impl core::marker::UnsafeUnpin for triage::contract::CueKind
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::CueKind
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::CueKind
+pub enum triage::contract::CueScope
+pub triage::contract::CueScope::Global
+pub triage::contract::CueScope::Operation
+pub triage::contract::CueScope::Service
+impl core::clone::Clone for triage::contract::CueScope
+pub fn triage::contract::CueScope::clone(&self) -> triage::contract::CueScope
+impl core::cmp::Eq for triage::contract::CueScope
+impl core::cmp::PartialEq for triage::contract::CueScope
+pub fn triage::contract::CueScope::eq(&self, other: &triage::contract::CueScope) -> bool
+impl core::fmt::Debug for triage::contract::CueScope
+pub fn triage::contract::CueScope::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for triage::contract::CueScope
+pub fn triage::contract::CueScope::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for triage::contract::CueScope
+impl core::marker::StructuralPartialEq for triage::contract::CueScope
+impl serde_core::ser::Serialize for triage::contract::CueScope
+pub fn triage::contract::CueScope::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::NamedType for triage::contract::CueScope
+pub fn triage::contract::CueScope::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::CueScope::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::CueScope::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::CueScope
+pub fn triage::contract::CueScope::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::CueScope::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::CueScope
+pub fn triage::contract::CueScope::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::CueScope
+impl core::marker::Send for triage::contract::CueScope
+impl core::marker::Sync for triage::contract::CueScope
+impl core::marker::Unpin for triage::contract::CueScope
+impl core::marker::UnsafeUnpin for triage::contract::CueScope
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::CueScope
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::CueScope
+pub enum triage::contract::DigestError
+pub triage::contract::DigestError::Corpus
+pub triage::contract::DigestError::SqlAggregation
+pub triage::contract::DigestError::TokenBudgetExceeded
+pub triage::contract::DigestError::TokenBudgetExceeded::actual: usize
+pub triage::contract::DigestError::TokenBudgetExceeded::limit: usize
+pub triage::contract::DigestError::Tokenizer(alloc::string::String)
+pub triage::contract::DigestError::WorkspaceDetector
+impl core::error::Error for triage::contract::DigestError
+impl core::fmt::Debug for triage::contract::DigestError
+pub fn triage::contract::DigestError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for triage::contract::DigestError
+pub fn triage::contract::DigestError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::DigestError
+impl core::marker::Send for triage::contract::DigestError
+impl core::marker::Sync for triage::contract::DigestError
+impl core::marker::Unpin for triage::contract::DigestError
+impl core::marker::UnsafeUnpin for triage::contract::DigestError
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::DigestError
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::DigestError
+pub enum triage::contract::DigestKind
+pub triage::contract::DigestKind::AttentionCueDigest
+pub triage::contract::DigestKind::BaselineState
+pub triage::contract::DigestKind::CadenceTier1
+pub triage::contract::DigestKind::CadenceTier2
+pub triage::contract::DigestKind::CadenceTier3
+pub triage::contract::DigestKind::IncidentSummary
+pub triage::contract::DigestKind::Reflection
+pub triage::contract::DigestKind::ResolutionSummary
+pub triage::contract::DigestKind::Snapshot
+impl core::clone::Clone for triage::contract::DigestKind
+pub fn triage::contract::DigestKind::clone(&self) -> triage::contract::DigestKind
+impl core::cmp::Eq for triage::contract::DigestKind
+impl core::cmp::PartialEq for triage::contract::DigestKind
+pub fn triage::contract::DigestKind::eq(&self, other: &triage::contract::DigestKind) -> bool
+impl core::fmt::Debug for triage::contract::DigestKind
+pub fn triage::contract::DigestKind::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::DigestKind
+impl core::marker::StructuralPartialEq for triage::contract::DigestKind
+impl serde_core::ser::Serialize for triage::contract::DigestKind
+pub fn triage::contract::DigestKind::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::DigestKind
+pub fn triage::contract::DigestKind::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::DigestKind
+impl core::marker::Send for triage::contract::DigestKind
+impl core::marker::Sync for triage::contract::DigestKind
+impl core::marker::Unpin for triage::contract::DigestKind
+impl core::marker::UnsafeUnpin for triage::contract::DigestKind
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::DigestKind
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::DigestKind
+pub enum triage::contract::DigestLwwMode
+pub triage::contract::DigestLwwMode::ActiveIncidentBypass
+pub triage::contract::DigestLwwMode::Default
+pub triage::contract::DigestLwwMode::Reflection
+pub triage::contract::DigestLwwMode::Tier1NeverLww
+impl core::clone::Clone for triage::contract::DigestLwwMode
+pub fn triage::contract::DigestLwwMode::clone(&self) -> triage::contract::DigestLwwMode
+impl core::cmp::Eq for triage::contract::DigestLwwMode
+impl core::cmp::PartialEq for triage::contract::DigestLwwMode
+pub fn triage::contract::DigestLwwMode::eq(&self, other: &triage::contract::DigestLwwMode) -> bool
+impl core::fmt::Debug for triage::contract::DigestLwwMode
+pub fn triage::contract::DigestLwwMode::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::DigestLwwMode
+impl core::marker::StructuralPartialEq for triage::contract::DigestLwwMode
+impl serde_core::ser::Serialize for triage::contract::DigestLwwMode
+pub fn triage::contract::DigestLwwMode::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::DigestLwwMode
+pub fn triage::contract::DigestLwwMode::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::DigestLwwMode
+impl core::marker::Send for triage::contract::DigestLwwMode
+impl core::marker::Sync for triage::contract::DigestLwwMode
+impl core::marker::Unpin for triage::contract::DigestLwwMode
+impl core::marker::UnsafeUnpin for triage::contract::DigestLwwMode
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::DigestLwwMode
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::DigestLwwMode
+pub enum triage::contract::HardwareProfile
+pub triage::contract::HardwareProfile::CpuFallback
+pub triage::contract::HardwareProfile::CpuPrimary
+pub triage::contract::HardwareProfile::GpuFallback
+pub triage::contract::HardwareProfile::GpuPrimary
+pub triage::contract::HardwareProfile::Unknown
+impl core::clone::Clone for triage::contract::HardwareProfile
+pub fn triage::contract::HardwareProfile::clone(&self) -> triage::contract::HardwareProfile
+impl core::cmp::Eq for triage::contract::HardwareProfile
+impl core::cmp::PartialEq for triage::contract::HardwareProfile
+pub fn triage::contract::HardwareProfile::eq(&self, other: &triage::contract::HardwareProfile) -> bool
+impl core::fmt::Debug for triage::contract::HardwareProfile
+pub fn triage::contract::HardwareProfile::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::HardwareProfile
+impl core::marker::StructuralPartialEq for triage::contract::HardwareProfile
+impl core::marker::Freeze for triage::contract::HardwareProfile
+impl core::marker::Send for triage::contract::HardwareProfile
+impl core::marker::Sync for triage::contract::HardwareProfile
+impl core::marker::Unpin for triage::contract::HardwareProfile
+impl core::marker::UnsafeUnpin for triage::contract::HardwareProfile
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::HardwareProfile
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::HardwareProfile
+pub enum triage::contract::IncidentError
+pub triage::contract::IncidentError::Deserialize
+pub triage::contract::IncidentError::Io
+pub triage::contract::IncidentError::Io::kind: core::io::error::ErrorKind
+pub triage::contract::IncidentError::NotFound
+pub triage::contract::IncidentError::PathTraversal
+pub triage::contract::IncidentError::SchemaVersionMismatch
+pub triage::contract::IncidentError::SchemaVersionMismatch::expected: u32
+pub triage::contract::IncidentError::SchemaVersionMismatch::got: u32
+pub triage::contract::IncidentError::Serialize
+pub triage::contract::IncidentError::SizeCapExceeded
+pub triage::contract::IncidentError::SizeCapExceeded::actual: u64
+pub triage::contract::IncidentError::SizeCapExceeded::max: u64
+impl triage::contract::IncidentError
+pub fn triage::contract::IncidentError::error_category(&self) -> &'static str
+impl core::error::Error for triage::contract::IncidentError
+impl core::fmt::Debug for triage::contract::IncidentError
+pub fn triage::contract::IncidentError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for triage::contract::IncidentError
+pub fn triage::contract::IncidentError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::IncidentError
+impl core::marker::Send for triage::contract::IncidentError
+impl core::marker::Sync for triage::contract::IncidentError
+impl core::marker::Unpin for triage::contract::IncidentError
+impl core::marker::UnsafeUnpin for triage::contract::IncidentError
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::IncidentError
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::IncidentError
+pub enum triage::contract::IncidentRegistryError
+pub triage::contract::IncidentRegistryError::CooldownActive
+pub triage::contract::IncidentRegistryError::CooldownActive::remaining_secs: u64
+pub triage::contract::IncidentRegistryError::InvalidTransition
+pub triage::contract::IncidentRegistryError::NotFound
+impl triage::contract::IncidentRegistryError
+pub fn triage::contract::IncidentRegistryError::error_category(&self) -> &'static str
+impl core::clone::Clone for triage::contract::IncidentRegistryError
+pub fn triage::contract::IncidentRegistryError::clone(&self) -> triage::contract::IncidentRegistryError
+impl core::cmp::Eq for triage::contract::IncidentRegistryError
+impl core::cmp::PartialEq for triage::contract::IncidentRegistryError
+pub fn triage::contract::IncidentRegistryError::eq(&self, other: &triage::contract::IncidentRegistryError) -> bool
+impl core::error::Error for triage::contract::IncidentRegistryError
+impl core::fmt::Debug for triage::contract::IncidentRegistryError
+pub fn triage::contract::IncidentRegistryError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for triage::contract::IncidentRegistryError
+pub fn triage::contract::IncidentRegistryError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::IncidentRegistryError
+impl core::marker::Freeze for triage::contract::IncidentRegistryError
+impl core::marker::Send for triage::contract::IncidentRegistryError
+impl core::marker::Sync for triage::contract::IncidentRegistryError
+impl core::marker::Unpin for triage::contract::IncidentRegistryError
+impl core::marker::UnsafeUnpin for triage::contract::IncidentRegistryError
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::IncidentRegistryError
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::IncidentRegistryError
+pub enum triage::contract::IncidentStatus
+pub triage::contract::IncidentStatus::Acknowledged
+pub triage::contract::IncidentStatus::Active
+pub triage::contract::IncidentStatus::Resolved
+impl core::clone::Clone for triage::contract::IncidentStatus
+pub fn triage::contract::IncidentStatus::clone(&self) -> triage::contract::IncidentStatus
+impl core::cmp::Eq for triage::contract::IncidentStatus
+impl core::cmp::PartialEq for triage::contract::IncidentStatus
+pub fn triage::contract::IncidentStatus::eq(&self, other: &triage::contract::IncidentStatus) -> bool
+impl core::fmt::Debug for triage::contract::IncidentStatus
+pub fn triage::contract::IncidentStatus::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for triage::contract::IncidentStatus
+pub fn triage::contract::IncidentStatus::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for triage::contract::IncidentStatus
+impl core::marker::StructuralPartialEq for triage::contract::IncidentStatus
+impl serde_core::ser::Serialize for triage::contract::IncidentStatus
+pub fn triage::contract::IncidentStatus::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::NamedType for triage::contract::IncidentStatus
+pub fn triage::contract::IncidentStatus::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::IncidentStatus::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::IncidentStatus::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::IncidentStatus
+pub fn triage::contract::IncidentStatus::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::IncidentStatus::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::IncidentStatus
+pub fn triage::contract::IncidentStatus::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::IncidentStatus
+impl core::marker::Send for triage::contract::IncidentStatus
+impl core::marker::Sync for triage::contract::IncidentStatus
+impl core::marker::Unpin for triage::contract::IncidentStatus
+impl core::marker::UnsafeUnpin for triage::contract::IncidentStatus
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::IncidentStatus
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::IncidentStatus
+pub enum triage::contract::LifecycleError
+pub triage::contract::LifecycleError::Deserialize
+pub triage::contract::LifecycleError::Io
+pub triage::contract::LifecycleError::Io::kind: core::io::error::ErrorKind
+pub triage::contract::LifecycleError::PathTraversal
+pub triage::contract::LifecycleError::SchemaVersionMismatch
+pub triage::contract::LifecycleError::SchemaVersionMismatch::expected: u32
+pub triage::contract::LifecycleError::SchemaVersionMismatch::got: u32
+pub triage::contract::LifecycleError::Serialize
+pub triage::contract::LifecycleError::SizeCapExceeded
+pub triage::contract::LifecycleError::SizeCapExceeded::actual: u64
+pub triage::contract::LifecycleError::SizeCapExceeded::max: u64
+impl triage::contract::LifecycleError
+pub fn triage::contract::LifecycleError::error_category(&self) -> &'static str
+impl core::error::Error for triage::contract::LifecycleError
+impl core::fmt::Debug for triage::contract::LifecycleError
+pub fn triage::contract::LifecycleError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for triage::contract::LifecycleError
+pub fn triage::contract::LifecycleError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::LifecycleError
+impl core::marker::Send for triage::contract::LifecycleError
+impl core::marker::Sync for triage::contract::LifecycleError
+impl core::marker::Unpin for triage::contract::LifecycleError
+impl core::marker::UnsafeUnpin for triage::contract::LifecycleError
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::LifecycleError
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::LifecycleError
+pub enum triage::contract::PriorityTier
+pub triage::contract::PriorityTier::Autonomous
+pub triage::contract::PriorityTier::Curious
+pub triage::contract::PriorityTier::Suggested
+impl core::clone::Clone for triage::contract::PriorityTier
+pub fn triage::contract::PriorityTier::clone(&self) -> triage::contract::PriorityTier
+impl core::cmp::Eq for triage::contract::PriorityTier
+impl core::cmp::PartialEq for triage::contract::PriorityTier
+pub fn triage::contract::PriorityTier::eq(&self, other: &triage::contract::PriorityTier) -> bool
+impl core::fmt::Debug for triage::contract::PriorityTier
+pub fn triage::contract::PriorityTier::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::PriorityTier
+impl core::marker::StructuralPartialEq for triage::contract::PriorityTier
+impl serde_core::ser::Serialize for triage::contract::PriorityTier
+pub fn triage::contract::PriorityTier::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::NamedType for triage::contract::PriorityTier
+pub fn triage::contract::PriorityTier::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::PriorityTier::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::PriorityTier::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::PriorityTier
+pub fn triage::contract::PriorityTier::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::PriorityTier::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::PriorityTier
+pub fn triage::contract::PriorityTier::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::PriorityTier
+impl core::marker::Send for triage::contract::PriorityTier
+impl core::marker::Sync for triage::contract::PriorityTier
+impl core::marker::Unpin for triage::contract::PriorityTier
+impl core::marker::UnsafeUnpin for triage::contract::PriorityTier
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::PriorityTier
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::PriorityTier
+pub enum triage::contract::QueueAction
+pub triage::contract::QueueAction::DroppedOldest
+pub triage::contract::QueueAction::DroppedOldest::dropped_kind: alloc::string::String
+pub triage::contract::QueueAction::Queued
+pub triage::contract::QueueAction::Replaced
+pub triage::contract::QueueAction::Replaced::replaced_kind: alloc::string::String
+impl core::clone::Clone for triage::contract::QueueAction
+pub fn triage::contract::QueueAction::clone(&self) -> triage::contract::QueueAction
+impl core::fmt::Debug for triage::contract::QueueAction
+pub fn triage::contract::QueueAction::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::QueueAction
+impl core::marker::Send for triage::contract::QueueAction
+impl core::marker::Sync for triage::contract::QueueAction
+impl core::marker::Unpin for triage::contract::QueueAction
+impl core::marker::UnsafeUnpin for triage::contract::QueueAction
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::QueueAction
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::QueueAction
+pub enum triage::contract::ResolutionTrigger
+pub triage::contract::ResolutionTrigger::AutoResolve
+pub triage::contract::ResolutionTrigger::ExplicitResolve
+impl core::clone::Clone for triage::contract::ResolutionTrigger
+pub fn triage::contract::ResolutionTrigger::clone(&self) -> triage::contract::ResolutionTrigger
+impl core::cmp::Eq for triage::contract::ResolutionTrigger
+impl core::cmp::PartialEq for triage::contract::ResolutionTrigger
+pub fn triage::contract::ResolutionTrigger::eq(&self, other: &triage::contract::ResolutionTrigger) -> bool
+impl core::fmt::Debug for triage::contract::ResolutionTrigger
+pub fn triage::contract::ResolutionTrigger::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for triage::contract::ResolutionTrigger
+pub fn triage::contract::ResolutionTrigger::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for triage::contract::ResolutionTrigger
+impl core::marker::StructuralPartialEq for triage::contract::ResolutionTrigger
+impl serde_core::ser::Serialize for triage::contract::ResolutionTrigger
+pub fn triage::contract::ResolutionTrigger::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::NamedType for triage::contract::ResolutionTrigger
+pub fn triage::contract::ResolutionTrigger::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::ResolutionTrigger::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::ResolutionTrigger::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::ResolutionTrigger
+pub fn triage::contract::ResolutionTrigger::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::ResolutionTrigger::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::ResolutionTrigger
+pub fn triage::contract::ResolutionTrigger::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::ResolutionTrigger
+impl core::marker::Send for triage::contract::ResolutionTrigger
+impl core::marker::Sync for triage::contract::ResolutionTrigger
+impl core::marker::Unpin for triage::contract::ResolutionTrigger
+impl core::marker::UnsafeUnpin for triage::contract::ResolutionTrigger
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::ResolutionTrigger
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::ResolutionTrigger
+pub enum triage::contract::ServiceLifecycleState
+pub triage::contract::ServiceLifecycleState::Active
+pub triage::contract::ServiceLifecycleState::Archived
+pub triage::contract::ServiceLifecycleState::Bootstrapping
+pub triage::contract::ServiceLifecycleState::Dormant
+pub triage::contract::ServiceLifecycleState::Quiet
+pub triage::contract::ServiceLifecycleState::Silent
+pub triage::contract::ServiceLifecycleState::Unknown
+impl core::clone::Clone for triage::contract::ServiceLifecycleState
+pub fn triage::contract::ServiceLifecycleState::clone(&self) -> triage::contract::ServiceLifecycleState
+impl core::cmp::Eq for triage::contract::ServiceLifecycleState
+impl core::cmp::PartialEq for triage::contract::ServiceLifecycleState
+pub fn triage::contract::ServiceLifecycleState::eq(&self, other: &triage::contract::ServiceLifecycleState) -> bool
+impl core::fmt::Debug for triage::contract::ServiceLifecycleState
+pub fn triage::contract::ServiceLifecycleState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for triage::contract::ServiceLifecycleState
+pub fn triage::contract::ServiceLifecycleState::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for triage::contract::ServiceLifecycleState
+impl core::marker::StructuralPartialEq for triage::contract::ServiceLifecycleState
+impl serde_core::ser::Serialize for triage::contract::ServiceLifecycleState
+pub fn triage::contract::ServiceLifecycleState::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::NamedType for triage::contract::ServiceLifecycleState
+pub fn triage::contract::ServiceLifecycleState::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::ServiceLifecycleState::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::ServiceLifecycleState::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::ServiceLifecycleState
+pub fn triage::contract::ServiceLifecycleState::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::ServiceLifecycleState::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::ServiceLifecycleState
+pub fn triage::contract::ServiceLifecycleState::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::ServiceLifecycleState
+impl core::marker::Send for triage::contract::ServiceLifecycleState
+impl core::marker::Sync for triage::contract::ServiceLifecycleState
+impl core::marker::Unpin for triage::contract::ServiceLifecycleState
+impl core::marker::UnsafeUnpin for triage::contract::ServiceLifecycleState
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::ServiceLifecycleState
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::ServiceLifecycleState
+pub enum triage::contract::Severity
+pub triage::contract::Severity::Critical
+pub triage::contract::Severity::Error
+pub triage::contract::Severity::Info
+pub triage::contract::Severity::Warn
+impl core::clone::Clone for triage::contract::Severity
+pub fn triage::contract::Severity::clone(&self) -> triage::contract::Severity
+impl core::cmp::Eq for triage::contract::Severity
+impl core::cmp::PartialEq for triage::contract::Severity
+pub fn triage::contract::Severity::eq(&self, other: &triage::contract::Severity) -> bool
+impl core::fmt::Debug for triage::contract::Severity
+pub fn triage::contract::Severity::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::Severity
+impl core::marker::StructuralPartialEq for triage::contract::Severity
+impl serde_core::ser::Serialize for triage::contract::Severity
+pub fn triage::contract::Severity::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::NamedType for triage::contract::Severity
+pub fn triage::contract::Severity::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::Severity::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::Severity::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::Severity
+pub fn triage::contract::Severity::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::Severity::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::Severity
+pub fn triage::contract::Severity::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::Severity
+impl core::marker::Send for triage::contract::Severity
+impl core::marker::Sync for triage::contract::Severity
+impl core::marker::Unpin for triage::contract::Severity
+impl core::marker::UnsafeUnpin for triage::contract::Severity
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::Severity
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::Severity
+pub enum triage::contract::SqlAggregationError
+pub triage::contract::SqlAggregationError::Join
+pub triage::contract::SqlAggregationError::LockPoisoned
+pub triage::contract::SqlAggregationError::Q7Timeout
+pub triage::contract::SqlAggregationError::Q7Timeout::timeout_ms: u64
+pub triage::contract::SqlAggregationError::QueryFailed
+pub triage::contract::SqlAggregationError::QueryFailed::query_id: &'static str
+impl triage::contract::SqlAggregationError
+pub fn triage::contract::SqlAggregationError::error_category(&self) -> &'static str
+impl core::error::Error for triage::contract::SqlAggregationError
+impl core::fmt::Debug for triage::contract::SqlAggregationError
+pub fn triage::contract::SqlAggregationError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for triage::contract::SqlAggregationError
+pub fn triage::contract::SqlAggregationError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::SqlAggregationError
+impl core::marker::Send for triage::contract::SqlAggregationError
+impl core::marker::Sync for triage::contract::SqlAggregationError
+impl core::marker::Unpin for triage::contract::SqlAggregationError
+impl core::marker::UnsafeUnpin for triage::contract::SqlAggregationError
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::SqlAggregationError
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::SqlAggregationError
+pub enum triage::contract::StormError
+pub triage::contract::StormError::Deserialize
+pub triage::contract::StormError::Io
+pub triage::contract::StormError::Io::kind: core::io::error::ErrorKind
+pub triage::contract::StormError::PathTraversal
+pub triage::contract::StormError::SchemaVersionMismatch
+pub triage::contract::StormError::SchemaVersionMismatch::expected: u32
+pub triage::contract::StormError::SchemaVersionMismatch::got: u32
+pub triage::contract::StormError::Serialize
+pub triage::contract::StormError::SizeCapExceeded
+pub triage::contract::StormError::SizeCapExceeded::actual: u64
+pub triage::contract::StormError::SizeCapExceeded::max: u64
+impl triage::contract::StormError
+pub fn triage::contract::StormError::error_category(&self) -> &'static str
+impl core::error::Error for triage::contract::StormError
+impl core::fmt::Debug for triage::contract::StormError
+pub fn triage::contract::StormError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for triage::contract::StormError
+pub fn triage::contract::StormError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::StormError
+impl core::marker::Send for triage::contract::StormError
+impl core::marker::Sync for triage::contract::StormError
+impl core::marker::Unpin for triage::contract::StormError
+impl core::marker::UnsafeUnpin for triage::contract::StormError
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::StormError
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::StormError
+pub enum triage::contract::ThresholdsError
+pub triage::contract::ThresholdsError::InvalidConfig
+pub triage::contract::ThresholdsError::InvalidConfig::field: &'static str
+impl core::cmp::Eq for triage::contract::ThresholdsError
+impl core::cmp::PartialEq for triage::contract::ThresholdsError
+pub fn triage::contract::ThresholdsError::eq(&self, other: &triage::contract::ThresholdsError) -> bool
+impl core::error::Error for triage::contract::ThresholdsError
+impl core::fmt::Debug for triage::contract::ThresholdsError
+pub fn triage::contract::ThresholdsError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for triage::contract::ThresholdsError
+pub fn triage::contract::ThresholdsError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::ThresholdsError
+impl core::marker::Freeze for triage::contract::ThresholdsError
+impl core::marker::Send for triage::contract::ThresholdsError
+impl core::marker::Sync for triage::contract::ThresholdsError
+impl core::marker::Unpin for triage::contract::ThresholdsError
+impl core::marker::UnsafeUnpin for triage::contract::ThresholdsError
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::ThresholdsError
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::ThresholdsError
+pub enum triage::contract::TransitionTrigger
+pub triage::contract::TransitionTrigger::Activity
+pub triage::contract::TransitionTrigger::CorpusRestore
+pub triage::contract::TransitionTrigger::ManualOverride
+pub triage::contract::TransitionTrigger::Restart
+pub triage::contract::TransitionTrigger::ThresholdExpiry
+impl core::clone::Clone for triage::contract::TransitionTrigger
+pub fn triage::contract::TransitionTrigger::clone(&self) -> triage::contract::TransitionTrigger
+impl core::cmp::Eq for triage::contract::TransitionTrigger
+impl core::cmp::PartialEq for triage::contract::TransitionTrigger
+pub fn triage::contract::TransitionTrigger::eq(&self, other: &triage::contract::TransitionTrigger) -> bool
+impl core::fmt::Debug for triage::contract::TransitionTrigger
+pub fn triage::contract::TransitionTrigger::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for triage::contract::TransitionTrigger
+pub fn triage::contract::TransitionTrigger::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for triage::contract::TransitionTrigger
+impl core::marker::StructuralPartialEq for triage::contract::TransitionTrigger
+impl serde_core::ser::Serialize for triage::contract::TransitionTrigger
+pub fn triage::contract::TransitionTrigger::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::NamedType for triage::contract::TransitionTrigger
+pub fn triage::contract::TransitionTrigger::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::TransitionTrigger::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::TransitionTrigger::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::TransitionTrigger
+pub fn triage::contract::TransitionTrigger::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::TransitionTrigger::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::TransitionTrigger
+pub fn triage::contract::TransitionTrigger::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::TransitionTrigger
+impl core::marker::Send for triage::contract::TransitionTrigger
+impl core::marker::Sync for triage::contract::TransitionTrigger
+impl core::marker::Unpin for triage::contract::TransitionTrigger
+impl core::marker::UnsafeUnpin for triage::contract::TransitionTrigger
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::TransitionTrigger
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::TransitionTrigger
+pub struct triage::contract::ActivityFloor
+impl triage::contract::ActivityFloor
+pub fn triage::contract::ActivityFloor::bootstrap_state(&self, now_nanos: i64) -> triage::contract::BootstrapState
+pub fn triage::contract::ActivityFloor::bucket_count(&self) -> usize
+pub fn triage::contract::ActivityFloor::current_quiet_duration_seconds(&self, now_nanos: i64) -> u64
+pub fn triage::contract::ActivityFloor::first_observed_unix_nanos(&self) -> i64
+pub fn triage::contract::ActivityFloor::last_observed_unix_nanos(&self) -> i64
+pub fn triage::contract::ActivityFloor::new() -> Self
+pub fn triage::contract::ActivityFloor::observe(&mut self, now_nanos: i64)
+pub fn triage::contract::ActivityFloor::p95_historical_quiet_duration_seconds(&self) -> core::option::Option<u64>
+pub fn triage::contract::ActivityFloor::total_observations_current_cycle(&self) -> u64
+impl core::clone::Clone for triage::contract::ActivityFloor
+pub fn triage::contract::ActivityFloor::clone(&self) -> triage::contract::ActivityFloor
+impl core::default::Default for triage::contract::ActivityFloor
+pub fn triage::contract::ActivityFloor::default() -> Self
+impl core::fmt::Debug for triage::contract::ActivityFloor
+pub fn triage::contract::ActivityFloor::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for triage::contract::ActivityFloor
+pub fn triage::contract::ActivityFloor::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::ActivityFloor
+pub fn triage::contract::ActivityFloor::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::ActivityFloor
+impl core::marker::Send for triage::contract::ActivityFloor
+impl core::marker::Sync for triage::contract::ActivityFloor
+impl core::marker::Unpin for triage::contract::ActivityFloor
+impl core::marker::UnsafeUnpin for triage::contract::ActivityFloor
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::ActivityFloor
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::ActivityFloor
+pub struct triage::contract::Assembler
+impl triage::contract::Assembler
+pub fn triage::contract::Assembler::new(sql_runner: alloc::sync::Arc<dyn triage::contract::SqlQueryRunner>, incident_registry: alloc::sync::Arc<dyn triage::contract::IncidentRegistry>, broadcast: alloc::sync::Arc<triage::contract::DigestBroadcast>, queue: alloc::sync::Arc<std::sync::poison::mutex::Mutex<triage::contract::LwwQueue>>, scrub: alloc::sync::Arc<(dyn core::ops::function::Fn(&str) -> alloc::string::String + core::marker::Send + core::marker::Sync)>) -> core::result::Result<Self, triage::contract::DigestError>
+impl core::fmt::Debug for triage::contract::Assembler
+pub fn triage::contract::Assembler::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl triage::contract::DigestAssembler for triage::contract::Assembler
+pub fn triage::contract::Assembler::assemble<'a>(&'a self, mode: triage::contract::CadenceMode, triggering_cue: core::option::Option<&'a triage::contract::AttentionCue>, project_context: &'a triage::contract::DigestProjectContext, now_unix_nano: i64, window_duration: core::time::Duration) -> triage::contract::DigestFuture<'a, triage::contract::Digest>
+impl core::marker::Freeze for triage::contract::Assembler
+impl core::marker::Send for triage::contract::Assembler
+impl core::marker::Sync for triage::contract::Assembler
+impl core::marker::Unpin for triage::contract::Assembler
+impl core::marker::UnsafeUnpin for triage::contract::Assembler
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::Assembler
+impl !core::panic::unwind_safe::UnwindSafe for triage::contract::Assembler
+pub struct triage::contract::AttentionCue
+pub triage::contract::AttentionCue::absolute_value: f64
+pub triage::contract::AttentionCue::confidence: f64
+pub triage::contract::AttentionCue::kind: triage::contract::CueKind
+pub triage::contract::AttentionCue::magnitude: f64
+pub triage::contract::AttentionCue::persistence_seconds: u64
+pub triage::contract::AttentionCue::priority_tier: triage::contract::PriorityTier
+pub triage::contract::AttentionCue::scope: triage::contract::CueScope
+pub triage::contract::AttentionCue::scope_id: core::option::Option<alloc::string::String>
+pub triage::contract::AttentionCue::suppression_bypassed: bool
+impl core::clone::Clone for triage::contract::AttentionCue
+pub fn triage::contract::AttentionCue::clone(&self) -> triage::contract::AttentionCue
+impl core::cmp::PartialEq for triage::contract::AttentionCue
+pub fn triage::contract::AttentionCue::eq(&self, other: &triage::contract::AttentionCue) -> bool
+impl core::fmt::Debug for triage::contract::AttentionCue
+pub fn triage::contract::AttentionCue::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::AttentionCue
+impl serde_core::ser::Serialize for triage::contract::AttentionCue
+pub fn triage::contract::AttentionCue::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::AttentionCue
+pub fn triage::contract::AttentionCue::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::AttentionCue
+impl core::marker::Send for triage::contract::AttentionCue
+impl core::marker::Sync for triage::contract::AttentionCue
+impl core::marker::Unpin for triage::contract::AttentionCue
+impl core::marker::UnsafeUnpin for triage::contract::AttentionCue
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::AttentionCue
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::AttentionCue
+pub struct triage::contract::AttentionCueBroadcast
+impl triage::contract::AttentionCueBroadcast
+pub fn triage::contract::AttentionCueBroadcast::new() -> Self
+pub fn triage::contract::AttentionCueBroadcast::sender(&self) -> &tokio::sync::broadcast::Sender<triage::contract::AttentionCue>
+pub fn triage::contract::AttentionCueBroadcast::subscribe(&self) -> tokio::sync::broadcast::Receiver<triage::contract::AttentionCue>
+pub fn triage::contract::AttentionCueBroadcast::subscriber_count(&self) -> usize
+impl core::clone::Clone for triage::contract::AttentionCueBroadcast
+pub fn triage::contract::AttentionCueBroadcast::clone(&self) -> triage::contract::AttentionCueBroadcast
+impl core::default::Default for triage::contract::AttentionCueBroadcast
+pub fn triage::contract::AttentionCueBroadcast::default() -> Self
+impl core::fmt::Debug for triage::contract::AttentionCueBroadcast
+pub fn triage::contract::AttentionCueBroadcast::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::AttentionCueBroadcast
+impl core::marker::Send for triage::contract::AttentionCueBroadcast
+impl core::marker::Sync for triage::contract::AttentionCueBroadcast
+impl core::marker::Unpin for triage::contract::AttentionCueBroadcast
+impl core::marker::UnsafeUnpin for triage::contract::AttentionCueBroadcast
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::AttentionCueBroadcast
+impl !core::panic::unwind_safe::UnwindSafe for triage::contract::AttentionCueBroadcast
+pub struct triage::contract::BaselineState
+impl triage::contract::BaselineState
+pub fn triage::contract::BaselineState::drain_drops_since_last_tick(&self) -> u32
+pub fn triage::contract::BaselineState::drain_service_cap_exceeded_since_last_tick(&self) -> u32
+pub fn triage::contract::BaselineState::error_rate(&self, service_name: &str) -> core::option::Option<f64>
+pub fn triage::contract::BaselineState::iter_operations(&self, percentile_q: f64) -> alloc::vec::Vec<triage::contract::OperationMetricSnapshot>
+pub fn triage::contract::BaselineState::iter_service_silence_snapshots(&self, now_nanos: i64) -> alloc::vec::Vec<triage::contract::ServiceSilenceSnapshot>
+pub fn triage::contract::BaselineState::iter_services(&self) -> alloc::vec::Vec<triage::contract::ServiceMetricSnapshot>
+pub fn triage::contract::BaselineState::latency_percentile(&self, service_name: &str, operation_name: &str, q: f64) -> core::option::Option<f64>
+pub fn triage::contract::BaselineState::new() -> Self
+pub fn triage::contract::BaselineState::observe_span(&self, service_name: &str, operation_name: &str, status_code: u8, latency_ms: u64, now_nanos: i64)
+pub fn triage::contract::BaselineState::operation_count(&self) -> usize
+pub fn triage::contract::BaselineState::persisted_at_unix_nanos(&self) -> i64
+pub fn triage::contract::BaselineState::schema_version(&self) -> u32
+pub fn triage::contract::BaselineState::scrubbed_clone<F>(&self, scrub: F) -> Self where F: core::ops::function::Fn(&str) -> alloc::string::String
+pub fn triage::contract::BaselineState::service_count(&self) -> usize
+pub fn triage::contract::BaselineState::set_persisted_at_unix_nanos(&self, now_nanos: i64)
+pub fn triage::contract::BaselineState::swap_short_tdigest_pairs_on_tick(&self, now_nanos: i64) -> usize
+pub fn triage::contract::BaselineState::swap_tdigest_pairs_on_tick(&self, now_nanos: i64, swap_window_nanos: i64) -> usize
+pub fn triage::contract::BaselineState::total_centroid_count(&self) -> usize
+impl core::default::Default for triage::contract::BaselineState
+pub fn triage::contract::BaselineState::default() -> Self
+impl core::fmt::Debug for triage::contract::BaselineState
+pub fn triage::contract::BaselineState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for triage::contract::BaselineState
+pub fn triage::contract::BaselineState::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::BaselineState
+pub fn triage::contract::BaselineState::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl !core::marker::Freeze for triage::contract::BaselineState
+impl core::marker::Send for triage::contract::BaselineState
+impl core::marker::Sync for triage::contract::BaselineState
+impl core::marker::Unpin for triage::contract::BaselineState
+impl core::marker::UnsafeUnpin for triage::contract::BaselineState
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::BaselineState
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::BaselineState
+pub struct triage::contract::BypassTrigger
+pub triage::contract::BypassTrigger::cue_kind: triage::contract::CueKind
+pub triage::contract::BypassTrigger::reason: triage::contract::BypassReason
+impl core::clone::Clone for triage::contract::BypassTrigger
+pub fn triage::contract::BypassTrigger::clone(&self) -> triage::contract::BypassTrigger
+impl core::cmp::Eq for triage::contract::BypassTrigger
+impl core::cmp::PartialEq for triage::contract::BypassTrigger
+pub fn triage::contract::BypassTrigger::eq(&self, other: &triage::contract::BypassTrigger) -> bool
+impl core::fmt::Debug for triage::contract::BypassTrigger
+pub fn triage::contract::BypassTrigger::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::BypassTrigger
+impl core::marker::StructuralPartialEq for triage::contract::BypassTrigger
+impl core::marker::Freeze for triage::contract::BypassTrigger
+impl core::marker::Send for triage::contract::BypassTrigger
+impl core::marker::Sync for triage::contract::BypassTrigger
+impl core::marker::Unpin for triage::contract::BypassTrigger
+impl core::marker::UnsafeUnpin for triage::contract::BypassTrigger
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::BypassTrigger
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::BypassTrigger
+pub struct triage::contract::CadenceConfig
+pub triage::contract::CadenceConfig::accelerated_seconds: u32
+pub triage::contract::CadenceConfig::baseline_seconds: u32
+pub triage::contract::CadenceConfig::reflection_seconds: u32
+pub triage::contract::CadenceConfig::tier2_acceleration_enabled: bool
+impl triage::contract::CadenceConfig
+pub fn triage::contract::CadenceConfig::try_new(baseline_seconds: u32, accelerated_seconds: u32, reflection_seconds: u32, tier2_acceleration_enabled: bool) -> core::result::Result<Self, triage::contract::CadenceConfigError>
+impl core::clone::Clone for triage::contract::CadenceConfig
+pub fn triage::contract::CadenceConfig::clone(&self) -> triage::contract::CadenceConfig
+impl core::cmp::Eq for triage::contract::CadenceConfig
+impl core::cmp::PartialEq for triage::contract::CadenceConfig
+pub fn triage::contract::CadenceConfig::eq(&self, other: &triage::contract::CadenceConfig) -> bool
+impl core::default::Default for triage::contract::CadenceConfig
+pub fn triage::contract::CadenceConfig::default() -> Self
+impl core::fmt::Debug for triage::contract::CadenceConfig
+pub fn triage::contract::CadenceConfig::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::CadenceConfig
+impl core::marker::StructuralPartialEq for triage::contract::CadenceConfig
+impl serde_core::ser::Serialize for triage::contract::CadenceConfig
+pub fn triage::contract::CadenceConfig::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::CadenceConfig
+pub fn triage::contract::CadenceConfig::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::CadenceConfig
+impl core::marker::Send for triage::contract::CadenceConfig
+impl core::marker::Sync for triage::contract::CadenceConfig
+impl core::marker::Unpin for triage::contract::CadenceConfig
+impl core::marker::UnsafeUnpin for triage::contract::CadenceConfig
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::CadenceConfig
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::CadenceConfig
+pub struct triage::contract::CadenceCoordinator
+pub triage::contract::CadenceCoordinator::config: alloc::sync::Arc<triage::contract::CadenceConfig>
+impl triage::contract::CadenceCoordinator
+pub fn triage::contract::CadenceCoordinator::new(config: alloc::sync::Arc<triage::contract::CadenceConfig>) -> Self
+impl core::fmt::Debug for triage::contract::CadenceCoordinator
+pub fn triage::contract::CadenceCoordinator::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::CadenceCoordinator
+impl core::marker::Send for triage::contract::CadenceCoordinator
+impl core::marker::Sync for triage::contract::CadenceCoordinator
+impl core::marker::Unpin for triage::contract::CadenceCoordinator
+impl core::marker::UnsafeUnpin for triage::contract::CadenceCoordinator
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::CadenceCoordinator
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::CadenceCoordinator
+pub struct triage::contract::CadenceEvent
+pub triage::contract::CadenceEvent::cue_kind_label: core::option::Option<&'static str>
+pub triage::contract::CadenceEvent::cue_priority_label: core::option::Option<&'static str>
+pub triage::contract::CadenceEvent::executed_at_unix_nano: i64
+pub triage::contract::CadenceEvent::mode: triage::contract::CadenceMode
+pub triage::contract::CadenceEvent::mode_label: &'static str
+pub triage::contract::CadenceEvent::queries_executed: u32
+pub triage::contract::CadenceEvent::queries_succeeded: u32
+pub triage::contract::CadenceEvent::scheduled_at_unix_nano: i64
+impl core::clone::Clone for triage::contract::CadenceEvent
+pub fn triage::contract::CadenceEvent::clone(&self) -> triage::contract::CadenceEvent
+impl core::cmp::Eq for triage::contract::CadenceEvent
+impl core::cmp::PartialEq for triage::contract::CadenceEvent
+pub fn triage::contract::CadenceEvent::eq(&self, other: &triage::contract::CadenceEvent) -> bool
+impl core::fmt::Debug for triage::contract::CadenceEvent
+pub fn triage::contract::CadenceEvent::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::CadenceEvent
+impl core::marker::StructuralPartialEq for triage::contract::CadenceEvent
+impl serde_core::ser::Serialize for triage::contract::CadenceEvent
+pub fn triage::contract::CadenceEvent::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for triage::contract::CadenceEvent
+impl core::marker::Send for triage::contract::CadenceEvent
+impl core::marker::Sync for triage::contract::CadenceEvent
+impl core::marker::Unpin for triage::contract::CadenceEvent
+impl core::marker::UnsafeUnpin for triage::contract::CadenceEvent
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::CadenceEvent
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::CadenceEvent
+pub struct triage::contract::CadenceEventBroadcast
+impl triage::contract::CadenceEventBroadcast
+pub fn triage::contract::CadenceEventBroadcast::new() -> Self
+pub fn triage::contract::CadenceEventBroadcast::sender(&self) -> &tokio::sync::broadcast::Sender<triage::contract::CadenceEvent>
+pub fn triage::contract::CadenceEventBroadcast::subscribe(&self) -> tokio::sync::broadcast::Receiver<triage::contract::CadenceEvent>
+pub fn triage::contract::CadenceEventBroadcast::subscriber_count(&self) -> usize
+impl core::clone::Clone for triage::contract::CadenceEventBroadcast
+pub fn triage::contract::CadenceEventBroadcast::clone(&self) -> triage::contract::CadenceEventBroadcast
+impl core::default::Default for triage::contract::CadenceEventBroadcast
+pub fn triage::contract::CadenceEventBroadcast::default() -> Self
+impl core::fmt::Debug for triage::contract::CadenceEventBroadcast
+pub fn triage::contract::CadenceEventBroadcast::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::CadenceEventBroadcast
+impl core::marker::Send for triage::contract::CadenceEventBroadcast
+impl core::marker::Sync for triage::contract::CadenceEventBroadcast
+impl core::marker::Unpin for triage::contract::CadenceEventBroadcast
+impl core::marker::UnsafeUnpin for triage::contract::CadenceEventBroadcast
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::CadenceEventBroadcast
+impl !core::panic::unwind_safe::UnwindSafe for triage::contract::CadenceEventBroadcast
+pub struct triage::contract::CadenceTriggerChannel
+impl triage::contract::CadenceTriggerChannel
+pub fn triage::contract::CadenceTriggerChannel::new() -> Self
+pub fn triage::contract::CadenceTriggerChannel::sender(&self) -> &tokio::sync::broadcast::Sender<triage::contract::AttentionCue>
+pub fn triage::contract::CadenceTriggerChannel::subscribe(&self) -> tokio::sync::broadcast::Receiver<triage::contract::AttentionCue>
+pub fn triage::contract::CadenceTriggerChannel::subscriber_count(&self) -> usize
+impl core::clone::Clone for triage::contract::CadenceTriggerChannel
+pub fn triage::contract::CadenceTriggerChannel::clone(&self) -> triage::contract::CadenceTriggerChannel
+impl core::default::Default for triage::contract::CadenceTriggerChannel
+pub fn triage::contract::CadenceTriggerChannel::default() -> Self
+impl core::fmt::Debug for triage::contract::CadenceTriggerChannel
+pub fn triage::contract::CadenceTriggerChannel::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::CadenceTriggerChannel
+impl core::marker::Send for triage::contract::CadenceTriggerChannel
+impl core::marker::Sync for triage::contract::CadenceTriggerChannel
+impl core::marker::Unpin for triage::contract::CadenceTriggerChannel
+impl core::marker::UnsafeUnpin for triage::contract::CadenceTriggerChannel
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::CadenceTriggerChannel
+impl !core::panic::unwind_safe::UnwindSafe for triage::contract::CadenceTriggerChannel
+pub struct triage::contract::CoordinatorCycleStats
+pub triage::contract::CoordinatorCycleStats::digest_emitted: bool
+pub triage::contract::CoordinatorCycleStats::mode: core::option::Option<triage::contract::CadenceMode>
+pub triage::contract::CoordinatorCycleStats::queries_executed: u32
+pub triage::contract::CoordinatorCycleStats::queries_succeeded: u32
+pub triage::contract::CoordinatorCycleStats::tier2_skipped_cpu_primary: bool
+impl core::clone::Clone for triage::contract::CoordinatorCycleStats
+pub fn triage::contract::CoordinatorCycleStats::clone(&self) -> triage::contract::CoordinatorCycleStats
+impl core::cmp::Eq for triage::contract::CoordinatorCycleStats
+impl core::cmp::PartialEq for triage::contract::CoordinatorCycleStats
+pub fn triage::contract::CoordinatorCycleStats::eq(&self, other: &triage::contract::CoordinatorCycleStats) -> bool
+impl core::default::Default for triage::contract::CoordinatorCycleStats
+pub fn triage::contract::CoordinatorCycleStats::default() -> triage::contract::CoordinatorCycleStats
+impl core::fmt::Debug for triage::contract::CoordinatorCycleStats
+pub fn triage::contract::CoordinatorCycleStats::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::CoordinatorCycleStats
+impl core::marker::StructuralPartialEq for triage::contract::CoordinatorCycleStats
+impl core::marker::Freeze for triage::contract::CoordinatorCycleStats
+impl core::marker::Send for triage::contract::CoordinatorCycleStats
+impl core::marker::Sync for triage::contract::CoordinatorCycleStats
+impl core::marker::Unpin for triage::contract::CoordinatorCycleStats
+impl core::marker::UnsafeUnpin for triage::contract::CoordinatorCycleStats
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::CoordinatorCycleStats
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::CoordinatorCycleStats
+pub struct triage::contract::DetectCycleStats
+pub triage::contract::DetectCycleStats::gap_threshold_seconds: u64
+pub triage::contract::DetectCycleStats::restart_events_emitted_total: u64
+pub triage::contract::DetectCycleStats::services_tracked: usize
+impl core::clone::Clone for triage::contract::DetectCycleStats
+pub fn triage::contract::DetectCycleStats::clone(&self) -> triage::contract::DetectCycleStats
+impl core::cmp::Eq for triage::contract::DetectCycleStats
+impl core::cmp::PartialEq for triage::contract::DetectCycleStats
+pub fn triage::contract::DetectCycleStats::eq(&self, other: &triage::contract::DetectCycleStats) -> bool
+impl core::default::Default for triage::contract::DetectCycleStats
+pub fn triage::contract::DetectCycleStats::default() -> triage::contract::DetectCycleStats
+impl core::fmt::Debug for triage::contract::DetectCycleStats
+pub fn triage::contract::DetectCycleStats::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::DetectCycleStats
+impl core::marker::StructuralPartialEq for triage::contract::DetectCycleStats
+impl core::marker::Freeze for triage::contract::DetectCycleStats
+impl core::marker::Send for triage::contract::DetectCycleStats
+impl core::marker::Sync for triage::contract::DetectCycleStats
+impl core::marker::Unpin for triage::contract::DetectCycleStats
+impl core::marker::UnsafeUnpin for triage::contract::DetectCycleStats
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::DetectCycleStats
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::DetectCycleStats
+pub struct triage::contract::Digest
+pub triage::contract::Digest::active_incident_bypass: bool
+pub triage::contract::Digest::attention_cues: alloc::vec::Vec<triage::contract::DigestCueRef>
+pub triage::contract::Digest::corpus_matches: alloc::vec::Vec<alloc::string::String>
+pub triage::contract::Digest::generated_at_unix_nano: i64
+pub triage::contract::Digest::incident_refs: alloc::vec::Vec<alloc::string::String>
+pub triage::contract::Digest::kind: triage::contract::DigestKind
+pub triage::contract::Digest::lww_mode: triage::contract::DigestLwwMode
+pub triage::contract::Digest::payload_summary: alloc::string::String
+pub triage::contract::Digest::resolution_event: bool
+pub triage::contract::Digest::services: alloc::vec::Vec<triage::contract::DigestServiceRow>
+pub triage::contract::Digest::token_count: usize
+pub triage::contract::Digest::window_end_unix_nano: i64
+pub triage::contract::Digest::window_start_unix_nano: i64
+pub triage::contract::Digest::workspace: alloc::string::String
+impl triage::contract::Digest
+pub fn triage::contract::Digest::scrubbed_clone<F: core::ops::function::Fn(&str) -> alloc::string::String>(&self, scrub: F) -> Self
+impl core::clone::Clone for triage::contract::Digest
+pub fn triage::contract::Digest::clone(&self) -> triage::contract::Digest
+impl core::cmp::PartialEq for triage::contract::Digest
+pub fn triage::contract::Digest::eq(&self, other: &triage::contract::Digest) -> bool
+impl core::fmt::Debug for triage::contract::Digest
+pub fn triage::contract::Digest::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::Digest
+impl serde_core::ser::Serialize for triage::contract::Digest
+pub fn triage::contract::Digest::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::Digest
+pub fn triage::contract::Digest::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::Digest
+impl core::marker::Send for triage::contract::Digest
+impl core::marker::Sync for triage::contract::Digest
+impl core::marker::Unpin for triage::contract::Digest
+impl core::marker::UnsafeUnpin for triage::contract::Digest
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::Digest
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::Digest
+pub struct triage::contract::DigestBroadcast
+impl triage::contract::DigestBroadcast
+pub fn triage::contract::DigestBroadcast::new() -> Self
+pub fn triage::contract::DigestBroadcast::sender(&self) -> &tokio::sync::broadcast::Sender<triage::contract::Digest>
+pub fn triage::contract::DigestBroadcast::subscribe(&self) -> tokio::sync::broadcast::Receiver<triage::contract::Digest>
+pub fn triage::contract::DigestBroadcast::subscriber_count(&self) -> usize
+impl core::clone::Clone for triage::contract::DigestBroadcast
+pub fn triage::contract::DigestBroadcast::clone(&self) -> triage::contract::DigestBroadcast
+impl core::default::Default for triage::contract::DigestBroadcast
+pub fn triage::contract::DigestBroadcast::default() -> Self
+impl core::fmt::Debug for triage::contract::DigestBroadcast
+pub fn triage::contract::DigestBroadcast::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::DigestBroadcast
+impl core::marker::Send for triage::contract::DigestBroadcast
+impl core::marker::Sync for triage::contract::DigestBroadcast
+impl core::marker::Unpin for triage::contract::DigestBroadcast
+impl core::marker::UnsafeUnpin for triage::contract::DigestBroadcast
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::DigestBroadcast
+impl !core::panic::unwind_safe::UnwindSafe for triage::contract::DigestBroadcast
+pub struct triage::contract::DigestCueRef
+pub triage::contract::DigestCueRef::kind: triage::contract::CueKind
+pub triage::contract::DigestCueRef::priority_tier: triage::contract::PriorityTier
+pub triage::contract::DigestCueRef::scope: triage::contract::CueScope
+pub triage::contract::DigestCueRef::scope_id: core::option::Option<alloc::string::String>
+pub triage::contract::DigestCueRef::summary: alloc::string::String
+impl core::clone::Clone for triage::contract::DigestCueRef
+pub fn triage::contract::DigestCueRef::clone(&self) -> triage::contract::DigestCueRef
+impl core::cmp::Eq for triage::contract::DigestCueRef
+impl core::cmp::PartialEq for triage::contract::DigestCueRef
+pub fn triage::contract::DigestCueRef::eq(&self, other: &triage::contract::DigestCueRef) -> bool
+impl core::fmt::Debug for triage::contract::DigestCueRef
+pub fn triage::contract::DigestCueRef::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::DigestCueRef
+impl serde_core::ser::Serialize for triage::contract::DigestCueRef
+pub fn triage::contract::DigestCueRef::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::DigestCueRef
+pub fn triage::contract::DigestCueRef::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::DigestCueRef
+impl core::marker::Send for triage::contract::DigestCueRef
+impl core::marker::Sync for triage::contract::DigestCueRef
+impl core::marker::Unpin for triage::contract::DigestCueRef
+impl core::marker::UnsafeUnpin for triage::contract::DigestCueRef
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::DigestCueRef
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::DigestCueRef
+pub struct triage::contract::DigestProjectContext
+pub triage::contract::DigestProjectContext::framework_signals: alloc::vec::Vec<&'static str>
+pub triage::contract::DigestProjectContext::project_name: core::option::Option<alloc::string::String>
+pub triage::contract::DigestProjectContext::recent_commits: alloc::vec::Vec<triage::contract::DigestRecentCommit>
+pub triage::contract::DigestProjectContext::vcs_type: core::option::Option<&'static str>
+pub triage::contract::DigestProjectContext::workspace_canonical_path: alloc::string::String
+impl core::clone::Clone for triage::contract::DigestProjectContext
+pub fn triage::contract::DigestProjectContext::clone(&self) -> triage::contract::DigestProjectContext
+impl core::default::Default for triage::contract::DigestProjectContext
+pub fn triage::contract::DigestProjectContext::default() -> triage::contract::DigestProjectContext
+impl core::fmt::Debug for triage::contract::DigestProjectContext
+pub fn triage::contract::DigestProjectContext::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::DigestProjectContext
+impl core::marker::Send for triage::contract::DigestProjectContext
+impl core::marker::Sync for triage::contract::DigestProjectContext
+impl core::marker::Unpin for triage::contract::DigestProjectContext
+impl core::marker::UnsafeUnpin for triage::contract::DigestProjectContext
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::DigestProjectContext
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::DigestProjectContext
+pub struct triage::contract::DigestRecentCommit
+pub triage::contract::DigestRecentCommit::age_seconds: u64
+pub triage::contract::DigestRecentCommit::basename: alloc::string::String
+pub triage::contract::DigestRecentCommit::files_changed_count: u32
+impl core::clone::Clone for triage::contract::DigestRecentCommit
+pub fn triage::contract::DigestRecentCommit::clone(&self) -> triage::contract::DigestRecentCommit
+impl core::fmt::Debug for triage::contract::DigestRecentCommit
+pub fn triage::contract::DigestRecentCommit::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::DigestRecentCommit
+impl core::marker::Send for triage::contract::DigestRecentCommit
+impl core::marker::Sync for triage::contract::DigestRecentCommit
+impl core::marker::Unpin for triage::contract::DigestRecentCommit
+impl core::marker::UnsafeUnpin for triage::contract::DigestRecentCommit
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::DigestRecentCommit
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::DigestRecentCommit
+pub struct triage::contract::DigestServiceRow
+pub triage::contract::DigestServiceRow::error_rate: f64
+pub triage::contract::DigestServiceRow::error_rate_baseline: f64
+pub triage::contract::DigestServiceRow::p99_baseline_ms: f64
+pub triage::contract::DigestServiceRow::p99_latency_ms: f64
+pub triage::contract::DigestServiceRow::rate_baseline_per_sec: f64
+pub triage::contract::DigestServiceRow::rate_per_sec: f64
+pub triage::contract::DigestServiceRow::service: alloc::string::String
+impl core::clone::Clone for triage::contract::DigestServiceRow
+pub fn triage::contract::DigestServiceRow::clone(&self) -> triage::contract::DigestServiceRow
+impl core::cmp::PartialEq for triage::contract::DigestServiceRow
+pub fn triage::contract::DigestServiceRow::eq(&self, other: &triage::contract::DigestServiceRow) -> bool
+impl core::fmt::Debug for triage::contract::DigestServiceRow
+pub fn triage::contract::DigestServiceRow::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::DigestServiceRow
+impl serde_core::ser::Serialize for triage::contract::DigestServiceRow
+pub fn triage::contract::DigestServiceRow::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::DigestServiceRow
+pub fn triage::contract::DigestServiceRow::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::DigestServiceRow
+impl core::marker::Send for triage::contract::DigestServiceRow
+impl core::marker::Sync for triage::contract::DigestServiceRow
+impl core::marker::Unpin for triage::contract::DigestServiceRow
+impl core::marker::UnsafeUnpin for triage::contract::DigestServiceRow
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::DigestServiceRow
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::DigestServiceRow
+pub struct triage::contract::EvidenceRefs
+pub triage::contract::EvidenceRefs::fingerprint_hashes: alloc::vec::Vec<alloc::string::String>
+pub triage::contract::EvidenceRefs::span_ids: alloc::vec::Vec<[u8; 8]>
+pub triage::contract::EvidenceRefs::timestamps_unix_nano: alloc::vec::Vec<i64>
+pub triage::contract::EvidenceRefs::trace_id: core::option::Option<[u8; 16]>
+impl core::clone::Clone for triage::contract::EvidenceRefs
+pub fn triage::contract::EvidenceRefs::clone(&self) -> triage::contract::EvidenceRefs
+impl core::cmp::Eq for triage::contract::EvidenceRefs
+impl core::cmp::PartialEq for triage::contract::EvidenceRefs
+pub fn triage::contract::EvidenceRefs::eq(&self, other: &triage::contract::EvidenceRefs) -> bool
+impl core::fmt::Debug for triage::contract::EvidenceRefs
+pub fn triage::contract::EvidenceRefs::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::EvidenceRefs
+impl serde_core::ser::Serialize for triage::contract::EvidenceRefs
+pub fn triage::contract::EvidenceRefs::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::EvidenceRefs
+pub fn triage::contract::EvidenceRefs::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::EvidenceRefs
+impl core::marker::Send for triage::contract::EvidenceRefs
+impl core::marker::Sync for triage::contract::EvidenceRefs
+impl core::marker::Unpin for triage::contract::EvidenceRefs
+impl core::marker::UnsafeUnpin for triage::contract::EvidenceRefs
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::EvidenceRefs
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::EvidenceRefs
+pub struct triage::contract::FingerprintState
+impl core::clone::Clone for triage::contract::FingerprintState
+pub fn triage::contract::FingerprintState::clone(&self) -> triage::contract::FingerprintState
+impl core::cmp::PartialEq for triage::contract::FingerprintState
+pub fn triage::contract::FingerprintState::eq(&self, other: &triage::contract::FingerprintState) -> bool
+impl core::fmt::Debug for triage::contract::FingerprintState
+pub fn triage::contract::FingerprintState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::FingerprintState
+impl serde_core::ser::Serialize for triage::contract::FingerprintState
+pub fn triage::contract::FingerprintState::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::FingerprintState
+pub fn triage::contract::FingerprintState::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::FingerprintState
+impl core::marker::Send for triage::contract::FingerprintState
+impl core::marker::Sync for triage::contract::FingerprintState
+impl core::marker::Unpin for triage::contract::FingerprintState
+impl core::marker::UnsafeUnpin for triage::contract::FingerprintState
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::FingerprintState
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::FingerprintState
+pub struct triage::contract::InMemoryIncidentRegistry
+impl triage::contract::InMemoryIncidentRegistry
+pub fn triage::contract::InMemoryIncidentRegistry::from_persisted(incidents: alloc::vec::Vec<triage::contract::Incident>) -> Self
+pub fn triage::contract::InMemoryIncidentRegistry::new() -> Self
+impl core::default::Default for triage::contract::InMemoryIncidentRegistry
+pub fn triage::contract::InMemoryIncidentRegistry::default() -> triage::contract::InMemoryIncidentRegistry
+impl core::fmt::Debug for triage::contract::InMemoryIncidentRegistry
+pub fn triage::contract::InMemoryIncidentRegistry::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl triage::contract::IncidentRegistry for triage::contract::InMemoryIncidentRegistry
+pub fn triage::contract::InMemoryIncidentRegistry::acknowledge(&self, id: i64, now_unix_nano: i64, cooldown_secs: u64) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::InMemoryIncidentRegistry::attach_resolution_summary(&self, id: i64, summary_text: alloc::string::String, now_unix_nano: i64) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::InMemoryIncidentRegistry::count(&self) -> usize
+pub fn triage::contract::InMemoryIncidentRegistry::evaluate_auto_resolution(&self, now_unix_nano: i64, window_secs: u64) -> alloc::vec::Vec<i64>
+pub fn triage::contract::InMemoryIncidentRegistry::get(&self, id: i64) -> core::option::Option<triage::contract::Incident>
+pub fn triage::contract::InMemoryIncidentRegistry::insert(&self, incident: triage::contract::Incident)
+pub fn triage::contract::InMemoryIncidentRegistry::list_active(&self, workspace: &str) -> alloc::vec::Vec<triage::contract::Incident>
+pub fn triage::contract::InMemoryIncidentRegistry::mark_all_read(&self, workspace: &str, now_unix_nano: i64) -> core::result::Result<alloc::vec::Vec<i64>, triage::contract::IncidentRegistryError>
+pub fn triage::contract::InMemoryIncidentRegistry::mark_read(&self, id: i64, now_unix_nano: i64) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::InMemoryIncidentRegistry::mark_resolved(&self, id: i64, now_unix_nano: i64, _trigger: triage::contract::ResolutionTrigger) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::InMemoryIncidentRegistry::observe_reemission(&self, id: i64, now_unix_nano: i64) -> core::result::Result<(), triage::contract::IncidentRegistryError>
+impl core::marker::Freeze for triage::contract::InMemoryIncidentRegistry
+impl core::marker::Send for triage::contract::InMemoryIncidentRegistry
+impl core::marker::Sync for triage::contract::InMemoryIncidentRegistry
+impl core::marker::Unpin for triage::contract::InMemoryIncidentRegistry
+impl core::marker::UnsafeUnpin for triage::contract::InMemoryIncidentRegistry
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::InMemoryIncidentRegistry
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::InMemoryIncidentRegistry
+pub struct triage::contract::InMemoryServiceRegistry
+impl triage::contract::InMemoryServiceRegistry
+pub fn triage::contract::InMemoryServiceRegistry::from_entries(entries: alloc::vec::Vec<(alloc::string::String, triage::contract::ServiceRegistryEntry)>) -> Self
+pub fn triage::contract::InMemoryServiceRegistry::new() -> Self
+impl core::default::Default for triage::contract::InMemoryServiceRegistry
+pub fn triage::contract::InMemoryServiceRegistry::default() -> triage::contract::InMemoryServiceRegistry
+impl core::fmt::Debug for triage::contract::InMemoryServiceRegistry
+pub fn triage::contract::InMemoryServiceRegistry::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl triage::contract::ServiceRegistry for triage::contract::InMemoryServiceRegistry
+pub fn triage::contract::InMemoryServiceRegistry::count(&self) -> usize
+pub fn triage::contract::InMemoryServiceRegistry::count_by_state(&self) -> [usize; 7]
+pub fn triage::contract::InMemoryServiceRegistry::current_state(&self, service: &str) -> core::option::Option<triage::contract::ServiceLifecycleState>
+pub fn triage::contract::InMemoryServiceRegistry::list_all(&self) -> alloc::vec::Vec<triage::contract::ServiceListItem>
+pub fn triage::contract::InMemoryServiceRegistry::set_manual_override(&self, service: &str, override_state: core::option::Option<triage::contract::ServiceLifecycleState>, now_unix_nano: i64) -> core::option::Option<triage::contract::ServiceLifecycleEvent>
+pub fn triage::contract::InMemoryServiceRegistry::set_state_on_corpus_restore(&self, service: &str, restored_state: triage::contract::ServiceLifecycleState, restored_at_unix_nano: i64) -> core::option::Option<triage::contract::ServiceLifecycleEvent>
+pub fn triage::contract::InMemoryServiceRegistry::set_state_on_restart(&self, service: &str, now_unix_nano: i64) -> core::option::Option<triage::contract::ServiceLifecycleEvent>
+pub fn triage::contract::InMemoryServiceRegistry::tick_all(&self, now_unix_nano: i64, baseline: &triage::contract::BaselineState, dormant_after_secs: u64, archived_after_secs: u64) -> alloc::vec::Vec<triage::contract::ServiceLifecycleEvent>
+impl core::marker::Freeze for triage::contract::InMemoryServiceRegistry
+impl core::marker::Send for triage::contract::InMemoryServiceRegistry
+impl core::marker::Sync for triage::contract::InMemoryServiceRegistry
+impl core::marker::Unpin for triage::contract::InMemoryServiceRegistry
+impl core::marker::UnsafeUnpin for triage::contract::InMemoryServiceRegistry
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::InMemoryServiceRegistry
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::InMemoryServiceRegistry
+pub struct triage::contract::Incident
+pub triage::contract::Incident::acknowledged_at_unix_nano: core::option::Option<i64>
+pub triage::contract::Incident::detail: alloc::string::String
+pub triage::contract::Incident::evidence_refs: triage::contract::EvidenceRefs
+pub triage::contract::Incident::fingerprint: alloc::string::String
+pub triage::contract::Incident::id: i64
+pub triage::contract::Incident::kind: triage::contract::CueKind
+pub triage::contract::Incident::opened_at_unix_nano: i64
+pub triage::contract::Incident::priority_tier: triage::contract::PriorityTier
+pub triage::contract::Incident::read_at_unix_nano: core::option::Option<i64>
+pub triage::contract::Incident::resolution_summary_text: core::option::Option<alloc::string::String>
+pub triage::contract::Incident::resolved_at_unix_nano: core::option::Option<i64>
+pub triage::contract::Incident::scope: triage::contract::CueScope
+pub triage::contract::Incident::scope_id: core::option::Option<alloc::string::String>
+pub triage::contract::Incident::severity: triage::contract::Severity
+pub triage::contract::Incident::status: triage::contract::IncidentStatus
+pub triage::contract::Incident::title: alloc::string::String
+pub triage::contract::Incident::updated_at_unix_nano: i64
+pub triage::contract::Incident::workspace: alloc::string::String
+impl core::clone::Clone for triage::contract::Incident
+pub fn triage::contract::Incident::clone(&self) -> triage::contract::Incident
+impl core::cmp::Eq for triage::contract::Incident
+impl core::cmp::PartialEq for triage::contract::Incident
+pub fn triage::contract::Incident::eq(&self, other: &triage::contract::Incident) -> bool
+impl core::fmt::Debug for triage::contract::Incident
+pub fn triage::contract::Incident::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::Incident
+impl serde_core::ser::Serialize for triage::contract::Incident
+pub fn triage::contract::Incident::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::Incident
+pub fn triage::contract::Incident::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::Incident
+impl core::marker::Send for triage::contract::Incident
+impl core::marker::Sync for triage::contract::Incident
+impl core::marker::Unpin for triage::contract::Incident
+impl core::marker::UnsafeUnpin for triage::contract::Incident
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::Incident
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::Incident
+pub struct triage::contract::IncidentLifecycleBroadcast
+impl triage::contract::IncidentLifecycleBroadcast
+pub fn triage::contract::IncidentLifecycleBroadcast::new() -> Self
+pub fn triage::contract::IncidentLifecycleBroadcast::sender(&self) -> &tokio::sync::broadcast::Sender<triage::contract::IncidentLifecycleEvent>
+pub fn triage::contract::IncidentLifecycleBroadcast::subscribe(&self) -> tokio::sync::broadcast::Receiver<triage::contract::IncidentLifecycleEvent>
+pub fn triage::contract::IncidentLifecycleBroadcast::subscriber_count(&self) -> usize
+impl core::clone::Clone for triage::contract::IncidentLifecycleBroadcast
+pub fn triage::contract::IncidentLifecycleBroadcast::clone(&self) -> triage::contract::IncidentLifecycleBroadcast
+impl core::default::Default for triage::contract::IncidentLifecycleBroadcast
+pub fn triage::contract::IncidentLifecycleBroadcast::default() -> Self
+impl core::fmt::Debug for triage::contract::IncidentLifecycleBroadcast
+pub fn triage::contract::IncidentLifecycleBroadcast::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::IncidentLifecycleBroadcast
+impl core::marker::Send for triage::contract::IncidentLifecycleBroadcast
+impl core::marker::Sync for triage::contract::IncidentLifecycleBroadcast
+impl core::marker::Unpin for triage::contract::IncidentLifecycleBroadcast
+impl core::marker::UnsafeUnpin for triage::contract::IncidentLifecycleBroadcast
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::IncidentLifecycleBroadcast
+impl !core::panic::unwind_safe::UnwindSafe for triage::contract::IncidentLifecycleBroadcast
+pub struct triage::contract::IncidentLifecycleEvent
+pub triage::contract::IncidentLifecycleEvent::from_state: triage::contract::IncidentStatus
+pub triage::contract::IncidentLifecycleEvent::incident_id: i64
+pub triage::contract::IncidentLifecycleEvent::kind: triage::contract::CueKind
+pub triage::contract::IncidentLifecycleEvent::scope: triage::contract::CueScope
+pub triage::contract::IncidentLifecycleEvent::to_state: triage::contract::IncidentStatus
+pub triage::contract::IncidentLifecycleEvent::transitioned_at_unix_nano: i64
+impl core::clone::Clone for triage::contract::IncidentLifecycleEvent
+pub fn triage::contract::IncidentLifecycleEvent::clone(&self) -> triage::contract::IncidentLifecycleEvent
+impl core::cmp::Eq for triage::contract::IncidentLifecycleEvent
+impl core::cmp::PartialEq for triage::contract::IncidentLifecycleEvent
+pub fn triage::contract::IncidentLifecycleEvent::eq(&self, other: &triage::contract::IncidentLifecycleEvent) -> bool
+impl core::fmt::Debug for triage::contract::IncidentLifecycleEvent
+pub fn triage::contract::IncidentLifecycleEvent::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::IncidentLifecycleEvent
+impl serde_core::ser::Serialize for triage::contract::IncidentLifecycleEvent
+pub fn triage::contract::IncidentLifecycleEvent::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::Flatten for triage::contract::IncidentLifecycleEvent
+impl specta::type::NamedType for triage::contract::IncidentLifecycleEvent
+pub fn triage::contract::IncidentLifecycleEvent::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::IncidentLifecycleEvent::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::IncidentLifecycleEvent::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::IncidentLifecycleEvent
+pub fn triage::contract::IncidentLifecycleEvent::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::IncidentLifecycleEvent::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::IncidentLifecycleEvent
+pub fn triage::contract::IncidentLifecycleEvent::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::IncidentLifecycleEvent
+impl core::marker::Send for triage::contract::IncidentLifecycleEvent
+impl core::marker::Sync for triage::contract::IncidentLifecycleEvent
+impl core::marker::Unpin for triage::contract::IncidentLifecycleEvent
+impl core::marker::UnsafeUnpin for triage::contract::IncidentLifecycleEvent
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::IncidentLifecycleEvent
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::IncidentLifecycleEvent
+pub struct triage::contract::LwwQueue
+impl triage::contract::LwwQueue
+pub fn triage::contract::LwwQueue::active_incident_depth(&self) -> usize
+pub fn triage::contract::LwwQueue::active_incident_depth_for(&self, workspace: &str) -> usize
+pub fn triage::contract::LwwQueue::default_slot_occupied(&self, workspace: &str) -> bool
+pub fn triage::contract::LwwQueue::drain_all(&mut self) -> alloc::vec::Vec<triage::contract::Digest>
+pub fn triage::contract::LwwQueue::new() -> Self
+pub fn triage::contract::LwwQueue::push(&mut self, digest: triage::contract::Digest) -> triage::contract::QueueAction
+pub fn triage::contract::LwwQueue::tier1_depth(&self) -> usize
+impl core::default::Default for triage::contract::LwwQueue
+pub fn triage::contract::LwwQueue::default() -> triage::contract::LwwQueue
+impl core::fmt::Debug for triage::contract::LwwQueue
+pub fn triage::contract::LwwQueue::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::LwwQueue
+impl core::marker::Send for triage::contract::LwwQueue
+impl core::marker::Sync for triage::contract::LwwQueue
+impl core::marker::Unpin for triage::contract::LwwQueue
+impl core::marker::UnsafeUnpin for triage::contract::LwwQueue
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::LwwQueue
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::LwwQueue
+pub struct triage::contract::OperationMetricSnapshot
+pub triage::contract::OperationMetricSnapshot::latency_at_percentile: core::option::Option<f64>
+pub triage::contract::OperationMetricSnapshot::operation_key: alloc::string::String
+pub triage::contract::OperationMetricSnapshot::operation_name: alloc::string::String
+pub triage::contract::OperationMetricSnapshot::samples: u64
+pub triage::contract::OperationMetricSnapshot::service_name: alloc::string::String
+pub triage::contract::OperationMetricSnapshot::short_term_latency_at_percentile: core::option::Option<f64>
+impl core::clone::Clone for triage::contract::OperationMetricSnapshot
+pub fn triage::contract::OperationMetricSnapshot::clone(&self) -> triage::contract::OperationMetricSnapshot
+impl core::fmt::Debug for triage::contract::OperationMetricSnapshot
+pub fn triage::contract::OperationMetricSnapshot::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::OperationMetricSnapshot
+impl core::marker::Send for triage::contract::OperationMetricSnapshot
+impl core::marker::Sync for triage::contract::OperationMetricSnapshot
+impl core::marker::Unpin for triage::contract::OperationMetricSnapshot
+impl core::marker::UnsafeUnpin for triage::contract::OperationMetricSnapshot
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::OperationMetricSnapshot
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::OperationMetricSnapshot
+pub struct triage::contract::PersistStats
+pub triage::contract::PersistStats::bytes_written: u64
+pub triage::contract::PersistStats::service_count: usize
+impl core::clone::Clone for triage::contract::PersistStats
+pub fn triage::contract::PersistStats::clone(&self) -> triage::contract::PersistStats
+impl core::fmt::Debug for triage::contract::PersistStats
+pub fn triage::contract::PersistStats::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::PersistStats
+impl core::marker::Freeze for triage::contract::PersistStats
+impl core::marker::Send for triage::contract::PersistStats
+impl core::marker::Sync for triage::contract::PersistStats
+impl core::marker::Unpin for triage::contract::PersistStats
+impl core::marker::UnsafeUnpin for triage::contract::PersistStats
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::PersistStats
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::PersistStats
+pub struct triage::contract::Q1RedRow
+pub triage::contract::Q1RedRow::error_count: i64
+pub triage::contract::Q1RedRow::error_rate: f64
+pub triage::contract::Q1RedRow::p50_ns: i64
+pub triage::contract::Q1RedRow::p95_ns: i64
+pub triage::contract::Q1RedRow::p99_ns: i64
+pub triage::contract::Q1RedRow::request_count: i64
+pub triage::contract::Q1RedRow::service_name: alloc::string::String
+impl core::clone::Clone for triage::contract::Q1RedRow
+pub fn triage::contract::Q1RedRow::clone(&self) -> triage::contract::Q1RedRow
+impl core::cmp::PartialEq for triage::contract::Q1RedRow
+pub fn triage::contract::Q1RedRow::eq(&self, other: &triage::contract::Q1RedRow) -> bool
+impl core::fmt::Debug for triage::contract::Q1RedRow
+pub fn triage::contract::Q1RedRow::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::Q1RedRow
+impl core::marker::Freeze for triage::contract::Q1RedRow
+impl core::marker::Send for triage::contract::Q1RedRow
+impl core::marker::Sync for triage::contract::Q1RedRow
+impl core::marker::Unpin for triage::contract::Q1RedRow
+impl core::marker::UnsafeUnpin for triage::contract::Q1RedRow
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::Q1RedRow
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::Q1RedRow
+pub struct triage::contract::Q2OperationRow
+pub triage::contract::Q2OperationRow::error_count: i64
+pub triage::contract::Q2OperationRow::operation: alloc::string::String
+pub triage::contract::Q2OperationRow::p99_ns: i64
+pub triage::contract::Q2OperationRow::request_count: i64
+pub triage::contract::Q2OperationRow::service_name: alloc::string::String
+impl core::clone::Clone for triage::contract::Q2OperationRow
+pub fn triage::contract::Q2OperationRow::clone(&self) -> triage::contract::Q2OperationRow
+impl core::cmp::PartialEq for triage::contract::Q2OperationRow
+pub fn triage::contract::Q2OperationRow::eq(&self, other: &triage::contract::Q2OperationRow) -> bool
+impl core::fmt::Debug for triage::contract::Q2OperationRow
+pub fn triage::contract::Q2OperationRow::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::Q2OperationRow
+impl core::marker::Freeze for triage::contract::Q2OperationRow
+impl core::marker::Send for triage::contract::Q2OperationRow
+impl core::marker::Sync for triage::contract::Q2OperationRow
+impl core::marker::Unpin for triage::contract::Q2OperationRow
+impl core::marker::UnsafeUnpin for triage::contract::Q2OperationRow
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::Q2OperationRow
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::Q2OperationRow
+pub struct triage::contract::Q3FingerprintRow
+pub triage::contract::Q3FingerprintRow::fingerprint: alloc::vec::Vec<u8>
+pub triage::contract::Q3FingerprintRow::first_seen: i64
+pub triage::contract::Q3FingerprintRow::last_seen: i64
+pub triage::contract::Q3FingerprintRow::occurrences: i64
+impl core::clone::Clone for triage::contract::Q3FingerprintRow
+pub fn triage::contract::Q3FingerprintRow::clone(&self) -> triage::contract::Q3FingerprintRow
+impl core::cmp::PartialEq for triage::contract::Q3FingerprintRow
+pub fn triage::contract::Q3FingerprintRow::eq(&self, other: &triage::contract::Q3FingerprintRow) -> bool
+impl core::fmt::Debug for triage::contract::Q3FingerprintRow
+pub fn triage::contract::Q3FingerprintRow::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::Q3FingerprintRow
+impl core::marker::Freeze for triage::contract::Q3FingerprintRow
+impl core::marker::Send for triage::contract::Q3FingerprintRow
+impl core::marker::Sync for triage::contract::Q3FingerprintRow
+impl core::marker::Unpin for triage::contract::Q3FingerprintRow
+impl core::marker::UnsafeUnpin for triage::contract::Q3FingerprintRow
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::Q3FingerprintRow
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::Q3FingerprintRow
+pub struct triage::contract::Q4InteractionRow
+pub triage::contract::Q4InteractionRow::call_count: i64
+pub triage::contract::Q4InteractionRow::callee: alloc::string::String
+pub triage::contract::Q4InteractionRow::caller: alloc::string::String
+pub triage::contract::Q4InteractionRow::error_count: i64
+impl core::clone::Clone for triage::contract::Q4InteractionRow
+pub fn triage::contract::Q4InteractionRow::clone(&self) -> triage::contract::Q4InteractionRow
+impl core::cmp::PartialEq for triage::contract::Q4InteractionRow
+pub fn triage::contract::Q4InteractionRow::eq(&self, other: &triage::contract::Q4InteractionRow) -> bool
+impl core::fmt::Debug for triage::contract::Q4InteractionRow
+pub fn triage::contract::Q4InteractionRow::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::Q4InteractionRow
+impl core::marker::Freeze for triage::contract::Q4InteractionRow
+impl core::marker::Send for triage::contract::Q4InteractionRow
+impl core::marker::Sync for triage::contract::Q4InteractionRow
+impl core::marker::Unpin for triage::contract::Q4InteractionRow
+impl core::marker::UnsafeUnpin for triage::contract::Q4InteractionRow
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::Q4InteractionRow
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::Q4InteractionRow
+pub struct triage::contract::Q5CardinalityRow
+pub triage::contract::Q5CardinalityRow::service_name: alloc::string::String
+pub triage::contract::Q5CardinalityRow::total_spans: i64
+impl core::clone::Clone for triage::contract::Q5CardinalityRow
+pub fn triage::contract::Q5CardinalityRow::clone(&self) -> triage::contract::Q5CardinalityRow
+impl core::cmp::PartialEq for triage::contract::Q5CardinalityRow
+pub fn triage::contract::Q5CardinalityRow::eq(&self, other: &triage::contract::Q5CardinalityRow) -> bool
+impl core::fmt::Debug for triage::contract::Q5CardinalityRow
+pub fn triage::contract::Q5CardinalityRow::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::Q5CardinalityRow
+impl core::marker::Freeze for triage::contract::Q5CardinalityRow
+impl core::marker::Send for triage::contract::Q5CardinalityRow
+impl core::marker::Sync for triage::contract::Q5CardinalityRow
+impl core::marker::Unpin for triage::contract::Q5CardinalityRow
+impl core::marker::UnsafeUnpin for triage::contract::Q5CardinalityRow
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::Q5CardinalityRow
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::Q5CardinalityRow
+pub struct triage::contract::Q6LogRow
+pub triage::contract::Q6LogRow::occurrences: i64
+pub triage::contract::Q6LogRow::peak_severity: i32
+pub triage::contract::Q6LogRow::resource_hash: alloc::vec::Vec<u8>
+impl core::clone::Clone for triage::contract::Q6LogRow
+pub fn triage::contract::Q6LogRow::clone(&self) -> triage::contract::Q6LogRow
+impl core::cmp::PartialEq for triage::contract::Q6LogRow
+pub fn triage::contract::Q6LogRow::eq(&self, other: &triage::contract::Q6LogRow) -> bool
+impl core::fmt::Debug for triage::contract::Q6LogRow
+pub fn triage::contract::Q6LogRow::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::Q6LogRow
+impl core::marker::Freeze for triage::contract::Q6LogRow
+impl core::marker::Send for triage::contract::Q6LogRow
+impl core::marker::Sync for triage::contract::Q6LogRow
+impl core::marker::Unpin for triage::contract::Q6LogRow
+impl core::marker::UnsafeUnpin for triage::contract::Q6LogRow
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::Q6LogRow
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::Q6LogRow
+pub struct triage::contract::Q7CriticalPathRow
+pub triage::contract::Q7CriticalPathRow::depth: i64
+pub triage::contract::Q7CriticalPathRow::end_time_unix_nano: i64
+pub triage::contract::Q7CriticalPathRow::service_name: alloc::string::String
+pub triage::contract::Q7CriticalPathRow::span_id: alloc::vec::Vec<u8>
+pub triage::contract::Q7CriticalPathRow::trace_id: alloc::vec::Vec<u8>
+pub triage::contract::Q7CriticalPathRow::ts_unix_nano: i64
+impl core::clone::Clone for triage::contract::Q7CriticalPathRow
+pub fn triage::contract::Q7CriticalPathRow::clone(&self) -> triage::contract::Q7CriticalPathRow
+impl core::cmp::PartialEq for triage::contract::Q7CriticalPathRow
+pub fn triage::contract::Q7CriticalPathRow::eq(&self, other: &triage::contract::Q7CriticalPathRow) -> bool
+impl core::fmt::Debug for triage::contract::Q7CriticalPathRow
+pub fn triage::contract::Q7CriticalPathRow::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::Q7CriticalPathRow
+impl core::marker::Freeze for triage::contract::Q7CriticalPathRow
+impl core::marker::Send for triage::contract::Q7CriticalPathRow
+impl core::marker::Sync for triage::contract::Q7CriticalPathRow
+impl core::marker::Unpin for triage::contract::Q7CriticalPathRow
+impl core::marker::UnsafeUnpin for triage::contract::Q7CriticalPathRow
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::Q7CriticalPathRow
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::Q7CriticalPathRow
+pub struct triage::contract::RestartDetector
+impl triage::contract::RestartDetector
+pub fn triage::contract::RestartDetector::gap_threshold_seconds(&self) -> u64
+pub fn triage::contract::RestartDetector::new(gap_threshold_secs: u64) -> Self
+pub fn triage::contract::RestartDetector::observe_span(&self, service: &str, ts_unix_nano: i64) -> core::option::Option<triage::contract::RestartEvent>
+pub fn triage::contract::RestartDetector::restart_events_emitted_total(&self) -> u64
+pub fn triage::contract::RestartDetector::services_tracked(&self) -> usize
+impl core::fmt::Debug for triage::contract::RestartDetector
+pub fn triage::contract::RestartDetector::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl !core::marker::Freeze for triage::contract::RestartDetector
+impl core::marker::Send for triage::contract::RestartDetector
+impl core::marker::Sync for triage::contract::RestartDetector
+impl core::marker::Unpin for triage::contract::RestartDetector
+impl core::marker::UnsafeUnpin for triage::contract::RestartDetector
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::RestartDetector
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::RestartDetector
+pub struct triage::contract::RestartEvent
+pub triage::contract::RestartEvent::gap_seconds: u64
+pub triage::contract::RestartEvent::last_seen_unix_nano: i64
+pub triage::contract::RestartEvent::resume_unix_nano: i64
+pub triage::contract::RestartEvent::service: alloc::string::String
+impl core::clone::Clone for triage::contract::RestartEvent
+pub fn triage::contract::RestartEvent::clone(&self) -> triage::contract::RestartEvent
+impl core::cmp::Eq for triage::contract::RestartEvent
+impl core::cmp::PartialEq for triage::contract::RestartEvent
+pub fn triage::contract::RestartEvent::eq(&self, other: &triage::contract::RestartEvent) -> bool
+impl core::fmt::Debug for triage::contract::RestartEvent
+pub fn triage::contract::RestartEvent::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::RestartEvent
+impl serde_core::ser::Serialize for triage::contract::RestartEvent
+pub fn triage::contract::RestartEvent::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::RestartEvent
+pub fn triage::contract::RestartEvent::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::RestartEvent
+impl core::marker::Send for triage::contract::RestartEvent
+impl core::marker::Sync for triage::contract::RestartEvent
+impl core::marker::Unpin for triage::contract::RestartEvent
+impl core::marker::UnsafeUnpin for triage::contract::RestartEvent
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::RestartEvent
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::RestartEvent
+pub struct triage::contract::RestartEventBroadcast
+impl triage::contract::RestartEventBroadcast
+pub fn triage::contract::RestartEventBroadcast::new() -> Self
+pub fn triage::contract::RestartEventBroadcast::sender(&self) -> &tokio::sync::broadcast::Sender<triage::contract::RestartEvent>
+pub fn triage::contract::RestartEventBroadcast::subscribe(&self) -> tokio::sync::broadcast::Receiver<triage::contract::RestartEvent>
+pub fn triage::contract::RestartEventBroadcast::subscriber_count(&self) -> usize
+impl core::clone::Clone for triage::contract::RestartEventBroadcast
+pub fn triage::contract::RestartEventBroadcast::clone(&self) -> triage::contract::RestartEventBroadcast
+impl core::default::Default for triage::contract::RestartEventBroadcast
+pub fn triage::contract::RestartEventBroadcast::default() -> Self
+impl core::fmt::Debug for triage::contract::RestartEventBroadcast
+pub fn triage::contract::RestartEventBroadcast::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::RestartEventBroadcast
+impl core::marker::Send for triage::contract::RestartEventBroadcast
+impl core::marker::Sync for triage::contract::RestartEventBroadcast
+impl core::marker::Unpin for triage::contract::RestartEventBroadcast
+impl core::marker::UnsafeUnpin for triage::contract::RestartEventBroadcast
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::RestartEventBroadcast
+impl !core::panic::unwind_safe::UnwindSafe for triage::contract::RestartEventBroadcast
+pub struct triage::contract::RetryStormDetector
+impl triage::contract::RetryStormDetector
+pub fn triage::contract::RetryStormDetector::fingerprints_evicted_total(&self) -> u64
+pub fn triage::contract::RetryStormDetector::fingerprints_tracked(&self) -> usize
+pub fn triage::contract::RetryStormDetector::new(window_seconds: u64, detection_window_seconds: u64, suggested_threshold: u64, autonomous_threshold: u64) -> Self
+pub fn triage::contract::RetryStormDetector::restore_from_snapshot(snapshot: triage::contract::StormStateSnapshot) -> Self
+pub fn triage::contract::RetryStormDetector::snapshot(&self) -> triage::contract::StormStateSnapshot
+pub fn triage::contract::RetryStormDetector::storms_detected_total(&self) -> u64
+impl core::fmt::Debug for triage::contract::RetryStormDetector
+pub fn triage::contract::RetryStormDetector::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl !core::marker::Freeze for triage::contract::RetryStormDetector
+impl core::marker::Send for triage::contract::RetryStormDetector
+impl core::marker::Sync for triage::contract::RetryStormDetector
+impl core::marker::Unpin for triage::contract::RetryStormDetector
+impl core::marker::UnsafeUnpin for triage::contract::RetryStormDetector
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::RetryStormDetector
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::RetryStormDetector
+pub struct triage::contract::ServiceLifecycleBroadcast
+impl triage::contract::ServiceLifecycleBroadcast
+pub fn triage::contract::ServiceLifecycleBroadcast::new() -> Self
+pub fn triage::contract::ServiceLifecycleBroadcast::sender(&self) -> &tokio::sync::broadcast::Sender<triage::contract::ServiceLifecycleEvent>
+pub fn triage::contract::ServiceLifecycleBroadcast::subscribe(&self) -> tokio::sync::broadcast::Receiver<triage::contract::ServiceLifecycleEvent>
+pub fn triage::contract::ServiceLifecycleBroadcast::subscriber_count(&self) -> usize
+impl core::clone::Clone for triage::contract::ServiceLifecycleBroadcast
+pub fn triage::contract::ServiceLifecycleBroadcast::clone(&self) -> triage::contract::ServiceLifecycleBroadcast
+impl core::default::Default for triage::contract::ServiceLifecycleBroadcast
+pub fn triage::contract::ServiceLifecycleBroadcast::default() -> Self
+impl core::fmt::Debug for triage::contract::ServiceLifecycleBroadcast
+pub fn triage::contract::ServiceLifecycleBroadcast::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::ServiceLifecycleBroadcast
+impl core::marker::Send for triage::contract::ServiceLifecycleBroadcast
+impl core::marker::Sync for triage::contract::ServiceLifecycleBroadcast
+impl core::marker::Unpin for triage::contract::ServiceLifecycleBroadcast
+impl core::marker::UnsafeUnpin for triage::contract::ServiceLifecycleBroadcast
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::ServiceLifecycleBroadcast
+impl !core::panic::unwind_safe::UnwindSafe for triage::contract::ServiceLifecycleBroadcast
+pub struct triage::contract::ServiceLifecycleEvent
+pub triage::contract::ServiceLifecycleEvent::from_state: triage::contract::ServiceLifecycleState
+pub triage::contract::ServiceLifecycleEvent::service: alloc::string::String
+pub triage::contract::ServiceLifecycleEvent::to_state: triage::contract::ServiceLifecycleState
+pub triage::contract::ServiceLifecycleEvent::transitioned_at_unix_nano: i64
+pub triage::contract::ServiceLifecycleEvent::trigger: triage::contract::TransitionTrigger
+impl core::clone::Clone for triage::contract::ServiceLifecycleEvent
+pub fn triage::contract::ServiceLifecycleEvent::clone(&self) -> triage::contract::ServiceLifecycleEvent
+impl core::cmp::Eq for triage::contract::ServiceLifecycleEvent
+impl core::cmp::PartialEq for triage::contract::ServiceLifecycleEvent
+pub fn triage::contract::ServiceLifecycleEvent::eq(&self, other: &triage::contract::ServiceLifecycleEvent) -> bool
+impl core::fmt::Debug for triage::contract::ServiceLifecycleEvent
+pub fn triage::contract::ServiceLifecycleEvent::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::ServiceLifecycleEvent
+impl serde_core::ser::Serialize for triage::contract::ServiceLifecycleEvent
+pub fn triage::contract::ServiceLifecycleEvent::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::Flatten for triage::contract::ServiceLifecycleEvent
+impl specta::type::NamedType for triage::contract::ServiceLifecycleEvent
+pub fn triage::contract::ServiceLifecycleEvent::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::ServiceLifecycleEvent::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::ServiceLifecycleEvent::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::ServiceLifecycleEvent
+pub fn triage::contract::ServiceLifecycleEvent::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::ServiceLifecycleEvent::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::ServiceLifecycleEvent
+pub fn triage::contract::ServiceLifecycleEvent::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::ServiceLifecycleEvent
+impl core::marker::Send for triage::contract::ServiceLifecycleEvent
+impl core::marker::Sync for triage::contract::ServiceLifecycleEvent
+impl core::marker::Unpin for triage::contract::ServiceLifecycleEvent
+impl core::marker::UnsafeUnpin for triage::contract::ServiceLifecycleEvent
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::ServiceLifecycleEvent
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::ServiceLifecycleEvent
+pub struct triage::contract::ServiceListItem
+pub triage::contract::ServiceListItem::last_seen_unix_nano: i64
+pub triage::contract::ServiceListItem::manual_override: core::option::Option<triage::contract::ServiceLifecycleState>
+pub triage::contract::ServiceListItem::priority_tier: core::option::Option<triage::contract::PriorityTier>
+pub triage::contract::ServiceListItem::service: alloc::string::String
+pub triage::contract::ServiceListItem::state: triage::contract::ServiceLifecycleState
+impl core::clone::Clone for triage::contract::ServiceListItem
+pub fn triage::contract::ServiceListItem::clone(&self) -> triage::contract::ServiceListItem
+impl core::cmp::Eq for triage::contract::ServiceListItem
+impl core::cmp::PartialEq for triage::contract::ServiceListItem
+pub fn triage::contract::ServiceListItem::eq(&self, other: &triage::contract::ServiceListItem) -> bool
+impl core::fmt::Debug for triage::contract::ServiceListItem
+pub fn triage::contract::ServiceListItem::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::ServiceListItem
+impl serde_core::ser::Serialize for triage::contract::ServiceListItem
+pub fn triage::contract::ServiceListItem::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::Flatten for triage::contract::ServiceListItem
+impl specta::type::NamedType for triage::contract::ServiceListItem
+pub fn triage::contract::ServiceListItem::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::ServiceListItem::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::ServiceListItem::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::ServiceListItem
+pub fn triage::contract::ServiceListItem::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::ServiceListItem::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::ServiceListItem
+pub fn triage::contract::ServiceListItem::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::ServiceListItem
+impl core::marker::Send for triage::contract::ServiceListItem
+impl core::marker::Sync for triage::contract::ServiceListItem
+impl core::marker::Unpin for triage::contract::ServiceListItem
+impl core::marker::UnsafeUnpin for triage::contract::ServiceListItem
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::ServiceListItem
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::ServiceListItem
+pub struct triage::contract::ServiceMetricSnapshot
+pub triage::contract::ServiceMetricSnapshot::error_rate: f64
+pub triage::contract::ServiceMetricSnapshot::last_update_nanos: i64
+pub triage::contract::ServiceMetricSnapshot::samples: u64
+pub triage::contract::ServiceMetricSnapshot::service_name: alloc::string::String
+pub triage::contract::ServiceMetricSnapshot::short_term_error_rate: f64
+impl core::clone::Clone for triage::contract::ServiceMetricSnapshot
+pub fn triage::contract::ServiceMetricSnapshot::clone(&self) -> triage::contract::ServiceMetricSnapshot
+impl core::fmt::Debug for triage::contract::ServiceMetricSnapshot
+pub fn triage::contract::ServiceMetricSnapshot::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::ServiceMetricSnapshot
+impl core::marker::Send for triage::contract::ServiceMetricSnapshot
+impl core::marker::Sync for triage::contract::ServiceMetricSnapshot
+impl core::marker::Unpin for triage::contract::ServiceMetricSnapshot
+impl core::marker::UnsafeUnpin for triage::contract::ServiceMetricSnapshot
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::ServiceMetricSnapshot
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::ServiceMetricSnapshot
+pub struct triage::contract::ServiceRegistryEntry
+pub triage::contract::ServiceRegistryEntry::first_seen_unix_nano: i64
+pub triage::contract::ServiceRegistryEntry::last_seen_unix_nano: i64
+pub triage::contract::ServiceRegistryEntry::last_transition_unix_nano: i64
+pub triage::contract::ServiceRegistryEntry::manual_override: core::option::Option<triage::contract::ServiceLifecycleState>
+pub triage::contract::ServiceRegistryEntry::state: triage::contract::ServiceLifecycleState
+impl core::clone::Clone for triage::contract::ServiceRegistryEntry
+pub fn triage::contract::ServiceRegistryEntry::clone(&self) -> triage::contract::ServiceRegistryEntry
+impl core::cmp::Eq for triage::contract::ServiceRegistryEntry
+impl core::cmp::PartialEq for triage::contract::ServiceRegistryEntry
+pub fn triage::contract::ServiceRegistryEntry::eq(&self, other: &triage::contract::ServiceRegistryEntry) -> bool
+impl core::fmt::Debug for triage::contract::ServiceRegistryEntry
+pub fn triage::contract::ServiceRegistryEntry::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::ServiceRegistryEntry
+impl serde_core::ser::Serialize for triage::contract::ServiceRegistryEntry
+pub fn triage::contract::ServiceRegistryEntry::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::Flatten for triage::contract::ServiceRegistryEntry
+impl specta::type::NamedType for triage::contract::ServiceRegistryEntry
+pub fn triage::contract::ServiceRegistryEntry::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::ServiceRegistryEntry::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn triage::contract::ServiceRegistryEntry::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for triage::contract::ServiceRegistryEntry
+pub fn triage::contract::ServiceRegistryEntry::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn triage::contract::ServiceRegistryEntry::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::ServiceRegistryEntry
+pub fn triage::contract::ServiceRegistryEntry::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::ServiceRegistryEntry
+impl core::marker::Send for triage::contract::ServiceRegistryEntry
+impl core::marker::Sync for triage::contract::ServiceRegistryEntry
+impl core::marker::Unpin for triage::contract::ServiceRegistryEntry
+impl core::marker::UnsafeUnpin for triage::contract::ServiceRegistryEntry
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::ServiceRegistryEntry
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::ServiceRegistryEntry
+pub struct triage::contract::ServiceSilenceSnapshot
+pub triage::contract::ServiceSilenceSnapshot::bootstrap_state: triage::contract::BootstrapState
+pub triage::contract::ServiceSilenceSnapshot::current_quiet_duration_seconds: u64
+pub triage::contract::ServiceSilenceSnapshot::p95_historical_quiet_duration_seconds: core::option::Option<u64>
+pub triage::contract::ServiceSilenceSnapshot::service_name: alloc::string::String
+impl core::clone::Clone for triage::contract::ServiceSilenceSnapshot
+pub fn triage::contract::ServiceSilenceSnapshot::clone(&self) -> triage::contract::ServiceSilenceSnapshot
+impl core::fmt::Debug for triage::contract::ServiceSilenceSnapshot
+pub fn triage::contract::ServiceSilenceSnapshot::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::ServiceSilenceSnapshot
+impl core::marker::Send for triage::contract::ServiceSilenceSnapshot
+impl core::marker::Sync for triage::contract::ServiceSilenceSnapshot
+impl core::marker::Unpin for triage::contract::ServiceSilenceSnapshot
+impl core::marker::UnsafeUnpin for triage::contract::ServiceSilenceSnapshot
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::ServiceSilenceSnapshot
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::ServiceSilenceSnapshot
+pub struct triage::contract::StormCycleStats
+pub triage::contract::StormCycleStats::fingerprints_evicted_total: u64
+pub triage::contract::StormCycleStats::fingerprints_tracked: usize
+pub triage::contract::StormCycleStats::storms_detected_total: u64
+pub triage::contract::StormCycleStats::window_seconds: u64
+impl core::clone::Clone for triage::contract::StormCycleStats
+pub fn triage::contract::StormCycleStats::clone(&self) -> triage::contract::StormCycleStats
+impl core::cmp::Eq for triage::contract::StormCycleStats
+impl core::cmp::PartialEq for triage::contract::StormCycleStats
+pub fn triage::contract::StormCycleStats::eq(&self, other: &triage::contract::StormCycleStats) -> bool
+impl core::default::Default for triage::contract::StormCycleStats
+pub fn triage::contract::StormCycleStats::default() -> triage::contract::StormCycleStats
+impl core::fmt::Debug for triage::contract::StormCycleStats
+pub fn triage::contract::StormCycleStats::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::StormCycleStats
+impl core::marker::StructuralPartialEq for triage::contract::StormCycleStats
+impl core::marker::Freeze for triage::contract::StormCycleStats
+impl core::marker::Send for triage::contract::StormCycleStats
+impl core::marker::Sync for triage::contract::StormCycleStats
+impl core::marker::Unpin for triage::contract::StormCycleStats
+impl core::marker::UnsafeUnpin for triage::contract::StormCycleStats
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::StormCycleStats
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::StormCycleStats
+pub struct triage::contract::StormStateSnapshot
+pub triage::contract::StormStateSnapshot::autonomous_threshold: u64
+pub triage::contract::StormStateSnapshot::detection_window_seconds: u64
+pub triage::contract::StormStateSnapshot::entries: alloc::vec::Vec<([u8; 16], triage::contract::FingerprintState)>
+pub triage::contract::StormStateSnapshot::suggested_threshold: u64
+pub triage::contract::StormStateSnapshot::window_seconds: u64
+impl triage::contract::StormStateSnapshot
+pub fn triage::contract::StormStateSnapshot::scrubbed_clone<F>(&self, scrub: F) -> Self where F: core::ops::function::Fn(&str) -> alloc::string::String
+impl core::clone::Clone for triage::contract::StormStateSnapshot
+pub fn triage::contract::StormStateSnapshot::clone(&self) -> triage::contract::StormStateSnapshot
+impl core::cmp::PartialEq for triage::contract::StormStateSnapshot
+pub fn triage::contract::StormStateSnapshot::eq(&self, other: &triage::contract::StormStateSnapshot) -> bool
+impl core::fmt::Debug for triage::contract::StormStateSnapshot
+pub fn triage::contract::StormStateSnapshot::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::StormStateSnapshot
+impl serde_core::ser::Serialize for triage::contract::StormStateSnapshot
+pub fn triage::contract::StormStateSnapshot::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::StormStateSnapshot
+pub fn triage::contract::StormStateSnapshot::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::StormStateSnapshot
+impl core::marker::Send for triage::contract::StormStateSnapshot
+impl core::marker::Sync for triage::contract::StormStateSnapshot
+impl core::marker::Unpin for triage::contract::StormStateSnapshot
+impl core::marker::UnsafeUnpin for triage::contract::StormStateSnapshot
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::StormStateSnapshot
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::StormStateSnapshot
+pub struct triage::contract::SuppressionOutcome
+pub triage::contract::SuppressionOutcome::bypass_triggers: alloc::vec::Vec<triage::contract::BypassTrigger>
+pub triage::contract::SuppressionOutcome::cues_kept: alloc::vec::Vec<triage::contract::AttentionCue>
+pub triage::contract::SuppressionOutcome::cues_suppressed: usize
+impl core::clone::Clone for triage::contract::SuppressionOutcome
+pub fn triage::contract::SuppressionOutcome::clone(&self) -> triage::contract::SuppressionOutcome
+impl core::cmp::PartialEq for triage::contract::SuppressionOutcome
+pub fn triage::contract::SuppressionOutcome::eq(&self, other: &triage::contract::SuppressionOutcome) -> bool
+impl core::default::Default for triage::contract::SuppressionOutcome
+pub fn triage::contract::SuppressionOutcome::default() -> triage::contract::SuppressionOutcome
+impl core::fmt::Debug for triage::contract::SuppressionOutcome
+pub fn triage::contract::SuppressionOutcome::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for triage::contract::SuppressionOutcome
+impl core::marker::Freeze for triage::contract::SuppressionOutcome
+impl core::marker::Send for triage::contract::SuppressionOutcome
+impl core::marker::Sync for triage::contract::SuppressionOutcome
+impl core::marker::Unpin for triage::contract::SuppressionOutcome
+impl core::marker::UnsafeUnpin for triage::contract::SuppressionOutcome
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::SuppressionOutcome
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::SuppressionOutcome
+pub struct triage::contract::SuppressionParams
+pub triage::contract::SuppressionParams::absolute_bypass_error_rate: f64
+pub triage::contract::SuppressionParams::absolute_bypass_latency_ms: f64
+pub triage::contract::SuppressionParams::magnitude_bypass_multiplier: f64
+pub triage::contract::SuppressionParams::persistence_cutoff_seconds: u64
+impl core::clone::Clone for triage::contract::SuppressionParams
+pub fn triage::contract::SuppressionParams::clone(&self) -> triage::contract::SuppressionParams
+impl core::fmt::Debug for triage::contract::SuppressionParams
+pub fn triage::contract::SuppressionParams::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::SuppressionParams
+impl core::marker::Freeze for triage::contract::SuppressionParams
+impl core::marker::Send for triage::contract::SuppressionParams
+impl core::marker::Sync for triage::contract::SuppressionParams
+impl core::marker::Unpin for triage::contract::SuppressionParams
+impl core::marker::UnsafeUnpin for triage::contract::SuppressionParams
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::SuppressionParams
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::SuppressionParams
+pub struct triage::contract::SuppressionState
+impl triage::contract::SuppressionState
+pub fn triage::contract::SuppressionState::is_active(&self, service: &str, now_nanos: i64) -> bool
+pub fn triage::contract::SuppressionState::new() -> Self
+pub fn triage::contract::SuppressionState::record_restart(&self, event: &triage::contract::RestartEvent, window_seconds: u64)
+pub fn triage::contract::SuppressionState::windows_tracked(&self) -> usize
+impl core::default::Default for triage::contract::SuppressionState
+pub fn triage::contract::SuppressionState::default() -> triage::contract::SuppressionState
+impl core::fmt::Debug for triage::contract::SuppressionState
+pub fn triage::contract::SuppressionState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for triage::contract::SuppressionState
+impl core::marker::Send for triage::contract::SuppressionState
+impl core::marker::Sync for triage::contract::SuppressionState
+impl core::marker::Unpin for triage::contract::SuppressionState
+impl core::marker::UnsafeUnpin for triage::contract::SuppressionState
+impl !core::panic::unwind_safe::RefUnwindSafe for triage::contract::SuppressionState
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::SuppressionState
+pub struct triage::contract::Thresholds
+pub triage::contract::Thresholds::absolute_bypass_error_rate: f64
+pub triage::contract::Thresholds::absolute_bypass_latency_ms: f64
+pub triage::contract::Thresholds::base_error_rate: f64
+pub triage::contract::Thresholds::base_latency_ms: f64
+pub triage::contract::Thresholds::bootstrap_window_seconds: u64
+pub triage::contract::Thresholds::error_rate_multiplier: f64
+pub triage::contract::Thresholds::latency_multiplier: f64
+pub triage::contract::Thresholds::latency_percentile: f64
+pub triage::contract::Thresholds::magnitude_bypass_multiplier: f64
+pub triage::contract::Thresholds::min_ewma_samples: u64
+pub triage::contract::Thresholds::min_persistence_seconds: u64
+pub triage::contract::Thresholds::quiet_duration_percentile: f64
+pub triage::contract::Thresholds::restart_gap_threshold_seconds: u64
+pub triage::contract::Thresholds::restart_suppression_window_seconds: u64
+pub triage::contract::Thresholds::suppression_persistence_cutoff_seconds: u64
+pub triage::contract::Thresholds::tick_interval: core::time::Duration
+impl triage::contract::Thresholds
+pub fn triage::contract::Thresholds::validate(&self) -> core::result::Result<(), triage::contract::ThresholdsError>
+impl core::clone::Clone for triage::contract::Thresholds
+pub fn triage::contract::Thresholds::clone(&self) -> triage::contract::Thresholds
+impl core::cmp::PartialEq for triage::contract::Thresholds
+pub fn triage::contract::Thresholds::eq(&self, other: &triage::contract::Thresholds) -> bool
+impl core::default::Default for triage::contract::Thresholds
+pub fn triage::contract::Thresholds::default() -> Self
+impl core::fmt::Debug for triage::contract::Thresholds
+pub fn triage::contract::Thresholds::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for triage::contract::Thresholds
+impl core::marker::StructuralPartialEq for triage::contract::Thresholds
+impl serde_core::ser::Serialize for triage::contract::Thresholds
+pub fn triage::contract::Thresholds::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for triage::contract::Thresholds
+pub fn triage::contract::Thresholds::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for triage::contract::Thresholds
+impl core::marker::Send for triage::contract::Thresholds
+impl core::marker::Sync for triage::contract::Thresholds
+impl core::marker::Unpin for triage::contract::Thresholds
+impl core::marker::UnsafeUnpin for triage::contract::Thresholds
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::Thresholds
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::Thresholds
+pub struct triage::contract::TriageSqlState
+impl triage::contract::TriageSqlState
+pub fn triage::contract::TriageSqlState::connection(&self) -> &alloc::sync::Arc<std::sync::poison::mutex::Mutex<duckdb::Connection>>
+pub fn triage::contract::TriageSqlState::new(conn: alloc::sync::Arc<std::sync::poison::mutex::Mutex<duckdb::Connection>>) -> Self
+impl core::clone::Clone for triage::contract::TriageSqlState
+pub fn triage::contract::TriageSqlState::clone(&self) -> triage::contract::TriageSqlState
+impl core::marker::Freeze for triage::contract::TriageSqlState
+impl core::marker::Send for triage::contract::TriageSqlState
+impl core::marker::Sync for triage::contract::TriageSqlState
+impl core::marker::Unpin for triage::contract::TriageSqlState
+impl core::marker::UnsafeUnpin for triage::contract::TriageSqlState
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::TriageSqlState
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::TriageSqlState
+pub struct triage::contract::UnknownHardwareProfile
+impl core::default::Default for triage::contract::UnknownHardwareProfile
+pub fn triage::contract::UnknownHardwareProfile::default() -> triage::contract::UnknownHardwareProfile
+impl core::fmt::Debug for triage::contract::UnknownHardwareProfile
+pub fn triage::contract::UnknownHardwareProfile::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl triage::contract::HardwareProfileSource for triage::contract::UnknownHardwareProfile
+pub fn triage::contract::UnknownHardwareProfile::current_profile(&self) -> triage::contract::HardwareProfile
+impl core::marker::Freeze for triage::contract::UnknownHardwareProfile
+impl core::marker::Send for triage::contract::UnknownHardwareProfile
+impl core::marker::Sync for triage::contract::UnknownHardwareProfile
+impl core::marker::Unpin for triage::contract::UnknownHardwareProfile
+impl core::marker::UnsafeUnpin for triage::contract::UnknownHardwareProfile
+impl core::panic::unwind_safe::RefUnwindSafe for triage::contract::UnknownHardwareProfile
+impl core::panic::unwind_safe::UnwindSafe for triage::contract::UnknownHardwareProfile
+pub const triage::contract::ACTIVE_INCIDENT_QUEUE_CAP: usize
+pub const triage::contract::ACTIVE_TO_QUIET_THRESHOLD_SECONDS: u64
+pub const triage::contract::ACTIVITY_FLOOR_SERVICE_CAP: usize
+pub const triage::contract::BOOTSTRAP_WINDOW_SECONDS: u64
+pub const triage::contract::BROADCAST_CAPACITY: usize
+pub const triage::contract::BUCKET_COUNT: usize
+pub const triage::contract::BUCKET_INTERVAL_SECONDS: u64
+pub const triage::contract::CADENCE_ACCELERATED_SECONDS_MIN: u32
+pub const triage::contract::CADENCE_BASELINE_SECONDS_MIN: u32
+pub const triage::contract::CADENCE_REFLECTION_SECONDS_MIN: u32
+pub const triage::contract::CHANNEL_NAME_CADENCE_TRIGGERS: &str
+pub const triage::contract::DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE: f64
+pub const triage::contract::DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS: f64
+pub const triage::contract::DEFAULT_ALPHA_5MIN_WINDOW: f64
+pub const triage::contract::DEFAULT_AUTONOMOUS_THRESHOLD: u64
+pub const triage::contract::DEFAULT_BASE_ERROR_RATE: f64
+pub const triage::contract::DEFAULT_BASE_LATENCY_MS: f64
+pub const triage::contract::DEFAULT_BOOTSTRAP_WINDOW_SECONDS: u64
+pub const triage::contract::DEFAULT_CADENCE_ACCELERATED_SECONDS: u32
+pub const triage::contract::DEFAULT_CADENCE_BASELINE_SECONDS: u32
+pub const triage::contract::DEFAULT_CADENCE_REFLECTION_SECONDS: u32
+pub const triage::contract::DEFAULT_DETECTION_SUB_WINDOW_SECONDS: u64
+pub const triage::contract::DEFAULT_ERROR_RATE_MULTIPLIER: f64
+pub const triage::contract::DEFAULT_HEARTBEAT_INTERVAL: core::time::Duration
+pub const triage::contract::DEFAULT_INCIDENT_ACK_COOLDOWN_SECS: u64
+pub const triage::contract::DEFAULT_INCIDENT_AUTO_RESOLVE_WINDOW_SECS: u64
+pub const triage::contract::DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS: u64
+pub const triage::contract::DEFAULT_LATENCY_MULTIPLIER: f64
+pub const triage::contract::DEFAULT_LATENCY_PERCENTILE: f64
+pub const triage::contract::DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL: core::time::Duration
+pub const triage::contract::DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS: u64
+pub const triage::contract::DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER: f64
+pub const triage::contract::DEFAULT_MAX_SIZE_BYTES: u64
+pub const triage::contract::DEFAULT_MIN_PERSISTENCE_SECONDS: u64
+pub const triage::contract::DEFAULT_PERSIST_INTERVAL_NANOS: i64
+pub const triage::contract::DEFAULT_QUIET_DURATION_PERCENTILE: f64
+pub const triage::contract::DEFAULT_RESTART_GAP_THRESHOLD_SECONDS: u64
+pub const triage::contract::DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS: u64
+pub const triage::contract::DEFAULT_SERVICE_COUNT_CAP: usize
+pub const triage::contract::DEFAULT_STORM_PERSIST_INTERVAL_SECS: u64
+pub const triage::contract::DEFAULT_STORM_WINDOW_SECONDS: u64
+pub const triage::contract::DEFAULT_SUGGESTED_THRESHOLD: u64
+pub const triage::contract::DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS: u64
+pub const triage::contract::DEFAULT_TICK_INTERVAL: core::time::Duration
+pub const triage::contract::DIGEST_BROADCAST_CAPACITY: usize
+pub const triage::contract::DIGEST_CORPUS_RETRIEVAL_LIMIT: usize
+pub const triage::contract::DIGEST_TOKEN_BUDGET_HARD_CAP: usize
+pub const triage::contract::DIGEST_TOKEN_BUDGET_SOFT_MAX: usize
+pub const triage::contract::DIGEST_TOKEN_BUDGET_SOFT_MIN: usize
+pub const triage::contract::INCIDENT_PERSISTENCE_KIND: &str
+pub const triage::contract::LIFECYCLE_PERSISTENCE_KIND: &str
+pub const triage::contract::MIN_EWMA_SAMPLES: u64
+pub const triage::contract::QUIET_TO_SILENT_FALLBACK_SECONDS: u64
+pub const triage::contract::SCHEMA_VERSION: u32
+pub const triage::contract::STATE_AGE_THRESHOLD_NANOS: i64
+pub const triage::contract::STORM_PERSISTENCE_KIND: &str
+pub const triage::contract::STREAM_NAME_ATTENTION_CUES: &str
+pub const triage::contract::STREAM_NAME_CADENCE_EVENTS: &str
+pub const triage::contract::STREAM_NAME_DIGESTS: &str
+pub const triage::contract::STREAM_NAME_INCIDENTS: &str
+pub const triage::contract::STREAM_NAME_RESTART_EVENTS: &str
+pub const triage::contract::STREAM_NAME_SERVICE_LIFECYCLE: &str
+pub const triage::contract::TARGET_BASELINE_MIGRATE: &str
+pub const triage::contract::TARGET_BASELINE_MIGRATE_FAILED: &str
+pub const triage::contract::TARGET_BASELINE_PERSIST_ERROR: &str
+pub const triage::contract::TARGET_DIGEST_ASSEMBLE: &str
+pub const triage::contract::TARGET_DIGEST_CORPUS_RETRIEVE: &str
+pub const triage::contract::TARGET_DIGEST_LWW_DROP: &str
+pub const triage::contract::TARGET_DIGEST_LWW_REPLACE: &str
+pub const triage::contract::TARGET_DIGEST_TOKEN_COUNT_VALIDATE: &str
+pub const triage::contract::TARGET_INCIDENT_PERSIST: &str
+pub const triage::contract::TARGET_INCIDENT_PERSIST_ERROR: &str
+pub const triage::contract::TARGET_LIFECYCLE_CORPUS_RESTORE: &str
+pub const triage::contract::TARGET_LIFECYCLE_PERSIST: &str
+pub const triage::contract::TARGET_LIFECYCLE_PERSIST_ERROR: &str
+pub const triage::contract::TARGET_LIFECYCLE_TICK: &str
+pub const triage::contract::TARGET_LIFECYCLE_TRANSITION: &str
+pub const triage::contract::TARGET_METRIC_ACTIVE_INCIDENT_QUEUE_DEPTH: &str
+pub const triage::contract::TARGET_METRIC_DIGEST_TOKEN_COUNT_MS: &str
+pub const triage::contract::TARGET_METRIC_LIFECYCLE_STATE_DISTRIBUTION: &str
+pub const triage::contract::TARGET_METRIC_LWW_DROP_COUNT_TOTAL: &str
+pub const triage::contract::TARGET_PATTERN_STORM_CORPUS_RESTORE: &str
+pub const triage::contract::TARGET_PATTERN_STORM_PERSIST: &str
+pub const triage::contract::TARGET_PATTERN_STORM_PERSIST_ERROR: &str
+pub const triage::contract::TARGET_PIPELINE_L1B_TRACKED_SERVICES_TOTAL: &str
+pub const triage::contract::TARGET_SERVICE_CAP_EXCEEDED: &str
+pub const triage::contract::TIER1_QUEUE_CAP: usize
+pub const triage::contract::WINDOW_DURATION_SECONDS: u64
+pub trait triage::contract::BaselinePersistence: core::marker::Send + core::marker::Sync
+pub fn triage::contract::BaselinePersistence::load(&self) -> core::result::Result<core::option::Option<triage::contract::BaselineState>, triage::contract::BaselineError>
+pub fn triage::contract::BaselinePersistence::save(&self, state: &triage::contract::BaselineState) -> core::result::Result<(), triage::contract::BaselineError>
+pub trait triage::contract::DigestAssembler: core::marker::Send + core::marker::Sync
+pub fn triage::contract::DigestAssembler::assemble<'a>(&'a self, mode: triage::contract::CadenceMode, triggering_cue: core::option::Option<&'a triage::contract::AttentionCue>, project_context: &'a triage::contract::DigestProjectContext, now_unix_nano: i64, window_duration: core::time::Duration) -> triage::contract::DigestFuture<'a, triage::contract::Digest>
+impl triage::contract::DigestAssembler for triage::contract::Assembler
+pub fn triage::contract::Assembler::assemble<'a>(&'a self, mode: triage::contract::CadenceMode, triggering_cue: core::option::Option<&'a triage::contract::AttentionCue>, project_context: &'a triage::contract::DigestProjectContext, now_unix_nano: i64, window_duration: core::time::Duration) -> triage::contract::DigestFuture<'a, triage::contract::Digest>
+pub trait triage::contract::HardwareProfileSource: core::marker::Send + core::marker::Sync
+pub fn triage::contract::HardwareProfileSource::current_profile(&self) -> triage::contract::HardwareProfile
+impl triage::contract::HardwareProfileSource for triage::contract::UnknownHardwareProfile
+pub fn triage::contract::UnknownHardwareProfile::current_profile(&self) -> triage::contract::HardwareProfile
+pub trait triage::contract::IncidentPersistence: core::marker::Send + core::marker::Sync
+pub fn triage::contract::IncidentPersistence::count_active_unread(&self, workspace: &str) -> core::result::Result<u64, triage::contract::IncidentError>
+pub fn triage::contract::IncidentPersistence::load_active_incidents(&self, workspace: &str) -> core::result::Result<alloc::vec::Vec<triage::contract::Incident>, triage::contract::IncidentError>
+pub fn triage::contract::IncidentPersistence::mark_read(&self, id: i64, read_unix_nano: i64) -> core::result::Result<(), triage::contract::IncidentError>
+pub fn triage::contract::IncidentPersistence::save_incident_event(&self, incident_id: i64, event_kind: &str, occurred_at: i64) -> core::result::Result<(), triage::contract::IncidentError>
+pub fn triage::contract::IncidentPersistence::save_new_incident(&self, incident: &triage::contract::Incident) -> core::result::Result<i64, triage::contract::IncidentError>
+pub fn triage::contract::IncidentPersistence::update_incident_status(&self, id: i64, payload: &triage::contract::Incident) -> core::result::Result<(), triage::contract::IncidentError>
+pub trait triage::contract::IncidentRegistry: core::marker::Send + core::marker::Sync + core::fmt::Debug
+pub fn triage::contract::IncidentRegistry::acknowledge(&self, id: i64, now_unix_nano: i64, cooldown_secs: u64) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::IncidentRegistry::attach_resolution_summary(&self, id: i64, summary_text: alloc::string::String, now_unix_nano: i64) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::IncidentRegistry::count(&self) -> usize
+pub fn triage::contract::IncidentRegistry::evaluate_auto_resolution(&self, now_unix_nano: i64, window_secs: u64) -> alloc::vec::Vec<i64>
+pub fn triage::contract::IncidentRegistry::get(&self, id: i64) -> core::option::Option<triage::contract::Incident>
+pub fn triage::contract::IncidentRegistry::insert(&self, incident: triage::contract::Incident)
+pub fn triage::contract::IncidentRegistry::list_active(&self, workspace: &str) -> alloc::vec::Vec<triage::contract::Incident>
+pub fn triage::contract::IncidentRegistry::mark_all_read(&self, workspace: &str, now_unix_nano: i64) -> core::result::Result<alloc::vec::Vec<i64>, triage::contract::IncidentRegistryError>
+pub fn triage::contract::IncidentRegistry::mark_read(&self, id: i64, now_unix_nano: i64) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::IncidentRegistry::mark_resolved(&self, id: i64, now_unix_nano: i64, _trigger: triage::contract::ResolutionTrigger) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::IncidentRegistry::observe_reemission(&self, id: i64, now_unix_nano: i64) -> core::result::Result<(), triage::contract::IncidentRegistryError>
+impl triage::contract::IncidentRegistry for triage::contract::InMemoryIncidentRegistry
+pub fn triage::contract::InMemoryIncidentRegistry::acknowledge(&self, id: i64, now_unix_nano: i64, cooldown_secs: u64) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::InMemoryIncidentRegistry::attach_resolution_summary(&self, id: i64, summary_text: alloc::string::String, now_unix_nano: i64) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::InMemoryIncidentRegistry::count(&self) -> usize
+pub fn triage::contract::InMemoryIncidentRegistry::evaluate_auto_resolution(&self, now_unix_nano: i64, window_secs: u64) -> alloc::vec::Vec<i64>
+pub fn triage::contract::InMemoryIncidentRegistry::get(&self, id: i64) -> core::option::Option<triage::contract::Incident>
+pub fn triage::contract::InMemoryIncidentRegistry::insert(&self, incident: triage::contract::Incident)
+pub fn triage::contract::InMemoryIncidentRegistry::list_active(&self, workspace: &str) -> alloc::vec::Vec<triage::contract::Incident>
+pub fn triage::contract::InMemoryIncidentRegistry::mark_all_read(&self, workspace: &str, now_unix_nano: i64) -> core::result::Result<alloc::vec::Vec<i64>, triage::contract::IncidentRegistryError>
+pub fn triage::contract::InMemoryIncidentRegistry::mark_read(&self, id: i64, now_unix_nano: i64) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::InMemoryIncidentRegistry::mark_resolved(&self, id: i64, now_unix_nano: i64, _trigger: triage::contract::ResolutionTrigger) -> core::result::Result<triage::contract::Incident, triage::contract::IncidentRegistryError>
+pub fn triage::contract::InMemoryIncidentRegistry::observe_reemission(&self, id: i64, now_unix_nano: i64) -> core::result::Result<(), triage::contract::IncidentRegistryError>
+pub trait triage::contract::LifecyclePersistence: core::marker::Send + core::marker::Sync
+pub fn triage::contract::LifecyclePersistence::load_all(&self) -> core::result::Result<core::option::Option<alloc::vec::Vec<(alloc::string::String, triage::contract::ServiceRegistryEntry)>>, triage::contract::LifecycleError>
+pub fn triage::contract::LifecyclePersistence::save_all(&self, entries: &[(alloc::string::String, triage::contract::ServiceRegistryEntry)]) -> core::result::Result<(), triage::contract::LifecycleError>
+pub trait triage::contract::ServiceRegistry: core::marker::Send + core::marker::Sync + core::fmt::Debug
+pub fn triage::contract::ServiceRegistry::count(&self) -> usize
+pub fn triage::contract::ServiceRegistry::count_by_state(&self) -> [usize; 7]
+pub fn triage::contract::ServiceRegistry::current_state(&self, service: &str) -> core::option::Option<triage::contract::ServiceLifecycleState>
+pub fn triage::contract::ServiceRegistry::list_all(&self) -> alloc::vec::Vec<triage::contract::ServiceListItem>
+pub fn triage::contract::ServiceRegistry::set_manual_override(&self, service: &str, override_state: core::option::Option<triage::contract::ServiceLifecycleState>, now_unix_nano: i64) -> core::option::Option<triage::contract::ServiceLifecycleEvent>
+pub fn triage::contract::ServiceRegistry::set_state_on_corpus_restore(&self, service: &str, restored_state: triage::contract::ServiceLifecycleState, restored_at_unix_nano: i64) -> core::option::Option<triage::contract::ServiceLifecycleEvent>
+pub fn triage::contract::ServiceRegistry::set_state_on_restart(&self, service: &str, now_unix_nano: i64) -> core::option::Option<triage::contract::ServiceLifecycleEvent>
+pub fn triage::contract::ServiceRegistry::tick_all(&self, now_unix_nano: i64, baseline: &triage::contract::BaselineState, dormant_after_secs: u64, archived_after_secs: u64) -> alloc::vec::Vec<triage::contract::ServiceLifecycleEvent>
+impl triage::contract::ServiceRegistry for triage::contract::InMemoryServiceRegistry
+pub fn triage::contract::InMemoryServiceRegistry::count(&self) -> usize
+pub fn triage::contract::InMemoryServiceRegistry::count_by_state(&self) -> [usize; 7]
+pub fn triage::contract::InMemoryServiceRegistry::current_state(&self, service: &str) -> core::option::Option<triage::contract::ServiceLifecycleState>
+pub fn triage::contract::InMemoryServiceRegistry::list_all(&self) -> alloc::vec::Vec<triage::contract::ServiceListItem>
+pub fn triage::contract::InMemoryServiceRegistry::set_manual_override(&self, service: &str, override_state: core::option::Option<triage::contract::ServiceLifecycleState>, now_unix_nano: i64) -> core::option::Option<triage::contract::ServiceLifecycleEvent>
+pub fn triage::contract::InMemoryServiceRegistry::set_state_on_corpus_restore(&self, service: &str, restored_state: triage::contract::ServiceLifecycleState, restored_at_unix_nano: i64) -> core::option::Option<triage::contract::ServiceLifecycleEvent>
+pub fn triage::contract::InMemoryServiceRegistry::set_state_on_restart(&self, service: &str, now_unix_nano: i64) -> core::option::Option<triage::contract::ServiceLifecycleEvent>
+pub fn triage::contract::InMemoryServiceRegistry::tick_all(&self, now_unix_nano: i64, baseline: &triage::contract::BaselineState, dormant_after_secs: u64, archived_after_secs: u64) -> alloc::vec::Vec<triage::contract::ServiceLifecycleEvent>
+pub trait triage::contract::SqlQueryRunner: core::marker::Send + core::marker::Sync
+pub fn triage::contract::SqlQueryRunner::run_q1<'a>(&'a self, window: core::time::Duration) -> core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<alloc::vec::Vec<triage::contract::Q1RedRow>, triage::contract::SqlAggregationError>> + core::marker::Send + 'a)>>
+pub fn triage::contract::SqlQueryRunner::run_q2<'a>(&'a self, window: core::time::Duration) -> core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<alloc::vec::Vec<triage::contract::Q2OperationRow>, triage::contract::SqlAggregationError>> + core::marker::Send + 'a)>>
+pub fn triage::contract::SqlQueryRunner::run_q3<'a>(&'a self, window: core::time::Duration) -> core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<alloc::vec::Vec<triage::contract::Q3FingerprintRow>, triage::contract::SqlAggregationError>> + core::marker::Send + 'a)>>
+pub fn triage::contract::SqlQueryRunner::run_q4<'a>(&'a self, window: core::time::Duration) -> core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<alloc::vec::Vec<triage::contract::Q4InteractionRow>, triage::contract::SqlAggregationError>> + core::marker::Send + 'a)>>
+pub fn triage::contract::SqlQueryRunner::run_q5<'a>(&'a self, window: core::time::Duration) -> core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<alloc::vec::Vec<triage::contract::Q5CardinalityRow>, triage::contract::SqlAggregationError>> + core::marker::Send + 'a)>>
+pub fn triage::contract::SqlQueryRunner::run_q6<'a>(&'a self, window: core::time::Duration) -> core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<alloc::vec::Vec<triage::contract::Q6LogRow>, triage::contract::SqlAggregationError>> + core::marker::Send + 'a)>>
+pub fn triage::contract::SqlQueryRunner::run_q7<'a>(&'a self, window: core::time::Duration) -> core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<alloc::vec::Vec<triage::contract::Q7CriticalPathRow>, triage::contract::SqlAggregationError>> + core::marker::Send + 'a)>>
+pub trait triage::contract::StormPersistence: core::marker::Send + core::marker::Sync
+pub fn triage::contract::StormPersistence::load(&self) -> core::result::Result<core::option::Option<triage::contract::StormStateSnapshot>, triage::contract::StormError>
+pub fn triage::contract::StormPersistence::save(&self, snapshot: &triage::contract::StormStateSnapshot) -> core::result::Result<(), triage::contract::StormError>
+pub fn triage::contract::bootstrap_state(persistence: core::option::Option<&dyn triage::contract::BaselinePersistence>, service_count_cap: usize, now_nanos: i64) -> triage::contract::BaselineState
+pub fn triage::contract::classify_priority(magnitude: f64, confidence: f64, persistence_seconds: u64) -> triage::contract::PriorityTier
+pub fn triage::contract::cooldown_expiry_unix_nano(now_unix_nano: i64, cooldown_secs: u64) -> i64
+pub fn triage::contract::dual_condition_bypass(magnitude: f64, absolute_value: f64, kind: triage::contract::CueKind, thresholds: &triage::contract::Thresholds) -> bool
+pub fn triage::contract::evaluate_service_went_silent(state: &triage::contract::BaselineState, _thresholds: &triage::contract::Thresholds, now_nanos: i64) -> alloc::vec::Vec<triage::contract::AttentionCue>
+pub fn triage::contract::evaluate_thresholds(state: &triage::contract::BaselineState, thresholds: &triage::contract::Thresholds, _now_nanos: i64) -> alloc::vec::Vec<triage::contract::AttentionCue>
+pub fn triage::contract::evaluate_with_suppression(cues: alloc::vec::Vec<triage::contract::AttentionCue>, state: &triage::contract::SuppressionState, params: &triage::contract::SuppressionParams, now_nanos: i64) -> triage::contract::SuppressionOutcome
+pub fn triage::contract::incident_status_label(status: triage::contract::IncidentStatus) -> &'static str
+pub fn triage::contract::is_valid_incident_transition(from: triage::contract::IncidentStatus, to: triage::contract::IncidentStatus) -> bool
+pub fn triage::contract::is_valid_transition(from: triage::contract::ServiceLifecycleState, to: triage::contract::ServiceLifecycleState) -> bool
+pub fn triage::contract::mode_label(mode: triage::contract::CadenceMode) -> &'static str
+pub fn triage::contract::observe_and_dispatch(detector: &triage::contract::RestartDetector, broadcast: &triage::contract::RestartEventBroadcast, service: &str, ts_unix_nano: i64)
+pub fn triage::contract::observe_and_dispatch_storm(detector: &triage::contract::RetryStormDetector, broadcast: &triage::contract::AttentionCueBroadcast, fingerprint: [u8; 16], service: &str, now_nanos: i64)
+pub fn triage::contract::persist_lifecycle_on_shutdown(registry: &dyn triage::contract::ServiceRegistry, persistence: &dyn triage::contract::LifecyclePersistence, corpus_basename: &str) -> core::result::Result<(), triage::contract::LifecycleError>
+pub fn triage::contract::persist_on_shutdown(state: &triage::contract::BaselineState, persistence: &dyn triage::contract::BaselinePersistence) -> core::result::Result<triage::contract::PersistStats, triage::contract::BaselineError>
+pub fn triage::contract::persist_storm_on_shutdown(detector: &triage::contract::RetryStormDetector, persistence: &dyn triage::contract::StormPersistence, corpus_basename: &str) -> core::result::Result<(), triage::contract::StormError>
+pub fn triage::contract::record_occurrence(detector: &triage::contract::RetryStormDetector, fingerprint: [u8; 16], service: &str, now_nanos: i64) -> core::option::Option<triage::contract::AttentionCue>
+pub fn triage::contract::run_incident_persist_cycle(registry: &dyn triage::contract::IncidentRegistry, persistence: &dyn triage::contract::IncidentPersistence, persist_kind: &'static str, workspaces: &[alloc::string::String]) -> core::result::Result<(), triage::contract::IncidentError>
+pub async fn triage::contract::run_incident_persist_loop(registry: alloc::sync::Arc<dyn triage::contract::IncidentRegistry>, persistence: alloc::sync::Arc<dyn triage::contract::IncidentPersistence>, workspaces: alloc::vec::Vec<alloc::string::String>, interval_secs: u64)
+pub fn triage::contract::run_lifecycle_persist_cycle(registry: &dyn triage::contract::ServiceRegistry, persistence: &dyn triage::contract::LifecyclePersistence, persist_kind: &'static str, corpus_basename: &str) -> core::result::Result<(), triage::contract::LifecycleError>
+pub async fn triage::contract::run_lifecycle_persist_loop(registry: alloc::sync::Arc<dyn triage::contract::ServiceRegistry>, persistence: alloc::sync::Arc<dyn triage::contract::LifecyclePersistence>, interval: core::time::Duration, corpus_basename: alloc::string::String)
+pub async fn triage::contract::run_one_coordinator_cycle(mode: triage::contract::CadenceMode, sql_runner: &alloc::sync::Arc<dyn triage::contract::SqlQueryRunner>, broadcast_handle: &alloc::sync::Arc<triage::contract::CadenceEventBroadcast>, hw_profile: &alloc::sync::Arc<dyn triage::contract::HardwareProfileSource>, now_nanos: i64, triggering_cue: core::option::Option<&triage::contract::AttentionCue>) -> triage::contract::CoordinatorCycleStats
+pub fn triage::contract::run_one_detect_cycle(detector: &triage::contract::RestartDetector) -> triage::contract::DetectCycleStats
+pub fn triage::contract::run_one_emit_cycle(state: &triage::contract::BaselineState, thresholds: &triage::contract::Thresholds, broadcast_handle: &triage::contract::AttentionCueBroadcast, cadence_handle: &triage::contract::CadenceTriggerChannel, suppression_state: &triage::contract::SuppressionState, now_nanos: i64) -> triage::cue::emitter::EmitCycleStats
+pub fn triage::contract::run_one_storm_cycle(detector: &triage::contract::RetryStormDetector, now_nanos: i64) -> triage::contract::StormCycleStats
+pub fn triage::contract::run_persist_cycle(state: &triage::contract::BaselineState, persistence: &dyn triage::contract::BaselinePersistence, now_nanos: i64, persist_kind: &'static str) -> core::result::Result<triage::contract::PersistStats, triage::contract::BaselineError>
+pub async fn triage::contract::run_persist_loop(state: alloc::sync::Arc<triage::contract::BaselineState>, persistence: alloc::sync::Arc<dyn triage::contract::BaselinePersistence>, interval: core::time::Duration)
+pub async fn triage::contract::run_q1(state: &triage::contract::TriageSqlState, window: core::time::Duration) -> core::result::Result<alloc::vec::Vec<triage::contract::Q1RedRow>, triage::contract::SqlAggregationError>
+pub async fn triage::contract::run_q2(state: &triage::contract::TriageSqlState, window: core::time::Duration) -> core::result::Result<alloc::vec::Vec<triage::contract::Q2OperationRow>, triage::contract::SqlAggregationError>
+pub async fn triage::contract::run_q3(state: &triage::contract::TriageSqlState, window: core::time::Duration) -> core::result::Result<alloc::vec::Vec<triage::contract::Q3FingerprintRow>, triage::contract::SqlAggregationError>
+pub async fn triage::contract::run_q4(state: &triage::contract::TriageSqlState, window: core::time::Duration) -> core::result::Result<alloc::vec::Vec<triage::contract::Q4InteractionRow>, triage::contract::SqlAggregationError>
+pub async fn triage::contract::run_q5(state: &triage::contract::TriageSqlState, window: core::time::Duration) -> core::result::Result<alloc::vec::Vec<triage::contract::Q5CardinalityRow>, triage::contract::SqlAggregationError>
+pub async fn triage::contract::run_q6(state: &triage::contract::TriageSqlState, window: core::time::Duration) -> core::result::Result<alloc::vec::Vec<triage::contract::Q6LogRow>, triage::contract::SqlAggregationError>
+pub async fn triage::contract::run_q7(state: &triage::contract::TriageSqlState, window: core::time::Duration) -> core::result::Result<alloc::vec::Vec<triage::contract::Q7CriticalPathRow>, triage::contract::SqlAggregationError>
+pub fn triage::contract::run_storm_persist_cycle(detector: &triage::contract::RetryStormDetector, persistence: &dyn triage::contract::StormPersistence, persist_kind: &'static str, corpus_basename: &str) -> core::result::Result<(), triage::contract::StormError>
+pub async fn triage::contract::run_storm_persist_loop(detector: alloc::sync::Arc<triage::contract::RetryStormDetector>, persistence: alloc::sync::Arc<dyn triage::contract::StormPersistence>, interval: core::time::Duration, corpus_basename: alloc::string::String)
+pub fn triage::contract::should_auto_resolve(updated_at_unix_nano: i64, now_unix_nano: i64, no_reemission_window_secs: u64) -> bool
+pub async fn triage::contract::start_cadence_coordinator(sql_runner: alloc::sync::Arc<dyn triage::contract::SqlQueryRunner>, broadcast_handle: alloc::sync::Arc<triage::contract::CadenceEventBroadcast>, cue_broadcast: alloc::sync::Arc<triage::contract::AttentionCueBroadcast>, cadence_handle: alloc::sync::Arc<triage::contract::CadenceTriggerChannel>, hw_profile: alloc::sync::Arc<dyn triage::contract::HardwareProfileSource>, cadence_config: alloc::sync::Arc<triage::contract::CadenceConfig>)
+pub async fn triage::contract::start_emitter(state: alloc::sync::Arc<triage::contract::BaselineState>, broadcast_handle: alloc::sync::Arc<triage::contract::AttentionCueBroadcast>, cadence_handle: alloc::sync::Arc<triage::contract::CadenceTriggerChannel>, thresholds: alloc::sync::Arc<triage::contract::Thresholds>, restart_broadcast: alloc::sync::Arc<triage::contract::RestartEventBroadcast>, suppression_state: alloc::sync::Arc<triage::contract::SuppressionState>)
+pub async fn triage::contract::start_lifecycle_heartbeat(registry: alloc::sync::Arc<dyn triage::contract::ServiceRegistry>, broadcast: alloc::sync::Arc<triage::contract::ServiceLifecycleBroadcast>, baseline_state: alloc::sync::Arc<triage::contract::BaselineState>, restart_rx: tokio::sync::broadcast::Receiver<triage::contract::RestartEvent>, dormant_after_secs: u64, archived_after_secs: u64, heartbeat_interval: core::time::Duration)
+pub async fn triage::contract::start_restart_detector(detector: alloc::sync::Arc<triage::contract::RestartDetector>, heartbeat_interval: core::time::Duration)
+pub async fn triage::contract::start_storm_detector(detector: alloc::sync::Arc<triage::contract::RetryStormDetector>, heartbeat_interval: core::time::Duration)
+pub fn triage::contract::state_index(state: triage::contract::ServiceLifecycleState) -> usize
+pub fn triage::contract::state_label(state: triage::contract::ServiceLifecycleState) -> &'static str
+pub type triage::contract::DigestFuture<'a, T> = core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<T, triage::contract::DigestError>> + core::marker::Send + 'a)>>
+pub type triage::contract::IncidentRecordPayload = triage::contract::Incident

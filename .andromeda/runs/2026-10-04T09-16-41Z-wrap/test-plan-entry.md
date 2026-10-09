@@ -1,0 +1,8 @@
+
+## 2026-10-04-corpus-key-creation-is-race-free — §4 corpus row: the concurrent-creation re-exec witness; the stated Rust floor
+**Section:** §4 Unit Test Strategy → What unit tests cover → corpus crate · §4 Unit Test Strategy → Framework (Rust crates)
+**Change:**
+- Corpus row: beside the sequential process-boundary test, `corpus_key_race_free_across_concurrent_first_run_processes` — 8 re-exec children released by a stdin barrier (no `sleep`) against one EMPTY test-scoped entry; asserts every child exited 0 and wrote its sink, 1 distinct key, equal to the stored key, the lock file present with length 0; entry and lock file removed before asserting; RED on the prior unlocked code (8 distinct, 7 not stored) and mutation-checked. Pins: entry-keyed lock-file name; the Linux lock-dir rule (`cfg(target_os = "linux")`); fail-closed fetch (entry absent afterwards). Crate suite 82 → 87. The legs clean-skip where no store answers — including under `env -i` (drops `DBUS_SESSION_BUS_ADDRESS`); the skip line reaches a gate log only with `--success-output immediate`, so a "the leg ran" gate reads `lacks [skip]` on that form, never nextest's skip count.
+- Framework: was "libtest bundled with rustc 1.85+"; now the pinned rustc 1.95.0, code floor ≥ 1.89, the declared `rust-version = "1.85"` stale and owned by the route entry "The declared Rust floor matches the code".
+**Why:** the chunk added the concurrent witness and its pins; its native pre-push stage 5 measured every credential-store leg skipping under `env -i` while the stage's `passed, 0 skipped` atom held — a gate shape that cannot see a skipped leg; clippy measured the stated floor false.
+**Ref:** .andromeda/runs/2026-10-04T09-16-41Z-wrap/

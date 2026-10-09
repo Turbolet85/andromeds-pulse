@@ -2,9 +2,11 @@
 // AggregatedBadgeCanvas. One soft Halo dot per service from the registry:
 // hue = per-service incident severity (LCH Earth Blue → Alert Burgundy),
 // brightness = lifecycle activity tier, position = stable hash(service_name)
-// scatter. Dormant dimmed; Archived hidden. The dots breathe (opacity-only
+// scatter. Only currently-live services (recent last_seen) shown; stale/
+// archived hidden (P-067). The dots breathe (opacity-only
 // envelope, never scale — P-026) when motion is allowed; reduced-motion
-// renders a single static frame (hue + brightness still encode state).
+// renders a static frame, repainted on a data change (hue + brightness still
+// encode state).
 //
 // Mirrors halo/HaloCanvas.tsx + dashboard ConstellationCanvas: owns its own
 // <canvas> + WebGPU pipeline outside React's render tree; the per-dot draw
@@ -21,18 +23,22 @@ import { Fallback } from "../canvas/Fallback";
 import {
   detectWebviewBackend,
   normalizeWgpuBackend,
+  recordConstellationDiscoveryLatency,
+  recordConstellationHueLatency,
   recordFrameMs,
 } from "../canvas/frame-metrics";
+import type { FrameLoopHandle } from "../canvas/types";
 import { requestWebGPUAdapter, type AdapterResult } from "../canvas/webgpu-adapter";
 import { lchInterpolate } from "../halo/lch";
 import { useReducedMotion } from "../hooks/use-reduced-motion";
 import { createConstellationPipeline } from "./constellation-pipeline";
 import {
   constellationSummary,
+  hueShiftSamples,
   visibleDots,
   type ConstellationDot,
 } from "./constellation-types";
-import type { ServiceListItem } from "../bindings/index";
+import type { PriorityTier, ServiceListItem } from "../bindings/index";
 
 interface ConstellationCanvasProps {
   items: readonly ServiceListItem[];
@@ -62,13 +68,81 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
   const [pipelineFailed, setPipelineFailed] = useState(false);
   const reducedMotion = useReducedMotion() ?? false;
 
-  const dots = useMemo(() => visibleDots(items), [items]);
-  const summary = useMemo(() => constellationSummary(items), [items]);
+  const nowUnixNano = Date.now() * 1_000_000;
+  const dots = useMemo(() => visibleDots(items, nowUnixNano), [items, nowUnixNano]);
+  const summary = useMemo(
+    () => constellationSummary(items, nowUnixNano),
+    [items, nowUnixNano],
+  );
   const dotsRef = useRef<readonly ConstellationDot[]>(dots);
+  const discoveredRef = useRef<Set<string>>(new Set());
+  const hueTierRef = useRef<Map<string, PriorityTier | null>>(new Map());
+  const loopRef = useRef<FrameLoopHandle | null>(null);
+  const mountedAtRef = useRef(0);
+  if (mountedAtRef.current === 0) {
+    mountedAtRef.current = Date.now();
+  }
 
   useEffect(() => {
     dotsRef.current = dots;
   }, [dots]);
+
+  // P-027 discovery bound: a service's span arrival (`last_seen_unix_nano`,
+  // already on the wire) → its dot's first appearance in the rendered set.
+  // Emitted AGGREGATE-only — a count plus the slowest arrival in this batch —
+  // because `service` is an OTLP resource attribute and may never be a label
+  // (security-plan §Logging; obs-plan §5 cardinality).
+  useEffect(() => {
+    const fresh = dots.filter((dot) => !discoveredRef.current.has(dot.service));
+    if (fresh.length === 0) {
+      return;
+    }
+    const nowMs = Date.now();
+    let slowestMs = 0;
+    for (const dot of fresh) {
+      discoveredRef.current.add(dot.service);
+      const item = items.find((candidate) => candidate.service === dot.service);
+      if (item === undefined) {
+        continue;
+      }
+      const elapsedMs = nowMs - item.last_seen_unix_nano / 1_000_000;
+      if (elapsedMs > slowestMs) {
+        slowestMs = elapsedMs;
+      }
+    }
+    void recordConstellationDiscoveryLatency({
+      duration_ms: slowestMs,
+      discovered_count: fresh.length,
+    });
+  }, [dots, items]);
+
+  // P-025 hue bound: the instant a service's tier became true on the backend
+  // (`tier_effective_at_unix_nano`) → the instant this effect observes the
+  // dot repainted in its new hue. One sample per service whose tier changed,
+  // and only for changes this canvas witnessed — a tier restored at boot is
+  // not a hue-update latency.
+  useEffect(() => {
+    const { samples, next } = hueShiftSamples(
+      hueTierRef.current,
+      dots,
+      items,
+      mountedAtRef.current,
+      Date.now(),
+    );
+    hueTierRef.current = next;
+    for (const sample of samples) {
+      void recordConstellationHueLatency(sample);
+    }
+  }, [dots, items]);
+
+  // Under reduced motion the loop paints one static frame per start() and
+  // schedules no rAF, so a data change must re-call start() to repaint the
+  // new hue (frame-loop.ts contract).
+  useEffect(() => {
+    if (reducedMotion) {
+      loopRef.current?.start();
+    }
+  }, [dots, reducedMotion]);
 
   useEffect(() => {
     let cancelled = false;
@@ -208,9 +282,11 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
         });
       },
     });
+    loopRef.current = loop;
     loop.start();
     return () => {
       loop.stop();
+      loopRef.current = null;
     };
   }, [adapter, reducedMotion]);
 

@@ -1,0 +1,36 @@
+# obs extract
+
+## Relevance
+partial — a webview render/labeling + a11y/design chunk; obs coverage is confined to the frontend telemetry bridge, the WebGPU frame budget on the (confirmed WebGPU) constellation render path, and service-name cardinality/PII discipline. No new backend module, span, metric, or log is mandated.
+
+## Constraints
+- **WebGPU frame budget governs the surface being modified** — `ConstellationCanvas.tsx` renders via `getContext("webgpu")`, so per obs-plan §10 (WebGPU canvas frame) + §4 (P1 scenario), adding per-dot labels + Halo pulse must keep `metric.webgpu.frame_duration_ms` p99 ≤ 33ms (30 fps). Verification is two-state: NEUTRAL headless, ACTIVE on a booted app (§10).
+- **No browser OTel SDK; frontend telemetry only via the TauRPC bridge** — per §3 (Frontend bridge) + §4 (Desktop-webview row): any new frontend signal (label-render cost, empty/error-state counter, skeleton-pulse) routes `telemetry.frontend.record_*` → backend `tracing::info!(target: "metric.{name}")`, never a JS exporter.
+- **Never key a per-frame/time-series metric on `service_name`** — per §5 (cardinality discipline) + §11 (Metrics): dots are per-service and service.name is client-supplied/unbounded; unbounded `service_name` is permitted ONLY on query-time `metric.trace.*` aggregations, never on `metric.webgpu.*` or any per-tick metric.
+- **Service-name/health display introduces no new logging-sensitive vector** — per §8 (allowlist: `service` is a loggable tag) + §1 (vector 1): name/state/priority_tier come from the already-curated `ServiceListItem`, not raw OTLP attribute values; displaying/labeling them is not PII leakage.
+- **Agent-readable JSON invariant** — per §2: any signal added lands as JSON-per-line in `agent-latest.jsonl`; no human-only dashboard, no unstructured stderr.
+
+## Patterns to follow
+- **Frontend→backend telemetry bridge** (§3 Frontend bridge / §4 Desktop-webview): web-vitals + WebGPU frame timing + skeleton-pulse/empty-state counters already flow through `telemetry.frontend.record_*` TauRPC → `tracing::info!(target: "metric.{name}")`. Reuse this path if a label/health signal needs instrumentation; do not add a new one.
+- **`metric.{module}.{measure}` naming with enumerated labels** (§5 naming / §2 naming conventions): existing `metric.webgpu.frame_duration_ms` uses bounded `wgpu_backend` / `webview_backend` / `timing_method` labels — match that shape.
+- **The `services.list_with_states` boundary is already instrumented** (§4 IPC-internal / ui-bridge): `use-service-constellation.ts` polls a handler that already carries `#[tracing::instrument]` + traceparent; a new health field on `ServiceListItem` rides the existing instrumented boundary — no new span required.
+- **web-vitals already captures DOM-overlay side effects** (§4 Desktop-webview / §1 desktop-webview): if labels are DOM overlays (scope open Q2), CLS/LCP effects surface through the existing `metric.web_vital.{name}` bridge — no new metric needed.
+
+## Anti-patterns to avoid
+- **No unbounded label cardinality** (§11 Metrics): never emit a per-dot/per-frame metric keyed on `service_name` or trace-ID — explodes JSON size + jq cost.
+- **No over-instrumentation / info-level logging in the render hot path** (§11 Telemetry Strategy + Metrics + Logs): the constellation animates per-frame; do not add info-level logs or unguarded expensive `tracing` payloads inside the render/animation loop — level-gate or omit.
+- **No browser OTel SDK linked into the webview** (§11 Universal + §2): preserve the recursion-free-by-construction invariant; frontend telemetry stays on the TauRPC→tracing path.
+
+## Contract bindings
+- **obs ↔ tests (frame-budget verification):** the render path this chunk modifies is asserted via `jq` over `metric.webgpu.frame_duration_ms` in `agent-latest.jsonl` (p99 ≤ 33ms), under the NEUTRAL-headless / ACTIVE-booted two-state posture with NEUTRAL-tolerant check scripts (§10 + amendment 2026-06-10). This chunk adds no new harness contract but must keep the frame metric within budget when measured in the webview (acceptance method = webview).
+- **obs ↔ a11y (violation JSON + PII grep):** SC 1.4.1 (use-of-color) / SC 1.4.11 (contrast) checks on the dot + label emit violations into the obs structured JSON log format on failure; and the a11y CI PII grep over the new label / severity-token text must apply the §8 UI-vocabulary exemption so service names + a text severity token are not flagged as secrets (§8 UI-vocabulary exemption; focus-guide a11y binding). The SR-opaque `<canvas>` (renderer line 10 → a11y-plan §1) is why label-surface choice (canvas text vs DOM overlay, scope open Q2) matters to the SR-reachability of any emitted signal.
+
+## Acceptance criteria contributions
+- (obs) The constellation render (per-dot labels + Halo pulse) keeps WebGPU frame p99 ≤ 33 ms on a booted app (ACTIVE); headless runs report NEUTRAL, not FAIL (§10).
+- (obs) No new metric or `tracing` event is keyed on unbounded `service_name` (or trace-ID); any added label uses enumerated values (§5 / §11).
+- (obs) No raw OTLP attribute value leaks via the new label path — only curated `ServiceListItem` fields (name/state/priority_tier) surface; `service` stays a loggable tag, not payload (§8 / §1 vector 1).
+- (obs) Any frontend telemetry added for this feature routes through the TauRPC `telemetry.frontend.*` bridge to `tracing` (no browser OTel SDK) and lands as JSON-per-line in `agent-latest.jsonl` (§3 / §2).
+
+## Relevant amendment history
+- **2026-06-10 (§10 frame-budget two-state posture):** established WebGPU frame p99 ≤ 33 ms verification as NEUTRAL when headless (no webview) and ACTIVE only on a booted app, with NEUTRAL-tolerant check scripts scoped by `write_run_window_log`. Relevant because this chunk modifies the WebGPU constellation render path the frame budget governs — its label/Halo render inherits this two-state verification posture.
+- **2026-05-04 (§8 PII-grep UI-vocabulary exemption):** clarified PII vectors forbid real secret *formats*, not UI-label words, and that grep heuristics must distinguish secret regex envelopes from UI vocabulary (arose from false-positives on a11y SR fixtures for the "Token budget" label). Relevant because this chunk adds per-dot service-name labels + a possible text severity token (scope open Q4, "like the P-068 error tokens") — the a11y CI PII grep must not flag those label strings as secrets.

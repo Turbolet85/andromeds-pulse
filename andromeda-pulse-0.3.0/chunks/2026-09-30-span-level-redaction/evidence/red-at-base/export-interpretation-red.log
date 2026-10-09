@@ -1,0 +1,52 @@
+## export-red.log
+warning: triage@0.1.0: triage: tokenizer downloaded (sha256=c05a3c2174e9edd5be19dc5a0748c42a9037bec2811ce062728bfd71f8702d78); pin via ANDROMEDA_LLAMA3_TOKENIZER_SHA256 env var for reproducible builds
+   Compiling pulse-app v0.1.0 (<host-path>
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5m 11s
+────────────
+ Nextest run ID 8383e141-e4f5-4573-bdbc-868bef1a07b6 with nextest profile: ci
+    Starting 12 tests across 1 binary (95 binaries skipped)
+        PASS [   0.029s] ( 1/12) pulse-app::unit_training_export validate_export_target_rejects_parent_dir_traversal
+        PASS [   0.046s] ( 2/12) pulse-app::unit_training_export resolve_default_target_uses_injected_timestamp_under_downloads
+        PASS [   0.047s] ( 3/12) pulse-app::unit_training_export count_redactions_span_mask_counts_a_mid_value_placeholder
+        PASS [   0.051s] ( 4/12) pulse-app::unit_training_export build_preview_summary_handles_empty_corpus
+        FAIL [   0.052s] ( 5/12) pulse-app::unit_training_export export_interpretation_span_mask_keeps_json_parseable_across_delimiters
+  stdout ───
+
+    running 1 test
+    test export_interpretation_span_mask_keeps_json_parseable_across_delimiters ... FAILED
+
+    failures:
+
+    failures:
+        export_interpretation_span_mask_keeps_json_parseable_across_delimiters
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'export_interpretation_span_mask_keeps_json_parseable_across_delimiters' (34452) panicked at pulse-app\tests\unit_training_export.rs:288:40:
+    the exported interpretation stays parseable JSON: Error("EOF while parsing a string", line: 1, column: 39)
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.056s] ( 6/12) pulse-app::unit_training_export build_preview_summary_counts_by_status_and_severity_with_date_range
+        PASS [   0.056s] ( 7/12) pulse-app::unit_training_export validate_export_target_accepts_existing_parent
+        PASS [   0.067s] ( 8/12) pulse-app::unit_training_export validate_export_target_rejects_nonexistent_parent
+        PASS [   0.067s] ( 9/12) pulse-app::unit_training_export scrub_redacts_pii_in_exported_text_fields
+        PASS [   0.072s] (10/12) pulse-app::unit_training_export serialize_jsonl_produces_one_valid_json_object_per_line
+        PASS [   0.093s] (11/12) pulse-app::unit_training_export incident_row_to_export_record_maps_fields_and_restamps_metadata
+        PASS [   0.103s] (12/12) pulse-app::unit_training_export count_redactions_counts_redacted_fields
+────────────
+     Summary [   0.103s] 12 tests run: 11 passed, 1 failed, 0 skipped
+        PASS [   0.029s] ( 1/12) pulse-app::unit_training_export validate_export_target_rejects_parent_dir_traversal
+        PASS [   0.046s] ( 2/12) pulse-app::unit_training_export resolve_default_target_uses_injected_timestamp_under_downloads
+        PASS [   0.047s] ( 3/12) pulse-app::unit_training_export count_redactions_span_mask_counts_a_mid_value_placeholder
+        PASS [   0.051s] ( 4/12) pulse-app::unit_training_export build_preview_summary_handles_empty_corpus
+        PASS [   0.056s] ( 6/12) pulse-app::unit_training_export build_preview_summary_counts_by_status_and_severity_with_date_range
+        PASS [   0.056s] ( 7/12) pulse-app::unit_training_export validate_export_target_accepts_existing_parent
+        PASS [   0.067s] ( 8/12) pulse-app::unit_training_export validate_export_target_rejects_nonexistent_parent
+        PASS [   0.067s] ( 9/12) pulse-app::unit_training_export scrub_redacts_pii_in_exported_text_fields
+        PASS [   0.072s] (10/12) pulse-app::unit_training_export serialize_jsonl_produces_one_valid_json_object_per_line
+        PASS [   0.093s] (11/12) pulse-app::unit_training_export incident_row_to_export_record_maps_fields_and_restamps_metadata
+        PASS [   0.103s] (12/12) pulse-app::unit_training_export count_redactions_counts_redacted_fields
+        FAIL [   0.052s] ( 5/12) pulse-app::unit_training_export export_interpretation_span_mask_keeps_json_parseable_across_delimiters
+error: test run failed

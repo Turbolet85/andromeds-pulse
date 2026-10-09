@@ -1,0 +1,135 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T12:44:42Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:91 - 2026-10-04-linux-launch-stays-up-on-nvidia-wayland pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T12:44:42Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland",
+"--date",
+"2026-10-04",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :156 strip CONTEXT: 597ch \"CONTEXT: S2's default posture died ~1.5 \"",
+"pin :156 strip WATCH: 452ch 0/3 since 2026-10-04-corpus-key-creation-is-race-free \"WATCH: CI `boot smoke (ubuntu-22.04)…",
+"pin next markerless :158 holds CONTEXT:×1 · WATCH:×1",
+"156 · 2026-10-04-linux-launch-stays-up-on-nvidia-wayland · strip 2 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 156,
+"marker": "2026-10-04-linux-launch-stays-up-on-nvidia-wayland",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T12:44:46Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland",
+"--date",
+"2026-10-04",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :156 strip CONTEXT: 597ch \"CONTEXT: S2's default posture died ~1.5 \"",
+"pin :156 strip WATCH: 452ch 0/3 since 2026-10-04-corpus-key-creation-is-race-free \"WATCH: CI `boot smoke (ubuntu-22.04)…",
+"pin next markerless :158 holds CONTEXT:×1 · WATCH:×1",
+"156 · 2026-10-04-linux-launch-stays-up-on-nvidia-wayland · strip 2 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/route-archive.md",
+"./andromeda-pulse-0.3.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 156,
+"marker": "2026-10-04-linux-launch-stays-up-on-nvidia-wayland",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

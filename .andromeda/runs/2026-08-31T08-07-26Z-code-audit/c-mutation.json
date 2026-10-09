@@ -1,0 +1,850 @@
+{
+ "scoped_units": [
+  "curation",
+  "security",
+  "snapshot",
+  "workspace-detector",
+  "interpretation",
+  "viz",
+  "config-watcher"
+ ],
+ "scores": {
+  "curation": 59.8,
+  "security": 100.0,
+  "snapshot": 52.6,
+  "workspace-detector": 90.0,
+  "interpretation": 61.6,
+  "viz": 93.0,
+  "config-watcher": 54.5
+ },
+ "counts": {
+  "curation": {
+   "mutants": 105,
+   "caught": 58,
+   "missed": 39,
+   "timeout": 0,
+   "unviable": 8
+  },
+  "security": {
+   "mutants": 9,
+   "caught": 6,
+   "missed": 0,
+   "timeout": 0,
+   "unviable": 3
+  },
+  "snapshot": {
+   "mutants": 98,
+   "caught": 50,
+   "missed": 45,
+   "timeout": 0,
+   "unviable": 3
+  },
+  "workspace-detector": {
+   "mutants": 32,
+   "caught": 27,
+   "missed": 3,
+   "timeout": 0,
+   "unviable": 2
+  },
+  "interpretation": {
+   "mutants": 127,
+   "caught": 69,
+   "missed": 43,
+   "timeout": 0,
+   "unviable": 15
+  },
+  "viz": {
+   "mutants": 56,
+   "caught": 40,
+   "missed": 3,
+   "timeout": 0,
+   "unviable": 13
+  },
+  "config-watcher": {
+   "mutants": 55,
+   "caught": 24,
+   "missed": 20,
+   "timeout": 0,
+   "unviable": 11
+  }
+ },
+ "durations_s": {
+  "curation": 370,
+  "security": 82,
+  "snapshot": 420,
+  "workspace-detector": 143,
+  "interpretation": 951,
+  "viz": 427,
+  "config-watcher": 639
+ },
+ "score_formula": "caught/(caught+missed)",
+ "survivors": [
+  [
+   "curation",
+   "crates/curation/src/aggregation.rs:91",
+   "replace - with + in percentiles"
+  ],
+  [
+   "curation",
+   "crates/curation/src/aggregation.rs:91",
+   "replace - with / in percentiles"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:63",
+   "replace kind_ordinal -> u8 with 0"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:63",
+   "replace kind_ordinal -> u8 with 1"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:74",
+   "replace < with == in detect_latency_outliers"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:74",
+   "replace < with <= in detect_latency_outliers"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:79",
+   "replace / with % in detect_latency_outliers"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:80",
+   "replace / with % in detect_latency_outliers"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:80",
+   "replace - with + in detect_latency_outliers"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:80",
+   "replace - with / in detect_latency_outliers"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:90",
+   "replace / with % in detect_latency_outliers"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:90",
+   "replace / with * in detect_latency_outliers"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:90",
+   "replace - with + in detect_latency_outliers"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:91",
+   "replace > with >= in detect_latency_outliers"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:119",
+   "replace += with *= in detect_error_correlation"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:135",
+   "replace * with + in detect_error_correlation"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:135",
+   "replace * with / in detect_error_correlation"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:135",
+   "replace / with % in detect_error_correlation"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:135",
+   "replace / with * in detect_error_correlation"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:177",
+   "replace < with == in detect_cardinality_spikes"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:177",
+   "replace < with <= in detect_cardinality_spikes"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:183",
+   "replace / with % in detect_cardinality_spikes"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:187",
+   "replace * with + in detect_cardinality_spikes"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:193",
+   "replace < with <= in detect_cardinality_spikes"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:196",
+   "replace / with % in detect_cardinality_spikes"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:196",
+   "replace / with * in detect_cardinality_spikes"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:197",
+   "replace * with + in detect_cardinality_spikes"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:197",
+   "replace * with / in detect_cardinality_spikes"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:197",
+   "replace - with + in detect_cardinality_spikes"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:197",
+   "replace - with / in detect_cardinality_spikes"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:225",
+   "replace < with == in span_duration_ms"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:225",
+   "replace < with <= in span_duration_ms"
+  ],
+  [
+   "curation",
+   "crates/curation/src/anomaly.rs:225",
+   "replace / with * in span_duration_ms"
+  ],
+  [
+   "curation",
+   "crates/curation/src/critical_path.rs:45",
+   "replace += with *= in extract_critical_path"
+  ],
+  [
+   "curation",
+   "crates/curation/src/critical_path.rs:80",
+   "replace match guard !c.is_empty() with true in longest_path_from"
+  ],
+  [
+   "curation",
+   "crates/curation/src/critical_path.rs:109",
+   "replace == with != in prefer_longer_or_lex"
+  ],
+  [
+   "curation",
+   "crates/curation/src/critical_path.rs:109",
+   "replace < with == in prefer_longer_or_lex"
+  ],
+  [
+   "curation",
+   "crates/curation/src/critical_path.rs:109",
+   "replace < with <= in prefer_longer_or_lex"
+  ],
+  [
+   "curation",
+   "crates/curation/src/critical_path.rs:121",
+   "replace < with <= in span_duration_ms"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/attribute_filter.rs:80",
+   "replace > with == in truncate_value"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/attribute_filter.rs:80",
+   "replace > with < in truncate_value"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/attribute_filter.rs:80",
+   "replace > with >= in truncate_value"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/attribute_filter.rs:83",
+   "replace += with *= in truncate_value"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:53",
+   "replace > with >= in format_markdown"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:104",
+   "replace <= with > in format_markdown"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:148",
+   "replace && with || in finish_ok"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:282",
+   "replace > with == in truncate_to_byte_cap"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:282",
+   "replace > with < in truncate_to_byte_cap"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:282",
+   "replace > with >= in truncate_to_byte_cap"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:285",
+   "replace += with *= in truncate_to_byte_cap"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:294",
+   "replace span_id_hex -> String with String::new()"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:294",
+   "replace span_id_hex -> String with \"xyzzy\".into()"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:326",
+   "replace == with != in render_section_anomalies"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:344",
+   "delete ! in render_anomaly_subsection"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:347",
+   "replace > with == in render_anomaly_subsection"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:347",
+   "replace > with < in render_anomaly_subsection"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:347",
+   "replace > with >= in render_anomaly_subsection"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:359",
+   "delete ! in render_anomaly_subsection"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:364",
+   "replace > with == in render_anomaly_subsection"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:364",
+   "replace > with < in render_anomaly_subsection"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:364",
+   "replace > with >= in render_anomaly_subsection"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:435",
+   "replace render_service_block with ()"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:450",
+   "replace && with || in render_section_unique_spans"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:472",
+   "replace / with % in render_span_block"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:472",
+   "replace / with * in render_span_block"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:475",
+   "delete match arm 0 in render_span_block"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:476",
+   "delete match arm 1 in render_span_block"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:477",
+   "delete match arm 2 in render_span_block"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:486",
+   "replace && with || in render_span_block"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:513",
+   "replace render_truncation_marker_attributes with ()"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:513",
+   "replace == with != in render_truncation_marker_attributes"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:526",
+   "replace render_truncation_marker_spans with ()"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:526",
+   "replace == with != in render_truncation_marker_spans"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:539",
+   "replace classify_alert_services -> HashSet<String> with HashSet::new()"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:539",
+   "replace classify_alert_services -> HashSet<String> with HashSet::from_iter([String::new()])"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:539",
+   "replace classify_alert_services -> HashSet<String> with HashSet::from_iter([\"xyzzy\".into()])"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:541",
+   "replace == with != in classify_alert_services"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:559",
+   "replace collect_high_priority_span_ids -> HashSet<[u8; 8]> with HashSet::new()"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:559",
+   "replace collect_high_priority_span_ids -> HashSet<[u8; 8]> with HashSet::from_iter([[0; 8]])"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:559",
+   "replace collect_high_priority_span_ids -> HashSet<[u8; 8]> with HashSet::from_iter([[1; 8]])"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:588",
+   "replace total_attribute_count -> usize with 0"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:588",
+   "replace total_attribute_count -> usize with 1"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:592",
+   "replace section_h2_count -> usize with 0"
+  ],
+  [
+   "snapshot",
+   "crates/snapshot/src/markdown.rs:592",
+   "replace section_h2_count -> usize with 1"
+  ],
+  [
+   "workspace-detector",
+   "crates/workspace-detector/src/contract.rs:117",
+   "replace > with >= in read_published_workspace_key"
+  ],
+  [
+   "workspace-detector",
+   "crates/workspace-detector/src/vcs.rs:50",
+   "replace < with == in sha_basename"
+  ],
+  [
+   "workspace-detector",
+   "crates/workspace-detector/src/vcs.rs:50",
+   "replace < with <= in sha_basename"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/hardware.rs:108",
+   "replace >= with < in detect_real"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/hardware.rs:132",
+   "replace detect_gpu_present -> bool with true"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/hardware.rs:132",
+   "replace detect_gpu_present -> bool with false"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/hardware.rs:173",
+   "replace available_cpu_cores -> usize with 1"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/hardware.rs:186",
+   "delete match arm \"cpu_fallback\" | \"cpu-fallback\" in parse_profile_override"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/markdown.rs:344",
+   "replace hex_lower -> String with String::new()"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/markdown.rs:344",
+   "replace hex_lower -> String with \"xyzzy\".into()"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/markdown.rs:352",
+   "replace incident_status_label -> &'static str with \"\""
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/markdown.rs:352",
+   "replace incident_status_label -> &'static str with \"xyzzy\""
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/markdown.rs:360",
+   "replace severity_label -> &'static str with \"\""
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/markdown.rs:360",
+   "replace severity_label -> &'static str with \"xyzzy\""
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/markdown.rs:369",
+   "replace l4_confidence_label -> &'static str with \"\""
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/markdown.rs:369",
+   "replace l4_confidence_label -> &'static str with \"xyzzy\""
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/prompt.rs:65",
+   "replace > with == in push_citable_ids_section"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/prompt.rs:65",
+   "replace > with < in push_citable_ids_section"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/prompt.rs:65",
+   "replace > with >= in push_citable_ids_section"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:53",
+   "replace * with +"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:195",
+   "replace || with && in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:195",
+   "replace > with == in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:195",
+   "replace > with >= in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:200",
+   "replace > with >= in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:205",
+   "replace > with == in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:205",
+   "replace > with >= in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:210",
+   "replace > with == in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:210",
+   "replace > with >= in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:224",
+   "replace || with && in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:224",
+   "replace > with == in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:224",
+   "replace > with >= in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:229",
+   "replace > with == in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:229",
+   "replace > with >= in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:244",
+   "replace || with && in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:244",
+   "replace > with == in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:244",
+   "replace > with >= in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:249",
+   "replace > with == in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:249",
+   "replace > with >= in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:255",
+   "replace > with == in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:255",
+   "replace > with >= in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:264",
+   "replace > with == in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:264",
+   "replace > with >= in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:270",
+   "replace || with && in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:270",
+   "replace > with == in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:270",
+   "replace > with >= in validate"
+  ],
+  [
+   "interpretation",
+   "crates/interpretation/src/schema.rs:323",
+   "replace > with >= in parse_bounded"
+  ],
+  [
+   "viz",
+   "crates/viz/src/query.rs:447",
+   "replace < with <= in compute_window"
+  ],
+  [
+   "viz",
+   "crates/viz/src/query.rs:488",
+   "replace short_err -> String with String::new()"
+  ],
+  [
+   "viz",
+   "crates/viz/src/query.rs:488",
+   "replace short_err -> String with \"xyzzy\".into()"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/event.rs:35",
+   "replace kind_label -> &'static str with \"\""
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/event.rs:35",
+   "replace kind_label -> &'static str with \"xyzzy\""
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/event.rs:80",
+   "replace ConfigEventBroadcast::subscriber_count -> usize with 0"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/partition.rs:26",
+   "replace ChangedKeys::is_empty -> bool with true"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/partition.rs:26",
+   "replace && with || in ChangedKeys::is_empty"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/partition.rs:26",
+   "replace && with || in ChangedKeys::is_empty"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:146",
+   "replace == with != in ConfigWatchHandle::reload_now"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:163",
+   "replace ConfigWatchHandle::apply with ()"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:170",
+   "replace += with -= in ConfigWatchHandle::apply"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:170",
+   "replace += with *= in ConfigWatchHandle::apply"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:173",
+   "delete ! in ConfigWatchHandle::apply"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:192",
+   "replace ConfigWatchHandle::record_rejection with ()"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:212",
+   "replace ConfigWatchHandle::status_snapshot -> ConfigStatus with Default::default()"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:223",
+   "replace emit_event with ()"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:265",
+   "replace ConfigWatchTask::run with ()"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:266",
+   "delete ! in ConfigWatchTask::run"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:309",
+   "replace == with != in start_config_watcher"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:329",
+   "replace now_unix_nano -> i64 with 0"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:329",
+   "replace now_unix_nano -> i64 with 1"
+  ],
+  [
+   "config-watcher",
+   "crates/config-watcher/src/watcher.rs:329",
+   "replace now_unix_nano -> i64 with -1"
+  ]
+ ],
+ "budget_exhausted": [],
+ "notes": []
+}

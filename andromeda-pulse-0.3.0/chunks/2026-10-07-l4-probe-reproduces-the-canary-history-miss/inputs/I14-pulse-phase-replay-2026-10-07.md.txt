@@ -1,0 +1,54 @@
+# Operator relay: the plan revision of "The L4 probe reproduces the canary-history miss", Pulse (2026-10-07)
+
+From the pc overseer (founder-delegated; the founder is away until late evening, so items marked PROVISIONAL are the
+overseer's and he can overrule them). Facts are `measured 2026-10-07` unless marked `hypothesis:`. Re-derive what you rely on.
+
+## 1. Where the chunk stands
+
+- Reading one read NOT REPRODUCED as pre-registered (recounted by the overseer from
+  `target/l4-decision-probe/repro-20261007T104447Z/runs.json`: `both` 20 of 20 on S7-S15, 19 of 20 on S16, one
+  `signal_only`). The stop was right and is not softened: the corpus block alone, in the eight variations read, does not
+  carry the miss.
+- The finding went to the founder at 13:12 local with four options. **His answer, 13:13 local, by dialog, his own words
+  (Russian):** «единственный вариант переделать так чтоб билдер сам смог прочитать дайджест» — the only option is to rework
+  things so that the builder can read the digest itself. He declined a decryption he would run by hand (he is away).
+
+## 2. How that ruling is carried out
+
+- **Not by the key.** The credential read stays refused and is not routed around, by a tool or otherwise. The d3 replay
+  from the encrypted digest stays UNMEASURED.
+- **By a capture in Conductor's leg (the overseer's mechanism).** Pulse hands the prompt to the model binary on argv
+  (`pulse-app/src/llamacli_inference.rs:491`). Conductor will run a three-drive CAPTURE run of the fifth series' design
+  against `f70be92`'s binaries with a shim at the model-binary handle that records its argv and execs the real binary. No
+  Pulse product file changes for it. It is pre-registered there as a capture, not as a `v3-09` verdict.
+- **What you will get:** for each model invocation of each drive, the exact prompt bytes and argv, with the drive, the
+  digest and the grade beside them. The path comes in a later relay line; expect it mid-afternoon if the GPU slot holds.
+- **PROVISIONAL (overseer): the captured prompts stay on this host and are never committed,** pasted into a report, or
+  quoted in a card. Your committed evidence carries derived facts only (sha256, byte and line counts per digest section,
+  which sections differ). A shape you DERIVE from reading them and write synthetically, as S13's titles were, is committable.
+  A commit that would carry capture text is a boundary widening: stop and ask.
+
+## 3. What the revised plan should hold (the HOW is yours)
+
+- **The known-positive becomes the real prompt.** A probe shape that replays a captured prompt verbatim through the same
+  argv and grammar (read from a path at run time, absent from the tree). The reproduction reading: the miss-drive's
+  creating prompt at n = 20, with a passing drive's creating prompt as its control. Your threshold of 2 of 20 stands.
+- **If the real prompt reproduces:** the diff between it and the passing drives' prompts, and between it and S14/S16, says
+  what the synthetic shapes lacked. Remedies are then measured as transformations of that prompt (your four candidates
+  apply as edits of its corpus block; others may appear once you read it), under the rules already approved: n sized for
+  an expected 5 baseline misses, the known-positive holding only at the allowance plus 2, the guards on S7, S8 and S1-S4.
+- **If the real prompt does NOT reproduce at n = 20** while the live drive missed 2 of 2: that is a second finding (the miss
+  is not determined by the prompt bytes; candidates are then the invocation, the fallback or reflection path, or a rate
+  the two live samples overstated). Stop and report; do not guess a remedy.
+- **If the capture run's d3 does not miss:** the overseer decides the next run; your chunk waits.
+- **What can be built before the capture lands (CPU only, any hour):** the replay shape and its loader, the section-diff
+  reader, the block-edit arms as dry-runnable transformations, their pins and mutation checks. Keep S9-S16: they are the
+  measured negative and the remedy guards may want them.
+- **The service on the TRIGGER line stays the founder's boundary call.** If the real prompt shows that only the service
+  on that line would fix it, that is a finding for him, not a candidate arm.
+
+## 4. The GPU
+
+Open in daytime today on the founder's 07:42 word, closed at night. Conductor's capture run and your readings share it:
+ask the overseer for the go before each launch, as before. A reading that does not fit today's daylight waits for the next
+daytime go.

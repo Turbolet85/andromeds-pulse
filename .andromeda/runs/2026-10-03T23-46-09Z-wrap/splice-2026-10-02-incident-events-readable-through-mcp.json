@@ -1,0 +1,400 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T00:40:00Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/architecture-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 586 · lines 585→591 · bytes 80833→82166 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 585,
+"bytes": 80833,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 591,
+"bytes": 82166
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T00:40:00Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/architecture-entry2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 592 · lines 591→597 · bytes 82166→83732 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 591,
+"bytes": 82166,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 597,
+"bytes": 83732
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T00:40:01Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/security-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 467 · lines 466→472 · bytes 85689→86710 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 466,
+"bytes": 85689,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 472,
+"bytes": 86710
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T00:40:01Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/security-plan-entry2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 473 · lines 472→478 · bytes 86710→88380 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 472,
+"bytes": 86710,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 478,
+"bytes": 88380
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T00:40:01Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/test-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+6 at line 542 · lines 541→547 · bytes 90904→92131 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 541,
+"bytes": 90904,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 547,
+"bytes": 92131
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T00:40:01Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/test-plan-entry2.md",
+"--lines",
+"8",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+8 at line 548 · lines 547→555 · bytes 92131→93480 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 547,
+"bytes": 92131,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 555,
+"bytes": 93480
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T00:40:01Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/obs-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+6 at line 348 · lines 347→353 · bytes 61263→62695 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 347,
+"bytes": 61263,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 353,
+"bytes": 62695
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T00:40:01Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/obs-plan-entry2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+6 at line 354 · lines 353→359 · bytes 62695→64073 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 353,
+"bytes": 62695,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 359,
+"bytes": 64073
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T00:42:28Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/route-insert-b.txt",
+"--lines",
+"2",
+"--after-line",
+"152",
+"--expect-last-prefix",
+"Retry-storm interpretation names its cause",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append working-route.md:+2 at line 153 · lines 152→154 · bytes 22240→22911 · term lf",
+"last line now: pre-push:linux runs natively on Linux — the local Linux pre-push check runs on"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 152,
+"bytes": 22240,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 154,
+"bytes": 22911
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T00:42:28Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/route-insert-a.txt",
+"--lines",
+"6",
+"--after-line",
+"150",
+"--expect-last-prefix",
+"[2026-10-02-incident-events-readable-through-mcp]",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append working-route.md:+6 at line 151 · lines 154→160 · bytes 22911→25045 · term lf",
+"last line now: pre-push:linux runs natively on Linux — the local Linux pre-push check runs on"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 154,
+"bytes": 22911,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 160,
+"bytes": 25045
+}
+}
+]

@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-01T12:05:22Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-01-real-model-incident-surfacing",
+"--expect-prefix",
+"Real-model incident surfacing",
+"--record-file",
+".andromeda/runs/2026-10-01T12-03-34Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-01T12-03-34Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:146 - [2026-10-01-real-model-incident-surfacing]",
+"record master-route.md:86 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-10-01-real-model-incident-surfacing - working-route:146 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\working-route.md",
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+}
+]

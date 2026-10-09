@@ -1,0 +1,32 @@
+[
+{
+"tool": "gate",
+"v": "1.9",
+"sha8": "fb1f9172",
+"ts": "2026-10-05T06:31:54Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement/research.md",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-18-42Z-phase",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 5 items (new 1 · modify 4 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 5,
+"unparsed": 0
+}
+}
+]

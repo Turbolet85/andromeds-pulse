@@ -1,0 +1,38 @@
+[
+  {
+    "id": "I1",
+    "kind": "relay",
+    "repo": null,
+    "path": "message: overseer (founder-delegated), /andromeda-phase directive, 2026-10-05",
+    "form": "copy",
+    "state": "message",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "4633994489f9680e6e5d140f644370c9775178327aa22ee3c3df76ade09e3e17",
+    "copy": "I1-relay-1.md.txt",
+    "link": false,
+    "read_at": "2026-10-04T22:54:31Z",
+    "step": "phase:P1",
+    "why": "the 4317/4318 slot is granted for this chunk; binary version 9305 (63248fc) and the env file are the external facts"
+  },
+  {
+    "id": "I2",
+    "kind": "sibling",
+    "repo": null,
+    "path": "../additional/pc-overseer/l4-env.sh",
+    "form": "copy",
+    "state": "no-repo",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "4a28d0fdd0c8fb6dcfb68259fd2dd85610da5e3bdf6ccd25b946c7ade4f77647",
+    "copy": "I2-l4-env.sh.txt",
+    "link": false,
+    "read_at": "2026-10-04T22:54:31Z",
+    "step": "phase:P1",
+    "why": "the L4 leg env: MODEL_PATH, LLAMA_CUDA_BIN_PATH, LLAMA_CPU_BIN_PATH (and the tokenizer path) for the real-model series"
+  }
+]

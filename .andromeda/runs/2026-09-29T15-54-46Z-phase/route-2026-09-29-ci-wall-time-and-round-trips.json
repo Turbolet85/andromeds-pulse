@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-29T15:56:13Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-09-29-ci-wall-time-and-round-trips",
+"--expect-prefix",
+"CI wall time and round-trips",
+"--record-file",
+".andromeda/runs/2026-09-29T15-54-46Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-54-46Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:132 - [2026-09-29-ci-wall-time-and-round-trips]",
+"record master-route.md:79 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-09-29-ci-wall-time-and-round-trips - working-route:132 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\working-route.md",
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+}
+]

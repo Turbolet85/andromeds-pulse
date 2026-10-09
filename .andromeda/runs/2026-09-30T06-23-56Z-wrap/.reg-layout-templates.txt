@@ -1,0 +1,2 @@
+registry v1.1 · c6c20a84
+layout-templates.md: n/a — it carries no keyed-contract section in the map

@@ -1,0 +1,41 @@
+[[pattern]]
+id = "reread-0929"
+fixed = 'scrubber-path-false-positive`: still'
+
+[[pattern]]
+id = "four-exc"
+fixed = 'same four exceptions'
+
+[[pattern]]
+id = "brace-exp"
+fixed = 'brace-expansion'
+
+[[pattern]]
+id = "ip-address"
+fixed = 'ip-address'
+
+[[pattern]]
+id = "five-adv"
+regex = 'advisories reported after the prior green run'
+ignore_case = true
+
+[[pattern]]
+id = "never-inst"
+fixed = 'never installed in this job'
+
+[[pattern]]
+id = "nm-never"
+fixed = 'node_modules is never'
+
+[[pattern]]
+id = "no-npm-ci"
+regex = 'no `npm ci`'
+ignore_case = true
+
+[[pattern]]
+id = "state-arm"
+fixed = 'green-with-dispositions'
+
+[[pattern]]
+id = "extract-zip"
+fixed = 'extract-zip'

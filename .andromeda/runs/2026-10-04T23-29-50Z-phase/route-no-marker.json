@@ -1,0 +1,33 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T23:31:33Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-29-50Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 2 of 78 entries · freight blocks 7 · rows are an INDEX, not the text",
+"168 · CONTEXT: · 1230 chars · CONTEXT: the remedy for the measured FAIL of 2026-10-04-l4-framing-measured-on-the-real-m…",
+"168 · CONTEXT: · 313 chars · CONTEXT: Conductor's fourth v3-09 series grades this framing; it waited on 2026-10-04-l4-f…",
+"168 · PREREQ: · 174 chars · PREREQ: close rust gate deferral (deferred since 2026-10-04-l4-framing-measured-on-the-real…",
+"170 · CONTEXT: · 546 chars · CONTEXT: the verb needs `wsl.exe` (`xtask/src/pre_push.rs`), and since the 2026-10-03 move…",
+"170 · CARRY: · 560 chars · CARRY: (a) PC22 — a fresh `PUPPETEER_CACHE_DIR` under `target/` reproduces the partial v148 …",
+"170 · CARRY: · 429 chars · CARRY: (b) stage ORDER — run by hand, stage 5 (`cargo xtask test`, default features) re-emit…",
+"170 · CARRY: · 479 chars · CARRY: (c) stage 5's `env -i` isolation also drops `DBUS_SESSION_BUS_ADDRESS`, so every cred…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

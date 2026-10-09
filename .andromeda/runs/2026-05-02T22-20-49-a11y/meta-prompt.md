@@ -1,0 +1,180 @@
+## Output Protocol
+
+1. **Output format:** Patches (old → new) + changelog. NOT full document reproduction.
+2. **Patch template:** 
+   ```
+   ### Patch N: [Description of change]
+   **Old:** [exact text from document]
+   **New:** [replacement text]
+   ```
+3. **Changelog entry format:** `[Iteration N] [substantive|cosmetic] [description of change]`
+4. **Prohibited actions:**
+   - Full document reproduction
+   - Restructuring sections without documented reason
+   - Labeling cosmetic changes as substantive
+5. **If no issues found:** Output "No patches" with one-line cosmetic changelog entry.
+
+---
+
+## Analysis Protocol
+
+Follow this chain-of-thought procedure for each dimension:
+
+1. **Re-read the cited section(s)** using the Read tool with explicit offset/limit for large documents (>400 lines). Hold actual text in working memory, not paraphrased summary.
+
+2. **Cross-reference against bindings** before analyzing a dimension:
+   - **Phase 1 assertable entity → Section 4/5/6/7 coverage:** Every entity in a11y-scope Section 1 with `Assertability: assertable` has ARIA/focus/contrast/SR coverage in plan. Boundary-only entities (e.g., File picker, WASM runtime) have explicit boundary assertion plan; not-assertable entities excluded entirely.
+   - **Phase 1 a11y surface → Section 3 tools + Section 9 CI:** Every non-not-assertable surface in a11y-scope Section 2 has tool reach listed in Section 3 A11y testing tool pick AND integration plan in Section 9 CI Integration.
+   - **Phase 1 must-be-accessible path (P1-P7) → Section 3 Critical paths:** Every path in a11y-scope Section 4 maps to plan with explicit Required ARIA Roles, Required Focus Order, Required WCAG SC Coverage.
+   - **Phase 1 a11y trigger → addressing sections:** Every trigger (visual-discrimination, motion-sensitive, keyboard-only, screen-reader-priority, visual-focus-appearance, target-size) has addressing sections per trigger map.
+   - **Tool/version mentions concordance (3-site binding):** Tool versions pinned in A11y Scope Summary Section 3, Section 3 A11y testing tool pick, and Section 12 Decisions Log MUST be identical.
+   - **Section 6 Visual Design Verification ↔ upstream-context Section 3 BINDING contract:** Token NAMES reproduced verbatim; token VALUES (hex, px, ms, cubic-bezier) never appear (whitelist only: WCAG threshold ratios 4.5:1 / 3:1 / 7:1 and standard target sizes 24×24 / 44×44).
+   - **Section 3 Structured violation JSON ↔ upstream-context Section 6 obs Log Format Schema BINDING contract:** Required fields aligned (timestamp, level, target, message, fields with wcag_criterion, violation_type, severity, surface, selector, remediation, tool, tool_result_id).
+   - **Section 9 CI Integration ↔ upstream-context Section 5 tests E2E harness BINDING contract:** A11y CI reuses tests' 5-command discipline (boot, run, status, cleanup, logs); not separate driver.
+
+3. **Check each dimension** using the anchor examples as search templates. If anchor claim is negative ("X is missing from Y"), conduct targeted grep search across 3 keyword approaches before confirming absence.
+
+4. **Out-of-scope discipline:** If a finding would require writing specific test code > 5 lines, instrumentation code > 5 lines, a11y implementation code > 5 lines, threat models, or design token VALUES — do NOT patch. Verify the boundary requirement is exposed (the "what WCAG SC" rather than "how it's implemented"). WCAG SC IDs + ARIA role names + design token NAMES + a11y tool picks ARE in-scope.
+
+5. **Prioritize patches by impact:** Downstream-blocking issues (Section 3 concreteness / A11y Scope Summary divergence / tool version binding) first; implementation-misleading (tier calibration / token binding) second; signal-diluting (anti-pattern wording) third. Reference the `[priority: high/medium]` tags on dimensions.
+
+6. **Substantive vs cosmetic discipline:** A patch is substantive if it fixes a downstream-blocking issue (missing tool version, missing critical path assertion, missing anti-pattern for this stack, incomplete harness contract body). A patch is cosmetic if it's rewording without changing meaning. Mark accordingly in changelog.
+
+---
+
+## Analysis Dimensions
+
+### 1. A11y Scope Faithfulness [priority: high]
+
+- Does every assertable entity from a11y-scope Section 1 (desktop-webview React SPA + desktop-native tray menu + WebGPU canvas + Tray icon status display + Notification OS toast + Settings modal form + Investigation modal + File picker boundary) get explicit coverage in Section 4 ARIA Patterns & Roles, Section 5 Keyboard Navigation, Section 6 Visual Design Verification, and Section 7 Screen Reader Support? Are boundary-only entities (Tauri IPC bridge, OTLP/gRPC receiver, OTLP/HTTP receiver, DuckDB, WASM plugin runtime, File picker) documented with their boundary assertions?
+- Does every a11y surface from a11y-scope Section 2 (desktop-webview with axe-core 4.11.x / Lighthouse 12.x / pa11y 9.x / @axe-core/playwright 4.11.x reach; desktop-native with fallback manual SR testing; OS notification with OS-native a11y APIs) have concrete agent-runnable testing tools listed in Section 3 A11y Assertion Harness Contract and Section 9 CI Integration?
+- Does Section 1 A11y Scope Summary copy all Phase 1 fields verbatim (a11y_tier, scope entities, surfaces, harness specification, critical paths P1-P7, triggers) without paraphrasing or field omission? Are the 7 must-be-accessible flows (P1-P7) translated into explicit rows in Section 3 Critical paths with Required ARIA Roles, Required Focus Order, and Required WCAG SC Coverage populated for each?
+
+**Anchor example:** Section 1 A11y scope (entities table, lines 19-33) — File picker listed as "Boundary-only"
+
+> "| **File picker (native)** | Arch Excerpt Stack → Layout Templates | Boundary-only | OS-native file dialog; a11y boundary is Tauri modal wrapper, not picker internals |"
+
+**Issue:** File picker is marked Boundary-only with explicit boundary statement ("Tauri modal wrapper"). Searched Section 5 Keyboard Navigation, Section 6 Visual Design, and Section 7 SR Support for "file picker" / "file dialog" / "Tauri modal wrapper" — file picker receives no explicit boundary assertion plan. The boundary assertion is named but not detailed. Downstream implementation cannot derive concrete verification steps for file picker modal from this plan.
+
+**Adversarial:** If file picker modal has a keyboard trap bug (Tab key cannot escape the file picker dialog back to main app), would the a11y plan's Section 5 focus management + Section 3 critical paths catch it during CI? File picker boundary is documented but not tested in any P1-P7 critical path, meaning the trap would pass CI and ship.
+
+---
+
+### 2. Tier Calibration (WCAG Mapping) [priority: high]
+
+- Does the plan declare a11y_tier=Standard (line 13) and consistently apply WCAG 2.1 AA full ~50 SCs across Sections 3, 4, 5, 6, 7, 8, 10, 11 without over-depth (AAA) or under-depth (minimal 3 SCs only)?
+- Are motion-sensitive and visual-discrimination triggers correctly escalated? Specifically: does Section 3 WCAG criteria mapping enumerate SC 2.3.3 Animation from Interactions (AAA) for motion-sensitive trigger? Does Section 6 Visual Design Verification cite SC 1.4.1 Use of Color + SC 1.4.3 Contrast (Minimum) + SC 1.4.11 Non-text Contrast for visual-discrimination trigger?
+- Does Section 10 SLO Invariants match Standard tier default: zero new WCAG AA violations per PR (regression budget) + zero WCAG AA violations on must-be-accessible paths?
+
+**Anchor example:** Section 3 Tier coverage declaration (lines 50-51)
+
+> "**Tier coverage:** Standard tier → WCAG 2.1 AA full (~50 SCs)"
+
+**Affirmation/Issue:** Section 3 correctly declares Standard tier with full WCAG 2.1 AA coverage (~50 SCs). Trigger-driven escalation to SC 2.3.3 AAA is explicitly added. Section 10 SLO Invariants correctly mirrors Standard tier invariants. Verify no over-engineering (unnecessary AAA depth) or under-engineering (Minimal subset).
+
+**Adversarial:** If creator brief later signals regulated-compliance trigger (e.g., Section 508 mandate), does the plan have explicit Section 3 escalation pathway to Comprehensive tier (adding WCAG 2.2 AAA SCs like 2.4.13, 2.5.5, 3.3.7, 3.3.8) + Section 10 audit-log? Plan assumes Minimal security tier; if downstream governance changes, re-run a11y-scope synthesis or risk tier creep.
+
+---
+
+### 3. Tool Anchoring & Version Concordance [priority: high]
+
+- Does every named a11y testing tool (@axe-core/playwright 4.11.x, Lighthouse 12.x, pa11y 9.x, eslint-plugin-jsx-a11y 6.10.x), focus management library (tabbable 6.4.x, focus-trap-react 12.x), ARIA component library (React Aria Components, Headless UI), contrast verification tool (colorjs.io 0.6.x), and motion library (motion/react, Tailwind v4 motion-reduce variants) appear in a11y-research.md catalog with matching version numbers and WCAG SC coverage justification? Are tool versions IDENTICAL across A11y Scope Summary Section 3 (lines 45-47), Section 3 A11y testing tool pick (line 265), and Section 12 Decisions Log (line 672)?
+- For each tool pick in Section 3 Assertion Harness Contract (axe-core runOnly tags: wcag2a, wcag2aa, wcag21aa, wcag22aa), does the plan explain why this configuration over alternatives (e.g., why wcag22aa tag for SC 2.5.8 target-size instead of measuring manually)?
+- Is every tool's **WCAG SCs covered** field from the research catalog still honored in Section 3 (e.g., axe-core covers SC 1.4.3 color-contrast, SC 2.1.1 keyboard, SC 4.1.2 name-role-value — cite these specific SCs)?
+
+**Anchor example:** Tool version concordance across 3 sites
+
+**Site 1 — A11y Scope Summary Section 3 (lines 45-47):**
+> "- **Primary tool (desktop-webview):** **@axe-core/playwright** 4.11.x for E2E + **Lighthouse** 12.x CLI for CI gate + **pa11y** 9.x for parallel rule matrix"
+
+**Site 2 — Section 3 A11y testing tool pick (line 265):**
+> "- **Primary tool per surface:** **@axe-core/playwright** 4.11.x for desktop-webview E2E + **Lighthouse** 12.x CLI for CI gate + **pa11y** 9.x for parallel rule matrix"
+
+**Site 3 — Section 12 Decisions Log (line 672):**
+> "**A11y testing tool:** @axe-core/playwright 4.11.x + Lighthouse 12.x + pa11y 9.x"
+
+**Affirmation:** All three sites specify matching tool versions. `route` and `setup-project` can derive identical tool pins from any of the three sites.
+
+**Adversarial:** If a future edit updates Section 3 A11y testing tool pick to "@axe-core/playwright 4.12.x" without updating A11y Scope Summary or Decisions Log, will the iteration agent catch the mismatch? Currently no automated 3-site concordance check; iteration agent must scan all three sites every iteration.
+
+---
+
+### 4. Critical Paths to WCAG SC Mapping [priority: high]
+
+- Does Section 3 Critical paths table (P1-P7) enumerate enough WCAG 2.1 AA SCs from Section 3 WCAG criteria mapping (~50 SCs) across the 7 must-be-accessible paths to satisfy Section 10 SLO commitment? Are SCs that cannot apply to any path (e.g., SC 1.2.1 Audio-only — app has no audio/video) explicitly marked "not applicable" rather than silently omitted?
+- For each critical path, does Required WCAG SC Coverage list include SC 2.1.1 Keyboard, SC 2.4.3 Focus Order, SC 4.1.2 Name/Role/Value (universal minimums) PLUS path-specific SCs (e.g., P2 snapshot-generation includes SC 3.3.1 Error Identification, SC 3.3.2 Labels or Instructions per async form)?
+- Does Section 10 SLO Invariants commit to 100% SC coverage across paths, or is it a soft goal? If 100%, does plan justify omitted SCs (audio/video SCs not applicable for desktop telemetry app)?
+
+**Anchor example:** Section 3 Critical paths P1 (line 211) SC coverage claim
+
+> "| **P1: Receive OTLP telemetry (gRPC), visualize in WebGPU dashboard** | desktop-webview (full-dashboard-traces layout); backend OTLP receivers are not-assertable and omitted | `main` / `region[aria-label=\"Telemetry traces chart\"]` / `button` (interaction controls on canvas) / `table` (trace list below chart) | Initial focus: first trace table; Tab navigates table cells; Enter/arrow keys drill into trace detail | SC 1.3.1 Info and Relationships (canvas region semantics) / SC 2.1.1 Keyboard (Tab through chart controls + table) / SC 2.4.3 Focus Order (visual left-to-right table) / SC 1.4.3 Contrast (Minimum) (trace value colors) / SC 4.1.2 Name, Role, Value (canvas label + table structure) |"
+
+**Issue:** P1 lists 5 SCs. Counting unique SCs across all 7 paths reveals ~37 distinct SCs covered, but several AA SCs are absent from any P1-P7 path (SC 1.2.1 Audio-only, SC 1.2.2 Captions, SC 1.4.2 Audio Control, SC 2.2.1 Timing Adjustable, SC 2.4.4 Link Purpose, SC 3.1.1 Language of Page). These are legitimate (app has no audio/video, no timing-dependent content, single language assumed), but the SLO commitment to "covers all WCAG 2.1 AA SCs" may be FALSE without explicit applicability-justification list.
+
+**Adversarial:** If a downstream auditor reviews CI output and sees "Zero violations detected" for a11y, but notices missing SCs from critical paths, could they claim plan is non-conformant to Standard tier? Plan must either (a) explicitly justify why certain SCs are not applicable, or (b) expand critical paths to cover them.
+
+---
+
+### 5. Section 3 Harness Concreteness (Placeholder Detection) [priority: high]
+
+- Does Section 3 A11y Assertion Harness Contract contain ZERO placeholder text (`{...}`, `TODO`, `TBD`, "to be determined", empty subsections, ellipsis without content) in all 8 contract bodies: (1) A11y testing tool pick, (2) WCAG criteria mapping, (3) Structured violation JSON schema, (4) Focus management test harness, (5) Keyboard test harness, (6) Screen reader test pattern, (7) Contrast verification harness, (8) CI integration, plus (9) Bootstrap phases?
+- Does each harness body provide copy-pasteable code snippets, concrete command examples (`npm run test:a11y`, `cargo xtask test:a11y`), tool configuration (runOnly tags, Lighthouse flags), or explicit function signatures that downstream `route` and `setup-project` can materialize into CI scripts?
+- Does each bootstrap phase name specific tool versions + npm/cargo install commands with version pins (e.g., `npm install --save-dev @axe-core/playwright@4.11.x`)?
+
+**Anchor example:** Section 3 Bootstrap phases (lines 361-373)
+
+> "- **a11y-tooling-install:** `npm install --save-dev @axe-core/playwright@4.11.x lighthouse@12.x pa11y@9.x pa11y-ci@4.x` + configure axe with `runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa']` tag selection"
+
+**Affirmation:** Bootstrap phase has concrete npm install command with version pins, runOnly configuration, and named action. No placeholders. Each phase is copy-pasteable or directly translatable to shell scripts.
+
+**Adversarial:** If a new team member runs `/andromeda` → `setup-project` with this a11y plan, do they get a functional a11y CI harness on first run, or do they hit "TODO: configure axe" placeholders? Based on Section 3 bootstrap phases the setup should succeed; every phase names concrete actions. However, if any subsequent edit replaced a phase body with `{...}`, downstream `setup-project` would fail with "cannot derive bootstrap steps."
+
+---
+
+### 6. Anti-Pattern Relevance (Stack-Specific Bans) [priority: medium]
+
+- Does Section 11 A11y Anti-Patterns (lines 600-666) under each domain (Strategy / ARIA / Keyboard / Visual / Screen Reader / Cognitive / Motion / CI / SLO / Universal) contain anti-patterns **actually relevant** to this stack (Tauri 2 / React 19 / Tailwind v4 / @axe-core/playwright / NVDA 2025 / VoiceOver / Orca 48)? Example: are "eslint-plugin-jsx-a11y bans" present (React is in stack) vs. "accessibility-snapshot bans" absent (mobile native is not in stack)?
+- Does each domain have at least 3 concrete bans grounded in this project's actual pitfalls — e.g., "Do not add role='button' to <button> (redundant ARIA)" rather than generic "do not add unnecessary ARIA"?
+- Are universal bans (≥4: no manual-only verification / no vendor-locked a11y tools as ONLY method / no ARIA on non-semantic HTML / no WCAG conformance claim without machine-verifiable evidence) genuinely applicable and not mis-categorized as stack-specific?
+
+**Anchor example:** Section 11 ARIA subsection
+
+> "- NEVER use ARIA on non-semantic HTML (`role=\"button\"` on `<div>` instead of `<button>`) — semantic HTML first per eslint-plugin-jsx-a11y recommended config"
+
+**Affirmation:** ARIA subsection ban is grounded in React/eslint-plugin-jsx-a11y check (compile-time gate). The ban is specific to React because eslint-plugin-jsx-a11y enforces this rule; linters don't apply to Vue or vanilla JS. Bans are stack-relevant.
+
+**Adversarial:** If a later PR uses `<div role="button" aria-pressed>` for a custom toggle button to work around Tailwind styling issues, will CI catch it? Yes — eslint-plugin-jsx-a11y `recommended` config bans this at compile time before Playwright runtime tests. But are there React-stack-specific pitfalls NOT covered? Example: "NEVER wrap Headless UI / React Aria components in click handlers without forwarding refs" (React-specific focus gotcha).
+
+---
+
+### 7. Visual Design Verification to Design Tokens — Anti-Leakage [trigger: upstream-context Section 3 has explicit A11y-Relevant Design Tokens] [priority: high]
+
+- Does Section 6 Visual Design Verification (lines 442-489) reproduce design token NAMES verbatim from upstream-context Section 3 A11y-Relevant Design Tokens (e.g., `--color-text-primary`, `--color-text-secondary`, `--color-accent`, `--border-focus`, `--duration-fast`, `--easing-out`) without inventing new tokens?
+- Does Section 6 leak any token **VALUES** (hex literals like `#FFFFFF` or `rgb(255,0,0)`, pixel values like `24px` or `300ms`, cubic-bezier curves like `cubic-bezier(0.4, 0, 0.2, 1)`)? Whitelist only: WCAG threshold ratios (`4.5:1`, `3:1`, `7:1`) and target sizes (`24×24`, `44×44`) as standards context.
+- For each color contrast pair in Section 6, does the plan specify the WCAG SC (1.4.3, 1.4.6, 1.4.11) and required ratio (4.5:1, 3:1, 7:1)? For focus ring tokens, does it cite SC 2.4.7 Focus Visible + SC 1.4.11 Non-text Contrast? For target size tokens, does it cite SC 2.5.5 Target Size AAA (44×44) + SC 2.5.8 Target Size AA (24×24)?
+
+**Anchor example:** Section 6 Color contrast pairs (lines 446-456)
+
+> "| `--color-text-primary` | `--color-base` | body text / headlines | SC 1.4.3 (AA) | 4.5:1 |"
+
+**Affirmation:** Section 6 reproduces token NAMES verbatim. No token VALUES appear in the cited line. Ratios listed (4.5:1, 3:1) are WCAG standards, not token-specific values. WCAG SCs cited (SC 1.4.3). Binding contract honored. Search Section 6 with three approaches for value leakage: (1) grep for `\b#[0-9A-Fa-f]{3,8}\b` (hex), (2) grep for `\b\d+(px|ms)\b` (px/ms units), (3) grep for `cubic-bezier` / `rgba?\(` / `hsla?\(`. Confirm zero matches outside whitelist context.
+
+**Adversarial:** If a designer updates upstream-context Section 3 tokens (e.g., renames `--color-text-secondary` to `--color-text-2` for brevity), will Section 6 automatically desync? No automated binding check exists between a11y plan and upstream design plan. After iteration, establish a binding validation gate: a11y CI must grep Section 6 for upstream-context Section 3 token names and fail if mismatch detected.
+
+---
+
+### 8. WCAG Mapping Discipline (Explicit SC Naming) [trigger: a11y_tier=Standard] [priority: medium]
+
+- Does every section with WCAG-relevant content (Sections 3, 4, 5, 6, 7, 8, 10, 11) name **specific WCAG SC IDs** (e.g., "SC 1.4.3 Contrast", "SC 2.1.1 Keyboard", "SC 2.4.3 Focus Order", "SC 4.1.2 Name/Role/Value") rather than generic "WCAG 2.1 AA" or "accessibility"?
+- Does Section 3 WCAG criteria mapping enumerate the full ~50 WCAG 2.1 AA SC list (Perceivable, Operable, Understandable, Robust) for Standard tier, with explicit callouts for trigger-driven escalations (SC 2.3.3 for motion-sensitive)?
+- Are compliance triggers from upstream-context Section 2 Security Plan Excerpt (if regulated-compliance present) mapped to specific WCAG levels?
+
+**Anchor example:** Section 3 WCAG criteria mapping (lines 57-65)
+
+> "**Perceivable:** SC 1.1.1 Non-text Content / SC 1.2.1 Audio-only and Video-only / SC 1.2.2 Captions / SC 1.2.3 Audio Description / SC 1.3.1 Info and Relationships / SC 1.3.2 Meaningful Sequence / SC 1.3.3 Sensory Characteristics / SC 1.4.1 Use of Color / SC 1.4.2 Audio Control / SC 1.4.3 Contrast (Minimum) / SC 1.4.4 Resize Text / SC 1.4.5 Images of Text / SC 1.4.10 Reflow / SC 1.4.11 Non-text Contrast / SC 1.4.12 Text Spacing / SC 1.4.13 Content on Hover or Focus"
+
+**Affirmation:** Section 3 enumerates explicit SC IDs organized by POUR principles. Each SC is named with short description. This discipline enables downstream CI to verify conformance against specific SCs, not generic "accessibility."
+
+**Adversarial:** If Section 6 Visual Design Verification said "verify colors per WCAG" instead of citing SC 1.4.3, SC 1.4.11, could downstream contrast CI map violations to specific SCs for reporting? No — generic language breaks SC-level traceability. But: are all ~50 SCs actually verified by CI tools (axe-core, Lighthouse, pa11y)? Some manual (e.g., SC 1.2.3 Audio Description for videos) — plan correctly marks as "supplemental" per anti-patterns (no manual-only as SOLE method).
+
+Read the document, analyze along all dimensions, output patches and changelog.

@@ -1,0 +1,130 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T06:13:05Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 1 of 78 entries · freight blocks 4 · rows are an INDEX, not the text",
+"170 · CONTEXT: · 546 chars · CONTEXT: the verb needs `wsl.exe` (`xtask/src/pre_push.rs`), and since the 2026-10-03 move…",
+"170 · CARRY: · 560 chars · CARRY: (a) PC22 — a fresh `PUPPETEER_CACHE_DIR` under `target/` reproduces the partial v148 …",
+"170 · CARRY: · 429 chars · CARRY: (b) stage ORDER — run by hand, stage 5 (`cargo xtask test`, default features) re-emit…",
+"170 · CARRY: · 479 chars · CARRY: (c) stage 5's `env -i` isolation also drops `DBUS_SESSION_BUS_ADDRESS`, so every cred…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T06:13:05Z",
+"argv": [
+"route.py",
+"epoch",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · 4 epoch headers · 78 entries · freeze state joined to 77 master records",
+"8 · Epoch 1 — Foundation: AI-debug spine · entries 3 · markerless 0 · frozen complete 3 · pending 0",
+"15 · Epoch 2 — Window & shell hygiene · entries 5 · markerless 0 · frozen complete 5 · pending 0",
+"26 · Epoch 3 — State honesty & legibility · entries 10 · markerless 0 · frozen complete 10 · pending 0",
+"47 · Epoch 4 — Polish & ship: verification · entries 60 · markerless 1 · frozen complete 58 · pending 1",
+"UNPARSED: working-route.md:52 — separator-boundary token outside the letters' introducer shape: 'PREMISE CORRECTED 2026…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'TWO LAYERS, ONE QUESTI…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'WHY IT PRECEDES P-075/…",
+"UNPARSED: working-route.md:60 — separator-boundary token outside the letters' introducer shape: 'MEASURED, not inferred…",
+"INDETERMINATE: working-route.md:100 — after ONE space — freight or prose, no structural split: 'GPU:'",
+"UNPARSED: working-route.md:116 — entry line carrying `↓` inside it; read as an ENTRY",
+"UNPARSED: working-route.md:125 — entry line carrying `↓` inside it; read as an ENTRY"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T06:13:41Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 2 of 79 entries · freight blocks 8 · rows are an INDEX, not the text",
+"170 · CONTEXT: · 398 chars · CONTEXT: FOUNDER RULING 2026-10-05 (relayed by the overseer, at the 2026-10-04-l4-rank-1-h…",
+"170 · CONTEXT: · 286 chars · CONTEXT: candidates Qwen3.5-4B · Qwen3.5-2B · Gemma 4 E4B · Gemma 4 E2B (unsloth GGUF Q4_K…",
+"170 · CONTEXT: · 824 chars · CONTEXT: the baseline's measured standing — on Llama 3.2 3B the v2.5 framing reads `FAIL ·…",
+"170 · CONTEXT: · 171 chars · CONTEXT: Conductor's fourth v3-09 series grades the L4 framing and waits on this entry (fo…",
+"172 · CONTEXT: · 546 chars · CONTEXT: the verb needs `wsl.exe` (`xtask/src/pre_push.rs`), and since the 2026-10-03 move…",
+"172 · CARRY: · 560 chars · CARRY: (a) PC22 — a fresh `PUPPETEER_CACHE_DIR` under `target/` reproduces the partial v148 …",
+"172 · CARRY: · 429 chars · CARRY: (b) stage ORDER — run by hand, stage 5 (`cargo xtask test`, default features) re-emit…",
+"172 · CARRY: · 479 chars · CARRY: (c) stage 5's `env -i` isolation also drops `DBUS_SESSION_BUS_ADDRESS`, so every cred…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T06:15:44Z",
+"argv": [
+"route.py",
+"epoch",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · 4 epoch headers · 79 entries · freeze state joined to 77 master records",
+"8 · Epoch 1 — Foundation: AI-debug spine · entries 3 · markerless 0 · frozen complete 3 · pending 0",
+"15 · Epoch 2 — Window & shell hygiene · entries 5 · markerless 0 · frozen complete 5 · pending 0",
+"26 · Epoch 3 — State honesty & legibility · entries 10 · markerless 0 · frozen complete 10 · pending 0",
+"47 · Epoch 4 — Polish & ship: verification · entries 61 · markerless 2 · frozen complete 58 · pending 1",
+"UNPARSED: working-route.md:52 — separator-boundary token outside the letters' introducer shape: 'PREMISE CORRECTED 2026…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'TWO LAYERS, ONE QUESTI…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'WHY IT PRECEDES P-075/…",
+"UNPARSED: working-route.md:60 — separator-boundary token outside the letters' introducer shape: 'MEASURED, not inferred…",
+"INDETERMINATE: working-route.md:100 — after ONE space — freight or prose, no structural split: 'GPU:'",
+"UNPARSED: working-route.md:116 — entry line carrying `↓` inside it; read as an ENTRY",
+"UNPARSED: working-route.md:125 — entry line carrying `↓` inside it; read as an ENTRY"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

@@ -1,0 +1,9 @@
+# The real L4 runtime on the Omarchy host (pc overseer, 2026-10-05). Source it in a leg's shell: `. ~/dev/projects/additional/pc-overseer/l4-env.sh`
+# llama.cpp b9305 (63248fc), CUDA 13.3, sm_86, built in ~/dev/tools/llama.cpp-b9305 (RUNPATH is absolute: leave build/bin in place).
+# Model: the same bytes as every prior series (sha256 6c1a2b41…28ff, Pulse .andromeda/runs/2026-05-24T19-00-12-step0-spike/spike-result.md:7).
+export ANDROMEDA_PULSE_MODEL_PATH="$HOME/dev/projects/andromeda-pulse/AI-Model/Llama-3.2-3B-Instruct-Q4_K_M.gguf"
+export ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH="$HOME/dev/tools/llama.cpp-b9305/build/bin/llama-cli"
+# The same CUDA build runs CPU-only at -ngl 0, which is what Pulse passes on the CPU route.
+export ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH="$HOME/dev/tools/llama.cpp-b9305/build/bin/llama-cli"
+# Optional: a local tokenizer for crates/triage/build.rs (its cap is 32 MB since the June fix; RESUME-NOTE's 8 MB warning is stale).
+export ANDROMEDA_LLAMA3_TOKENIZER_PATH="$HOME/dev/projects/andromeda-pulse/AI-Model/tokenizer.json"

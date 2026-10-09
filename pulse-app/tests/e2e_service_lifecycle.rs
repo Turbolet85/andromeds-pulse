@@ -4,7 +4,7 @@
 //! `ServiceLifecycleBroadcast`, and the `start_lifecycle_heartbeat` async
 //! task. Coverage spans the heartbeat tick path (baseline activity drives
 //! Unknown to Bootstrapping transitions broadcast), the restart event
-//! subscription path (Bootstrapping bypass с trigger=Restart), the PII
+//! subscription path (Bootstrapping bypass with trigger=Restart), the PII
 //! negative-canary on broadcast payloads (only identifier-class fields),
 //! and the `services.list_with_states` resolver returning typed payload.
 //! Threshold-driven transitions are exercised by deterministic unit tests
@@ -97,7 +97,7 @@ async fn restart_event_subscription_triggers_bootstrapping_transition() {
     let baseline = Arc::new(BaselineState::new());
     let restart_broadcast = Arc::new(RestartEventBroadcast::new());
 
-    // Pre-seed registry с svc-beta in Quiet state (skip natural progression
+    // Pre-seed registry with svc-beta in Quiet state (skip natural progression
     // for the test — use set_manual_override then clear to position the
     // entry, OR observe a span first to get Bootstrapping, then drive
     // through ticks). Simpler: insert directly via set_manual_override then
@@ -115,7 +115,7 @@ async fn restart_event_subscription_triggers_bootstrapping_transition() {
     // baseline produces no events.
 
     // Emit a RestartEvent on the chunk #63 broadcast. The lifecycle
-    // heartbeat task subscribes к this channel; on receive it calls
+    // heartbeat task subscribes to this channel; on receive it calls
     // `registry.set_state_on_restart` and broadcasts the resulting
     // `ServiceLifecycleEvent`.
     let restart_event = RestartEvent {
@@ -169,7 +169,7 @@ async fn service_lifecycle_event_payload_has_no_pii_fields() {
         .expect("heartbeat fired within 2s")
         .expect("broadcast payload available");
 
-    // The service name IS allowed на the bounded `service` field; the
+    // The service name IS allowed on the bounded `service` field; the
     // PII discipline forbids attribute-value / span / scope / body fields.
     let json = serde_json::to_string(&received).expect("serialize");
     for banned in [
@@ -190,7 +190,7 @@ async fn service_lifecycle_event_payload_has_no_pii_fields() {
         );
     }
 
-    // The bounded `service` field IS expected к contain the canary
+    // The bounded `service` field IS expected to contain the canary
     // (that's the per-service identifier — broadcast surface admits it).
     assert!(
         json.contains(CANARY_SERVICE),
@@ -234,19 +234,19 @@ async fn services_list_with_states_resolver_returns_typed_payload() {
 #[tokio::test]
 async fn lifecycle_event_with_dormant_archived_thresholds_uses_settings_values() {
     // Verify that user-supplied threshold knobs (Settings struct extension)
-    // actually thread through к the heartbeat task. Pre-load svc-delta
-    // through ticks until Silent state, then assert that with а
+    // actually thread through to the heartbeat task. Pre-load svc-delta
+    // through ticks until Silent state, then assert that with a
     // dormant_after_secs=120 threshold (NOT the default 3600), the next
-    // tick after >120s quiet advances к Dormant.
+    // tick after >120s quiet advances to Dormant.
     let baseline = Arc::new(BaselineState::new());
     let restart_broadcast = Arc::new(RestartEventBroadcast::new());
 
     // Threshold-driven progression is deterministic via injected time in
-    // the unit tests; this е2е test asserts that the configured
+    // the unit tests; this e2e test asserts that the configured
     // dormant_after_secs argument is non-default. Lower-bound verification:
     // the spawned task receives the values as ordinary u64 arguments — if
     // settings.lifecycle_dormant_after_secs wasn't passed correctly, the
-    // call site wouldn't compile. So this test reduces к а compile-time +
+    // call site wouldn't compile. So this test reduces to a compile-time +
     // smoke verification that the boot wiring shape compiles.
     let (_registry, _lifecycle_broadcast, _rx, task) = boot_lifecycle(
         Arc::clone(&baseline),
@@ -255,7 +255,7 @@ async fn lifecycle_event_with_dormant_archived_thresholds_uses_settings_values()
         86_400, // archived after 24h (default)
     );
 
-    // Wait а short period to ensure the task didn't panic on the
+    // Wait a short period to ensure the task didn't panic on the
     // non-default threshold values (compile-time bound check + boot smoke).
     tokio::time::sleep(Duration::from_millis(150)).await;
     assert!(

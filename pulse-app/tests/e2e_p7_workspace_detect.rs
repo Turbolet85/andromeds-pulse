@@ -3,7 +3,7 @@
 //! Drives `workspace_detector::detect` directly (the same function the
 //! `workspace.detect` TauRPC resolver calls; chunk #50 documents in
 //! plan.md Open Question 3 that mock_builder()-based TauRPC roundtrip
-//! is а fallback path; the direct-function-call form here preserves the
+//! is a fallback path; the direct-function-call form here preserves the
 //! cross-crate data-flow coverage P7 requires).
 
 use std::fs;
@@ -70,7 +70,7 @@ fn p7_detect_rejects_path_traversal_input() {
             result,
             Err(workspace_detector::contract::Error::PathTraversalRejected { .. })
         ),
-        "candidate с .. components must be rejected; got {:?}",
+        "candidate with .. components must be rejected; got {:?}",
         result
     );
 }

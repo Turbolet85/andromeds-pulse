@@ -1,0 +1,6 @@
+
+## 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings — the L4 argv's other operands are first-party: a grammar file and four sampling constants
+**Section:** §Input Validation (the L4 inference argv prompt row) · §Security Anti-Patterns → Code Patterns (the `Command::new(...).arg(user_input)` ban, its `-p` paragraph)
+**Change:** Both sites now state that every operand but `-p` is first-party. `--grammar-file {path}` names a per-spawn temp file in `std::env::temp_dir()` holding the committed `L4_OUTPUT_GBNF`, chosen by `grammar_for_schema`, which refuses any schema but `L4_OUTPUT_JSON_SCHEMA` (`grammar_schema_mismatch` on `interpretation.inference.error`, nothing written or spawned). `--temp 1.0 --top-p 0.95 --top-k 64 --min-p 0` are compile-time constants. `-p` stays the ONE OTLP-derived operand, last in the argv, still bounded by `validate_prompt_bounded`; the ceiling is unchanged.
+**Why:** A boundary widening — the subprocess boundary gains the `--grammar-file` crossing and four sampling operands — ratified by the founder's own word at phase (inputs#I1 ruling 1) and live at this wrap's escalation on 2026-10-05 (the grammar crossing and all four sampling operands), relayed verbatim by the overseer.
+**Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/

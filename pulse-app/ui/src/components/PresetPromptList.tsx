@@ -4,12 +4,16 @@ import type { PresetPrompt } from "../dashboard/preset-prompts";
 interface PresetPromptListProps {
   prompts: ReadonlyArray<PresetPrompt>;
   onPick: (prompt: PresetPrompt) => void;
+  /** Id of the action currently running; that button is aria-busy and all
+   * buttons are disabled while an action is in flight (one analysis at a time). */
+  busyId?: string | null;
   "data-testid"?: string;
 }
 
 export function PresetPromptList({
   prompts,
   onPick,
+  busyId = null,
   "data-testid": dataTestId,
 }: PresetPromptListProps) {
   const listStyle: CSSProperties = {
@@ -49,10 +53,11 @@ export function PresetPromptList({
         <li key={prompt.id}>
           <button
             type="button"
-            aria-label={`Insert prompt: ${prompt.label}`}
+            aria-busy={prompt.id === busyId ? "true" : "false"}
+            disabled={busyId !== null}
             data-testid={`preset-prompt-${prompt.id}`}
             onClick={() => onPick(prompt)}
-            className="motion-reduce:transition-none motion-reduce:duration-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--border-focus)]"
+            className="motion-reduce:transition-none motion-reduce:duration-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--border-focus)] disabled:cursor-default disabled:opacity-60"
             style={buttonStyle}
           >
             {prompt.label}

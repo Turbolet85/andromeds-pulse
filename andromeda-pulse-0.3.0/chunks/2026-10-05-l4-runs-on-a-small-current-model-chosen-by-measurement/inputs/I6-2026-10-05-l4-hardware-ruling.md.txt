@@ -1,0 +1,40 @@
+# Founder ruling 2026-10-05 — L4 by hardware (relay to pulse-builder, chunk 2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement)
+
+Overseer relay. Snapshot this file as a chunk input (D7) before acting on it.
+
+## The ruling, verbatim
+
+> «Да давай тогда делаем по простому с моделью анализ без модели чисто программно но в любом случае иметь возможность отдать
+> результат агенту маркдауном или по мсп»
+
+Meaning: with a GPU (CUDA, or Metal on macOS) L4 runs the small model; without one, L4 runs NO model and the analysis is purely
+programmatic; in both modes the result can be handed to an agent as markdown or over MCP. This retires CPU inference (the
+`cpu-primary` / `cpu-fallback` rows of the dist-arch v3 hardware matrix). Context for it: the founder's 2026-10-05 ruling that
+Pulse is a background helper that must not tax the machine, and this chunk's measured CPU table (no model, the baseline included,
+meets 30 s on CPU even on this 32-core host).
+
+## What it changes in this chunk (overseer, founder-delegated)
+
+1. **The selection result as registered stays recorded as it read** (`pick: none` under G3). Do not rewrite it.
+2. **Write a second addendum, timestamped before any further run:** "G3 (the CPU-only latency gate) is retired by the founder
+   ruling above; CPU-only rows stay in the table as recorded data. The rule otherwise unchanged: survivors of the remaining gates,
+   ordered by footprint, first with selection rank1 >= B (36) is the pick." On the recorded selection that pick is Qwen3.5-2B
+   (rank1 37, 1.60 GB RSS / 2.08 GB VRAM — overseer recount from the runs.json files).
+3. **Because the rule changed after the data was seen, the pick must earn it on fresh data:** run the confirmation as registered
+   (entries 22–23: fresh n=40 on S1–S4 plus the held-out S5/S6, Qwen3.5-2B under its authors' sampling, GBNF, thinking off). PASS
+   iff confirmation rank1 >= 36 (B under the same argv). A FAIL keeps Llama and is recorded as measured.
+4. **The product argv in this chunk stays as planned** (`-c 8192 -rea off` only). The swap itself is the next entry.
+
+## What the wrap should mint (placement: both ahead of `pre-push:linux runs natively on Linux`)
+
+- **A. "L4 runs Qwen3.5-2B with its authors' settings"** (only if the confirmation passes): ship the model with its sampling
+  (temp 0.7 · top_p 0.8 · top_k 20 · min_p 0 · presence_penalty 1.5), thinking off (`--chat-template-kwargs
+  '{"enable_thinking":false}'` + `-rea off`), and the schema as a committed GBNF via `--grammar-file` (llama.cpp PR #29066 still
+  unmerged). Conductor's fourth v3-09 series waits on this entry.
+- **B. "Without a GPU, L4 analysis is programmatic"**: a programmatic `LlmInferenceRunner` that builds the same L4Output from the
+  digest (title from `cue_cause_label` + scope, symptom from the cue metrics, templated hypotheses per cue kind), selected when no GPU
+  is present and selectable by hand as a quiet mode; retire the CPU tiers. Its output flows through the existing incident → markdown
+  report → MCP path (`retrieve_report`, `query_incident_list`, `generate_snapshot`), which is how the founder's agent hand-off
+  requirement holds in both modes. New functionality: its plan needs the founder's word at P5.
+- **Version:** the founder did not name one; the overseer reads 0.3.0 (the 2026-10-02 «ничего не переносим» ruling). Mint both in
+  0.3.0; the founder may move them.

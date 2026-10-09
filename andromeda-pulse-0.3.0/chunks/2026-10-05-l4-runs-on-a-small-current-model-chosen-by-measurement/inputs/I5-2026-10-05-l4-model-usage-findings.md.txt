@@ -1,0 +1,72 @@
+# L4 candidates — official usage findings for the pre-registration addendum
+
+Overseer relay, 2026-10-05, founder-requested research («документацию предварительно ресерчнуть чтоб понять как их правильно под
+нашу задачу использовать»). Three research briefs (web docs, read-only) plus overseer measurements on this host. Every row says
+whether it is MEASURED here or a DOCUMENT claim with its source. Snapshot this file as a chunk input (D7) before using it.
+
+## 1. What the models currently run with (MEASURED 2026-10-05, gguf-py over the files in AI-Model/)
+
+| file | general.architecture | embedded general.sampling.* |
+|---|---|---|
+| Llama-3.2-3B-Instruct-Q4_K_M.gguf | llama | none |
+| Qwen3.5-2B-Q4_K_M.gguf | qwen35 | none |
+| Qwen3.5-4B-Q4_K_M.gguf | qwen35 | none |
+| gemma-4-E2B-it-Q4_K_M.gguf | gemma4 | temp 1.0 · top_p 0.95 · top_k 64 |
+| gemma-4-E4B-it-Q4_K_M.gguf | gemma4 | temp 1.0 · top_p 0.95 · top_k 64 |
+
+llama.cpp precedence (DOCUMENT: PR #17120, merged 2025-11-25, before b9305): CLI flags, then GGUF `general.sampling.*`, then the
+hardcoded defaults temp 0.80 · top_k 40 · top_p 0.95 · min_p 0.05. So in every series so far Llama and Qwen ran on llama.cpp's
+defaults, Gemma on its authors' values, and ALL five on min_p 0.05, which no author recommends. The comparison was not like for like.
+
+## 2. Authors' recommended sampling (non-thinking), to pass EXPLICITLY per model
+
+| model | temp | top_p | top_k | min_p | other | source |
+|---|---|---|---|---|---|---|
+| Llama 3.2 3B Instruct | 0.6 | 0.9 | (none stated) | 0 | — | generation_config.json (MEASURED via HF, unsloth/Llama-3.2-3B-Instruct) |
+| Qwen3.5-2B / 4B | 0.7 | 0.8 | 20 | 0 | presence_penalty 1.5 | unsloth Qwen3.5 guide, "non-thinking, general tasks", 0.8B–9B (the 2B/4B cards are inconsistent with each other; the guide is from the same uploader as our GGUFs) |
+| Gemma 4 E2B / E4B | 1.0 | 0.95 | 64 | 0 | — | google/gemma-4-E4B-it generation_config.json (MEASURED via HF) and the model card: "across all use cases" |
+
+min_p 0 everywhere: none of the three sources sets it, and transformers has no min_p. top_k for Llama: none stated; keep
+llama.cpp's 40 and say so, or 0 (off) — the addendum chooses and records which.
+
+## 3. Thinking off
+
+- Qwen3.5: no separate instruct checkpoint; `/think` `/no_think` are NOT supported in 3.5. Switch: chat-template kwarg
+  `enable_thinking`. llama.cpp: `--chat-template-kwargs '{"enable_thinking":false}'` (plus `-rea off`). The unsloth GGUF templates
+  default to non-thinking for 2B/4B (they prefill an empty think block); the official 4B template defaults to THINKING — pass the
+  kwarg explicitly anyway. DOCUMENT: unsloth guide; Qwen cards.
+- Gemma 4: thinking is on only when `<|think|>` opens the system prompt. llama.cpp: `-rea off` / `--reasoning off` works; users
+  report `--chat-template-kwargs '{"enable_thinking":false}'` and `--reasoning-budget 0` did NOT on 26B-A4B (discussion #21338).
+  Keep the prompt free of `<|think|>`.
+- Grammar with thinking ON is not applied at all (llama.cpp #20345, open) — another reason thinking stays off.
+
+## 4. The grammar failure — upstream state (DOCUMENT, GitHub, read 2026-10-05)
+
+- Exactly our failure: issue #29006 (open) "JSON Schema grammar fails on chat-template control tokens while equivalent GBNF
+  succeeds". Fix: PR #29066 "common: do not prefill the generation prompt into output-format grammars" — OPEN, unmerged, so no tag
+  carries it. Siblings closed without a fix: #22396 (Gemma 4, llama-cli, `--grammar-file` works), #21600 (Qwen3.5), #23990.
+- No reasoning flag avoids the prefill (it is keyed on grammar type). `--grammar-file` with a schema-converted GBNF is the working
+  route. `llama-completion` would not prefill either (inferred from code, not run).
+
+## 5. Quantization notes (DOCUMENT; not a change for this series)
+
+- unsloth's starting point for Gemma 4 E2B/E4B is 8-bit, dynamic 4-bit only from 12B up. Google publishes a QAT Q4_0 GGUF for E4B
+  (~5.15 GB, July 2026) described as near-bf16. llama.cpp issue #22243 (closed, unconfirmed) claimed PLE weights are
+  quantization-sensitive.
+- Qwen3.5: unsloth's small-model examples use UD-Q4_K_XL; no statement that Q4_K_M is inadequate.
+- The founder's priority is footprint, so this series stays on Q4_K_M for every model; if a Gemma narrowly misses, its Q8 or QAT
+  form is a named follow-up, not a mid-series swap.
+
+## 6. LoRA (founder's later plan)
+
+- Qwen3.5 2B/4B: unsloth bf16 LoRA (2B ~5 GB, 4B ~10 GB VRAM); QLoRA advised against; transformers v5.
+- Gemma 4 E2B/E4B: unsloth LoRA and QLoRA (E2B 8–10 GB, E4B ~17 GB VRAM); GGUF export.
+
+## What the addendum should do (overseer, founder-delegated)
+
+1. Every model runs with its authors' sampling from §2 passed as explicit flags (min_p 0 for all), its thinking-off method from §3,
+   and the GBNF `--grammar-file` route — one argv shape, per-model sampling values. Record the exact argv per model.
+2. The baseline Llama is re-measured under its own recommended sampling too (0.6 / 0.9), in the same slot, so the floor is like for
+   like.
+3. Write and timestamp the addendum BEFORE any re-run; then re-run CUDA load, CPU-only and selection for all five.
+4. If a candidate wins, the product follow-up must ship the per-model sampling with the model, not only the GBNF route.

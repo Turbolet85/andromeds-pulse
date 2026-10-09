@@ -137,3 +137,78 @@ async fn list_with_states_enriches_priority_tier_from_active_service_incidents()
         "svc-b has no active service-scoped incident",
     );
 }
+
+fn service_incident(id: i64, service: &str, tier: PriorityTier, opened_at: i64) -> Incident {
+    let mut inc = incident(id, CueScope::Service, Some(service), tier);
+    inc.opened_at_unix_nano = opened_at;
+    inc.updated_at_unix_nano = opened_at;
+    inc
+}
+
+async fn item_for(api: ServicesApiImpl, service: &str) -> triage::contract::ServiceListItem {
+    api.list_with_states()
+        .await
+        .expect("returns Ok")
+        .items
+        .into_iter()
+        .find(|i| i.service == service)
+        .expect("service present")
+}
+
+fn two_live_services() -> Arc<dyn ServiceRegistry> {
+    let registry: Arc<dyn ServiceRegistry> = Arc::new(InMemoryServiceRegistry::new());
+    registry.set_manual_override("svc-a", Some(ServiceLifecycleState::Active), 1_000_000_000);
+    registry.set_manual_override("svc-b", Some(ServiceLifecycleState::Active), 1_000_000_000);
+    registry
+}
+
+#[tokio::test]
+async fn tier_effective_at_is_the_opening_of_the_raising_incident() {
+    let incidents: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
+    incidents.insert(service_incident(1, "svc-a", PriorityTier::Curious, 5_000));
+    incidents.insert(service_incident(
+        2,
+        "svc-a",
+        PriorityTier::Autonomous,
+        9_000,
+    ));
+    let item = item_for(make_impl(two_live_services(), incidents), "svc-a").await;
+    assert_eq!(item.priority_tier, Some(PriorityTier::Autonomous));
+    assert_eq!(item.tier_effective_at_unix_nano, Some(9_000));
+}
+
+#[tokio::test]
+async fn tier_effective_at_is_the_resolution_of_the_last_max_holder_on_a_fall() {
+    let incidents: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
+    incidents.insert(service_incident(1, "svc-a", PriorityTier::Suggested, 5_000));
+    incidents
+        .mark_resolved(1, 70_000, triage::contract::ResolutionTrigger::AutoResolve)
+        .expect("resolve");
+    let item = item_for(make_impl(two_live_services(), incidents), "svc-a").await;
+    assert_eq!(item.priority_tier, None, "no active incident remains");
+    assert_eq!(item.tier_effective_at_unix_nano, Some(70_000));
+}
+
+#[tokio::test]
+async fn an_acknowledged_incident_keeps_its_tier_and_its_instant() {
+    let incidents: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
+    incidents.insert(service_incident(1, "svc-a", PriorityTier::Suggested, 5_000));
+    incidents.acknowledge(1, 40_000, 0).expect("ack");
+    let item = item_for(make_impl(two_live_services(), incidents), "svc-a").await;
+    assert_eq!(item.priority_tier, Some(PriorityTier::Suggested));
+    assert_eq!(item.tier_effective_at_unix_nano, Some(5_000));
+}
+
+#[tokio::test]
+async fn an_unaffected_service_carries_no_tier_instant() {
+    let incidents: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
+    incidents.insert(service_incident(
+        1,
+        "svc-a",
+        PriorityTier::Autonomous,
+        5_000,
+    ));
+    let item = item_for(make_impl(two_live_services(), incidents), "svc-b").await;
+    assert_eq!(item.priority_tier, None);
+    assert_eq!(item.tier_effective_at_unix_nano, None);
+}

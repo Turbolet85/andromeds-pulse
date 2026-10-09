@@ -1,0 +1,27 @@
+[
+{
+"tool": "matrix",
+"v": "1.3",
+"sha8": "951eb804",
+"ts": "2026-10-04T23:26:29Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-04-l4-framing-measured-on-the-real-model",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-04-l4-framing-measured-on-the-real-model)",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

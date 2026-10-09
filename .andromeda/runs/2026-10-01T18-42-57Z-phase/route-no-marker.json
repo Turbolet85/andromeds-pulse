@@ -1,0 +1,27 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-01T18:43:15Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-42-57Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 1 of 67 entries · freight blocks 1 · rows are an INDEX, not the text",
+"148 · PREREQ: · 543 chars · PREREQ: every non-zero exit path of pulse-app logs its cause before exiting, so the next un…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

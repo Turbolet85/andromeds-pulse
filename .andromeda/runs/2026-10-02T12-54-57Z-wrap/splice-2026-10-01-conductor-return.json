@@ -1,0 +1,168 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-02T13:07:34Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap/obs-plan-payload.md",
+"--lines",
+"11",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap",
+"--marker",
+"2026-10-01-conductor-return"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+11 at line 337 · lines 336→347 · bytes 59070→61263 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-02T12-54-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 336,
+"bytes": 59070,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 347,
+"bytes": 61263
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-02T13:07:35Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap/security-plan-payload.md",
+"--lines",
+"8",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap",
+"--marker",
+"2026-10-01-conductor-return"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+8 at line 459 · lines 458→466 · bytes 84125→85689 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-02T12-54-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 458,
+"bytes": 84125,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 466,
+"bytes": 85689
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-02T13:07:36Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap/test-plan-payload.md",
+"--lines",
+"8",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap",
+"--marker",
+"2026-10-01-conductor-return"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+8 at line 534 · lines 533→541 · bytes 89375→90904 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-02T12-54-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 533,
+"bytes": 89375,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 541,
+"bytes": 90904
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-02T13:10:54Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap/route-entries.txt",
+"--lines",
+"4",
+"--after-line",
+"148",
+"--expect-last-prefix",
+"[2026-10-01-conductor-return]",
+"--run-dir",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap",
+"--marker",
+"2026-10-01-conductor-return"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append working-route.md:+4 at line 149 · lines 148→152 · bytes 21420→22739 · term lf",
+"last line now: Retry-storm interpretation names its cause — an incident born of a retry storm"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 148,
+"bytes": 21420,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 152,
+"bytes": 22739
+}
+}
+]

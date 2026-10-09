@@ -1,0 +1,152 @@
+[
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-10-02T14:45:58Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/architecture-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-02T14-39-48Z-phase",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"bytes 80833 · whole-read bound 120000 · within",
+"entries 75 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 2 block(s) — listed below",
+"UNPARSED: :15 ## Registry-closure amendments",
+"UNPARSED: :177 ## Decision-history"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 80833,
+"entries": 75,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": [
+15,
+177
+]
+}
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-10-02T14:45:59Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-02T14-39-48Z-phase",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"bytes 85689 · whole-read bound 120000 · within",
+"entries 47 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 5 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 2 block(s) — listed below",
+"UNPARSED: :45 ## Externalized superseded guidance — reference",
+"UNPARSED: :52 ## Externalized Security Decisions Log (verbatim, formerly the body's final section)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 85689,
+"entries": 47,
+"off_form": 0,
+"set": 0,
+"prunable": 5,
+"unparsed": [
+45,
+52
+]
+}
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-10-02T14:46:00Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-02T14-39-48Z-phase",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"bytes 90904 · whole-read bound 120000 · within",
+"entries 63 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 1 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 90904,
+"entries": 63,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-10-02T14:46:01Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-02T14-39-48Z-phase",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"bytes 61263 · whole-read bound 120000 · within",
+"entries 46 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 61263,
+"entries": 46,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+}
+]

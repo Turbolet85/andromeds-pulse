@@ -42,6 +42,19 @@ pub struct BufferHeartbeat {
     // to 0 (matches the all-zero default for the Default impl baseline).
     pub drain_template_count: u64,
     pub drain_lru_evictions_since_tick: u64,
+    // Fingerprint-feed throughput, so a dead feed reads as a zero next to a
+    // non-zero rows_ingested rather than as the absence of downstream signal.
+    pub span_events_seen: u64,
+    pub fingerprints_computed: u64,
+    pub observer_invocations: u64,
+    // PII redactions applied on the OTLP persistence path (P-047 recall made
+    // gradeable from outside the process). Aggregate count only — never the
+    // matched value, its category, or the attribute it came from.
+    pub redactions_applied: u64,
+    // Batches the appender rejected — separates a colliding/faulting
+    // producer from a dead feed at the aggregate level. One per failed
+    // batch, never per row.
+    pub append_rejections: u64,
 }
 
 pub fn heartbeat_payload(
@@ -61,6 +74,11 @@ pub fn heartbeat_payload(
         eviction_count_since_last_tick,
         drain_template_count,
         drain_lru_evictions_since_tick,
+        span_events_seen: snap.span_events_seen,
+        fingerprints_computed: snap.fingerprints_computed,
+        observer_invocations: snap.observer_invocations,
+        redactions_applied: snap.redactions_applied,
+        append_rejections: snap.append_rejections,
     }
 }
 

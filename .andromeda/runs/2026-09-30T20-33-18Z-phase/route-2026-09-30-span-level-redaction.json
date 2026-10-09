@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T20:34:25Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-09-30-span-level-redaction",
+"--expect-prefix",
+"Span-level redaction",
+"--record-file",
+".andromeda/runs/2026-09-30T20-33-18Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-09-30T20-33-18Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:144 - [2026-09-30-span-level-redaction]",
+"record master-route.md:85 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-09-30-span-level-redaction - working-route:144 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\working-route.md",
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+}
+]

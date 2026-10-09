@@ -1,0 +1,41 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "3b12f994",
+"ts": "2026-10-07T09:56:41Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-07T09-50-55Z-wrap/security-plan-entry.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-10-07T09-50-55Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+11 at line 578 · lines 577→588 · bytes 107959→109826 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-07T09-50-55Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 577,
+"bytes": 107959,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 588,
+"bytes": 109826
+}
+}
+]

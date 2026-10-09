@@ -97,7 +97,7 @@ describe("maxPriorityTier", () => {
 });
 
 describe("priorityTierLabel / priorityTierColorVar / priorityTierForegroundVar", () => {
-  it("labels priority tiers с capitalized form", () => {
+  it("labels priority tiers with capitalized form", () => {
     expect(priorityTierLabel("autonomous")).toBe("Autonomous");
     expect(priorityTierLabel("suggested")).toBe("Suggested");
     expect(priorityTierLabel("curious")).toBe("Curious");
@@ -120,7 +120,7 @@ describe("priorityTierLabel / priorityTierColorVar / priorityTierForegroundVar",
     expect(priorityTierForegroundVar("suggested")).toBe("var(--color-text-primary)");
   });
 
-  it("pairs curious с base foreground (dark text on light gray dot)", () => {
+  it("pairs curious with base foreground (dark text on light gray dot)", () => {
     expect(priorityTierForegroundVar("curious")).toBe("var(--color-base)");
   });
 });

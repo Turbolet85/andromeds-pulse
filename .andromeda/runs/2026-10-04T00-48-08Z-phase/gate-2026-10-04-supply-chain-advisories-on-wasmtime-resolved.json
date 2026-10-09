@@ -1,0 +1,32 @@
+[
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-10-04T00:59:17Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/research.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T00-48-08Z-phase",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 2 items (new 0 · modify 2 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 2,
+"unparsed": 0
+}
+}
+]

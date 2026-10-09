@@ -15,13 +15,14 @@ use ingest::grpc::proto::opentelemetry::proto::metrics::v1::{
 };
 use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
 use ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans;
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::{ScrubbedValue, mask_secret_spans, scrub_attribute};
 
 use crate::contract::Error;
 use crate::drain::DrainMiner;
 use crate::fingerprint::{
     ExceptionFingerprint, FingerprintObserver, compute_exception_fingerprint,
 };
+use crate::state::BufferState;
 
 const TS_TZ_UTC: &str = "UTC";
 
@@ -31,7 +32,8 @@ fn timestamp_tz_type() -> DataType {
 
 pub(crate) fn build_spans_record_batch(
     batch: &[ResourceSpans],
-) -> Result<Option<RecordBatch>, Error> {
+) -> Result<Option<(RecordBatch, u64)>, Error> {
+    let mut redactions_applied: u64 = 0;
     let mut trace_ids: Vec<Vec<u8>> = Vec::new();
     let mut span_ids: Vec<Vec<u8>> = Vec::new();
     let mut tss: Vec<i64> = Vec::new();
@@ -41,7 +43,8 @@ pub(crate) fn build_spans_record_batch(
     let mut status_codes: Vec<i32> = Vec::new();
 
     for rs in batch {
-        let service_name = extract_service_name(rs.resource.as_ref());
+        let service_name =
+            extract_service_name(rs.resource.as_ref(), Some(&mut redactions_applied));
         for ss in &rs.scope_spans {
             for span in &ss.spans {
                 if span.trace_id.is_empty() || span.span_id.is_empty() {
@@ -100,19 +103,36 @@ pub(crate) fn build_spans_record_batch(
         reason: format!("record_batch(spans): {}", short_err(&e.to_string())),
     })?;
 
-    Ok(Some(record_batch))
+    Ok(Some((record_batch, redactions_applied)))
 }
 
-pub(crate) fn extract_service_name(resource: Option<&Resource>) -> String {
+/// Scrubs here rather than at the `spans.service_name` push site because this
+/// fn is the single choke point for THREE consumers — the column, the storm
+/// `FingerprintObserver`, and the baseline `SpanObserver` tap. Scrubbing only
+/// the column would leave the two observer paths carrying raw values and would
+/// desynchronise DuckDB's service identity from the baseline registry that the
+/// per-service joins key on (security-plan §Anti-Patterns → Logging).
+///
+/// `redactions` is `Some` only where the value is actually stored, so the
+/// counter stays a count of redactions applied to persisted cells.
+pub(crate) fn extract_service_name(
+    resource: Option<&Resource>,
+    redactions: Option<&mut u64>,
+) -> String {
     let Some(r) = resource else {
         return String::new();
+    };
+    let mut discarded = 0;
+    let counter = match redactions {
+        Some(c) => c,
+        None => &mut discarded,
     };
     for kv in &r.attributes {
         if kv.key == "service.name"
             && let Some(av) = &kv.value
             && let Some(any_value::Value::StringValue(s)) = &av.value
         {
-            return s.clone();
+            return scrub_otlp_field(s, counter);
         }
     }
     String::new()
@@ -120,21 +140,28 @@ pub(crate) fn extract_service_name(resource: Option<&Resource>) -> String {
 
 pub(crate) fn build_metrics_record_batch(
     batch: &[ResourceMetrics],
-) -> Result<Option<RecordBatch>, Error> {
+    state: &BufferState,
+) -> Result<Option<(RecordBatch, u64)>, Error> {
+    let mut redactions_applied: u64 = 0;
     let mut metric_names: Vec<String> = Vec::new();
     let mut tss: Vec<i64> = Vec::new();
     let mut ts_unix_nanos: Vec<i64> = Vec::new();
     let mut resource_hashes: Vec<Vec<u8>> = Vec::new();
     let mut values: Vec<f64> = Vec::new();
     let mut kinds: Vec<i32> = Vec::new();
+    let mut labels: Vec<String> = Vec::new();
 
     for rm in batch {
         let resource_hash = hash_resource(rm);
         for sm in &rm.scope_metrics {
             for m in &sm.metrics {
                 if let Some(data) = &m.data {
+                    // Scrubbed once per metric rather than per data point —
+                    // every point of one metric shares the name. Labels differ
+                    // per point, so they scrub inside the collector.
+                    let metric_name = scrub_otlp_field(&m.name, &mut redactions_applied);
                     collect_metric_points(
-                        &m.name,
+                        &metric_name,
                         data,
                         &resource_hash,
                         &mut metric_names,
@@ -143,6 +170,8 @@ pub(crate) fn build_metrics_record_batch(
                         &mut resource_hashes,
                         &mut values,
                         &mut kinds,
+                        &mut labels,
+                        &mut redactions_applied,
                     );
                 }
             }
@@ -153,6 +182,13 @@ pub(crate) fn build_metrics_record_batch(
         return Ok(None);
     }
 
+    // One reservation per batch keeps the per-point loop above atomic-free,
+    // matching the `log_records.seq` allocation.
+    let seq_base = state.reserve_metric_seq_block(metric_names.len() as u64);
+    let seqs: Vec<i64> = (0..metric_names.len())
+        .map(|i| (seq_base + i as u64) as i64)
+        .collect();
+
     let metric_name_array = StringArray::from(metric_names);
     let ts_array = TimestampMicrosecondArray::from(tss).with_timezone(TS_TZ_UTC);
     let ts_unix_nano_array = Int64Array::from(ts_unix_nanos);
@@ -160,6 +196,8 @@ pub(crate) fn build_metrics_record_batch(
         BinaryArray::from_iter_values(resource_hashes.iter().map(|v| v.as_slice()));
     let value_array = Float64Array::from(values);
     let kind_array = Int32Array::from(kinds);
+    let seq_array = Int64Array::from(seqs);
+    let labels_array = StringArray::from(labels);
 
     let schema = Arc::new(Schema::new(vec![
         Field::new("metric_name", DataType::Utf8, false),
@@ -168,6 +206,8 @@ pub(crate) fn build_metrics_record_batch(
         Field::new("resource_hash", DataType::Binary, false),
         Field::new("value", DataType::Float64, false),
         Field::new("data_point_kind", DataType::Int32, false),
+        Field::new("seq", DataType::Int64, false),
+        Field::new("labels", DataType::Utf8, false),
     ]));
 
     let record_batch = RecordBatch::try_new(
@@ -179,6 +219,8 @@ pub(crate) fn build_metrics_record_batch(
             Arc::new(resource_hash_array),
             Arc::new(value_array),
             Arc::new(kind_array),
+            Arc::new(seq_array),
+            Arc::new(labels_array),
         ],
     )
     .map_err(|e| Error::Append {
@@ -188,13 +230,15 @@ pub(crate) fn build_metrics_record_batch(
         ),
     })?;
 
-    Ok(Some(record_batch))
+    Ok(Some((record_batch, redactions_applied)))
 }
 
 pub(crate) fn build_logs_record_batch(
     batch: &[ResourceLogs],
     drain_miner: Option<&DrainMiner>,
-) -> Result<Option<RecordBatch>, Error> {
+    state: &BufferState,
+) -> Result<Option<(RecordBatch, u64)>, Error> {
+    let mut redactions_applied: u64 = 0;
     let mut tss: Vec<i64> = Vec::new();
     let mut ts_unix_nanos: Vec<i64> = Vec::new();
     let mut resource_hashes: Vec<Vec<u8>> = Vec::new();
@@ -214,7 +258,7 @@ pub(crate) fn build_logs_record_batch(
         for sl in &rl.scope_logs {
             for log in &sl.log_records {
                 let ns = log.time_unix_nano as i64;
-                let body = extract_log_body(log.body.as_ref());
+                let body = extract_log_body(log.body.as_ref(), &mut redactions_applied);
                 let template_id = drain_miner
                     .and_then(|m| m.assign_at(&body, ns))
                     .map(|id| id as i64);
@@ -223,7 +267,10 @@ pub(crate) fn build_logs_record_batch(
                 resource_hashes.push(resource_hash.clone());
                 severities.push(log.severity_number);
                 bodies.push(body);
-                severity_texts.push(log.severity_text.clone());
+                severity_texts.push(scrub_otlp_field(
+                    &log.severity_text,
+                    &mut redactions_applied,
+                ));
                 trace_ids.push(log.trace_id.clone());
                 span_ids.push(log.span_id.clone());
                 template_ids.push(template_id);
@@ -235,6 +282,13 @@ pub(crate) fn build_logs_record_batch(
         return Ok(None);
     }
 
+    // One reservation per batch keeps the per-record loop above atomic-free,
+    // matching record_feed_counts / record_redactions.
+    let seq_base = state.reserve_log_seq_block(tss.len() as u64);
+    let seqs: Vec<i64> = (0..tss.len())
+        .map(|i| (seq_base + i as u64) as i64)
+        .collect();
+
     let ts_array = TimestampMicrosecondArray::from(tss).with_timezone(TS_TZ_UTC);
     let ts_unix_nano_array = Int64Array::from(ts_unix_nanos);
     let resource_hash_array =
@@ -245,6 +299,7 @@ pub(crate) fn build_logs_record_batch(
     let trace_id_array = BinaryArray::from_iter_values(trace_ids.iter().map(|v| v.as_slice()));
     let span_id_array = BinaryArray::from_iter_values(span_ids.iter().map(|v| v.as_slice()));
     let template_id_array = Int64Array::from(template_ids);
+    let seq_array = Int64Array::from(seqs);
 
     let schema = Arc::new(Schema::new(vec![
         Field::new("ts", timestamp_tz_type(), false),
@@ -259,6 +314,9 @@ pub(crate) fn build_logs_record_batch(
         // Drain disabled retain NULL template_id per chunk #69 Phase B
         // plan §Acceptance Criteria (tests) schema migration scenario.
         Field::new("template_id", DataType::Int64, true),
+        // Appended last so no existing column position shifts (same shape as
+        // the chunk #69 template_id addition).
+        Field::new("seq", DataType::Int64, false),
     ]));
 
     let record_batch = RecordBatch::try_new(
@@ -273,37 +331,128 @@ pub(crate) fn build_logs_record_batch(
             Arc::new(trace_id_array),
             Arc::new(span_id_array),
             Arc::new(template_id_array),
+            Arc::new(seq_array),
         ],
     )
     .map_err(|e| Error::Append {
         reason: format!("record_batch(log_records): {}", short_err(&e.to_string())),
     })?;
 
-    Ok(Some(record_batch))
+    Ok(Some((record_batch, redactions_applied)))
 }
 
-fn extract_log_body(body: Option<&AnyValue>) -> String {
+fn extract_log_body(body: Option<&AnyValue>, redactions: &mut u64) -> String {
     let Some(av) = body else {
         return String::new();
     };
     match &av.value {
-        Some(any_value::Value::StringValue(s)) => scrub_otlp_field(s),
+        Some(any_value::Value::StringValue(s)) => scrub_otlp_field(s, redactions),
         _ => String::new(),
     }
 }
 
 /// PII-scrub an OTLP attribute / log-body string before persistence (chunk
-/// #72). Mirrors the pattern at `crates/buffer/src/drain.rs:600-603`: render
-/// scrubber Redacted matches as `[REDACTED:{category}]` markers, preserving
-/// the chunk #68 + #69 stable-marker convention. Caller responsibility per
+/// #72). Each secret is masked in place as a `[REDACTED:{category}]` marker
+/// (the chunk #68 + #69 stable-marker convention) and the rest of the value is
+/// kept. The counter advances once per redacted VALUE however many spans it
+/// masked (obs-plan §5). Caller responsibility per
 /// `crates/corpus/src/contract.rs::CorpusWriter` trait docstring (the
 /// MUST pre-scrub contract enforced via per-adapter PII negative-canary
 /// tests).
-fn scrub_otlp_field(value: &str) -> String {
-    match scrub_attribute(value) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
+fn scrub_otlp_field(value: &str, redactions: &mut u64) -> String {
+    let masked = mask_secret_spans(value, |category| format!("[REDACTED:{category}]"));
+    if masked.redacted {
+        *redactions += 1;
     }
+    masked.text
+}
+
+/// Renders one OTLP `AnyValue` for storage inside a label pair.
+///
+/// Every arm is spelled out rather than falling back to `Debug`, so a future
+/// variant is a compile error instead of a silently reshaped stored value.
+fn render_any_value(value: &any_value::Value) -> String {
+    match value {
+        any_value::Value::StringValue(s) => s.clone(),
+        any_value::Value::BoolValue(b) => b.to_string(),
+        any_value::Value::IntValue(i) => i.to_string(),
+        any_value::Value::DoubleValue(d) => d.to_string(),
+        any_value::Value::ArrayValue(a) => {
+            let rendered: Vec<String> = a
+                .values
+                .iter()
+                .map(|v| v.value.as_ref().map(render_any_value).unwrap_or_default())
+                .collect();
+            format!("[{}]", rendered.join(","))
+        }
+        any_value::Value::KvlistValue(kv) => {
+            let rendered: Vec<String> = kv
+                .values
+                .iter()
+                .map(|pair| {
+                    let v = pair
+                        .value
+                        .as_ref()
+                        .and_then(|av| av.value.as_ref())
+                        .map(render_any_value)
+                        .unwrap_or_default();
+                    format!("{}={}", pair.key, v)
+                })
+                .collect();
+            format!("{{{}}}", rendered.join(","))
+        }
+        any_value::Value::BytesValue(b) => format!("0x{}", hex_lower(b)),
+    }
+}
+
+fn hex_lower(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{:02x}", b)).collect()
+}
+
+/// Encodes a data point's attribute set into the stored `labels` cell.
+///
+/// The scrub input is the JOINED `key=value` form, not the bare value: the
+/// `secret_kv` and `api_key` catalog arms are key-name-anchored, so a split
+/// value (`hunter2`) matches nothing and the whole keyed class would be stored
+/// verbatim. The bare value is evaluated too and either match redacts — no
+/// catalog arm is `^`/`$`-anchored today, but the union stays correct if an
+/// anchored arm is ever added. On a redaction the KEY is preserved and only the
+/// value becomes a marker, so two distinct dimensions never collapse into one
+/// (per security-plan §Anti-Patterns → Logging).
+fn encode_labels(attrs: &[KeyValue], redactions: &mut u64) -> String {
+    if attrs.is_empty() {
+        return String::new();
+    }
+
+    let mut pairs: Vec<String> = Vec::with_capacity(attrs.len());
+    for kv in attrs {
+        let rendered = kv
+            .value
+            .as_ref()
+            .and_then(|av| av.value.as_ref())
+            .map(render_any_value)
+            .unwrap_or_default();
+
+        let joined = format!("{}={}", kv.key, rendered);
+        let redacted_category = match scrub_attribute(&joined) {
+            ScrubbedValue::Redacted { category } => Some(category),
+            ScrubbedValue::Allowed(_) => match scrub_attribute(&rendered) {
+                ScrubbedValue::Redacted { category } => Some(category),
+                ScrubbedValue::Allowed(_) => None,
+            },
+        };
+
+        match redacted_category {
+            Some(category) => {
+                *redactions += 1;
+                pairs.push(format!("{}=[REDACTED:{}]", kv.key, category));
+            }
+            None => pairs.push(joined),
+        }
+    }
+
+    pairs.sort();
+    pairs.join(",")
 }
 
 pub(crate) fn extract_string_attribute(attrs: &[KeyValue], key: &str) -> Option<String> {
@@ -321,7 +470,8 @@ pub(crate) fn extract_string_attribute(attrs: &[KeyValue], key: &str) -> Option<
 pub(crate) fn build_span_events_record_batch(
     batch: &[ResourceSpans],
     fingerprint_observer: Option<&dyn FingerprintObserver>,
-) -> Result<Option<RecordBatch>, Error> {
+    state: &BufferState,
+) -> Result<Option<(RecordBatch, u64)>, Error> {
     let mut trace_ids: Vec<Vec<u8>> = Vec::new();
     let mut span_ids: Vec<Vec<u8>> = Vec::new();
     let mut event_indices: Vec<i32> = Vec::new();
@@ -333,9 +483,13 @@ pub(crate) fn build_span_events_record_batch(
     let mut exception_stacktraces: Vec<Option<String>> = Vec::new();
     let mut fingerprints: Vec<Option<ExceptionFingerprint>> = Vec::new();
     let mut service_names: Vec<String> = Vec::new();
+    let mut redactions_applied: u64 = 0;
 
     for rs in batch {
-        let service_name = extract_service_name(rs.resource.as_ref());
+        // `None`: this value is never written to a column (span_events has no
+        // service_name field) — it only feeds the fingerprint observer, so
+        // counting it would inflate the persisted-cell redaction tally.
+        let service_name = extract_service_name(rs.resource.as_ref(), None);
         for ss in &rs.scope_spans {
             for span in &ss.spans {
                 if span.trace_id.is_empty() || span.span_id.is_empty() {
@@ -363,8 +517,10 @@ pub(crate) fn build_span_events_record_batch(
                     // (chunk #72 capability P-006 closure — exception.message
                     // after PII scrubbing per P-047). exception_type stays
                     // raw (class identifier, not user content).
-                    let exception_message = exception_message.map(|s| scrub_otlp_field(&s));
-                    let exception_stacktrace = exception_stacktrace.map(|s| scrub_otlp_field(&s));
+                    let exception_message =
+                        exception_message.map(|s| scrub_otlp_field(&s, &mut redactions_applied));
+                    let exception_stacktrace =
+                        exception_stacktrace.map(|s| scrub_otlp_field(&s, &mut redactions_applied));
 
                     trace_ids.push(span.trace_id.clone());
                     span_ids.push(span.span_id.clone());
@@ -372,7 +528,7 @@ pub(crate) fn build_span_events_record_batch(
                     let ns = event.time_unix_nano as i64;
                     tss.push(ns / 1_000);
                     ts_unix_nanos.push(ns);
-                    names.push(event.name.clone());
+                    names.push(scrub_otlp_field(&event.name, &mut redactions_applied));
                     exception_types.push(exception_type);
                     exception_messages.push(exception_message);
                     exception_stacktraces.push(exception_stacktrace);
@@ -387,17 +543,30 @@ pub(crate) fn build_span_events_record_batch(
         return Ok(None);
     }
 
-    // Chunk #66: fan-out fingerprints к observer BEFORE consuming ts_unix_nanos
+    let span_events_seen = trace_ids.len() as u64;
+    let fingerprints_computed = fingerprints.iter().filter(|fp| fp.is_some()).count() as u64;
+
+    // Chunk #66: fan-out fingerprints to observer BEFORE consuming ts_unix_nanos
     // into the Arrow Int64Array. service_names + ts_unix_nanos remain owned
     // by the function until the array constructors below consume them; the
     // observer hook receives copies (i64 + &str borrow).
+    let mut observer_invocations: u64 = 0;
     if let Some(observer) = fingerprint_observer {
         for (row_idx, fp_opt) in fingerprints.iter().enumerate() {
             if let Some(fp) = fp_opt {
                 observer.on_fingerprint(*fp, &service_names[row_idx], ts_unix_nanos[row_idx]);
+                observer_invocations += 1;
             }
         }
     }
+    // Counted independently of `fingerprints_computed` on purpose: equality of
+    // the two proves the fan-out actually ran, where a derived value would
+    // merely assert it should have.
+    state.record_feed_counts(
+        span_events_seen,
+        fingerprints_computed,
+        observer_invocations,
+    );
 
     let trace_id_array = BinaryArray::from_iter_values(trace_ids.iter().map(|v| v.as_slice()));
     let span_id_array = BinaryArray::from_iter_values(span_ids.iter().map(|v| v.as_slice()));
@@ -448,7 +617,7 @@ pub(crate) fn build_span_events_record_batch(
         reason: format!("record_batch(span_events): {}", short_err(&e.to_string())),
     })?;
 
-    Ok(Some(record_batch))
+    Ok(Some((record_batch, redactions_applied)))
 }
 
 fn extract_data_point_value(p: &NumberDataPoint) -> f64 {
@@ -490,7 +659,10 @@ pub(crate) fn append_record_batch_to_table(
 #[cfg(test)]
 pub(crate) fn append_spans_batch(conn: &Connection, batch: &[ResourceSpans]) -> Result<u64, Error> {
     let start = Instant::now();
-    let Some(record_batch) = build_spans_record_batch(batch)? else {
+    // The redaction tally is discarded here: these helpers own a throwaway
+    // BufferState, so there is no tick for it to reach. Production folds it at
+    // the append site in consumer::dispatch_batch.
+    let Some((record_batch, _redactions)) = build_spans_record_batch(batch)? else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "spans", record_batch)?;
@@ -513,7 +685,8 @@ pub(crate) fn append_metrics_batch(
     batch: &[ResourceMetrics],
 ) -> Result<u64, Error> {
     let start = Instant::now();
-    let Some(record_batch) = build_metrics_record_batch(batch)? else {
+    let Some((record_batch, _redactions)) = build_metrics_record_batch(batch, &BufferState::new())?
+    else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "metrics_points", record_batch)?;
@@ -536,7 +709,9 @@ pub(crate) fn append_logs_batch(conn: &Connection, batch: &[ResourceLogs]) -> Re
     // Test helper passes None for drain_miner; Drain integration tests live
     // in `crates/buffer/src/drain.rs::tests` + the Session 5 e2e integration
     // test at `pulse-app/tests/e2e_drain_template_assignment.rs`.
-    let Some(record_batch) = build_logs_record_batch(batch, None)? else {
+    let Some((record_batch, _redactions)) =
+        build_logs_record_batch(batch, None, &BufferState::new())?
+    else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "log_records", record_batch)?;
@@ -559,7 +734,9 @@ pub(crate) fn append_span_events_batch(
     batch: &[ResourceSpans],
 ) -> Result<u64, Error> {
     let start = Instant::now();
-    let Some(record_batch) = build_span_events_record_batch(batch, None)? else {
+    let state = BufferState::new();
+    let Some((record_batch, _redactions)) = build_span_events_record_batch(batch, None, &state)?
+    else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "span_events", record_batch)?;
@@ -591,6 +768,8 @@ fn collect_metric_points(
     resource_hashes: &mut Vec<Vec<u8>>,
     values: &mut Vec<f64>,
     kinds: &mut Vec<i32>,
+    labels: &mut Vec<String>,
+    redactions: &mut u64,
 ) {
     match data {
         metric::Data::Gauge(g) => {
@@ -607,6 +786,8 @@ fn collect_metric_points(
                     resource_hashes,
                     values,
                     kinds,
+                    labels,
+                    encode_labels(&p.attributes, redactions),
                 );
             }
         }
@@ -624,6 +805,8 @@ fn collect_metric_points(
                     resource_hashes,
                     values,
                     kinds,
+                    labels,
+                    encode_labels(&p.attributes, redactions),
                 );
             }
         }
@@ -641,6 +824,8 @@ fn collect_metric_points(
                     resource_hashes,
                     values,
                     kinds,
+                    labels,
+                    encode_labels(&p.attributes, redactions),
                 );
             }
         }
@@ -658,6 +843,8 @@ fn collect_metric_points(
                     resource_hashes,
                     values,
                     kinds,
+                    labels,
+                    encode_labels(&p.attributes, redactions),
                 );
             }
         }
@@ -675,6 +862,8 @@ fn collect_metric_points(
                     resource_hashes,
                     values,
                     kinds,
+                    labels,
+                    encode_labels(&p.attributes, redactions),
                 );
             }
         }
@@ -694,6 +883,8 @@ fn push_metric_row(
     resource_hashes: &mut Vec<Vec<u8>>,
     values: &mut Vec<f64>,
     kinds: &mut Vec<i32>,
+    labels: &mut Vec<String>,
+    encoded_labels: String,
 ) {
     metric_names.push(name.to_string());
     tss.push(ts_ns / 1_000);
@@ -701,6 +892,7 @@ fn push_metric_row(
     resource_hashes.push(resource_hash.to_vec());
     values.push(value);
     kinds.push(kind);
+    labels.push(encoded_labels);
 }
 
 fn hash_resource(rm: &ResourceMetrics) -> Vec<u8> {
@@ -795,6 +987,51 @@ mod tests {
         assert_eq!(actual, 2);
     }
 
+    // A producer restart replays span identities already stored, so the
+    // composite PK rejects the batch at `flush()`. The rejection is expected;
+    // what must not happen is the NEXT batch blocking forever on residual
+    // connection state (obs-plan §10 defect 4). Driven on a worker thread under
+    // an explicit timeout so a regression FAILS rather than wedges the suite.
+    #[test]
+    fn append_after_a_constraint_violating_flush_returns_instead_of_hanging() {
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let conn = fresh_conn_with_schema();
+            let seeded = wrap_spans(vec![span_with_ids(
+                vec![1u8; 16],
+                vec![1u8; 8],
+                1_700_000_000_000_000_000,
+            )]);
+            let first = append_spans_batch(&conn, &seeded).map_err(|e| e.to_string());
+            let replayed = append_spans_batch(&conn, &seeded).map_err(|e| e.to_string());
+            let fresh = wrap_spans(vec![span_with_ids(
+                vec![2u8; 16],
+                vec![2u8; 8],
+                1_700_000_000_000_000_001,
+            )]);
+            let third = append_spans_batch(&conn, &fresh).map_err(|e| e.to_string());
+            let rows: i64 = conn
+                .query_row("SELECT COUNT(*) FROM spans", [], |row| row.get(0))
+                .unwrap_or(-1);
+            let _ = tx.send((first, replayed, third, rows));
+        });
+
+        let (first, replayed, third, rows) = rx
+            .recv_timeout(std::time::Duration::from_secs(30))
+            .expect("append must not hang after a constraint-violating flush");
+
+        assert!(first.is_ok(), "the seeding batch must land: {first:?}");
+        assert!(
+            replayed.is_err(),
+            "a replayed identity must be rejected, not silently accepted"
+        );
+        assert!(
+            third.is_ok(),
+            "the batch after a rejected one must still land: {third:?}"
+        );
+        assert_eq!(rows, 2, "the seeded and the fresh row must both be stored");
+    }
+
     #[test]
     fn append_spans_batch_round_trips_nanosecond_precision() {
         let conn = fresh_conn_with_schema();
@@ -836,7 +1073,7 @@ mod tests {
             1_700_000_000_000_000_000,
         )]);
         let result = build_spans_record_batch(&batch).expect("build");
-        let rb = result.expect("must be Some for valid input");
+        let (rb, _) = result.expect("must be Some for valid input");
         assert_eq!(rb.num_rows(), 1);
         assert_eq!(rb.num_columns(), 7);
     }
@@ -908,6 +1145,297 @@ mod tests {
         let batch = wrap_spans(vec![malformed]);
         let result = build_spans_record_batch(&batch).expect("build");
         assert!(result.is_none(), "all-malformed input must return None");
+    }
+
+    // Ingestion scrub coverage — the four client-controlled columns that
+    // previously reached DuckDB unscrubbed. Each column gets a recall pin (a
+    // credential-shaped canary must not be stored verbatim) AND an identity pin
+    // (a legitimate value must survive byte-identical), because the recall half
+    // alone would pass under a treatment that redacted everything.
+    const PROVIDER_KEY_CANARY: &str = "sk_live_51NotARealKeyOnlyForPulseTests00"; // gitleaks:allow
+    // A DIFFERENT credential that redacts to the SAME category-only placeholder —
+    // the pair that collides on `metrics_points.metric_name`.
+    const PROVIDER_KEY_CANARY_TWO: &str = "sk_live_51AlsoNotARealKeyForPulseTests9"; // gitleaks:allow
+
+    fn spans_with_service(service: &str) -> Vec<ResourceSpans> {
+        let span = span_with_ids(vec![9u8; 16], vec![9u8; 8], 1_700_000_000_000_000_000);
+        vec![ResourceSpans {
+            resource: Some(make_resource(service)),
+            scope_spans: vec![ScopeSpans {
+                scope: None,
+                spans: vec![span],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }]
+    }
+
+    fn stored_service_name(batch: &[ResourceSpans]) -> String {
+        let conn = fresh_conn_with_schema();
+        append_spans_batch(&conn, batch).expect("append");
+        conn.query_row("SELECT service_name FROM spans LIMIT 1", [], |r| r.get(0))
+            .expect("service_name read")
+    }
+
+    #[test]
+    fn spans_service_name_credential_canary_is_redacted() {
+        let stored = stored_service_name(&spans_with_service(PROVIDER_KEY_CANARY));
+        assert!(
+            !stored.contains(PROVIDER_KEY_CANARY),
+            "raw provider key leaked into spans.service_name: {stored:?}"
+        );
+        assert_eq!(stored, "[REDACTED:provider_key]");
+    }
+
+    #[test]
+    fn spans_service_name_legitimate_value_survives_byte_identical() {
+        for service in ["checkout-service", "payment-api", "svc-traces"] {
+            let stored = stored_service_name(&spans_with_service(service));
+            assert_eq!(
+                stored, service,
+                "legitimate service name was altered — this forks one service into two identities"
+            );
+        }
+    }
+
+    #[test]
+    fn service_name_is_identical_on_the_column_and_the_observer_paths() {
+        // The F2 consistency property: one extractor feeds the spans column,
+        // the fingerprint observer and the baseline tap. If these diverge, the
+        // per-service joins between DuckDB and the triage registry miss.
+        let batch = spans_with_service(PROVIDER_KEY_CANARY);
+        let observer_value = extract_service_name(batch[0].resource.as_ref(), None);
+        assert_eq!(stored_service_name(&batch), observer_value);
+    }
+
+    #[test]
+    fn span_events_name_credential_canary_is_redacted_and_exception_preserved() {
+        let conn = fresh_conn_with_schema();
+        let span = span_with_events(
+            vec![2u8; 16],
+            vec![2u8; 8],
+            1_700_000_000_000_000_000,
+            vec![
+                span_event(PROVIDER_KEY_CANARY, 1_700_000_000_000_000_001, Vec::new()),
+                span_event("exception", 1_700_000_000_000_000_002, Vec::new()),
+            ],
+        );
+        append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+
+        let mut stmt = conn
+            .prepare("SELECT name FROM span_events ORDER BY event_index")
+            .expect("prepare");
+        let names: Vec<String> = stmt
+            .query_map([], |r| r.get(0))
+            .expect("query")
+            .map(|r| r.expect("row"))
+            .collect();
+
+        assert_eq!(names.len(), 2);
+        assert!(
+            !names[0].contains(PROVIDER_KEY_CANARY),
+            "raw provider key leaked into span_events.name: {:?}",
+            names[0]
+        );
+        assert_eq!(names[0], "[REDACTED:provider_key]");
+        // Load-bearing: Q3_EXCEPTION_FINGERPRINTS gates on `name = 'exception'`.
+        assert_eq!(names[1], "exception");
+    }
+
+    #[test]
+    fn metrics_metric_name_credential_canary_is_redacted_and_legitimate_preserved() {
+        for (input, expected) in [
+            (PROVIDER_KEY_CANARY, "[REDACTED:provider_key]"),
+            ("requests.total", "requests.total"),
+        ] {
+            let conn = fresh_conn_with_schema();
+            let batch = vec![ResourceMetrics {
+                resource: Some(make_resource("svc-a")),
+                scope_metrics: vec![ScopeMetrics {
+                    scope: None,
+                    metrics: vec![Metric {
+                        name: input.into(),
+                        description: String::new(),
+                        unit: String::new(),
+                        metadata: Vec::new(),
+                        data: Some(metric::Data::Gauge(Gauge {
+                            data_points: vec![NumberDataPoint {
+                                attributes: Vec::new(),
+                                start_time_unix_nano: 0,
+                                time_unix_nano: 1_700_000_000_000_000_000,
+                                exemplars: Vec::new(),
+                                flags: 0,
+                                value: Some(number_data_point::Value::AsInt(42)),
+                            }],
+                        })),
+                    }],
+                    schema_url: String::new(),
+                }],
+                schema_url: String::new(),
+            }];
+            append_metrics_batch(&conn, &batch).expect("append metrics");
+            let stored: String = conn
+                .query_row("SELECT metric_name FROM metrics_points LIMIT 1", [], |r| {
+                    r.get(0)
+                })
+                .expect("metric_name read");
+            assert_eq!(stored, expected);
+        }
+    }
+
+    #[test]
+    fn logs_severity_text_credential_canary_is_redacted_and_levels_preserved() {
+        for (input, expected) in [
+            (PROVIDER_KEY_CANARY, "[REDACTED:provider_key]"),
+            ("ERROR", "ERROR"),
+            ("INFO", "INFO"),
+        ] {
+            let conn = fresh_conn_with_schema();
+            let batch = vec![ResourceLogs {
+                resource: Some(make_resource("svc-b")),
+                scope_logs: vec![ScopeLogs {
+                    scope: None,
+                    log_records: vec![LogRecord {
+                        time_unix_nano: 1_700_000_000_000_000_000,
+                        observed_time_unix_nano: 0,
+                        severity_number: 9,
+                        severity_text: input.into(),
+                        body: None,
+                        attributes: Vec::new(),
+                        dropped_attributes_count: 0,
+                        flags: 0,
+                        trace_id: Vec::new(),
+                        span_id: Vec::new(),
+                        event_name: String::new(),
+                    }],
+                    schema_url: String::new(),
+                }],
+                schema_url: String::new(),
+            }];
+            append_logs_batch(&conn, &batch).expect("append logs");
+            let stored: String = conn
+                .query_row("SELECT severity_text FROM log_records LIMIT 1", [], |r| {
+                    r.get(0)
+                })
+                .expect("severity_text read");
+            assert_eq!(stored, expected);
+        }
+    }
+
+    // The `buffer-redaction-counter-unit-coverage` trigger: the tally arithmetic
+    // itself, that ALL FOUR builders report one redaction each, and — since the
+    // fold moved to the append site — that building alone folds NOTHING into
+    // `state`. A builder that folded here would count cells no append ever
+    // persisted.
+    #[test]
+    fn redaction_counter_folds_once_per_batch_across_all_four_builders() {
+        let state = BufferState::new();
+        assert_eq!(state.snapshot().redactions_applied, 0);
+
+        let (_, spans_redactions) =
+            build_spans_record_batch(&spans_with_service(PROVIDER_KEY_CANARY))
+                .expect("spans build")
+                .expect("non-empty spans batch");
+        assert_eq!(
+            spans_redactions, 1,
+            "spans builder must report its service_name redaction"
+        );
+
+        let events_span = span_with_events(
+            vec![3u8; 16],
+            vec![3u8; 8],
+            1_700_000_000_000_000_000,
+            vec![span_event(
+                PROVIDER_KEY_CANARY,
+                1_700_000_000_000_000_001,
+                Vec::new(),
+            )],
+        );
+        let (_, events_redactions) =
+            build_span_events_record_batch(&wrap_spans(vec![events_span]), None, &state)
+                .expect("span_events build")
+                .expect("non-empty span_events batch");
+        assert_eq!(events_redactions, 1);
+
+        let metrics = vec![ResourceMetrics {
+            resource: Some(make_resource("svc-a")),
+            scope_metrics: vec![ScopeMetrics {
+                scope: None,
+                metrics: vec![Metric {
+                    name: PROVIDER_KEY_CANARY.into(),
+                    description: String::new(),
+                    unit: String::new(),
+                    metadata: Vec::new(),
+                    data: Some(metric::Data::Gauge(Gauge {
+                        data_points: vec![NumberDataPoint {
+                            attributes: Vec::new(),
+                            start_time_unix_nano: 0,
+                            time_unix_nano: 1_700_000_000_000_000_000,
+                            exemplars: Vec::new(),
+                            flags: 0,
+                            value: Some(number_data_point::Value::AsInt(1)),
+                        }],
+                    })),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+        let (_, metrics_redactions) = build_metrics_record_batch(&metrics, &state)
+            .expect("metrics build")
+            .expect("non-empty metrics batch");
+        assert_eq!(metrics_redactions, 1);
+
+        let logs = vec![ResourceLogs {
+            resource: Some(make_resource("svc-b")),
+            scope_logs: vec![ScopeLogs {
+                scope: None,
+                log_records: vec![LogRecord {
+                    time_unix_nano: 1_700_000_000_000_000_000,
+                    observed_time_unix_nano: 0,
+                    severity_number: 9,
+                    severity_text: PROVIDER_KEY_CANARY.into(),
+                    body: None,
+                    attributes: Vec::new(),
+                    dropped_attributes_count: 0,
+                    flags: 0,
+                    trace_id: Vec::new(),
+                    span_id: Vec::new(),
+                    event_name: String::new(),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+        let (_, logs_redactions) = build_logs_record_batch(&logs, None, &state)
+            .expect("logs build")
+            .expect("non-empty logs batch");
+        assert_eq!(logs_redactions, 1);
+
+        assert_eq!(
+            spans_redactions + events_redactions + metrics_redactions + logs_redactions,
+            4,
+            "all four builders must contribute to one tally"
+        );
+
+        // Nothing was appended, so nothing may have been counted. This is the
+        // persisted-cells-only rule: the fold belongs at the append site.
+        let snap = state.snapshot();
+        assert_eq!(
+            snap.redactions_applied, 0,
+            "building alone must fold nothing into state"
+        );
+        // The tally is deliberately separate from record_feed_counts.
+        assert_eq!(snap.span_events_seen, 1);
+        assert_eq!(snap.rows_ingested, 0);
+    }
+
+    #[test]
+    fn clean_batch_leaves_the_redaction_counter_at_zero() {
+        let (_, redactions) = build_spans_record_batch(&spans_with_service("checkout-service"))
+            .expect("spans build")
+            .expect("non-empty spans batch");
+        assert_eq!(redactions, 0);
     }
 
     fn make_resource(service: &str) -> Resource {
@@ -993,6 +1521,227 @@ mod tests {
         assert_eq!(actual, 1);
     }
 
+    fn colliding_log_record(body: &str) -> LogRecord {
+        LogRecord {
+            time_unix_nano: 1_700_000_000_000_000_000,
+            observed_time_unix_nano: 0,
+            severity_number: 9,
+            severity_text: "INFO".into(),
+            body: Some(AnyValue {
+                value: Some(any_value::Value::StringValue(body.into())),
+            }),
+            attributes: Vec::new(),
+            dropped_attributes_count: 0,
+            flags: 0,
+            trace_id: Vec::new(),
+            span_id: Vec::new(),
+            event_name: String::new(),
+        }
+    }
+
+    // A duplicate-key probe via INSERT was observed to hang on this DuckDB
+    // build (see schema.rs::spans_primary_key_is_composite_trace_id_span_id),
+    // so the append runs on a worker thread and a timeout fails the test
+    // rather than wedging the suite.
+    #[test]
+    fn append_logs_batch_same_tick_same_severity_keeps_both_records() {
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let conn = fresh_conn_with_schema();
+            let batch = vec![ResourceLogs {
+                resource: Some(make_resource("svc-collide")),
+                scope_logs: vec![ScopeLogs {
+                    scope: None,
+                    log_records: vec![
+                        colliding_log_record("first distinct body"),
+                        colliding_log_record("second distinct body"),
+                    ],
+                    schema_url: String::new(),
+                }],
+                schema_url: String::new(),
+            }];
+
+            let appended = append_logs_batch(&conn, &batch).map_err(|e| e.to_string());
+            let bodies: Vec<String> = conn
+                .prepare("SELECT body FROM log_records ORDER BY body")
+                .and_then(|mut stmt| {
+                    stmt.query_map([], |row| row.get::<_, String>(0))
+                        .map(|rows| rows.filter_map(Result::ok).collect())
+                })
+                .unwrap_or_default();
+            let _ = tx.send((appended, bodies));
+        });
+
+        let (appended, bodies) = rx
+            .recv_timeout(std::time::Duration::from_secs(30))
+            .expect("append must complete, not hang");
+
+        assert!(
+            appended.is_ok(),
+            "a same-tick same-severity pair must not fail the batch: {appended:?}"
+        );
+        assert_eq!(
+            bodies,
+            vec![
+                "first distinct body".to_string(),
+                "second distinct body".to_string()
+            ],
+            "both distinct records must survive ingestion"
+        );
+    }
+
+    fn gauge_point(ts: u64, value: i64, label: Option<(&str, &str)>) -> NumberDataPoint {
+        NumberDataPoint {
+            attributes: label
+                .map(|(k, v)| {
+                    vec![KeyValue {
+                        key: k.into(),
+                        value: Some(AnyValue {
+                            value: Some(any_value::Value::StringValue(v.into())),
+                        }),
+                    }]
+                })
+                .unwrap_or_default(),
+            start_time_unix_nano: 0,
+            time_unix_nano: ts,
+            exemplars: Vec::new(),
+            flags: 0,
+            value: Some(number_data_point::Value::AsInt(value)),
+        }
+    }
+
+    fn gauge_metric(name: &str, data_points: Vec<NumberDataPoint>) -> Metric {
+        Metric {
+            name: name.into(),
+            description: String::new(),
+            unit: String::new(),
+            metadata: Vec::new(),
+            data: Some(metric::Data::Gauge(Gauge { data_points })),
+        }
+    }
+
+    fn append_metrics_on_worker(metrics: Vec<Metric>) -> (Result<u64, String>, Vec<(String, f64)>) {
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let conn = fresh_conn_with_schema();
+            let batch = vec![ResourceMetrics {
+                resource: Some(make_resource("svc-collide")),
+                scope_metrics: vec![ScopeMetrics {
+                    scope: None,
+                    metrics,
+                    schema_url: String::new(),
+                }],
+                schema_url: String::new(),
+            }];
+
+            let appended = append_metrics_batch(&conn, &batch).map_err(|e| e.to_string());
+            let rows: Vec<(String, f64)> = conn
+                .prepare("SELECT metric_name, value FROM metrics_points ORDER BY value")
+                .and_then(|mut stmt| {
+                    stmt.query_map([], |row| {
+                        Ok((row.get::<_, String>(0)?, row.get::<_, f64>(1)?))
+                    })
+                    .map(|rows| rows.filter_map(Result::ok).collect())
+                })
+                .unwrap_or_default();
+            let _ = tx.send((appended, rows));
+        });
+
+        rx.recv_timeout(std::time::Duration::from_secs(30))
+            .expect("append must complete, not hang")
+    }
+
+    // Collision source (1): `metrics_points` stores no attributes column, so two
+    // points of one metric differing only by label set are identical on every
+    // OTLP-native key column. Worker thread + timeout for the same reason as the
+    // log-record pair above.
+    #[test]
+    fn append_metrics_batch_same_tick_label_differing_points_keep_both() {
+        const TS: u64 = 1_700_000_000_000_000_000;
+        let (appended, rows) = append_metrics_on_worker(vec![gauge_metric(
+            "http.server.duration",
+            vec![
+                gauge_point(TS, 11, Some(("http.route", "/alpha"))),
+                gauge_point(TS, 22, Some(("http.route", "/bravo"))),
+            ],
+        )]);
+
+        assert!(
+            appended.is_ok(),
+            "a label-differing pair must not fail the batch: {appended:?}"
+        );
+        assert_eq!(
+            rows,
+            vec![
+                ("http.server.duration".to_string(), 11.0),
+                ("http.server.duration".to_string(), 22.0),
+            ],
+            "both label-differing points must survive ingestion"
+        );
+    }
+
+    // Collision source (2), added by the ingestion scrub: two DISTINCT
+    // credential-shaped names redact to the same category-only placeholder, so
+    // they collide on `metric_name` at one tick from one resource.
+    #[test]
+    fn append_metrics_batch_distinct_names_redacting_alike_keep_both() {
+        const TS: u64 = 1_700_000_000_000_000_000;
+        let (appended, rows) = append_metrics_on_worker(vec![
+            gauge_metric(PROVIDER_KEY_CANARY, vec![gauge_point(TS, 33, None)]),
+            gauge_metric(PROVIDER_KEY_CANARY_TWO, vec![gauge_point(TS, 44, None)]),
+        ]);
+
+        assert!(
+            appended.is_ok(),
+            "two names redacting alike must not fail the batch: {appended:?}"
+        );
+        let values: Vec<f64> = rows.iter().map(|(_, v)| *v).collect();
+        assert_eq!(
+            values,
+            vec![33.0, 44.0],
+            "both points must survive even though their names redact identically"
+        );
+        for (name, _) in &rows {
+            assert_ne!(
+                name, PROVIDER_KEY_CANARY,
+                "raw credential must not be stored"
+            );
+            assert_ne!(
+                name, PROVIDER_KEY_CANARY_TWO,
+                "raw credential must not be stored"
+            );
+            assert!(
+                name.starts_with("[REDACTED:"),
+                "credential-shaped name must be redacted; got {name}"
+            );
+        }
+    }
+
+    // The control: a distinct clean name in the same batch as a colliding pair
+    // must land too. Pre-fix the rejection was WHOLE-BATCH, so this row died
+    // alongside the collision.
+    #[test]
+    fn append_metrics_batch_control_point_survives_alongside_a_collision() {
+        const TS: u64 = 1_700_000_000_000_000_000;
+        let (appended, rows) = append_metrics_on_worker(vec![
+            gauge_metric(
+                "http.server.duration",
+                vec![
+                    gauge_point(TS, 11, Some(("http.route", "/alpha"))),
+                    gauge_point(TS, 22, Some(("http.route", "/bravo"))),
+                ],
+            ),
+            gauge_metric("control.total", vec![gauge_point(TS, 55, None)]),
+        ]);
+
+        assert!(appended.is_ok(), "batch must be accepted: {appended:?}");
+        assert_eq!(rows.len(), 3, "colliding pair AND control must all land");
+        assert!(
+            rows.iter().any(|(n, v)| n == "control.total" && *v == 55.0),
+            "the non-colliding control must survive; got {rows:?}"
+        );
+    }
+
     #[test]
     fn build_metrics_record_batch_extracts_value_and_kind() {
         let conn = fresh_conn_with_schema();
@@ -1063,6 +1812,151 @@ mod tests {
         assert_eq!(rows[1].0, "request.duration_ms");
         assert_eq!(rows[1].1, 7.5);
         assert_eq!(rows[1].2, 1); // Sum
+    }
+
+    /// One gauge whose points differ ONLY by their attribute set.
+    fn labelled_metric_batch(name: &str, labels: &[&[(&str, &str)]]) -> Vec<ResourceMetrics> {
+        let data_points: Vec<NumberDataPoint> = labels
+            .iter()
+            .enumerate()
+            .map(|(i, pairs)| NumberDataPoint {
+                attributes: pairs
+                    .iter()
+                    .map(|(k, v)| KeyValue {
+                        key: (*k).into(),
+                        value: Some(AnyValue {
+                            value: Some(any_value::Value::StringValue((*v).into())),
+                        }),
+                    })
+                    .collect(),
+                start_time_unix_nano: 0,
+                time_unix_nano: 1_700_000_000_000_000_000,
+                exemplars: Vec::new(),
+                flags: 0,
+                value: Some(number_data_point::Value::AsInt(i as i64)),
+            })
+            .collect();
+
+        vec![ResourceMetrics {
+            resource: Some(make_resource("svc-labels")),
+            scope_metrics: vec![ScopeMetrics {
+                scope: None,
+                metrics: vec![Metric {
+                    name: name.into(),
+                    description: String::new(),
+                    unit: String::new(),
+                    metadata: Vec::new(),
+                    data: Some(metric::Data::Gauge(Gauge { data_points })),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }]
+    }
+
+    fn stored_labels(batch: &[ResourceMetrics]) -> Vec<String> {
+        let conn = fresh_conn_with_schema();
+        append_metrics_batch(&conn, batch).expect("append metrics");
+        conn.prepare("SELECT labels FROM metrics_points ORDER BY seq")
+            .expect("prepare")
+            .query_map([], |r| r.get::<_, String>(0))
+            .expect("query")
+            .map(|r| r.expect("row"))
+            .collect()
+    }
+
+    // The chunk's outcome: two points of one metric differing ONLY by label set
+    // read back DISTINGUISHABLE. Before the `labels` column they both stored
+    // nothing and were identical on every readable column.
+    #[test]
+    fn label_differing_points_read_back_distinguishable() {
+        let stored = stored_labels(&labelled_metric_batch(
+            "collision.probe.requests",
+            &[&[("http.route", "/alpha")], &[("http.route", "/bravo")]],
+        ));
+
+        assert_eq!(stored.len(), 2, "both points must persist");
+        assert_eq!(stored[0], "http.route=/alpha");
+        assert_eq!(stored[1], "http.route=/bravo");
+        assert_ne!(
+            stored[0], stored[1],
+            "the pair must be distinguishable by its stored labels"
+        );
+    }
+
+    // BOTH credential classes redact and the KEY survives in both. The keyed
+    // class is the one a value-only scrub cannot reach: `secret_kv` is
+    // key-name-anchored, so scrubbing the bare `hunter2` matches nothing.
+    #[test]
+    fn credential_label_values_redact_in_both_classes_and_keys_survive() {
+        let stored = stored_labels(&labelled_metric_batch(
+            "collision.probe.label_canary",
+            &[
+                &[("password", "hunter2")],
+                &[("route", PROVIDER_KEY_CANARY)],
+            ],
+        ));
+
+        assert_eq!(stored.len(), 2);
+        assert_eq!(
+            stored[0], "password=[REDACTED:secret_kv]",
+            "keyed class must redact via the joined key=value form"
+        );
+        assert_eq!(stored[1], format!("route=[REDACTED:provider_key]"));
+        for cell in &stored {
+            assert!(!cell.contains("hunter2"), "keyed secret stored verbatim");
+            assert!(
+                !cell.contains(PROVIDER_KEY_CANARY),
+                "bare credential stored verbatim"
+            );
+        }
+    }
+
+    // Negative control: the scrub must be selective, not blanket. A benign pair
+    // survives byte-identical and an ordinary high-entropy identifier — the
+    // scrubber's own false-positive corpus shape — stays Allowed.
+    #[test]
+    fn benign_and_high_entropy_label_values_survive_byte_identical() {
+        let hex_digest = "9f3a1c04e7b2d85f6a0b3c1d2e4f5a6b";
+        let uuid = "3f2504e0-4f89-11d3-9a0c-0305e82c3301";
+        let stored = stored_labels(&labelled_metric_batch(
+            "collision.probe.benign",
+            &[
+                &[("http.method", "GET")],
+                &[("trace.digest", hex_digest)],
+                &[("request.id", uuid)],
+            ],
+        ));
+
+        assert_eq!(stored.len(), 3);
+        assert_eq!(stored[0], "http.method=GET");
+        assert_eq!(stored[1], format!("trace.digest={hex_digest}"));
+        assert_eq!(stored[2], format!("request.id={uuid}"));
+    }
+
+    #[test]
+    fn empty_attribute_set_stores_the_empty_string() {
+        let stored = stored_labels(&labelled_metric_batch("collision.probe.bare", &[&[]]));
+        assert_eq!(stored.len(), 1);
+        assert_eq!(stored[0], "");
+    }
+
+    // Encoding must be order-independent: the same label SET in a different
+    // attribute order encodes identically, or the distinguishability pin above
+    // would be measuring attribute ordering rather than label content.
+    #[test]
+    fn label_encoding_is_attribute_order_independent() {
+        let stored = stored_labels(&labelled_metric_batch(
+            "collision.probe.order",
+            &[
+                &[("b.key", "2"), ("a.key", "1")],
+                &[("a.key", "1"), ("b.key", "2")],
+            ],
+        ));
+
+        assert_eq!(stored.len(), 2);
+        assert_eq!(stored[0], stored[1]);
+        assert_eq!(stored[0], "a.key=1,b.key=2");
     }
 
     #[test]
@@ -1143,7 +2037,7 @@ mod tests {
             schema_url: String::new(),
         }];
 
-        let record_batch = build_logs_record_batch(&batch, Some(&miner))
+        let (record_batch, _) = build_logs_record_batch(&batch, Some(&miner), &BufferState::new())
             .expect("build batch ok")
             .expect("non-empty batch");
         append_record_batch_to_table(&conn, "log_records", record_batch).expect("append rows");
@@ -1314,6 +2208,95 @@ mod tests {
             stored.contains("[REDACTED:email]"),
             "expected span_events.exception_stacktrace to carry [REDACTED:email] marker; got: {stored:?}"
         );
+    }
+
+    #[test]
+    fn span_mask_log_body_keeps_its_other_words() {
+        let conn = fresh_conn_with_schema();
+        let batch = vec![ResourceLogs {
+            resource: Some(make_resource("svc-span-mask")),
+            scope_logs: vec![ScopeLogs {
+                scope: None,
+                log_records: vec![LogRecord {
+                    time_unix_nano: 1_700_000_000_000_000_000,
+                    observed_time_unix_nano: 0,
+                    severity_number: 17,
+                    severity_text: "ERROR".into(),
+                    body: Some(AnyValue {
+                        value: Some(any_value::Value::StringValue(
+                            "login failed for span-mask-user@example.com from host-a".into(),
+                        )),
+                    }),
+                    attributes: Vec::new(),
+                    dropped_attributes_count: 0,
+                    flags: 0,
+                    trace_id: Vec::new(),
+                    span_id: Vec::new(),
+                    event_name: String::new(),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+
+        append_logs_batch(&conn, &batch).expect("append");
+
+        let body: String = conn
+            .query_row("SELECT body FROM log_records LIMIT 1", [], |r| r.get(0))
+            .expect("read body");
+        assert_eq!(body, "login failed for [REDACTED:email] from host-a");
+    }
+
+    #[test]
+    fn span_mask_exception_message_keeps_the_text_before_the_key() {
+        let conn = fresh_conn_with_schema();
+        let span = span_with_events(
+            vec![4u8; 16],
+            vec![4u8; 8],
+            1_700_000_000_000_000_000,
+            vec![span_event(
+                "exception",
+                1_700_000_000_000_000_001,
+                exception_attrs(
+                    "AuthError",
+                    "AuthError: token Bearer abc123def456ghi789jklXYZ rejected",
+                    "    at handler.rs:42",
+                ),
+            )],
+        );
+        append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+
+        let stored: Option<String> = conn
+            .query_row(
+                "SELECT exception_message FROM span_events LIMIT 1",
+                [],
+                |r| r.get(0),
+            )
+            .expect("read exception_message");
+        assert_eq!(stored.as_deref(), Some("AuthError: [REDACTED:bearer]"));
+    }
+
+    #[test]
+    fn span_mask_value_carrying_two_secrets_counts_one_redaction() {
+        let mut redactions = 0;
+        let stored = scrub_otlp_field(
+            "notify span-mask-a@example.com and ssn 123-45-6789 today",
+            &mut redactions,
+        );
+        assert_eq!(
+            stored,
+            "notify [REDACTED:email] and ssn [REDACTED:ssn] today"
+        );
+        assert_eq!(redactions, 1);
+    }
+
+    #[test]
+    fn span_mask_two_word_service_name_keeps_its_first_word() {
+        let mut redactions = 0;
+        let resource = make_resource("checkout span-mask-owner@example.com");
+        let service = extract_service_name(Some(&resource), Some(&mut redactions));
+        assert_eq!(service, "checkout [REDACTED:email]");
+        assert_eq!(redactions, 1);
     }
 
     #[test]
@@ -1558,7 +2541,8 @@ mod tests {
         // Span exists but events vec is empty; expect Ok(None).
         let span = span_with_ids(vec![6u8; 16], vec![6u8; 8], 1_700_000_000_000_000_000);
         let batch = wrap_spans(vec![span]);
-        let result = build_span_events_record_batch(&batch, None).expect("build");
+        let result =
+            build_span_events_record_batch(&batch, None, &BufferState::new()).expect("build");
         assert!(result.is_none());
     }
 
@@ -1754,7 +2738,7 @@ mod tests {
             )],
         );
         let batch = wrap_spans(vec![span]);
-        let record_batch = build_span_events_record_batch(&batch, None)
+        let (record_batch, _) = build_span_events_record_batch(&batch, None, &BufferState::new())
             .expect("build")
             .expect("non-empty batch yields record_batch");
 
@@ -1801,9 +2785,19 @@ mod tests {
         );
         let batch = wrap_spans(vec![span]);
 
-        let _record_batch = build_span_events_record_batch(&batch, Some(&observer))
+        let state = BufferState::new();
+        let _record_batch = build_span_events_record_batch(&batch, Some(&observer), &state)
             .expect("build")
             .expect("record_batch built");
+
+        let snap = state.snapshot();
+        assert_eq!(snap.span_events_seen, 3);
+        assert_eq!(snap.fingerprints_computed, 2);
+        assert_eq!(
+            snap.observer_invocations, 2,
+            "observer_invocations is counted at the call, so it equalling \
+             fingerprints_computed proves the fan-out ran"
+        );
 
         let captured = captured.lock().expect("lock");
         assert_eq!(
@@ -1832,7 +2826,8 @@ mod tests {
         );
         let batch = wrap_spans(vec![span]);
 
-        let _record_batch = build_span_events_record_batch(&batch, Some(&observer))
+        let state = BufferState::new();
+        let _record_batch = build_span_events_record_batch(&batch, Some(&observer), &state)
             .expect("build")
             .expect("record_batch built");
 
@@ -1840,5 +2835,10 @@ mod tests {
             captured.lock().expect("lock").is_empty(),
             "observer MUST NOT be invoked for non-exception events"
         );
+
+        let snap = state.snapshot();
+        assert!(snap.span_events_seen > 0, "the events were still seen");
+        assert_eq!(snap.fingerprints_computed, 0);
+        assert_eq!(snap.observer_invocations, 0);
     }
 }

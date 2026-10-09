@@ -1,0 +1,35 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T09:36:41Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-36-17Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 4 of 74 entries · freight blocks 9 · rows are an INDEX, not the text",
+"156 · CONTEXT: · 597 chars · CONTEXT: S2's default posture died ~1.5 s in on Gdk `Error 71 (Protocol error) dispatching…",
+"156 · WATCH: · 452 chars · 0/3 since 2026-10-04-corpus-key-creation-is-race-free · WATCH: CI `boot smoke (ubuntu-22.04)…",
+"158 · CONTEXT: · 226 chars · CONTEXT: measure first — Conductor's d3 rank-1 interpretation (2026-10-01, relayed by the …",
+"160 · CONTEXT: · 908 chars · CONTEXT: `Cargo.toml` declares `rust-version = \"1.85\"` while the toolchain is pinned at 1.…",
+"160 · CARRY: · 380 chars · CARRY: `corpus_key_survives_a_real_process_boundary` leaves an empty lock file in the lock d…",
+"162 · CONTEXT: · 546 chars · CONTEXT: the verb needs `wsl.exe` (`xtask/src/pre_push.rs`), and since the 2026-10-03 move…",
+"162 · CARRY: · 560 chars · CARRY: (a) PC22 — a fresh `PUPPETEER_CACHE_DIR` under `target/` reproduces the partial v148 …",
+"162 · CARRY: · 429 chars · CARRY: (b) stage ORDER — run by hand, stage 5 (`cargo xtask test`, default features) re-emit…",
+"162 · CARRY: · 479 chars · CARRY: (c) stage 5's `env -i` isolation also drops `DBUS_SESSION_BUS_ADDRESS`, so every cred…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

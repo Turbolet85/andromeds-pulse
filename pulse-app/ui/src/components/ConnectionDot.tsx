@@ -81,13 +81,20 @@ export function ConnectionDot() {
   const [tooltipVisible, setTooltipVisible] = useState(false);
 
   const label = payload ? connectionStateLabel(payload) : "Connecting…";
-  const lastSpan = payload ? formatLastSpanAgo(payload.last_span_ago_ms) : null;
+  // Listening is the zero-ingest sentinel (the FSM returns it iff no span has
+  // ever arrived, so last_span_ago_ms is 0) — "just now" would be dishonest.
+  // Show honest "no spans yet" instead (CARRY from P-067).
+  const noSpansYet = payload?.state.state === "Listening";
+  const lastSpan =
+    payload && !noSpansYet ? formatLastSpanAgo(payload.last_span_ago_ms) : null;
   const colorToken = payload
     ? connectionColorToken(payload.state)
     : "var(--color-text-muted)";
-  const ariaLabel = lastSpan
-    ? `Connection: ${label} — last span ${lastSpan}`
-    : `Connection: ${label}`;
+  const ariaLabel = noSpansYet
+    ? `Connection: ${label} — no spans yet`
+    : lastSpan
+      ? `Connection: ${label} — last span ${lastSpan}`
+      : `Connection: ${label}`;
 
   return (
     <span
@@ -132,7 +139,18 @@ export function ConnectionDot() {
           }}
         >
           <span>{label}</span>
-          {lastSpan ? (
+          {noSpansYet ? (
+            <span
+              style={{
+                fontFamily: "var(--font-code)",
+                fontVariantNumeric: "tabular-nums",
+                color: "var(--color-text-secondary)",
+                marginLeft: "var(--spacing-xs)",
+              }}
+            >
+              no spans yet
+            </span>
+          ) : lastSpan ? (
             <span
               style={{
                 fontFamily: "var(--font-code)",

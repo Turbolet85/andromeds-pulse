@@ -1,0 +1,34 @@
+# obs extract
+
+## Relevance
+partial — the chunk changes corpus key-custody creation (a boot-path, once-per-process operation that the obs plan already governs through its `corpus.*` allowlist leaves and secret-redaction rules), but it adds no span, metric, heartbeat or SLO-bearing path.
+
+## Constraints
+- Every NEW `corpus.*` log target this chunk might add (for example a lock-acquire failure, a lost create race detected on read-back, or a lock-contention notice) must be registered as an EXACT allowlist leaf. A bare `corpus` prefix key must never exist, because `for_target`'s first-`.`-segment fallback would either redact every field silently or widen every sibling `corpus.*` target to one field set (per obs-plan §8 PII Scrubbing → Corpus key-custody + disposition leaves). Whether the create path emits any record today is research's question.
+- Key material is never emitted, in any form. The 32-byte key and its hex encoding, `ANDROMEDA_PULSE_CORPUS_PASSPHRASE`, and anything derived from it must never appear as a value, a field or a presence flag. Fields on a key-custody record are bounded static strings or counts only (per obs-plan §8 data-classification table → Environment variables row, and §8 `corpus.keychain.fallback` leaf).
+- If a lock file is introduced, it is logged by basename only and never by its full or canonicalized path. This also covers the data-dir-derived parent directory (per obs-plan §8 data-classification table → path rows and §11 Logs, the Vector 3 full-path ban).
+- Log levels follow the §6 mapping. An unrecoverable "cannot acquire lock / cannot create-or-read" outcome is a module-boundary error, so it is `error`-class or surfaces through the existing `corpus.open.error` (`error_kind`) boot record. Only a recoverable or degraded state is `warn`, and nothing at the create site logs at `info` or above more than once per process (per obs-plan §6 Log levels mapping, §7 Error classes captured, §11 Logs hot-path ban).
+- `corpus.keychain.fallback` keeps its stated meaning: it fires ONCE per boot only when the passphrase branch serves the key. The new locked OS-store create path must not reuse it, and must not make an OS-store boot read as a reduced-custody one (per obs-plan §6 `warn` row → `corpus.keychain.fallback`).
+- The MCP sidecar (`andromeda-pulse-mcp`) also resolves the corpus key, so any record the lock path emits in that process must go to stderr JSON. Nothing may reach stdout, which is reserved for JSON-RPC framing (per obs-plan §3 Logging stack → Sink, and §11 Universal → stdio sidecar stdout ban).
+- Records must carry the §6 required fields (`timestamp` / `level` / `target` / `message` / `fields` with the service identity defaults). The sidecar keeps its distinct `service.name` `andromeda-pulse-mcp` (per obs-plan §6 Required fields, §3 Service identity).
+
+## Patterns to follow
+- Follow the exact-leaf-plus-guard-test pattern: each `corpus.*` leaf names ALL the fields its emit site emits, and a guard under `pulse-app/tests/` asserts exact-resolve, set equality both ways, and a no-bare-prefix discriminator. A new leaf extends `pulse-app/tests/unit_observability_allowlist_corpus_key.rs` rather than a src-level `mod tests`, because of the `[lib] test = false` rule (per obs-plan §8 corpus leaves and the sibling `ui.ipc.rejection` / `buffer.consumer.stalled` entries).
+- Reuse the bounded-static vocabulary shape for any new categorical field: a closed set of snake_case tokens like `backend_kind` / `reason` / `consequence` on `corpus.keychain.fallback`, or the `error_category` closed set on `interpretation.model.load.error`. No free-form error `Display` text (per obs-plan §6 `warn` row, §8).
+- Emit once per boot or once per transition, never per attempt in a retry loop. A lock wait or retry that needs visibility gets one aggregate record, in the same way `corpus.read.undecryptable` emits one aggregate per query (per obs-plan §6 `warn` row, §11 Logs).
+- Keep `corpus.orphan.disposition` as the downstream signal of creation-time orphaning. With a race-free create, a concurrent fresh-store first run should leave that record with nothing newly orphaned by a lost key. The record shape itself is untouched (per obs-plan §8 `corpus.orphan.disposition` leaf; the chunk scope's Boundaries leave `corpus::disposition` untouched).
+
+## Anti-patterns to avoid
+- Do not log the key, its hex form, the passphrase, a presence flag for either, or a full lock-file or data-dir path "for debuggability" (per obs-plan §8 Environment variables row, §11 Logs Vector 3).
+- Do not add a bare `corpus` (or `corpus.keychain`) allowlist prefix key to make a new target resolve. That widens every sibling target (per obs-plan §8 corpus leaves).
+- Do not `println!` / `dbg!`, and do not let any library write to stdout, on the key-resolution path reachable from the MCP sidecar (per obs-plan §11 Universal).
+
+## Contract bindings
+- obs ↔ security: the key-custody redaction rules (no key material or passphrase, basename-only paths) bind to `.claude/rules/security.md` §Logging & redaction and to security-plan §Logging & Monitoring. The chunk scope's Boundaries already restate the basename rule for a lock-file path (per obs-plan §8 Integration points).
+- obs ↔ tests: any new `corpus.*` leaf binds to the allowlist guard-test harness under `pulse-app/tests/` (`unit_observability_allowlist_corpus_key.rs`). The race witness's `[skip]` line and its logs ride the CI log artifact (`logs-${{ runner.os }}`) that tests and CI consume (per obs-plan §8 corpus leaves, §9 Telemetry artifact handling).
+
+## Acceptance criteria contributions
+- If the chunk emits any new `corpus.*` target, the allowlist holds an EXACT leaf for it listing every emitted field. `unit_observability_allowlist_corpus_key.rs` (or a sibling under `pulse-app/tests/`) asserts exact-resolve, set equality both ways, and that no bare `corpus` key exists. If no new target is added, that is stated explicitly in the report (per obs-plan §8 PII Scrubbing → corpus leaves).
+- Wire grep after a fresh-store boot and the concurrent witness run finds 0 occurrences of the resolved key's 64-hex encoding, of the passphrase value, and of the full lock-file or data-dir path. It searches `agent-latest.jsonl` and any sidecar stderr capture. A lock file, if added, appears by basename at most (per obs-plan §8 data-classification table, §11 Logs).
+- A forced lock-acquire failure produces exactly one bounded, structured failure record (an existing `corpus.open.error` `error_kind`, or a new exact leaf with a closed-set category) and no unlocked-create fallthrough. The record is not redacted to empty fields (per obs-plan §6 Log levels mapping, §7 Error classes captured).
+- A sidecar run that resolves the key through the locked path writes nothing to stdout except JSON-RPC frames (per obs-plan §11 Universal → stdio sidecar).

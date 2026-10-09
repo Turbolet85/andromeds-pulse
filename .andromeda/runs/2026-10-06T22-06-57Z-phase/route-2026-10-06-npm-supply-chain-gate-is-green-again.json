@@ -1,0 +1,80 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "699f7ef0",
+"ts": "2026-10-06T22:07:41Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-06T22-06-57Z-phase",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 6 of 86 entries · freight blocks 18 · rows are an INDEX, not the text",
+"176 · CONTEXT: · 561 chars · CONTEXT: OVERSEER DIRECTION 2026-10-06 (founder-delegated; given at /andromeda-phase's CI-…",
+"176 · CONTEXT: · 1125 chars · CONTEXT: measured 2026-10-06 ~22:00Z at /andromeda-phase's Setup (trail `.andromeda/runs/…",
+"176 · CONTEXT: · 708 chars · CONTEXT: `git diff 5f77859 ce5857b` over `pulse-app/ui/package-lock.json`, `pulse-app/ui/p…",
+"178 · CONTEXT: · 683 chars · CONTEXT: FOUNDER RULING 2026-10-06 ~22:50 «думаю а» (live, his own word; relayed by the ov…",
+"178 · CONTEXT: · 833 chars · CONTEXT: Conductor's fourth pre-registered real-model series read NOT MET, 2 of 3, against…",
+"178 · CONTEXT: · 903 chars · CONTEXT: re-derived at Pulse `1124148` — the digest's trigger line carries the first cue's…",
+"178 · CONTEXT: · 294 chars · CONTEXT: how the service gets named — on the trigger line, in the instruction, or both — i…",
+"180 · CONTEXT: · 404 chars · CONTEXT: OVERSEER DIRECTION 2026-10-05 (founder-delegated, at the 2026-10-05-l4-runs-the-f…",
+"180 · CONTEXT: · 497 chars · CONTEXT: `interpretation.constrained.generate` (the success arm of `LlamaCliInference::gen…",
+"182 · CONTEXT: · 369 chars · CONTEXT: FOUNDER RULING 2026-10-05 «Да б звучит чеснее» (relayed by the overseer at the 20…",
+"182 · CONTEXT: · 606 chars · CONTEXT: today a cueless, non-reflection digest whose generation reads `surface` creates N…",
+"184 · CONTEXT: · 427 chars · CONTEXT: FOUNDER RULING 2026-10-05 (relayed by the overseer during the 2026-10-05-l4-runs-…",
+"184 · CONTEXT: · 389 chars · CONTEXT: arch §Established Decisions [LLM Inference Runtime] records the retirement as fou…",
+"186 · CONTEXT: · 546 chars · CONTEXT: the verb needs `wsl.exe` (`xtask/src/pre_push.rs`), and since the 2026-10-03 move…",
+"186 · CARRY: · 560 chars · CARRY: (a) PC22 — a fresh `PUPPETEER_CACHE_DIR` under `target/` reproduces the partial v148 …",
+"186 · CARRY: · 429 chars · CARRY: (b) stage ORDER — run by hand, stage 5 (`cargo xtask test`, default features) re-emit…",
+"186 · CARRY: · 479 chars · CARRY: (c) stage 5's `env -i` isolation also drops `DBUS_SESSION_BUS_ADDRESS`, so every cred…",
+"186 · CARRY: · 784 chars · CARRY: (d) the `.ps1` half of the L4 latency grader, `xtask/ci/l4-latency-p99.ps1`, has neve…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "699f7ef0",
+"ts": "2026-10-06T22:08:26Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-06-npm-supply-chain-gate-is-green-again",
+"--expect-prefix",
+"The npm supply-chain gate is green again",
+"--record-file",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-06T22-06-57Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:176 - [2026-10-06-npm-supply-chain-gate-is-green-again]",
+"record master-route.md:101 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-10-06-npm-supply-chain-gate-is-green-again - working-route:176 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

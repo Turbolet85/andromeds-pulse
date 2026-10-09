@@ -1,0 +1,55 @@
+{
+  "capture": "after-fix",
+  "chunk": "2026-08-14-workspace-key-alignment",
+  "captured_at_utc": "2026-08-14T23:41Z",
+  "conditions": {
+    "data_dir": "the SAME <scratchpad>/wka-capture used for the before-capture — never recreated, so the workspace key is unchanged",
+    "command": "identical to the before-capture: same sidecar binary path, same two env gates, same JSON-RPC initialize + tools/call frames",
+    "binaries": "rebuilt with the fix (app publishes the key; sidecar reads it)"
+  },
+
+  "published_key": {
+    "path": "{data_dir}/run/workspace-key",
+    "bytes": 35,
+    "written_by": "app at boot, atomic .tmp+rename",
+    "obs_line": "app.boot.workspace_key INFO — workspace_root_basename=\"andromeda-pulse\", key_bytes=35",
+    "full_path_occurrences_in_log": 0
+  },
+
+  "sidecar_query_incident_list": {
+    "total": null,
+    "error": "tool dispatch failed for `query_incident_list`: decryption failed",
+    "non_jsonrpc_stdout_lines": 0
+  },
+
+  "verdict": {
+    "workspace_key_aligned": true,
+    "end_to_end_total_achieved": false,
+    "reasoning": "load_active_incidents runs `WHERE workspace = ?1 AND status != 'resolved'` and then decrypts the payload BLOB of EACH ROW THE FILTER RETURNED. A decryption error is therefore only reachable when the filter matched at least one row. Before the fix the same query against the same data dir with 2 active incidents returned total: 0 with NO error — the filter matched nothing. After the fix it reaches decryption. The change in failure mode is the proof that the key now aligns.",
+    "why_total_N_is_unobtainable_here": "A second, pre-existing defect (see blocked_by) makes ANY cross-process read of an encrypted corpus payload fail on this host, for every workspace key. No end-to-end count is achievable until it is fixed — this is not a property of the workspace key."
+  },
+
+  "blocked_by": {
+    "defect": "corpus encryption key does not survive a process boundary",
+    "discovered_by": "this chunk — previously masked, because the workspace-key mismatch meant the filter never returned a row to decrypt",
+    "caused_by_this_chunk": false,
+    "evidence": [
+      "Cargo.lock: keyring 3.6.3 resolves with dependencies [log, zeroize] ONLY — no platform credential-store backend is linked, so keyring's mock (non-persisting) store is in use.",
+      "cmdkey /list shows zero andromeda credential entries — nothing was ever written to Windows Credential Manager.",
+      "First app process (23:29-23:34): 0 decryption failures — it wrote and read rows with its own in-process key.",
+      "Second app process (23:39+): 13 decryption failures, target digest.corpus.retrieve, error_category decryption_failed — the app cannot decrypt rows its own previous process wrote.",
+      "The failure is emitted by the APP under service.name com.andromeda.pulse, on a code path (load_incidents_for_workspace_since, P-036 previously-seen) unrelated to this chunk."
+    ],
+    "contradicts": "architecture.md §Occupied Resources (corpus 'OS-keychain-encrypted ... key sourced from OS keychain ... via keyring crate') and security-plan §Secret Management (OS keychain primary). The declared at-rest posture is not what ships.",
+    "why_not_fixed_here": "The fix is a keyring feature declaration in the workspace Cargo.toml plus, probably, a migration for corpora already written with ephemeral keys. Neither file is in this chunk's Files-to-modify, and the change carries dependency-graph and cargo-deny consequences that need their own chunk.",
+    "likely_fix": "keyring = { version = \"3\", features = [\"apple-native\", \"windows-native\", \"sync-secret-service\"] }"
+  },
+
+  "hygiene": {
+    "response_bodies_recorded": false,
+    "raw_otlp_attribute_values_recorded": false,
+    "full_paths_recorded": false,
+    "app_error_lines": 0,
+    "app_panics": 0
+  }
+}

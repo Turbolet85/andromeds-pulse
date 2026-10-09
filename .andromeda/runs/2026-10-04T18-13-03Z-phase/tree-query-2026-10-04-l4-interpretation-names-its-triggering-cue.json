@@ -1,0 +1,526 @@
+[
+{
+"sql": "SELECT callee_name, caller, file, line FROM calls WHERE callee_name IN ('render_payload','build_primary_tier_prompt','build_fallback_tier_prompt','build_reflection_tier_prompt','format_corpus_match_line','cue_cause_label','cue_summary') AND callee_kind = 'fn' ORDER BY callee_name, file, line",
+"rows": 86,
+"result": [
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_embeds_schema_string().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 595
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_embeds_reduced_role_definition().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 601
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_embeds_conventions_snippet().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 610
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_emits_reduced_output_reminder().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 623
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_wraps_digest_in_markers().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 633
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_wraps_project_context_in_markers().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 649
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_omits_corpus_section_when_empty().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 657
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_includes_corpus_section_when_present().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 666
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_embeds_versioning_metadata().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 675
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_section_ordering_is_stable().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 691
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_total_bytes_bounded().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 730
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/fallback_prompt_does_not_leak_internal_field_names_outside_schema().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 743
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/composed_prompt_templates_are_ascii_clean_for_argv_transport().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 814
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/citable_section_renders_ids_verbatim_between_markers_in_all_tiers().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 884
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/citable_section_empty_list_renders_explicit_none_instruction().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 918
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/citing_instruction_present_in_every_tier_output_instructions().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 930
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 29
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/handle_digest_outcome().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 426
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_embeds_schema_string().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 441
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_embeds_role_definition().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 447
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_embeds_conventions_snippet().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 454
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_wraps_digest_in_markers().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 468
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_wraps_project_context_in_markers().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 484
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_omits_corpus_section_when_empty().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 492
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_includes_corpus_section_when_present().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 501
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_emits_output_format_reminder().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 510
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_embeds_versioning_metadata().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 518
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_schema_lists_decision_and_severity_after_the_analysis().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 529
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_section_ordering_is_stable().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 552
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/primary_prompt_does_not_leak_internal_field_names_outside_schema().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 577
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/reflection_prompt_distinguishes_from_primary().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 780
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/composed_prompt_templates_are_ascii_clean_for_argv_transport().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 810
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/citable_section_renders_ids_verbatim_between_markers_in_all_tiers().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 883
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/citable_section_orders_after_digest_before_output_instructions().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 900
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/citable_section_empty_list_renders_explicit_none_instruction().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 917
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/citing_instruction_present_in_every_tier_output_instructions().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 929
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/citable_ids_are_deduped_upstream_not_here_but_render_order_stable().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 952
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 50
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 prepare().",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 255
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 29
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/handle_digest_outcome().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 420
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 investigate_router/",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 18
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 investigate_router/impl#[InvestigateApiImpl][InvestigateApi]run_action().",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 247
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 40
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 real_subprocess_round_trip_returns_schema_conformant_l4_output().",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 133
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/reflection_prompt_embeds_schema_string().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 759
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/reflection_prompt_embeds_trend_emphasis_role().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 765
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/reflection_prompt_distinguishes_from_primary().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 779
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/reflection_prompt_embeds_versioning_metadata().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 789
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/composed_prompt_templates_are_ascii_clean_for_argv_transport().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 818
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/reflection_prompt_instructs_default_curious().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 835
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/reflection_prompt_section_ordering_is_stable().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 842
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/reflection_prompt_does_not_leak_internal_field_names_outside_schema().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 862
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/citable_section_renders_ids_verbatim_between_markers_in_all_tiers().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 885
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/citable_section_empty_list_renders_explicit_none_instruction().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 919
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo interpretation 0.1.0 prompt/tests/citing_instruction_present_in_every_tier_output_instructions().",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 931
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 29
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/handle_digest_outcome().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 411
+},
+{
+"callee_name": "cue_cause_label",
+"caller": "rust-analyzer cargo triage 0.1.0 contract/tests/cause_label_names_retry_only_for_retry_storm().",
+"file": "crates/triage/src/contract.rs",
+"line": 710
+},
+{
+"callee_name": "cue_cause_label",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 41
+},
+{
+"callee_name": "cue_cause_label",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/grounded_title().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 676
+},
+{
+"callee_name": "cue_summary",
+"caller": "rust-analyzer cargo triage 0.1.0 contract/",
+"file": "crates/triage/src/contract.rs",
+"line": 151
+},
+{
+"callee_name": "cue_summary",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 265
+},
+{
+"callee_name": "cue_summary",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 34
+},
+{
+"callee_name": "cue_summary",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 61
+},
+{
+"callee_name": "cue_summary",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 quantified_cue_summary().",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 172
+},
+{
+"callee_name": "cue_summary",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 prepare().",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 229
+},
+{
+"callee_name": "format_corpus_match_line",
+"caller": "rust-analyzer cargo triage 0.1.0 contract/",
+"file": "crates/triage/src/contract.rs",
+"line": 148
+},
+{
+"callee_name": "format_corpus_match_line",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/assembler/",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 42
+},
+{
+"callee_name": "format_corpus_match_line",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 313
+},
+{
+"callee_name": "format_corpus_match_line",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 43
+},
+{
+"callee_name": "format_corpus_match_line",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/retrieval/tests/format_corpus_match_line_carries_fingerprint_title_age_outcome().",
+"file": "crates/triage/src/digest/retrieval.rs",
+"line": 261
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo triage 0.1.0 contract/",
+"file": "crates/triage/src/contract.rs",
+"line": 151
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 336
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 360
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 375
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 391
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/render_payload_includes_five_recent_commits_per_p032().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1028
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/overall_line_reads_anomalous_for_a_cue_bearing_tier1_digest().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1070
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/overall_line_reads_nominal_without_cue_or_incident().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1088
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/overall_line_reads_degraded_with_an_active_incident().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1106
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo triage 0.1.0 digest/",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 34
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 61
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 prepare().",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 240
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 pii_scrub_fixture_overall_line_matches_the_render().",
+"file": "pulse-app/tests/unit_digest_runtime_scrub.rs",
+"line": 32
+},
+{
+"callee_name": "render_payload",
+"caller": "rust-analyzer cargo pulse-app 0.1.0 pii_scrub_fixture_overall_line_matches_the_render().",
+"file": "pulse-app/tests/unit_digest_runtime_scrub.rs",
+"line": 50
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

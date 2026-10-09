@@ -15,16 +15,16 @@
 #
 #   ACTIVE (this file): workflow shape + workflow_run trigger + cross-workflow
 #                       artifact consumption + per-channel templating + PR
-#                       creation flow к external tap/bucket repos.
+#                       creation flow to external tap/bucket repos.
 #   DEFERRED (operator-driven, pre-v0.1.0 release blockers tracked in
 #             docs/runbooks/production-release-environment.md §DEFERRED scope
 #             Items 5-6):
 #     5. External tap/bucket repo bootstrap — create
 #        turbolet85/homebrew-andromeda-pulse + turbolet85/scoop-andromeda-pulse
-#        as empty public repos с Formula/ + bucket/ subdirectories.
+#        as empty public repos with Formula/ + bucket/ subdirectories.
 #     6. PAT provisioning — generate fine-grained GitHub Personal Access
-#        Tokens scoped to each external repo с `contents: write` +
-#        `pull_request: write`, populate в `production-release` Environment
+#        Tokens scoped to each external repo with `contents: write` +
+#        `pull_request: write`, populate in `production-release` Environment
 #        as HOMEBREW_TAP_PUSH_TOKEN + SCOOP_BUCKET_PUSH_TOKEN.
 #
 # The workflow cannot publish channel updates until DEFERRED-scope items
@@ -32,8 +32,8 @@
 # github-actions ecosystem) to verify all SHA pins are current before
 # tagging the first production release.
 #
-# Security baseline inherited от chunk #52:
-#   - All third-party actions 40-char SHA-pinned с `# vX.Y.Z` provenance.
+# Security baseline inherited from chunk #52:
+#   - All third-party actions 40-char SHA-pinned with `# vX.Y.Z` provenance.
 #   - Workflow-level `permissions: contents: read`; per-job elevation only
 #     where needed (cross-repo push uses scoped PAT, not GITHUB_TOKEN).
 #   - `environment: production-release` gates every job accessing tokens.
@@ -50,7 +50,6 @@ permissions:
   contents: read
 
 env:
-  ANDROMEDA_PULSE_DATA_DIR: ${{ runner.temp }}/andromeda-pulse-update-channels-data
   SERVICE_NAME: com.andromeda.pulse
   DEPLOYMENT_ENVIRONMENT: production
   CI_RUN_ID: ${{ github.run_id }}
@@ -71,7 +70,7 @@ jobs:
     environment: production-release
     permissions:
       # Workflow-level remains `contents: read`. This job reads release artifacts
-      # + commits the Formula update via а scoped PAT (HOMEBREW_TAP_PUSH_TOKEN),
+      # + commits the Formula update via a scoped PAT (HOMEBREW_TAP_PUSH_TOKEN),
       # not GITHUB_TOKEN, so no per-job contents: write elevation needed for
       # THIS repository's contents.
       contents: read
@@ -81,13 +80,17 @@ jobs:
         with:
           egress-policy: audit
 
+      - name: Export ANDROMEDA_PULSE_DATA_DIR
+        shell: bash
+        run: echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-update-channels-data" >> "$GITHUB_ENV"
+
       - name: Checkout (read template)
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Download sha256-macOS artifact (от triggering release.yml run)
+      - name: Download sha256-macOS artifact (from triggering release.yml run)
         # actions/download-artifact v4 supports cross-workflow artifact download
         # via run-id + github-token parameters. The artifact name pattern
-        # `sha256-${runner.os}` comes от chunk #52 release.yml step
+        # `sha256-${runner.os}` comes from chunk #52 release.yml step
         # "Emit bundle SHA-256 hashes" — runner.os = "macOS" for the macOS
         # matrix job's emission.
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8 (pre-release placeholder — dependabot validates)
@@ -97,7 +100,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Download sha256-Linux artifact (от triggering release.yml run)
+      - name: Download sha256-Linux artifact (from triggering release.yml run)
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8 (pre-release placeholder — dependabot validates)
         with:
           name: sha256-Linux
@@ -105,11 +108,11 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Parse version от triggering tag
+      - name: Parse version from triggering tag
         # workflow_run.head_branch carries the originating tag ref name
-        # (e.g., "v0.1.0") when the upstream workflow was triggered by а tag push.
+        # (e.g., "v0.1.0") when the upstream workflow was triggered by a tag push.
         # Per chunk #52 release.yml `on: push: tags: ['v*']`, the value is
-        # always the tag name. Strip the leading 'v' to get а semver.
+        # always the tag name. Strip the leading 'v' to get a semver.
         id: version
         shell: bash
         run: |
@@ -121,8 +124,8 @@ jobs:
           echo "Parsed tag: ${TAG}, version: ${VERSION}"
 
       - name: Extract bundle SHA-256 hashes
-        # Each downloaded artifact contains а text file in `sha256sum` format
-        # (Linux: `<hash>  <path>`) или `Get-FileHash` format (Windows: same
+        # Each downloaded artifact contains a text file in `sha256sum` format
+        # (Linux: `<hash>  <path>`) or `Get-FileHash` format (Windows: same
         # shape, lowercase). Parse out the canonical bundle filenames per arch
         # §Occupied Resources bundle artifact names:
         #   andromeda-pulse_<version>_x64.dmg
@@ -190,7 +193,7 @@ jobs:
             desc "Local OpenTelemetry observability dashboard for developers"
             homepage "https://github.com/turbolet85/andromeda-pulse"
             version "${VERSION}"
-            license "MIT"
+            license any_of: ["MIT", "Apache-2.0"]
 
             on_macos do
               on_arm do
@@ -236,8 +239,8 @@ jobs:
           # Cross-repo PR target. peter-evans/create-pull-request supports
           # remote repos via `path:` (a working directory containing the
           # checked-out remote) + manual git ops in earlier steps. For
-          # simplicity, this step assumes а sibling helper (TBD if needed:
-          # add а pre-step that clones turbolet85/homebrew-andromeda-pulse
+          # simplicity, this step assumes a sibling helper (TBD if needed:
+          # add a pre-step that clones turbolet85/homebrew-andromeda-pulse
           # into the `path:` directory + copies the rendered Formula into
           # Formula/andromeda-pulse.rb). Operator validates PR shape after
           # DEFERRED scope Items 5-6 land.
@@ -281,10 +284,14 @@ jobs:
         with:
           egress-policy: audit
 
+      - name: Export ANDROMEDA_PULSE_DATA_DIR
+        shell: bash
+        run: echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-update-channels-data" >> "$GITHUB_ENV"
+
       - name: Checkout (read template)
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Download sha256-Windows artifact (от triggering release.yml run)
+      - name: Download sha256-Windows artifact (from triggering release.yml run)
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8 (pre-release placeholder — dependabot validates)
         with:
           name: sha256-Windows
@@ -292,7 +299,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Parse version от triggering tag
+      - name: Parse version from triggering tag
         id: version
         shell: bash
         run: |
@@ -306,7 +313,7 @@ jobs:
       - name: Extract Windows .msi SHA-256
         # The Windows-sha256.txt manifest emitted by chunk #52 release.yml uses
         # PowerShell `Get-FileHash` format: `<UPPERCASE-HASH>  <FullName>`.
-        # Normalize к lowercase for Scoop manifest convention.
+        # Normalize to lowercase for Scoop manifest convention.
         id: hash
         shell: bash
         run: |
@@ -319,7 +326,7 @@ jobs:
           fi
           HASH=$(grep -E "andromeda-pulse_${VERSION}_x64-setup\\.msi" "$MANIFEST" | awk '{print tolower($1)}' | head -1)
           if [ -z "$HASH" ]; then
-            echo "::error::Could not extract Windows .msi SHA-256 от manifest"
+            echo "::error::Could not extract Windows .msi SHA-256 from manifest"
             exit 1
           fi
           echo "windows_msi_sha256=${HASH}" >> "$GITHUB_OUTPUT"
@@ -330,7 +337,7 @@ jobs:
         # (https://github.com/ScoopInstaller/Scoop/wiki/App-Manifests). Inline
         # generation preferred over template-file checkout per design plan
         # §Brand Identity contemplative voice (description copy stays consistent
-        # с Homebrew Formula desc above; mission-control framing not generic
+        # with Homebrew Formula desc above; mission-control framing not generic
         # SaaS).
         id: render-scoop
         shell: bash
@@ -347,7 +354,7 @@ jobs:
             "version": "${VERSION}",
             "description": "Local OpenTelemetry observability dashboard for developers",
             "homepage": "https://github.com/turbolet85/andromeda-pulse",
-            "license": "MIT",
+            "license": "MIT|Apache-2.0",
             "architecture": {
               "64bit": {
                 "url": "${BASE_URL}/andromeda-pulse_${VERSION}_x64-setup.msi",

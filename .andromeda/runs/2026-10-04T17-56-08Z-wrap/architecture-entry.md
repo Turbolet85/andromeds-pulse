@@ -1,0 +1,6 @@
+
+## 2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts — the hardware-profile override registered
+**Section:** §Occupied Resources → Environment variables (reserved at arch level)
+**Change:** registers `ANDROMEDA_PULSE_HARDWARE_PROFILE`, product-consumed by `crates/interpretation/src/hardware.rs` (`ENV_HARDWARE_PROFILE_OVERRIDE`), read once per `HardwareProfileDetector::new()`: trim + lowercase, then a closed match over `gpu_primary` · `gpu_fallback` · `cpu_primary` · `cpu_fallback` (snake or kebab); any other value → one WARN on `interpretation.hardware.detect` and real detection; not a path, never logged by value; the only route to `GpuFallback`. The bullet also states real detection's Linux arm: `libcuda.so` or `libcuda.so.1` under `/usr/lib/x86_64-linux-gnu`, `/usr/local/cuda/lib64`, `/usr/lib` or `/usr/lib64` (was the first two dirs and `libcuda.so` only), a fixed-path presence check.
+**Why:** registry completeness — a product-consumed input absent from the list since chunk #82; the var is unchanged. Applied on the plan's recorded expected amendment, the env-var registration rule not governing (its precondition, a var the chunk added, is false).
+**Ref:** .andromeda/runs/2026-10-04T17-56-08Z-wrap/

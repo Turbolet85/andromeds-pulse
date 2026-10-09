@@ -1,0 +1,30 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-04T22:34:32Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-declared-rust-floor-matches-the-code",
+"--run-dir",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap",
+"--marker",
+"2026-10-04-declared-rust-floor-matches-the-code"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"inputs: absent — no external input snapshotted"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 0,
+"unparsed": 0
+}
+}
+]

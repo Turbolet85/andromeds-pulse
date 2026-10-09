@@ -1,0 +1,137 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T06:16:03Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:97 - 2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T06:16:03Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape",
+"--date",
+"2026-10-05",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :168 strip CONTEXT: 1230ch \"CONTEXT: the remedy for the measured FAI\"",
+"pin :168 strip CONTEXT: 313ch \"CONTEXT: Conductor's fourth v3-09 series\"",
+"pin :168 strip PREREQ: 174ch \"PREREQ: close rust gate deferral (deferr\"",
+"pin next markerless :170 holds CONTEXT:×4",
+"168 · 2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape · strip 3 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 168,
+"marker": "2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape",
+"blocks": 3,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T06:16:09Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape",
+"--date",
+"2026-10-05",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :168 strip CONTEXT: 1230ch \"CONTEXT: the remedy for the measured FAI\"",
+"pin :168 strip CONTEXT: 313ch \"CONTEXT: Conductor's fourth v3-09 series\"",
+"pin :168 strip PREREQ: 174ch \"PREREQ: close rust gate deferral (deferr\"",
+"pin next markerless :170 holds CONTEXT:×4",
+"168 · 2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape · strip 3 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/route-archive.md",
+"./andromeda-pulse-0.3.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 168,
+"marker": "2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape",
+"blocks": 3,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

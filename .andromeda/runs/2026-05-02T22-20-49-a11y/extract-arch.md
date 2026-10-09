@@ -1,0 +1,30 @@
+## 1. Architecture Excerpt
+
+### Stack (a11y reach)
+- **Tauri 2.x** — native window + webview desktop shell, determines a11y testing reach (web surface via axe-core / Lighthouse / pa11y through webview).
+- **`tonic` 0.14.x** — OTLP/gRPC receiver, provides backend service surface (non-UI, no a11y testing scope).
+- **`axum` 0.8.x on `hyper` 1.x + `tower`** — OTLP/HTTP receiver, provides backend service surface (non-UI, no a11y testing scope).
+- **`tokio` (current stable)** — async runtime, supports event-driven UI updates via channels (no direct a11y dimensions, enables IPC responsiveness).
+- **WebGPU (`<canvas>` + `navigator.gpu`, WGSL)** — GPU-accelerated visualization surface in webview, defines chart rendering pattern and canvas accessibility reach (no built-in ARIA; depends on design layer for accessible labels and interactive controls).
+- **TauRPC (`taurpc` crate)** — IPC bridge with auto-generated TypeScript bindings, determines webview-to-Rust command surface and error serialization shape (affects a11y of error messaging and focus management during async operations).
+- **DuckDB 1.5.x via `duckdb` crate** — columnar storage, backend-only (no a11y testing scope).
+- **`wasmtime` 25+ with WASM Component Model** — plugin runtime with capability-scoped sandboxing, determines third-party plugin reach (plugins can extend UI surfaces if granted WIT imports; a11y testing of plugin-provided UI is plugin-author responsibility).
+
+### Surfaces
+**Product type** — cross-platform desktop application (Windows / macOS / Linux) shipped as native bundles. Not a web app, not a CLI, not a microservice fleet.
+
+### Project Intent Summary
+- **Core functionality:** "every byte of telemetry stays on the developer's machine; no Docker, no collector cluster, no cloud backend means the install-to-first-trace loop is one binary launch."
+- **Target users:** "developers staring at telemetry for hours; dark-mode is the default color scheme." Agent-driven development workflow signals that professional users on developer tools are the target; no explicit a11y-priority signals (elderly, low-vision, cognitive disability, or international language proficiency) named in Project Intent.
+- **Critical paths hint:** No flows enumerated in arch — derive from input.md or tests' critical paths in Phase 1.
+
+### CI/CD Platform
+- **Platform:** GitHub Actions
+- **Pipeline note:** `ci.yml` runs fmt + clippy + xtask test on every PR/push; `release.yml` builds `.msi` / `.dmg` / `.AppImage` / `.deb` bundles on tag push via `tauri-action`, signs Windows via Azure Key Vault, notarizes macOS via Apple Developer ID, publishes to GitHub Releases.
+
+### A11y-Relevant Conventions
+- **Module dependency direction:** dependencies flow toward the `pulse-app` binary; no circular dependencies; enforces boundary via Cargo workspace (determines architecture's isolation of concerns relevant to a11y scope segregation).
+- **Cross-bridge data shape:** any type crossing the TauRPC IPC bridge must be `serde::Serialize`; enforced at compile time (affects a11y of error serialization and dynamic content in IPC responses).
+- **Tray icon policy:** single tray icon offers minimal action menu (open/focus window, show ingest summary, toggle MCP, generate snapshot, quit); tray click focuses main window; closing main window minimizes to tray; menu accessibility and keyboard navigation are owned by a11y specialist; glyphs and locale strings owned by design specialist.
+- **Webview IPC capability policy:** main webview runs under capability `pulse:default`, which permits only enumerated TauRPC procedures; adding new procedures requires Tauri capability JSON entry (affects a11y scope of webview JavaScript surface).
+- **Module visibility discipline:** each crate exposes only public contract via `pub`; no cross-crate re-exports except in explicit contract module (isolates a11y testing scope per module boundary).

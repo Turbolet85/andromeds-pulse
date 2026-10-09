@@ -34,6 +34,12 @@ export function TracesRoute() {
         flexDirection: "column",
         gap: "var(--spacing-md)",
         padding: "var(--spacing-md)",
+        // Fill exactly the height the shell allots main (titlebar 32 + tabnav 40
+        // + footer var(--spacing-lg)) so the route never grows the page; the
+        // trace table flex-fills the remainder and scrolls internally.
+        height: "calc(100vh - 32px - var(--spacing-lg) - 40px)",
+        overflow: "hidden",
+        boxSizing: "border-box",
       }}
     >
       <div
@@ -42,6 +48,7 @@ export function TracesRoute() {
           justifyContent: "space-between",
           alignItems: "center",
           gap: "var(--spacing-md)",
+          flexShrink: 0,
         }}
         data-testid="traces-header"
       >
@@ -63,7 +70,9 @@ export function TracesRoute() {
           data-testid="traces-investigate"
         />
       </div>
-      <ConstellationCanvas items={items} />
+      <div style={{ flexShrink: 0 }}>
+        <ConstellationCanvas items={items} />
+      </div>
       <TraceTable rows={rows} isLoading={isLoading} />
     </section>
   );

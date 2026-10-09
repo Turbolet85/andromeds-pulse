@@ -1,0 +1,137 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T06:41:16Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-09-29-scrubber-path-false-positive",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:80 - 2026-09-29-scrubber-path-false-positive pending -> complete"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T06:41:16Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-09-29-scrubber-path-false-positive",
+"--date",
+"2026-09-30",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap",
+"--dry-run"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :134 strip CONTEXT: 356ch \"CONTEXT: measured by Conductor's real-mo\"",
+"pin :134 strip CONTEXT: 298ch \"CONTEXT: FOUNDER 2026-09-29 (asked, answ\"",
+"pin :134 strip WATCH: 724ch 1/3 since 2026-09-29-ci-wall-time-and-round-trips \"WATCH: Linux boot silent death — re-watc\"",
+"pin next markerless :136 holds CONTEXT:×1",
+"134 · 2026-09-29-scrubber-path-false-positive · strip 3 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 134,
+"marker": "2026-09-29-scrubber-path-false-positive",
+"blocks": 3,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T06:41:23Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-09-29-scrubber-path-false-positive",
+"--date",
+"2026-09-30",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :134 strip CONTEXT: 356ch \"CONTEXT: measured by Conductor's real-mo\"",
+"pin :134 strip CONTEXT: 298ch \"CONTEXT: FOUNDER 2026-09-29 (asked, answ\"",
+"pin :134 strip WATCH: 724ch 1/3 since 2026-09-29-ci-wall-time-and-round-trips \"WATCH: Linux boot silent death — re-watc\"",
+"pin next markerless :136 holds CONTEXT:×1",
+"134 · 2026-09-29-scrubber-path-false-positive · strip 3 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\route-archive.md",
+".\\andromeda-pulse-0.3.0\\working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 134,
+"marker": "2026-09-29-scrubber-path-false-positive",
+"blocks": 3,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

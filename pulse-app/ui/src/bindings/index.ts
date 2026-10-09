@@ -37,6 +37,10 @@ export type ConnectionState = { state: "Listening" } | { state: "Receiving" } | 
  */
 export type ConnectionStatePayload = { state: ConnectionState; last_span_ago_ms: number; severity: Severity; message: string | null; reason: ReceiverFailureReason | null }
 
+export type ConstellationDiscoveryInput = { duration_ms: number; discovered_count: number }
+
+export type ConstellationHueLatencyInput = { duration_ms: number; severity_tier: HueSeverityTier }
+
 /**
  * Kind of detected condition emitted as an attention cue. Bounded
  * enumeration; future kinds are added explicitly (no `Other(String)`
@@ -63,7 +67,7 @@ export type CueKind = "error_rate_spike" | "latency_regression" | "restart_event
  * Scope an attention cue applies to: a single service, a single operation
  * within a service, or the global pipeline. Bounded enumeration; variants
  * serialize as snake_case strings. Chunk #78 added `Hash` derive +
- * cfg-gated `specta::Type` derive (parallel к `CueKind`).
+ * cfg-gated `specta::Type` derive (parallel to `CueKind`).
  */
 export type CueScope = "service" | "operation" | "global"
 
@@ -107,6 +111,8 @@ export type ExportCategoryCount = { dimension: string; label: string; count: num
  */
 export type ExportPreviewPayload = { categories: ExportCategoryCount[]; total_records: number; date_range_start_unix_nano: number | null; date_range_end_unix_nano: number | null; anonymization_confirmed: boolean; written: boolean; written_path_basename: string | null }
 
+export type FindingsCounterRefreshInput = { duration_ms: number }
+
 export type FrameDurationInput = { duration_ms: number; wgpu_backend: WgpuBackend; webview_backend: WebviewBackend; timing_method: TimingMethod }
 
 export type HardwareSectionPayload = { profile_label: string; detection_detail: string | null }
@@ -115,9 +121,11 @@ export type HealthEnvelope = { status: HealthStatus; checked_at: string; subsyst
 
 export type HealthStatus = "ok" | "degraded"
 
+export type HueSeverityTier = "none" | "curious" | "suggested" | "autonomous"
+
 /**
  * Single ranked hypothesis. Mirrors `interpretation::markdown::HypothesisView`
- * but с specta::Type derive for cross-bridge transport (interpretation
+ * but with specta::Type derive for cross-bridge transport (interpretation
  * crate has no taurpc/specta dep per arch §Module dependency direction).
  */
 export type HypothesisPayload = { statement: string; confidence_label: string; justification: string }
@@ -137,7 +145,7 @@ export type IncidentRecord = { id: number; workspace: string; kind: CueKind; sco
  * serialize as snake_case strings. Chunk #78 added cfg-gated
  * `specta::Type` derive (for cross-bridge `IncidentRecord` resolver
  * envelope). The TypeScript binding is renamed `IncidentSeverity`
- * к disambiguate from `ingest::connection::Severity` (same identifier,
+ * to disambiguate from `ingest::connection::Severity` (same identifier,
  * distinct domain — connection severity vs incident severity); specta
  * rejects duplicate type names across the bindings.ts emission.
  */
@@ -155,16 +163,37 @@ export type IncidentStatus = "active" | "acknowledged" | "resolved"
 
 /**
  * Paginated list envelope per arch §Standard Contracts. `next_cursor`
- * reserved для future pagination wire-up; chunk #78 returns the full
+ * reserved for future pagination wire-up; chunk #78 returns the full
  * active-incident set in one response (bounded by 120s auto-resolution
  * + 10-min recent-history display window).
  */
 export type IncidentsListPayload = { items: IncidentRecord[]; total: number; next_cursor: string | null }
 
 /**
- * Single suggested investigation step с expected yield description.
+ * One ranked hypothesis surfaced to the webview (scrubbed L4Output subset).
+ */
+export type InvestigateHypothesis = { statement: string; justification: string }
+
+/**
+ * Transient analysis result returned by `investigate.run_action`. A scrubbed
+ * projection of the incident `L4Output` analysis fields; carries NO incident
+ * id (nothing is persisted).
+ */
+export type InvestigateResultDto = { action_id: string; title: string; symptom: string; timeline: string; hypotheses: InvestigateHypothesis[]; investigation_steps: InvestigateStep[] }
+
+/**
+ * One suggested investigation step surfaced to the webview.
+ */
+export type InvestigateStep = { step: string; expected_yield: string }
+
+/**
+ * Single suggested investigation step with expected yield description.
  */
 export type InvestigationStepPayload = { step: string; expected_yield: string }
+
+export type IpcRejectionCategory = "acl_rejected" | "other"
+
+export type IpcRejectionInput = { error_category: IpcRejectionCategory; window_label: string; payload_bytes: number }
 
 export type LogRow = { ts_unix_nano: number; resource_hash: string; severity_number: number; body: string; severity_text: string; trace_id: string; span_id: string }
 
@@ -192,13 +221,13 @@ export type McpStopResult = { state: McpServerState }
 
 export type MetricHistoryPoint = { snapshot_unix_nano: number; value_basis_points: number }
 
-export type MetricRow = { metric_name: string; ts_unix_nano: number; resource_hash: string; value: number; data_point_kind: number }
+export type MetricRow = { metric_name: string; ts_unix_nano: number; resource_hash: string; value: number; data_point_kind: number; labels: string }
 
 export type MetricsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
 
 /**
  * Payload returned by `model.current_profile`. All fields are String /
- * Option<String> к sidestep cross-crate specta derive plumbing — the
+ * Option<String> to sidestep cross-crate specta derive plumbing — the
  * strings are bounded snake_case labels (validated by the upstream
  * enum-to-label fns); webview consumers get string types in their
  * TypeScript bindings + assert against the same bounded set.
@@ -220,7 +249,7 @@ load_status: string;
 /**
  * Semantic name (e.g., `"llama-3.2-3b-instruct-q4_k_m"`); `None`
  * when the model is not loaded (Loading or Error state).
- * NEVER а file path or checkpoint URL per security extract.
+ * NEVER a file path or checkpoint URL per security extract.
  */
 model_identity_name: string | null }
 
@@ -256,7 +285,7 @@ export type PresetPromptDto = { id: string; label: string }
 /**
  * Cross-incident "Previously seen" match per P-036. Chunk #88 reserves
  * the field shape; current resolver always returns empty Vec (corpus
- * fingerprint-similarity query path is а follow-up chunk).
+ * fingerprint-similarity query path is a follow-up chunk).
  */
 export type PreviouslySeenPayload = { incident_id: number; opened_at_unix_nano: number; title: string; workspace: string }
 
@@ -271,7 +300,7 @@ export type PreviouslySeenPayload = { incident_id: number; opened_at_unix_nano: 
  */
 export type PriorityTier = "autonomous" | "suggested" | "curious"
 
-export type ReadyChecks = { duckdb_connection: string; ingest_mpsc_capacity_pct: number; broadcast_subscribers: number; plugins_loaded: number; mcp_server_enabled: boolean }
+export type ReadyChecks = { duckdb_connection: string; ingest_mpsc_capacity_pct: number; broadcast_subscribers: number; plugins_loaded: number; mcp_server_enabled: boolean; rows_ingested: number; buffer_used_seconds: number; retention_seconds: number }
 
 export type ReadyEnvelope = { ready: boolean; checked_at: string; checks: ReadyChecks }
 
@@ -292,17 +321,20 @@ export type ReevaluateWindowPayload = { services_reclassified: number; transitio
 /**
  * Six-section Report payload returned by `incidents.get_report(id)`
  * (chunk #88 — Epoch 9 Foundation v0.2.0). Carries structured fields
- * for the in-app webview surface AND а pre-serialized `markdown` string
- * for the Copy markdown action (P-038 byte-identical к future MCP
+ * for the in-app webview surface AND a pre-serialized `markdown` string
+ * for the Copy markdown action (P-038 byte-identical to future MCP
  * delivery #92 per project doc §87 contract).
  * 
- * Hybrid render contract (chunk #88 Phase 1 user-approved scope):
- * - `degraded_mode = false` indicates Resolved incident с parsed L4Output
- * payload — full six-section content.
- * - `degraded_mode = true` indicates Active/Acknowledged incident OR
- * Resolved incident с unparseable / redacted resolution_summary_text —
- * hypotheses + investigation_steps replaced by explicit "interpretation
- * pending" notice in the markdown OR webview.
+ * Hybrid render contract (chunk #88, BROADENED by chunk 2026-08-26
+ * interpretation-brief-completeness — the latest interpretation attaches
+ * from creation onward, so status no longer gates the full render):
+ * - `degraded_mode = false` indicates a parseable attached interpretation
+ * (any status) — full six-section content.
+ * - `degraded_mode = true` indicates interpretation genuinely absent /
+ * unparseable / redacted — hypotheses + investigation_steps replaced by
+ * the explicit "interpretation pending" notice in the markdown OR
+ * webview (honest degradation, never a false verdict over a clean
+ * parse).
  */
 export type ReportPayload = { incident_id: number; title: string; workspace: string; opened_at_unix_nano: number; status: IncidentStatus; severity: IncidentSeverity; symptom: string; timeline: string; hypotheses: HypothesisPayload[]; investigation_steps: InvestigationStepPayload[]; evidence_refs: string[]; project_context: string; degraded_mode: boolean; resolution_summary: string | null; previously_seen: PreviouslySeenPayload[]; markdown: string }
 
@@ -311,7 +343,7 @@ export type ReportPayload = { incident_id: number; title: string; workspace: str
  * Returned by `diagnostics.retry_interpretation()` after invoking the
  * manual-override path on the degraded-mode FSM.
  * 
- * Bounded к scalar / string-label fields per chunk #86 obs constraint
+ * Bounded to scalar / string-label fields per chunk #86 obs constraint
  * aggregate-only discipline; carries NO LLM-emitted content / incident
  * identifiers / per-trace IDs. The `current_state` label is the snake-
  * case bounded enum from `interpretation::degraded_mode::DegradedModeState`
@@ -320,8 +352,8 @@ export type ReportPayload = { incident_id: number; title: string; workspace: str
 export type RetryInterpretationPayload = { 
 /**
  * True if the manual-retry invocation transitioned FSM state OR
- * reset а live failure counter; false if FSM was already в clean
- * Active state с zero consecutive failures (no-op retry).
+ * reset a live failure counter; false if FSM was already in clean
+ * Active state with zero consecutive failures (no-op retry).
  */
 triggered: boolean; 
 /**
@@ -352,7 +384,11 @@ export type ServiceListItem = { service: string; state: ServiceLifecycleState; l
  * `services.list_with_states` resolver enriches this by joining the
  * incident registry on `scope_id`. Drives the constellation dot hue.
  */
-priority_tier?: PriorityTier | null }
+priority_tier?: PriorityTier | null; 
+/**
+ * Instant the max active-incident tier last changed: the raising incident's open (rise) or the last max holder's resolution (fall); resolver-enriched, `None` from `list_all`.
+ */
+tier_effective_at_unix_nano?: number | null }
 
 /**
  * Paginated list envelope per arch §Standard Contracts. `next_cursor`
@@ -413,6 +449,10 @@ export type TraceRow = { trace_id: string; span_id: string; ts_unix_nano: number
 
 export type TracesQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
 
+export type WebgpuAdapterInput = { outcome: WebgpuAdapterOutcome; window_label: string }
+
+export type WebgpuAdapterOutcome = "obtained" | "no_navigator_gpu" | "adapter_null" | "adapter_request_rejected" | "device_request_failed"
+
 export type WebviewBackend = "webview2" | "wkwebview" | "gtkwebkit"
 
 export type WgpuBackend = "vulkan" | "metal" | "dx12"
@@ -421,7 +461,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'config':'{"reload":[],"status":[]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"history":["metric_name","window_seconds"],"reevaluate_recent_window":[],"retry_interpretation":[],"snapshot":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'config':'{"reload":[],"status":[]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"history":["metric_name","window_seconds"],"reevaluate_recent_window":[],"retry_interpretation":[],"snapshot":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'investigate':'{"run_action":["action_id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_constellation_discovery_latency":["input"],"record_constellation_hue_latency":["input"],"record_findings_counter_refresh":["input"],"record_frame_ms":["input"],"record_ipc_rejection":["input"],"record_webgpu_adapter":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -440,6 +480,7 @@ get_report: (id: number) => Promise<ReportPayload>,
 list_active: () => Promise<IncidentsListPayload>, 
 mark_all_read: () => Promise<MarkAllReadPayload>, 
 mark_resolved: (id: number) => Promise<null>},
+"investigate": {run_action: (actionId: string) => Promise<InvestigateResultDto>},
 "logs": {query: (args: LogsQueryArgs) => Promise<PaginatedResponse<LogRow>>},
 "mcp": {start: () => Promise<McpStartResult>, 
 status: () => Promise<McpStatusDto>, 
@@ -457,7 +498,12 @@ path: () => Promise<StoragePathPayload>},
 "streams": {subscribe_logs: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_metrics: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_spans: (channel: TAURI_CHANNEL<number[]>) => Promise<null>},
-"telemetry.frontend": {record_frame_ms: (input: FrameDurationInput) => Promise<null>},
+"telemetry.frontend": {record_constellation_discovery_latency: (input: ConstellationDiscoveryInput) => Promise<null>, 
+record_constellation_hue_latency: (input: ConstellationHueLatencyInput) => Promise<null>, 
+record_findings_counter_refresh: (input: FindingsCounterRefreshInput) => Promise<null>, 
+record_frame_ms: (input: FrameDurationInput) => Promise<null>, 
+record_ipc_rejection: (input: IpcRejectionInput) => Promise<null>, 
+record_webgpu_adapter: (input: WebgpuAdapterInput) => Promise<null>},
 "traces": {query: (args: TracesQueryArgs) => Promise<PaginatedResponse<TraceRow>>},
 "workspace": {detect: (candidateRoot: string) => Promise<WorkspaceContextDto>} };
 

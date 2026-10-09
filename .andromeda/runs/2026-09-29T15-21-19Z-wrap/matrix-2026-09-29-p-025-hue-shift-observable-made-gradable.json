@@ -1,0 +1,53 @@
+[
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-09-29T15:27:02Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-09-29-p-025-hue-shift-observable-made-gradable",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--dry-run"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-09-29-p-025-hue-shift-observable-made-gradable)",
+"pool: unclaimed 1 [P-075]"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-09-29T15:49:54Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-09-29-p-025-hue-shift-observable-made-gradable",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-09-29-p-025-hue-shift-observable-made-gradable)",
+"pool: unclaimed 1 [P-075]"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

@@ -1,0 +1,10 @@
+tree-query: note - plane 'ts' is detected but has no DB (unbuilt or its indexer is missing)
+tree-query: rust DB absent/stale -> regenerating...
+tree-refresh[rust]: 8613 nodes / 41898 edges - 72s
+[
+  {
+    "caller": "rust-analyzer cargo pulse-app 0.1.0 main().",
+    "file": "pulse-app/src/main.rs",
+    "line": 298
+  }
+]

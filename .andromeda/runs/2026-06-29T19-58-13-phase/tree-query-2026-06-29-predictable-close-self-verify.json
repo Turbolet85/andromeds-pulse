@@ -1,0 +1,19 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%handle_close_to_tray%' OR callee LIKE '%on_window_event%' ORDER BY file, line;",
+"rows": 2,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 main().",
+"file": "pulse-app/src/main.rs",
+"line": 1021
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/on_window_event().",
+"file": "pulse-app/src/window.rs",
+"line": 111
+}
+],
+"db_state": "regenerated"
+}
+]

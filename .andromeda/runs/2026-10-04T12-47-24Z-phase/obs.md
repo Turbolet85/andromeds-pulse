@@ -1,0 +1,33 @@
+# obs extract
+
+## Relevance
+partial — the chunk changes what an L4 interpretation SAYS, not the telemetry. Obs applies in two places: the half-1 measurement reads self-observation records (digest assembly, incident created/skipped), and any record the remedy adds or widens to expose the triggering cue falls under the §8 allowlist discipline.
+
+## Constraints
+- §8 PII Scrubbing default-deny posture: a self-observation field reaches the log only through an EXACT allowlist leaf that names every field its emit site emits. If the remedy adds a field to an existing target (e.g. a cue-kind field on `interpretation.incident.created`), that is a leaf COMPLETION. Any new target needs its own exact leaf. Per §8, a partly named leaf renders the unnamed fields `<redacted>`, and every resolver-only gate still passes. No bare `interpretation`, `triage` or `incidents` prefix key may exist (per obs-plan §8 `interpretation.incident.created` / `triage.cue.tick` / Incident-path diagnostic leaves).
+- §8 `interpretation.incident.created` and `interpretation.incident.skipped` fix field sets of four bounded labels/bools each. They must never carry `scope_id`, title, symptom, `payload_summary`, incident identity, the digest, the prompt or model text. Whether the d3 "which digest fed which incident" question can be answered from today's records, or needs a new bounded field, is research's question (per obs-plan §8).
+- §11 Logs + §8 data classification: the digest and composed prompt derive from client OTLP telemetry (High, scrub-required). Instrumentation added for the measurement must therefore not emit prompt text, digest content, cue `scope_id` or model output into the JSON log. Measure through bounded kind labels, counts and ranks (per obs-plan §11 Logs, §8 PII Scrubbing).
+- §5 + §11 Metrics cardinality: a cue-kind label must be the existing bounded kind vocabulary. `scope_id` is the OTLP-controlled service name and is never a label (per obs-plan §5 Metric label cardinality discipline, §11 Metrics).
+- §11 Telemetry Strategy / Logs hot-path ban: interpretation-side records fire at most once per generation or per digest, never once per cue. Per-cue facts are folded as aggregate fields onto an existing record, following the `triage.cue.tick` and damper once-per-transition precedent (per obs-plan §11 Logs, §5 tick-aggregated counters).
+- §6 log levels: a record of an interpretation decision is INFO. WARN is reserved for degraded or recoverable states (per obs-plan §6 Log levels mapping).
+- §7 Process-end cause: the folded boot-smoke WATCH (an `exit 1` with no `app.exit` and no `app.panic.fatal`) sits in §7's unloggable-ends class. It is observation only, with no criterion and no instrumentation owed by this chunk (per obs-plan §7 Error classes captured).
+
+## Patterns to follow
+- `interpretation.incident.skipped` (chunk 2026-10-01-real-model-incident-surfacing) is the template for making silent interpretation outcomes distinguishable. It has a target const, one record per generation from each exit seam, bounded labels only, its own exact leaf, a guard file and producer pins (per obs-plan §8 `interpretation.incident.skipped`).
+- Leaf guards live under `pulse-app/tests/unit_observability_allowlist_*.rs`, because `[lib] test = false` means a src-level guard never runs. Each asserts four things: exact-resolve, field-set equality in BOTH directions, banned-field checks, and a no-bare-prefix discriminator such as `for_target("interpretation").is_none()`. Each is mutation-checked: deleting the leaf and narrowing it by one field must both turn it red (per obs-plan §8 `interpretation.generation.damper`, `app.exit`).
+- Proof is a wire read on a live run: the touched records counted on the log family with 0 `<redacted>` fields. A live storm on the deterministic L4 path serves this when the real model is absent (per obs-plan §8 `interpretation.incident.skipped` "wire-read at the chunk's live storm").
+- The measurement half reads the agent surface `<data_dir>/logs/agent-latest.jsonl*` (all rotated members) with `jq`/python over `target` + `fields`. It never reads human-only output (per obs-plan §3 Log file location, Self-observation paste-to-AI; §11 Universal).
+
+## Anti-patterns to avoid
+- Adding a field to an `interpretation.*` or `digest`/`triage.*` emit site without completing its exact leaf, or registering a bare prefix key to make it resolve (per obs-plan §8 Muted-diagnostic backlog mechanism, §8 `interpretation.incident.created`).
+- Logging the composed prompt, digest body, model output, `scope_id`, or rendered Symptom/Title/Hypotheses text to "show" where the retry fact is lost (per obs-plan §11 Logs, §11 PII Scrubbing default-deny).
+- Treating the boot-smoke WATCH as a defect to instrument inside this chunk. The plan places those ends outside what a record can see (per obs-plan §7).
+
+## Contract bindings
+- obs ↔ security: the §8 allowlist leaves pair with security-plan §Logging & Monitoring. Report text the remedy grounds deterministically from a cue, such as a service name (`scope_id`), crosses the resolver's scrubber like every other user-facing report field. That obligation is owned by security; obs owns only keeping that text out of the log (per obs-plan §8 Integration points).
+- obs ↔ tests: any new or completed leaf is guarded by a `pulse-app/tests/` allowlist test plus producer pins. A measurement leg launched via `scripts/agent-run.*` consumes the §6 JSON-per-line contract (per obs-plan §3 Log format JSON schema, §8 guard-file convention).
+
+## Acceptance criteria contributions
+- Each emit target this chunk adds or changes resolves to its OWN exact leaf whose field set equals the emit site's in both directions. `for_target("interpretation").is_none()` still holds, and no bare `triage`/`incidents` key appears. The guard is a `pulse-app/tests/` allowlist test that turns red when the leaf is deleted or narrowed. If the chunk changes no emit site, the two `interpretation.incident.*` leaves are byte-unchanged (per obs-plan §8 PII Scrubbing default-deny / `interpretation.incident.created`).
+- On a live storm run (deterministic L4 path), every record this chunk touches reads with 0 `<redacted>` fields. The log family holds 0 occurrences of a planted canary `scope_id` / prompt or model text in any field of those targets (per obs-plan §8 `interpretation.incident.skipped`, §11 Logs).
+- Any new label field draws on a closed, bounded vocabulary (the cue-kind set or a closed enum), never `scope_id` or free text, and is emitted at most once per generation or digest (per obs-plan §5 cardinality discipline, §11 Logs hot-path ban).

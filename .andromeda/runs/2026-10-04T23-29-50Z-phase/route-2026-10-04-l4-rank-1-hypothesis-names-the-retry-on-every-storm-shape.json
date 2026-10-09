@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T23:31:37Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape",
+"--expect-prefix",
+"L4 rank-1 hypothesis names the retry on every storm shape",
+"--record-file",
+".andromeda/runs/2026-10-04T23-29-50Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-29-50Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:168 - [2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape]",
+"record master-route.md:97 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape - working-route:168 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

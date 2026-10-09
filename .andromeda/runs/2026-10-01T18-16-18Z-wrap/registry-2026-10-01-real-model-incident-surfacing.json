@@ -1,0 +1,202 @@
+[
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "c6c20a84",
+"ts": "2026-10-01T18:19:53Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/architecture.md",
+"--out",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/architecture-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §Infrastructure Patterns in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "c6c20a84",
+"ts": "2026-10-01T18:19:53Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/test-plan.md",
+"--out",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/test-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Test Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "c6c20a84",
+"ts": "2026-10-01T18:19:54Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/obs-plan.md",
+"--out",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/obs-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Observability Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "c6c20a84",
+"ts": "2026-10-01T18:19:54Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/a11y-plan.md",
+"--out",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/a11y-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. A11y Assertion Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "c6c20a84",
+"ts": "2026-10-01T18:19:55Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/security-plan.md",
+"--out",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/security-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"security-plan.md: n/a — it carries no keyed-contract section in the map"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "c6c20a84",
+"ts": "2026-10-01T18:19:55Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/design-system.md",
+"--out",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/design-system-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"design-system.md: n/a — it carries no keyed-contract section in the map"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "c6c20a84",
+"ts": "2026-10-01T18:19:56Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/layout-templates.md",
+"--out",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/layout-templates-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"layout-templates.md: n/a — it carries no keyed-contract section in the map"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "c6c20a84",
+"ts": "2026-10-01T18:20:05Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/security-plan.md",
+"--out",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/security-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"security-plan.md: n/a — it carries no keyed-contract section in the map"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

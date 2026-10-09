@@ -1,0 +1,2245 @@
+[
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%AttentionCue%' ORDER BY file, line",
+"rows": 351,
+"result": [
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 4
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 76
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 203
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 204
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 205
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 206
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 207
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 208
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 209
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 210
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 211
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 212
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 213
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 233
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 234
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 20
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 21
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 147
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 150
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 151
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 276
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 297
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 389
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 414
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 569
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 570
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 571
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 572
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 573
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 574
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 575
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 576
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 577
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 578
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 579
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 761
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 761
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 791
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 791
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]sender().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 811
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 836
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 877
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 877
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]sender().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 895
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]sender().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 911
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 951
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 951
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 998
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 998
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 1049
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 1074
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 1074
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]sender().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 1101
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/contract.rs",
+"line": 39
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/contract.rs",
+"line": 587
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/contract.rs",
+"line": 588
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/contract.rs",
+"line": 589
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/contract.rs",
+"line": 590
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/contract.rs",
+"line": 591
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/contract.rs",
+"line": 592
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/contract.rs",
+"line": 593
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/contract.rs",
+"line": 594
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/contract.rs",
+"line": 595
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/contract.rs",
+"line": 596
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/contract.rs",
+"line": 597
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestKind#AttentionCueDigest#",
+"file": "crates/triage/src/contract.rs",
+"line": 758
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestKind#AttentionCueDigest#",
+"file": "crates/triage/src/contract.rs",
+"line": 846
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/contract.rs",
+"line": 867
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 2
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 24
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 27
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#sender.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 30
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 33
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#sender.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 34
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 37
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#sender.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 38
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#sender.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 42
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 46
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 48
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 59
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 68
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 72
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 92
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 93
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 94
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 95
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 96
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 97
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 98
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 99
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 100
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 101
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 102
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 108
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 108
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscriber_count().",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 109
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 114
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 114
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 115
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscriber_count().",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 116
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 127
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 127
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 128
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]sender().",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 130
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 147
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 147
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]sender().",
+"file": "crates/triage/src/cue/broadcast.rs",
+"line": 148
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 5
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 6
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 32
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 97
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 102
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 103
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 105
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 176
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 177
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 181
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 182
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 183
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]sender().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 186
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 188
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 198
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 199
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 200
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 201
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 202
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 255
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 416
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 416
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 444
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 444
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 445
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 487
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 487
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 488
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 503
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 516
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 516
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 517
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 532
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 541
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 541
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 542
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 576
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 576
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 577
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 619
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 619
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 665
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 665
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 666
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 723
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 723
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 724
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 764
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 765
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 767
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 769
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 772
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 788
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 788
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 789
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 848
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 848
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 849
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 903
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 903
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 904
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 919
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 921
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 922
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 945
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 945
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 946
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 960
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 974
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 974
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1030
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1030
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 1
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 26
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 62
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 63
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 64
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 65
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 66
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 67
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 68
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 69
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 70
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 71
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 128
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 129
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 130
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 131
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 132
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 133
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 134
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 135
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 136
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 137
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 160
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 185
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 186
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 187
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 188
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 189
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 190
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 191
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 192
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 193
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 194
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 264
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 265
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 266
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 267
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 268
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 269
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 269
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 312
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 314
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 322
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 325
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 328
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 330
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 334
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 334
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 367
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 369
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 387
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 389
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 408
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 412
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 423
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 425
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 463
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 467
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 472
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 557
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 558
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 559
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 560
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 561
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/cue/mod.rs",
+"line": 25
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 36
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 93
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 201
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 212
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 214
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 263
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 264
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 266
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 268
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 269
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 270
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 271
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestKind#AttentionCueDigest#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 209
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 51
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 51
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 210
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 300
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 308
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 309
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 310
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 311
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 312
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 313
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 314
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 315
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 316
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 317
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 327
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 336
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 337
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]sender().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 349
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 519
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 520
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 521
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 522
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 533
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 605
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 655
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 655
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 656
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 664
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 665
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 666
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 672
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 672
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 766
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 766
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 813
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 813
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 3
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 48
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 130
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 137
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 139
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 140
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 143
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 146
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 160
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 161
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 161
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 168
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 169
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 170
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 171
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 221
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 222
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 223
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 224
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 225
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 226
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 227
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 228
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 229
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 230
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 231
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 431
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 432
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 433
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#scope_id.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 434
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#magnitude.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 435
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#absolute_value.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 436
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#persistence_seconds.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 437
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#confidence.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 438
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 439
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#suppression_bypassed.",
+"file": "crates/triage/src/pattern/suppression.rs",
+"line": 440
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestKind#AttentionCueDigest#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 256
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestKind#AttentionCueDigest#",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 796
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "pulse-app/src/main.rs",
+"line": 20
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "pulse-app/src/main.rs",
+"line": 470
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "pulse-app/src/main.rs",
+"line": 470
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 13
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 22
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 26
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 54
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 66
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 66
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 67
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 76
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 77
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 84
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 84
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 31
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/AttentionCueBroadcast#",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 141
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]new().",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 141
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cue/broadcast/impl#[AttentionCueBroadcast]subscribe().",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 142
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#kind.",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 239
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/AttentionCue#priority_tier.",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 244
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'buffer' OR from_crate = 'triage' ORDER BY from_crate, to_crate",
+"rows": 3,
+"result": [
+{
+"from_crate": "mcp-server",
+"to_crate": "buffer"
+},
+{
+"from_crate": "pulse-app",
+"to_crate": "buffer"
+},
+{
+"from_crate": "ui-bridge",
+"to_crate": "buffer"
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%DigestCueRef%' OR callee LIKE '%synthesize_cue%' OR callee LIKE '%record_occurrence%' ORDER BY file, line",
+"rows": 91,
+"result": [
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/contract.rs",
+"line": 65
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "crates/triage/src/contract.rs",
+"line": 504
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "crates/triage/src/contract.rs",
+"line": 558
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#kind.",
+"file": "crates/triage/src/contract.rs",
+"line": 559
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#kind.",
+"file": "crates/triage/src/contract.rs",
+"line": 559
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#priority_tier.",
+"file": "crates/triage/src/contract.rs",
+"line": 560
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#priority_tier.",
+"file": "crates/triage/src/contract.rs",
+"line": 560
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#summary.",
+"file": "crates/triage/src/contract.rs",
+"line": 561
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#summary.",
+"file": "crates/triage/src/contract.rs",
+"line": 561
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope.",
+"file": "crates/triage/src/contract.rs",
+"line": 562
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope.",
+"file": "crates/triage/src/contract.rs",
+"line": 562
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope_id.",
+"file": "crates/triage/src/contract.rs",
+"line": 563
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope_id.",
+"file": "crates/triage/src/contract.rs",
+"line": 563
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "crates/triage/src/contract.rs",
+"line": 643
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#kind.",
+"file": "crates/triage/src/contract.rs",
+"line": 644
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#priority_tier.",
+"file": "crates/triage/src/contract.rs",
+"line": 645
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#summary.",
+"file": "crates/triage/src/contract.rs",
+"line": 646
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope.",
+"file": "crates/triage/src/contract.rs",
+"line": 647
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope_id.",
+"file": "crates/triage/src/contract.rs",
+"line": 648
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 36
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 262
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#kind.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 263
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#priority_tier.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 264
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#summary.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 265
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 270
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope_id.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 271
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 611
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#priority_tier.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 667
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#kind.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 668
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#summary.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 669
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 693
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#priority_tier.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 696
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/mod.rs",
+"line": 42
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/synthesize_cue().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 256
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/synthesize_cue().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 276
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 332
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 488
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 495
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 505
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 516
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 532
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 549
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 566
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 581
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 585
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 596
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 604
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 619
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 620
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 633
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope_id.",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 651
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#kind.",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 651
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope.",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 651
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "pulse-app/tests/e2e_pii_scrubber_persistence_coverage.rs",
+"line": 144
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 20
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 135
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#kind.",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 136
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#priority_tier.",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 137
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#summary.",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 138
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope.",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 139
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope_id.",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 140
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 17
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 80
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#kind.",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 81
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#priority_tier.",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 82
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#summary.",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 83
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope.",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 84
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope_id.",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 85
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+"line": 18
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+"line": 37
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#kind.",
+"file": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+"line": 38
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#priority_tier.",
+"file": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+"line": 39
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#summary.",
+"file": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+"line": 40
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope.",
+"file": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+"line": 41
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope_id.",
+"file": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+"line": 42
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 23
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 90
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#kind.",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 91
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#priority_tier.",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 92
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#summary.",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 93
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope.",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 94
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope_id.",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 95
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 16
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 111
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#kind.",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 112
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#priority_tier.",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 113
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#summary.",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 114
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope.",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 115
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/DigestCueRef#scope_id.",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 116
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "pulse-app/tests/unit_storm_persistence.rs",
+"line": 53
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/record_occurrence().",
+"file": "pulse-app/tests/unit_storm_persistence.rs",
+"line": 161
+}
+],
+"db_state": "fresh"
+}
+]

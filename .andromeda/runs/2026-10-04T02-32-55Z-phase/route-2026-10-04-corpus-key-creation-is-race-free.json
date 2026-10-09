@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T02:33:52Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-04-corpus-key-creation-is-race-free",
+"--expect-prefix",
+"Corpus key creation is race-free",
+"--record-file",
+".andromeda/runs/2026-10-04T02-32-55Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-04T02-32-55Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:154 - [2026-10-04-corpus-key-creation-is-race-free]",
+"record master-route.md:90 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-10-04-corpus-key-creation-is-race-free - working-route:154 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

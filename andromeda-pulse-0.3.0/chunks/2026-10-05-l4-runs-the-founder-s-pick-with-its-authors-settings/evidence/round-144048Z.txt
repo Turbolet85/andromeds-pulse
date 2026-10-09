@@ -1,0 +1,37 @@
+  1 lint        not run — excluded · cargo fmt --check
+  2 lint        not run — excluded · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)
+  3 probe       not run — excluded · sha256sum pulse-app/vendor/llama-cpp/json_schema_to_gramma… (200 chars)
+  4 unit        not run — excluded · cargo nextest run --workspace --profile ci -E 'binary(unit… (72 chars)
+  5 unit        not run — excluded · cargo nextest run --workspace --profile ci -E 'binary(unit… (168 chars)
+  6 unit        not run — excluded · cargo nextest run --workspace --profile ci -E 'binary(l4_d… (74 chars)
+  7 probe       not run — excluded · bash xtask/ci/l4-latency-p99.sh xtask/ci/fixtures/l4-laten… (71 chars)
+  8 probe       not run — excluded · bash xtask/ci/l4-latency-p99.sh xtask/ci/fixtures/l4-laten… (71 chars)
+  9 probe       not run — excluded · bash xtask/ci/l4-latency-p99.sh xtask/ci/fixtures/l4-laten… (76 chars)
+ 10 probe       not run — excluded · git diff --name-only 7663dd91c4492bc78eb50a827ed18bad860b1… (718 chars)
+ 11 lint        not run — excluded · cargo xtask check:english-sources
+ 12 probe       not run — excluded · cargo xtask capability-widening-check
+ 13 probe       not run — excluded · cargo xtask check:ingest-progress
+ 14 probe       not run — excluded · cargo xtask check:staged-artifacts
+ 15 probe       not run — excluded · cargo xtask capability-drift
+ 16 probe       not run — excluded · cargo xtask verify:capability-matrix
+ 17 unit        not run — excluded · cargo nextest run --workspace --profile ci
+ 18 build       not run — excluded · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)
+ 19 probe       not run — excluded · git diff --quiet 7663dd91c4492bc78eb50a827ed18bad860b1701 … (95 chars)
+ 20 build       not run — excluded · cargo build -p ingest --example inject_demo
+ 21 build       not run — excluded · cargo build -p pulse-app
+ 22 probe       not run — excluded · test "$(ss -ltnH | grep -cE ':(4317|4318) ')" = 0 && nvidi… (135 chars)
+ 23 e2e         green · exit 0 · 9.68s · 1479 B → 23.log · cargo nextest run --workspace --profile ci --success-outpu… (110 chars)
+ 24 probe       not run — excluded · test -n "$ANDROMEDA_PULSE_DATA_DIR" && test -f "$ANDROMEDA… (125 chars)
+ 25 e2e         not run — excluded · ./target/debug/examples/inject_demo
+ 26 probe       not run — excluded · for i in $(seq 1 60); do cat "$ANDROMEDA_PULSE_DATA_DIR"/l… (467 chars)
+ 27 probe       not run — excluded · cat "$ANDROMEDA_PULSE_DATA_DIR"/logs/agent-latest.jsonl* |… (128 chars)
+ 28 probe       not run — excluded · for i in $(seq 1 60); do cat "$ANDROMEDA_PULSE_DATA_DIR"/l… (446 chars)
+ 29 probe       not run — excluded · cat "$ANDROMEDA_PULSE_DATA_DIR"/logs/agent-latest.jsonl* |… (148 chars)
+ 30 smoke       not run — excluded · cat "$ANDROMEDA_PULSE_DATA_DIR"/logs/agent-latest.jsonl* |… (107 chars)
+ 31 probe       not run — excluded · bash xtask/ci/l4-latency-p99.sh
+ 32 probe       not run — excluded · L4_GPU_PRIMARY_BUDGET_MS=1 bash xtask/ci/l4-latency-p99.sh
+ 33 probe       not run — excluded · cat "$ANDROMEDA_PULSE_DATA_DIR"/logs/agent-latest.jsonl* |… (138 chars)
+ 34 probe       not run — excluded · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)
+ 35 probe       not run — excluded · git diff --quiet && git diff --cached --quiet && git push … (90 chars)
+ 36 probe       not run — excluded · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)
+round: COMPLETE · legs fired 1/1 · entries 36 · green 1 · red 0 · recorded 0 · timeout 0 · indeterminate 0 · not-run 35

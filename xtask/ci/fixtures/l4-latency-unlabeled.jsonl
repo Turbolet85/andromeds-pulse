@@ -1,0 +1,1 @@
+{"fields":{"deployment.environment":"production","duration_ms":6000,"model_tier":"primary","service.name":"com.andromeda.pulse","service.version":"0.1.0","value":6000},"level":"INFO","message":"L4 inference latency sample","target":"metric.pipeline.l4.inference_latency_p99_milliseconds","timestamp":"2026-10-05T12:00:00.000Z"}

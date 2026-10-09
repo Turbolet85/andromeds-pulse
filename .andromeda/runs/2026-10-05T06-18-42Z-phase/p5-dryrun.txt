@@ -1,0 +1,52 @@
+gate v1.9 · fb1f9172
+shell /usr/bin/bash (from $SHELL; -c, non-login)
+root {repo-root} · marker 2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement · entries 38
+logs {tmp}/andromeda-gate/{marker}/run-20261005T064309Z · bound: GNU timeout
+delta docs 35 · unmapped 5
+walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 40
+prose L131-137: The standard gate set runs in the test-plan §3 order. `capability-drift` precedes the defa… (474 chars)
+prose L139-147: Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gat… (835 chars)
+prose L149-154: **The real-model legs** are `leg = 'operator'` entries. They hold the model slot and the G… (630 chars)
+prose L156-159: The CPU-only leg adds `ANDROMEDA_PULSE_HARDWARE_PROFILE=cpu_primary` and an empty `CUDA_VI… (419 chars)
+prose L161-165: `cargo xtask pre-push:linux` cannot evaluate on this Linux host (`wsl.exe`, `xtask/src/pre… (508 chars)
+prose L167-172: ONE-SHOT controls at /implement are never listed, because they mutate source and revert: S… (662 chars)
+prose L174-175: The CI read waits 2400 s, as in the predecessor (Setup 5a read `4e5b595` still in progress… (143 chars)
+  1 lint        not run — dry-run · cargo fmt --check
+  2 lint        not run — dry-run · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)
+  3 build       not run — dry-run · cargo build -p pulse-app --example l4_decision_probe
+  4 probe       not run — dry-run · cargo nextest list --workspace --profile ci -E 'test(/spaw… (232 chars)
+  5 unit        not run — dry-run · cargo nextest run --workspace --profile ci -E 'binary(unit… (108 chars)
+  6 probe       not run — dry-run · env -u ANDROMEDA_PULSE_HARDWARE_PROFILE -u ANDROMEDA_PULSE… (276 chars)
+  7 unit        not run — dry-run · cargo nextest run --workspace --profile ci -E 'package(int… (72 chars)
+  8 probe       not run — dry-run · git diff --name-only 4e5b59596c35aa09edae88783aaf61ab2b439… (294 chars)
+  9 probe       not run — dry-run · test "$(git grep -hoE 'target: ("[A-Za-z0-9_.:-]+"|[A-Za-z… (285 chars)
+ 10 probe       not run — dry-run · cargo xtask check:english-sources
+ 11 probe       not run — dry-run · cargo xtask capability-widening-check
+ 12 probe       not run — dry-run · cargo xtask check:ingest-progress
+ 13 probe       not run — dry-run · cargo xtask check:staged-artifacts
+ 14 probe       not run — dry-run · cargo xtask capability-drift
+ 15 probe       not run — dry-run · cargo xtask verify:capability-matrix
+ 16 unit        not run — dry-run · cargo nextest run --workspace --profile ci
+ 17 probe       not run — leg operator (the letter drives it) · cd AI-Model && sha256sum -c ../andromeda-pulse-0.3.0/chunk… (152 chars)
+ 18 probe       not run — leg operator (the letter drives it) · test "$(ss -ltnH | grep -cE ':(4317|4318) ')" = 0 && nvidi… (118 chars)
+ 19 e2e         not run — leg operator (the letter drives it) · O="target/l4-decision-probe/load-cuda-$(date -u +%Y%m%dT%H… (549 chars)
+ 20 e2e         not run — leg operator (the letter drives it) · O="target/l4-decision-probe/cpu-only-$(date -u +%Y%m%dT%H%… (621 chars)
+ 21 e2e         not run — leg operator (the letter drives it) · O="target/l4-decision-probe/selection-$(date -u +%Y%m%dT%H… (556 chars)
+ 22 e2e         not run — leg operator (the letter drives it) · M="$(sed -n 's/^pick: //p' andromeda-pulse-0.3.0/chunks/20… (622 chars)
+ 23 e2e         not run — leg operator (the letter drives it) · M="$(sed -n 's/^pick: //p' andromeda-pulse-0.3.0/chunks/20… (609 chars)
+ 24 probe       not run — dry-run · grep -c '^pick: ' andromeda-pulse-0.3.0/chunks/2026-10-05-… (134 chars)
+ 25 probe       not run — dry-run · grep -rlE 'AI-Model/|/home/' andromeda-pulse-0.3.0/chunks/… (133 chars)
+ 26 build       not run — dry-run · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)
+ 27 probe       not run — dry-run · git diff --quiet 4e5b59596c35aa09edae88783aaf61ab2b4398fb … (95 chars)
+ 28 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-too… (84 chars)
+ 29 integration not run — leg operator (the letter drives it) · git ls-files -s scripts/agent-run.sh
+ 30 integration not run — leg operator (the letter drives it) · env -i HOME="$HOME" PATH="$HOME/.cargo/bin:$(dirname "$(co… (191 chars)
+ 31 integration not run — leg operator (the letter drives it) · P="$PWD/target/pre-push/puppeteer-$(date -u +%Y%m%dT%H%M%S… (497 chars)
+ 32 integration not run — leg operator (the letter drives it) · env -i HOME="$HOME" PATH="$HOME/.cargo/bin:$(dirname "$(co… (226 chars)
+ 33 integration not run — leg operator (the letter drives it) · env -i HOME="$HOME" PATH="$HOME/.cargo/bin:$(dirname "$(co… (174 chars)
+ 34 integration not run — leg operator (the letter drives it) · D="$PWD/target/pre-push/data-$(date -u +%Y%m%dT%H%M%SZ)" &… (619 chars)
+ 35 build       not run — leg operator (the letter drives it) · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)
+ 36 probe       not run — leg operator (the letter drives it) · git diff --quiet 4e5b59596c35aa09edae88783aaf61ab2b4398fb … (95 chars)
+ 37 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)
+ 38 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-too… (108 chars)
+entries 38 · green 0 · red 0 · recorded 0 · timeout 0 · not-run 38

@@ -1,0 +1,509 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:16:37Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/architecture-entry-1.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 725 · lines 724→730 · bytes 108114→110132 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 724,
+"bytes": 108114,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 730,
+"bytes": 110132
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:16:37Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/architecture-entry-2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 731 · lines 730→736 · bytes 110132→112061 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 730,
+"bytes": 110132,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 736,
+"bytes": 112061
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:16:37Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/architecture-entry-3.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 737 · lines 736→742 · bytes 112061→113285 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 736,
+"bytes": 112061,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 742,
+"bytes": 113285
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:16:37Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/architecture-entry-4.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 743 · lines 742→748 · bytes 113285→114338 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 742,
+"bytes": 113285,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 748,
+"bytes": 114338
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:17:24Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/security-plan-entry-1.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 535 · lines 534→540 · bytes 99336→100632 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 534,
+"bytes": 99336,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 540,
+"bytes": 100632
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:17:24Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/security-plan-entry-2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 541 · lines 540→546 · bytes 100632→101740 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 540,
+"bytes": 100632,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 546,
+"bytes": 101740
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:17:24Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/security-plan-entry-3.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 547 · lines 546→552 · bytes 101740→102580 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 546,
+"bytes": 101740,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 552,
+"bytes": 102580
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:17:25Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/security-plan-entry-4.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 553 · lines 552→558 · bytes 102580→103933 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 552,
+"bytes": 102580,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 558,
+"bytes": 103933
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:17:25Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/test-plan-entry-1.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+6 at line 620 · lines 619→625 · bytes 105662→106967 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 619,
+"bytes": 105662,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 625,
+"bytes": 106967
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:17:25Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/test-plan-entry-2.md",
+"--lines",
+"8",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+8 at line 626 · lines 625→633 · bytes 106967→108322 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 625,
+"bytes": 106967,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 633,
+"bytes": 108322
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:17:25Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/test-plan-entry-3.md",
+"--lines",
+"9",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+9 at line 634 · lines 633→642 · bytes 108322→109623 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 633,
+"bytes": 108322,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 642,
+"bytes": 109623
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:17:45Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/obs-plan-entry-1.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+6 at line 366 · lines 365→371 · bytes 65272→66927 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 365,
+"bytes": 65272,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 371,
+"bytes": 66927
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-05T16:17:45Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/obs-plan-entry-2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+6 at line 372 · lines 371→377 · bytes 66927→68247 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 371,
+"bytes": 66927,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 377,
+"bytes": 68247
+}
+}
+]

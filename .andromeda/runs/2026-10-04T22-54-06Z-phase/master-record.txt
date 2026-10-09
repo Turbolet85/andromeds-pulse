@@ -1,0 +1,1 @@
+2026-10-04-l4-framing-measured-on-the-real-model · pending · the pre-registered L4 trigger-framing series (shipped --min-rank1 36, then nf record-only) runs on the real model through a Linux CUDA llama-cli · → andromeda-pulse-0.3.0/chunks/2026-10-04-l4-framing-measured-on-the-real-model/

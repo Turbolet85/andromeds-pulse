@@ -1,0 +1,124 @@
+[
+{
+"sql": "SELECT callee_name, callee_kind, file, line FROM refs WHERE callee_name IN ('ServiceListItem','tier_rank','list_with_states') ORDER BY callee_name, file, line",
+"rows": 19,
+"result": [
+{
+"callee_name": "ServiceListItem",
+"callee_kind": "type",
+"file": "crates/triage/src/contract.rs",
+"line": 98
+},
+{
+"callee_name": "ServiceListItem",
+"callee_kind": "type",
+"file": "crates/triage/src/lifecycle/mod.rs",
+"line": 44
+},
+{
+"callee_name": "ServiceListItem",
+"callee_kind": "type",
+"file": "crates/triage/src/lifecycle/persistence.rs",
+"line": 25
+},
+{
+"callee_name": "ServiceListItem",
+"callee_kind": "type",
+"file": "crates/triage/src/lifecycle/persistence.rs",
+"line": 179
+},
+{
+"callee_name": "ServiceListItem",
+"callee_kind": "type",
+"file": "crates/triage/src/lifecycle/persistence.rs",
+"line": 311
+},
+{
+"callee_name": "ServiceListItem",
+"callee_kind": "type",
+"file": "crates/triage/src/lifecycle/persistence.rs",
+"line": 318
+},
+{
+"callee_name": "ServiceListItem",
+"callee_kind": "type",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 77
+},
+{
+"callee_name": "ServiceListItem",
+"callee_kind": "type",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 185
+},
+{
+"callee_name": "ServiceListItem",
+"callee_kind": "type",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 188
+},
+{
+"callee_name": "ServiceListItem",
+"callee_kind": "type",
+"file": "pulse-app/src/services_router.rs",
+"line": 32
+},
+{
+"callee_name": "ServiceListItem",
+"callee_kind": "type",
+"file": "pulse-app/src/services_router.rs",
+"line": 42
+},
+{
+"callee_name": "list_with_states",
+"callee_kind": "fn",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 222
+},
+{
+"callee_name": "list_with_states",
+"callee_kind": "fn",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 71
+},
+{
+"callee_name": "list_with_states",
+"callee_kind": "fn",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 83
+},
+{
+"callee_name": "list_with_states",
+"callee_kind": "fn",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 122
+},
+{
+"callee_name": "tier_rank",
+"callee_kind": "fn",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 120
+},
+{
+"callee_name": "tier_rank",
+"callee_kind": "term",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 126
+},
+{
+"callee_name": "tier_rank",
+"callee_kind": "term",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 134
+},
+{
+"callee_name": "tier_rank",
+"callee_kind": "fn",
+"file": "pulse-app/src/services_router.rs",
+"line": 103
+}
+],
+"db_state": "regenerated",
+"plane": "rust"
+}
+]

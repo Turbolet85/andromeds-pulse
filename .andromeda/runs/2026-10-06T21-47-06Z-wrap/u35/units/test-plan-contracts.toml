@@ -1,0 +1,39 @@
+# test-plan.md ## 3. Test Harness Contract — the keyed-contract index (U35). Ask registry.py contracts; never read whole.
+schema = 1
+master = "test-plan.md"
+section = "## 3. Test Harness Contract"
+
+[[row]]
+key = "5-command implementation"
+file = "contracts/test-plan/5-command-implementation.md"
+labels = ["boot", "Command body", "Readiness signal", "Exit code", "Timeout", "run", "Exit code semantics", "Output format", "Test selection", "Narrow a `pulse-app` run with `--filter-expr` / `-E` under `--workspace`, not with `-p`", "status", "Verdict JSON (stdout)", "cleanup", "Idempotency", "Verification", "logs", "Format", "Retention window", "Agent parsing"]
+
+[[row]]
+key = "Status endpoint shape"
+file = "contracts/test-plan/status-endpoint-shape.md"
+labels = ["Agent reads"]
+
+[[row]]
+key = "Log format"
+file = "contracts/test-plan/log-format.md"
+labels = ["Stream", "Format", "Example", "Agent-parseable signals"]
+
+[[row]]
+key = "PID file"
+file = "contracts/test-plan/pid-file.md"
+labels = ["Location", "Lifecycle", "Format"]
+
+[[row]]
+key = "Test data bootstrap"
+file = "contracts/test-plan/test-data-bootstrap.md"
+labels = ["Strategy", "Mechanism", "Per-test isolation", "Cleanup"]
+
+[[row]]
+key = "Bootstrap phases"
+file = "contracts/test-plan/bootstrap-phases.md"
+labels = []
+
+[[row]]
+key = "Per-chunk gate discipline"
+file = "contracts/test-plan/per-chunk-gate-discipline.md"
+labels = ["Boot-smoke gate (conditional)", "Direct-binary smoke variant (accepted alternative form)", "Process-end witness form (integration tier)"]

@@ -1,0 +1,98 @@
+[
+{
+"tool": "registry",
+"v": "1.0",
+"sha8": "e78877bf",
+"ts": "2026-09-29T15:24:43Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/architecture.md",
+"--out",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/architecture-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §Infrastructure Patterns in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.0",
+"sha8": "e78877bf",
+"ts": "2026-09-29T15:24:43Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/test-plan.md",
+"--out",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/test-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Test Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.0",
+"sha8": "e78877bf",
+"ts": "2026-09-29T15:24:43Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/obs-plan.md",
+"--out",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/obs-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Observability Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.0",
+"sha8": "e78877bf",
+"ts": "2026-09-29T15:24:43Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/a11y-plan.md",
+"--out",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/a11y-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. A11y Assertion Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+}
+]

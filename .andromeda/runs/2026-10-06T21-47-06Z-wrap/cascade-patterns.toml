@@ -1,0 +1,28 @@
+# Cascade sweep — the three amendments of the 2026-10-06T21-47-06Z 0-pending wrap.
+# A: obs-plan §8 no longer calls the redaction entry "the head entry".
+# B: test-plan §1 and obs-plan §10 no longer say `pwsh` is absent on the dev host.
+
+[[pattern]]
+id = "head-entry"
+fixed = 'head entry'
+ignore_case = true
+
+[[pattern]]
+id = "redaction-owner"
+fixed = 'L4 generation records render unredacted'
+
+[[pattern]]
+id = "pwsh-absent"
+regex = '`pwsh` is absent|no `pwsh`|has no `pwsh`|pwsh. absent'
+
+[[pattern]]
+id = "founder-sudo"
+regex = 'founder.s sudo'
+
+[[pattern]]
+id = "ps1-half"
+regex = '`\.ps1` half has (never|not) run'
+
+[[pattern]]
+id = "ps1-trigger"
+fixed = 'l4-latency-p99-ps1-run-coverage'

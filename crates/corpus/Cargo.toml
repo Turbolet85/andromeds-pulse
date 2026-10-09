@@ -11,9 +11,9 @@ serde.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
 chrono.workspace = true
-strict-path.workspace = true
 rusqlite.workspace = true
 keyring.workspace = true
+blake3.workspace = true
 aes-gcm.workspace = true
 rand.workspace = true
 security = { path = "../security" }

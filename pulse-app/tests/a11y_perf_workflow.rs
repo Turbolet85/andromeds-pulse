@@ -40,19 +40,36 @@ fn ci_workflow_invokes_xtask_perf_slo_load() {
     );
 }
 
+// The lines of one job, from its `  {name}:` header to the next job header.
+// Line-anchored so a CRLF checkout reads the same as an LF one.
+fn job_block(content: &str, name: &str) -> String {
+    let header = format!("  {name}:");
+    let lines: Vec<&str> = content.lines().collect();
+    let start = lines
+        .iter()
+        .position(|l| *l == header)
+        .unwrap_or_else(|| panic!("ci.yml MUST declare a `{name}` job"));
+    lines[start + 1..]
+        .iter()
+        .take_while(|l| !(l.starts_with("  ") && !l.starts_with("   ") && l.ends_with(':')))
+        .copied()
+        .collect::<Vec<&str>>()
+        .join("\n")
+}
+
 #[test]
 fn ci_workflow_builds_ui_before_a11y_run() {
-    let content = read_workflow();
-    let build_idx = content
+    let block = job_block(&read_workflow(), "a11y");
+    let build_idx = block
         .find("npm run build --prefix pulse-app/ui")
-        .or_else(|| content.find("npm --prefix pulse-app/ui run build"))
-        .expect("ci.yml MUST invoke npm run build before a11y audit (Vite dist needed by Lighthouse/Playwright)");
-    let a11y_idx = content
+        .or_else(|| block.find("npm --prefix pulse-app/ui run build"))
+        .expect("the a11y job MUST invoke npm run build before the a11y audit (Vite dist needed by Lighthouse/Playwright)");
+    let a11y_idx = block
         .find("cargo xtask test:a11y")
-        .expect("ci.yml MUST invoke cargo xtask test:a11y");
+        .expect("the a11y job MUST invoke cargo xtask test:a11y");
     assert!(
         build_idx < a11y_idx,
-        "npm build step MUST appear before cargo xtask test:a11y in ci.yml"
+        "npm build step MUST appear before cargo xtask test:a11y inside the a11y job"
     );
 }
 
@@ -125,7 +142,7 @@ fn ci_workflow_uses_sha_pin_discipline_unchanged() {
             .unwrap_or("");
         assert!(
             sha_part.len() >= 40 && sha_part.chars().take(40).all(|c| c.is_ascii_hexdigit()),
-            "ci.yml `uses:` line MUST be pinned к а 40-char SHA per security \
+            "ci.yml `uses:` line MUST be pinned to a 40-char SHA per security \
              plan §Supply Chain + CI (line: `{trimmed}`)"
         );
     }
@@ -138,7 +155,7 @@ fn ci_workflow_preserves_workflow_level_contents_read_permission() {
     assert!(
         intro.contains("permissions:") && intro.contains("contents: read"),
         "ci.yml MUST preserve workflow-level `permissions: contents: read` \
-         per security plan §Secret Management (no widening к contents: \
+         per security plan §Secret Management (no widening to contents: \
          write at workflow level)"
     );
 }

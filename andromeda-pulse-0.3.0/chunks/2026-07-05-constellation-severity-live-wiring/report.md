@@ -1,0 +1,34 @@
+# Report — 2026-07-05-constellation-severity-live-wiring
+
+**Chunk:** Constellation severity live-wiring — reconcile incident workspace key (resolver data_dir vs producer detected-root) so per-service severity + incidents panel light up under a live storm (P-079)
+**Date:** 2026-07-05
+**Commits:** (uncommitted at report time — this wrap commits)
+
+## Changes (structured — detectors read this)
+- **Files:** `pulse-app/src/main.rs` (M) · `pulse-app/src/digest_runtime.rs` (M) · `pulse-app/tests/integration_constellation_severity_workspace_key.rs` (new) · `andromeda-pulse-0.3.0/verification-matrix.json` (P-079 ref/status).
+- **Symbols / APIs:** NEW internal fn `pulse_app::digest_runtime::resolve_workspace_for_incidents(Option<&WorkspaceContext>, &Path) -> (String, DigestProjectContext)` — single-sources the incident FILTER key + the producer's stamped workspace. Changed: `main.rs` boot wiring — `incident_workspace_key` now derives from `workspace-detector` (was `data_dir`); the producer's project-context reuses the same detected context. **NO new TauRPC/IPC method, endpoint, port, socket, or env var. NO change to `services.list_with_states` / `incidents.list_active` wire shape (value-only key change).**
+- **Crates / modules:** none added / removed / changed (reuses existing `workspace-detector`, `triage::contract`).
+- **Dependencies:** none added / bumped.
+- **Schema / config:** none (no new DB table, config key, or migration; corpus rows already carry the correct per-incident `workspace` — the fix corrects only the query key, so no data migration).
+- **Coverage of new surfaces:**
+  - `resolve_workspace_for_incidents` (internal fn — not an external surface) → validation n/a · instrumentation n/a (the resolver itself emits no log; downstream incident-query boundary logs `item_count`, aggregate-only, AllowList-redacted) · PII redacted✓ (the workspace path is single-sourced internally, never logged raw; `interpretation.incident.created` is aggregate-only) · tests integ✓ (5: parity incl. `\\?\` form / fallback parity / storm→`list_active(key)`≥1 / zero-state) · a11y n/a (backend) · tokens n/a (backend).
+  - Incident FILTER path (`registry.list_active` in-memory `==`; corpus `load_active_incidents`/`count_active_unread` SQL) → SQL uses existing prepared-statement `?` binding (no `format!` interpolation introduced) · no workspace-detector value reaches `Command::arg`.
+
+## Deviations from intent
+1. **Combined helper** — plan step 1 sketched `resolve_incident_workspace_key → String` + a separate main.rs producer fallback (step 4); implemented ONE `resolve_workspace_for_incidents → (String, DigestProjectContext)`. **Justification:** parity is guaranteed at a single `let (key, ctx) = …` destructure (the two halves structurally cannot diverge), avoiding naming `DigestProjectContext` in main.rs + a subtle closure move of the key. Matrix `acceptance` text updated to the real helper name.
+2. **Tests in the integration file, not colocated** — plan said "colocated unit tests"; per research + session-learnings 2026-05-20, pulse-app source `#[cfg(test)] mod tests` compile but never RUN under nextest (`[lib] test = false`), so colocated would be dead. Tests live in `pulse-app/tests/*.rs` and run (5/5 in the workspace suite).
+
+## Decisions & corrections
+- **Operator live-verify PASSED** (P-079 deliverable confirmed on the live app): constellation dots now color-differentiate by severity (payment-service RED/autonomous, others BLUE/healthy) AND the incidents panel is live (unread badge "2" + populated dropdown, both from `list_active`). The workspace-key single-source fix lit up both previously-inert surfaces.
+- **2 pre-existing frontend bugs EXPOSED (NOT P-079 regressions)** — P-079 changed 4 files, ALL backend (zero `pulse-app/ui/**`); lighting up the two dead surfaces merely made always-there bugs visible. Carry-forward as route entries (P5), NOT fixed here (scope-clean — P-079 backend, both frontend):
+  1. **Incidents-panel dropdown layout bug** (NEW route entry) — the dropdown under the widget's unread badge stretches the window + overflows with a white/mis-clipped background instead of a bounded popover. Pre-existing in the incidents-panel UI (~chunk #91); never visible because `list_active` always returned 0. Focused frontend chunk: bounded popover, no window stretch, correct background.
+  2. **Traces auto-refresh** (BUMP PRIORITY on the existing entry filed at P-069's wrap) — `viz.query.traces` runs once at mount (0 rows before data) and never re-polls, so Traces reads "No traces yet" during a live storm while the constellation + incidents show live data. Operator hit it live → raise priority (same visible-brokenness class as the dropdown).
+- **Gate-deferral closure** — P-079's `nextest --workspace` re-run CLOSES the source-delta-proportional gate-deferral that P-069 (webview-only) left open (P-079 is Rust-touching). Record the closure normally.
+- **self-verify deferral** — this chunk deferred `cargo xtask self-verify`'s release-build + a11y half (backend chunk, zero frontend delta; a11y/render unchanged + P-069/p11-proven); boot-safety covered by the debug storm boot-smoke.
+- **capability-drift transient** — reported 3 missing `mcp.*` (0 extra) = the known default-features bindings.ts regen transient (chunk added 0 TauRPC procedures); this wrap regenerates bindings via the mcp-server-feature `emit_taurpc_bindings` and verifies the staged copy.
+- **Minor obs gap (future obs chunk)** — the resolver logs `item_count` but the default-deny AllowList redacts it, so the "row_count_returned ≥ 1" the obs extract wanted isn't agent-visible; verified via `metric.pipeline.l3.active_incident_queue_depth` (=5) + `incidents_created_total` (=1) + the integration test.
+
+## Outcome
+- **Met acceptance (P-079):** yes — storm → `list_active(filter_key)` ≥ 1; the filter key and producer's stamped workspace derive from ONE resolver call (parity, incl. `\\?\` form; both = data_dir on the None fallback); affected service severity non-healthy (Error); zero-incident state stays empty/all-healthy (P-067 preserved).
+- **Gates green:** `cargo fmt --check` ✓ · new integration test 5/5 ✓ · `cargo nextest run --workspace --profile ci` 1727/1727 + 1 skip, 0 FAIL ✓ · `cargo clippy --workspace --all-targets --all-features -- -D warnings` ✓ · `cargo xtask capability-drift` = known mcp bindings transient (0 extra; resolved at commit by bindings regen).
+- **Smoke (main.rs boot-path changed):** storm boot-smoke ✓ — clean boot (0 panics/errors, 12 subsystem ticks) → real retry-storm → 1 incident (`severity:error`, `priority_tier:autonomous`) via the full cue→storm→cadence→digest→deterministic-L4 pipeline → `active_incident_queue_depth=5` → both resolvers querying the single-sourced key (`services.list_with_states` 726× · `incidents.list_active` 10×) → zero-orphan shutdown. **Operator live-verify PASSED** (visual confirmation).

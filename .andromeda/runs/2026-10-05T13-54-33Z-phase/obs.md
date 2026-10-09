@@ -1,0 +1,35 @@
+# obs extract
+
+## Relevance
+partial: the GPU SLO raise is §10 territory, and the model swap touches the §8 `interpretation.model.load` leaf. The GBNF, the argv swap and the sampling flags belong to arch and tests, with only logging-hygiene obligations from obs.
+
+## Constraints
+- **The raised gpu-primary budget must stay a hard budget, never an advisory one** (per obs-plan §11 SLO, "NEVER define soft SLO budgets"; §10 CI gates). Raising the figure is allowed. Turning it into a figure that no longer fails a run when it is exceeded is not. Whether `xtask/ci/l4-latency-p99.sh` fails a run, or only reports, when the budget is exceeded is research's question.
+- **Set the figure against the p99 tail, using the grader's nearest-rank rule** (per obs-plan §10 Performance budgets, snapshot row: "the one rule for every perf arm", ⌈0.99·n⌉-th smallest). The measured p50 of 5346 / 5187 ms and the 7.5 s max are inputs. The budget itself is a p99. Whether `l4-latency-p99.sh` computes p99 by that same nearest-rank rule is research's question.
+- **Where the budget figure is recorded:** obs-plan §10's perf-budget table carries no L4 row as read. The per-profile L4 budgets were confirmed canonical *in `xtask/ci/l4-latency-p99`* by the obs-plan-amendments sidecar entry `2026-06-10 — Chunk #99 tag gate`, which folded into §10 without adding a row. The scope's claim that obs-plan §10 is a spec home is therefore a claim that a home must be created or recorded, not one already holding the 5000 ms. The script exists as `.sh` and `.ps1` siblings under `xtask/ci/`, and both carry the budget.
+- **The model swap keeps the `interpretation.model.load` field set exactly** (per obs-plan §8 Muted-diagnostic backlog → `interpretation.model.load`, leaf `{model_identity, tier, load_status, inference_mode}`). `model_identity` carries the semantic name at the loaded emit. The pick changes the value and must not change the set. A field added "for debuggability" breaks the equality guard: sampling values, a grammar path or a GGUF hash are examples. Whether the semantic name is derived from the GGUF and follows the swap, or is a hard-coded Llama literal, is research's question.
+- **Any new `interpretation.*` target gets its own EXACT leaf and a field-set-equality guard under `pulse-app/tests/`** (per obs-plan §8 `interpretation.incident.created`: there is no bare `interpretation` key, and `for_target("interpretation").is_none()` holds). This applies to a grammar-load or grammar-missing diagnostic if the chunk adds one. A `src`-level guard never runs because of the `[lib] test = false` rule.
+- **Path fields are basename-only** (per obs-plan §8 `interpretation.model.load.error` `path_basename` and the Plugin file paths classification row). This covers the new on-disk GBNF passed through `--grammar-file` and the GGUF, as well as the CUDA binary. If any record names them, it carries basenames only, never a full path.
+- **A failed L4 generation is logged at the module boundary with an error category, never silent** (per obs-plan §10 Standard+ invariants "Module-boundary error logging"; §7 Error classes captured). The json-schema failure shape is `Failed to initialize samplers`, exit 0, no JSON. Its grammar-file analogue must therefore read as a categorized WARN/ERROR rather than as an empty success. Whether today's subprocess path classifies exit-0-without-JSON as a logged failure is research's question.
+
+## Patterns to follow
+- **Nearest-rank p99 over raw per-event samples** (per obs-plan §10 snapshot row; §11 Metrics "emit raw per-event `value`… agent computes percentiles"). The grader computes the quantile, and the emission path never pre-computes it.
+- **Exact leaf plus a both-directions field-set-equality guard with a no-fallback discriminator** under `pulse-app/tests/` (per obs-plan §8, the `interpretation.model.allow_root` / `.load.error` pair guarded by `unit_observability_allowlist_l4_path_guard.rs`).
+- **Record budget changes as current-truth in the amendments sidecar, alongside the canonical script** (per obs-plan-amendments `2026-06-10 — Chunk #99 tag gate … L4 budgets`, the precedent for where L4 budget truth is recorded).
+- **Prove a field with a live wire read:** on the real-model leg, read `interpretation.model.load` with 0 `<redacted>` (per obs-plan §8 Muted-diagnostic backlog, "live-verified unredacted at the wire").
+
+## Anti-patterns to avoid
+- Never widen the SLO into a soft budget, and never defer the over-budget decision to a human (per obs-plan §11 SLO).
+- Never log the composed prompt, the GBNF text, the model's stdout or the generated JSON. Never log full model, grammar or binary paths (per obs-plan §11 Logs "full paths (Vector 3)"; §8 `interpretation.incident.skipped` "never … prompt or model text").
+- Never use an unbounded label: model identity rides as the bounded semantic name, never as a path or hash, and sampling values are never labels (per obs-plan §11 Metrics, cardinality).
+
+## Contract bindings
+- **obs ↔ tests:** the L4 latency grader `xtask/ci/l4-latency-p99.{sh,ps1}` reads the product's latency samples from the JSON log family (per obs-plan §6 Log format, §10). The budget lives in the script, and the real-model end-to-end read is its live witness.
+- **obs ↔ arch:** the gpu-primary < 5 s figure also appears in `docs/v0_2_0/pulse-distillation-architecture.md` (Hardware Profile Matrix :317, L4 SLO :531, end-to-end Tier-1 p99 :864). These are the dist-arch homes the scope names. The raised figure moves in lockstep across the script pair and those homes, and arch [LLM Inference Runtime] names the shipped model.
+- **obs ↔ security:** basename-only path logging and the never-log ban on prompt, stdout and model text (per obs-plan §8, which binds to security-plan §Logging). This covers the new GBNF file as well as the L4 path vars.
+
+## Acceptance criteria contributions
+- **(obs) The raised budget is enforced.** `l4-latency-p99.sh` and its `.ps1` sibling carry the same new gpu-primary figure. The chunk's live CUDA run grades PASS under it, by the nearest-rank p99. The grader still fails on a sample set whose p99 exceeds the figure (per obs-plan §10 Performance budgets; §11 SLO).
+- **(obs) The live run names the pick.** In the real-model run's log, `interpretation.model.load` carries a `model_identity` that names the pick (not Llama-3.2-3B), with a field set exactly `{model_identity, tier, load_status, inference_mode}` and 0 `<redacted>` (per obs-plan §8 `interpretation.model.load`).
+- **(obs) No leaked paths or text, and no panics.** Across the real-model run's `agent-latest.jsonl*` family there are 0 full paths for the GGUF, the GBNF and the binary, 0 prompt / grammar / model-output text, and 0 `app.panic.fatal` (per obs-plan §8 basename discipline; §10 zero-unlogged-panics).
+- **(obs) The budget's truth is recorded with the script.** The new figure and its p99 basis are recorded beside the canonical script: a §10 L4 row or an obs-plan-amendments entry on the 2026-06-10 precedent, plus the dist-arch homes. No home is left stating < 5 s (per obs-plan §10; obs-plan-amendments 2026-06-10).

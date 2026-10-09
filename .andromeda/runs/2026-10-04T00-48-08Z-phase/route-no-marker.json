@@ -1,0 +1,31 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T00:48:27Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-04T00-48-08Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 5 of 73 entries · freight blocks 5 · rows are an INDEX, not the text",
+"152 · CONTEXT: · 508 chars · CONTEXT: RUSTSEC-2026-0325 / -0326 / -0327 on `wasmtime` 48.0.3, published 2026-10-02, red…",
+"154 · CONTEXT: · 657 chars · CONTEXT: `OsKeychainBackend::fetch_from_os_store` (`crates/corpus/src/keychain.rs`) gets, …",
+"156 · CONTEXT: · 597 chars · CONTEXT: S2's default posture died ~1.5 s in on Gdk `Error 71 (Protocol error) dispatching…",
+"158 · CONTEXT: · 226 chars · CONTEXT: measure first — Conductor's d3 rank-1 interpretation (2026-10-01, relayed by the …",
+"160 · CONTEXT: · 546 chars · CONTEXT: the verb needs `wsl.exe` (`xtask/src/pre_push.rs`), and since the 2026-10-03 move…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

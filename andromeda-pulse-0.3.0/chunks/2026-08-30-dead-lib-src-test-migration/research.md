@@ -1,0 +1,60 @@
+# Codebase Research — 2026-08-30-dead-lib-src-test-migration
+
+## Scope
+- **Depth:** deep (all 14 dead-test modules read in full) · **Reads:** 22 (8 Read-tool test-module reads + 14 Bash-based file/excerpt reads: 6 small modules, ratchet constant, Cargo.toml, lib.rs, 5 existing-suite heads) · **Globs/Greps:** 6 (baseline constant · overlap probe · visibility census ×2 · TrayError/inspect closure · dead-test census)
+
+## Files inspected
+- `pulse-app/tests/unit_observability_allowlist_sweep.rs` (:210–250) — `LEGACY_DEAD_BASELINE` at HEAD: exactly the 14 files, counts summing **102**; the counter matches trimmed `#[test]` OR `#[tokio::test]` lines; `main.rs` skipped by name. The drain edits ONLY this constant (→ empty slice); the growth guard logic and the file's leaf-equality obs guards are untouched.
+- `pulse-app/Cargo.toml` (full) — `[lib] test = false` confirmed; NO `[[test]]` sections (tests/ auto-discovery, `test = true` default — the 2026-08-29 `[[example]]` trap does not apply); dev-deps already cover every import the dead tests use (`tempfile`, `wat`, `tonic`, `prost`, `reqwest`, `arrow`, `assert_fs`, `pulldown-cmark`; `tracing-subscriber`/`serde_json`/`chrono`/`duckdb` are main deps). **Zero manifest delta needed.**
+- `pulse-app/src/lib.rs` (full) — all 14 modules are `pub mod` (`mcp_router` behind `#[cfg(feature = "mcp-server")]`); integration tests reach them as `pulse_app::{module}::…`.
+- `pulse-app/src/heartbeat.rs` (:419–968) — 25 tests: emit-site field assertions for `ingest.tick` / `buffer.tick` / `viz.tick` / `plugins.tick` / `connection.tick` + per-stream gauges + drain fields, via a local `capture_lines` (VecMakeWriter + plain `fmt::layer().json()` + thread-local `with_default`); plus `spawn_returns_five_handles_and_aborts_cleanly` (`#[tokio::test]`). The 5 `emit_*` fns are PRIVATE (`:223/:269/:362/:373/:391`) → widenings. Fragile exact-count asserts (`lines.len() == 2` at :563, spawn handle count 5 at :913) may fail first-run if emit sites/tasks grew — disposition rule applies.
+- `pulse-app/src/window.rs` (:537–672) — 13 tests: `detect_{webview_backend,tray_api,wgpu_backend}` (pub ✓), `sanitize_window_label` (PRIVATE :107), `widget_position_label` (pub(crate) :333, asserts exactly the four shipped corners), `compute_snap_position` (pub(crate) :381; six tests incl. the 24-margin formula + non-zero/negative monitor origins — the same formula the headful `boot-geometry` stage re-derives). No signpost tests here (no overlap with `unit_close_signpost.rs`), no nine-value grid, no halo.
+- `pulse-app/src/tray.rs` (:318–447) — 10 tests (2 behind `#[cfg(feature = "mcp-server")]`): glyph raster pins (32×32 buffer, >50 lit floor, white-opaque-or-transparent binary alpha, outer-ring cardinals, image dims), `sanitize_menu_id` bounded set, `MENU_ID_*` const alignment (one test cites "design plan §Surface: desktop-native menu structure" + the obs `menu_item` value set), `TrayError` display sanitization. `MENU_ID_*` ×6 + `TRAY_GLYPH_SIZE` + `build_glyph_pixels`/`build_glyph_image` + `sanitize_menu_id` are PRIVATE → widenings; `TrayError` is `pub` (:33) ✓.
+- `pulse-app/src/diagnostics_router.rs` (:525–760) — 11 tests: `template_distribution` behaviors (empty/top-N-order/cap/drift-indicator; 4 `#[tokio::test]` constructing `DiagnosticsApiImpl` with noop reevaluator + real `LlamaCliInference` + `UnknownHardwareProfile`), `DriftIndicatorPayload` round-trip, `drain_error_to_app_error` sanitization ×5, payload serde round-trip. `TEMPLATE_DISTRIBUTION_TOP_N` (:31) and `drain_error_to_app_error` (:506) already `pub` ✓.
+- `pulse-app/src/plugins_router.rs` (:205–346) — 7 `#[tokio::test]` (matches baseline 7; ALL tokio — why the bare `#[test]` grep read 0): list envelope, invoke allowed/disallowed/not-found, cumulative counter, per-category exports; fixtures build real wasmtime components via `wat` (dev-dep ✓). Counter test reads the PRIVATE `registry` field (:58, accessed :318) → field widening or accessor.
+- `pulse-app/src/snapshot_runtime.rs` (:315–548) — 7 tests: `preset_prompts`/`preset_label`/`preset_to_budget` (PRIVATE :53/:63/:71 → widenings) + 4 `#[tokio::test]` (storage-error arm, three-canonical-targets capture, dual md+json file writes, PII canary) using a local `CapturingSubscriber` + `set_default` guard (the 2026-05-09 async-test pattern) and raw-SQL span seeding into in-memory DuckDB.
+- `pulse-app/src/storage_router.rs` (:280–383) — 7 tests: 3 `#[tokio::test]` inspect/path + 4 `corpus_error_to_app_error` sanitization (`corpus_error_to_app_error` pub :262 ✓). **CONFIRMED STALE**: `inspect_payload_includes_all_six_tables` enumerates 6 tables including the DROPPED `baseline_state`; `inspect_returns_zero…`/`path_returns_memory_marker…` assert `schema_version == 1` and `record_counts.len() == 6` — the corpus at HEAD is SCHEMA_VERSION **2** / **5** tables, and `Corpus::inspect_summary` (crates/corpus/src/contract.rs:204-206) derives both from the LIVE corpus → first-run failures, fix-as-stale on the TEST side only (no product gap).
+- `pulse-app/src/mcp_router.rs` (:251–328) — 6 tests (4 tokio + 2 sync): double-gate status/start/stop, `gate_state_to_mcp_state` + `state_label` (both PRIVATE :85/:93 → widenings). `start_refused…` mutates `ANDROMEDA_PULSE_MCP_ENABLED` via `unsafe remove_var` — safe under nextest process-per-test. Whole module is feature-gated → migrated file takes `#![cfg(feature = "mcp-server")]`.
+- `pulse-app/src/{connection_router,restart_observer,digest_runtime,baseline_observer,storm_observer,streams}.rs` (test tails, 4+4+2+2+2+2 = 16 tests) — all substantive behavioral pins (ConnectionApiImpl states + `HeartbeatBindStatus` (pub ✓); observer adapters + `CompositeSpanObserver` fan-out (structs pub ✓); `pii_scrub_closure` JWT redaction (pub ✓); storm cue broadcast; streams constructor/clone sharing — `senders` field PRIVATE (:23) → field widening).
+- Existing-suite overlap probes — `unit_window_geometry.rs` covers `window_geometry.rs` (different module), `unit_window_constraints.rs` covers `window.rs::clamp_to_aspect_bounds` (already-pub precedent for window widenings), `unit_close_signpost.rs` covers the signpost fns, `unit_diagnostics_router_{retry_interpretation,snapshot}.rs` cover OTHER procedures. `grep -rln 'compute_snap_position|sanitize_window_label|widget_position_label|sanitize_menu_id|build_glyph' pulse-app/tests/` → **NO HITS**: the dead tests are the ONLY assertions of these symbols.
+- `pulse-app/tests/observability_pins.rs` (:1–60) + `pulse-app/tests/e2e_p3_mcp_subprocess_tools_call.rs` (head) — the two shape precedents: migration header comment + `pulse_app::…` absolute imports + VecMakeWriter capture; `#![cfg(feature = "mcp-server")]` file-level gating.
+
+## Graph impact (trace: `.andromeda/runs/2026-08-30T18-46-26Z-phase/tree-query-2026-08-30-dead-lib-src-test-migration.json`, plane rust)
+- **crate_edges → pulse-app**: 0 rows (DB live — the sibling query returned rows, so this empty is a real finding, not cold-start) — `pulse-app` is the DAG root; every `#[doc(hidden)] pub` widening is reachable only by pulse-app's own targets, matching arch §Module dependency direction.
+- **`sanitize_window_label` callers**: resolved caller set recorded in the trace (production emit-site callers + the dead test's own calls at window.rs:593-594) — the fn is production-live (backs the `tray.signpost.shown` / `app.boot.window.navigation` / `ui.ipc.rejection` bounded label domains per obs-plan §8), so its migrated test becomes the first EXECUTED pin of that bounded domain.
+
+## Patterns detected
+- **Migration header + absolute imports** (`observability_pins.rs:1-8`): a comment naming the source module + the `[lib] test = false` reason, then `use pulse_app::{module}::*` — the committed 130-test precedent this chunk repeats.
+- **VecMakeWriter JSON capture** (`observability_pins.rs:20-40` ≙ `heartbeat.rs:454-490`): the dead heartbeat tests' capture helper is ALREADY byte-similar to the migrated pins file's — it moves with the tests (plain `fmt::layer().json()`, no allowlist — deliberate: these assert EMIT-SITE truth, upstream of redaction).
+- **`set_default` guard for async capture** (`snapshot_runtime.rs:459`, per testing.md 2026-05-09): the snapshot tests already use the correct async-test subscriber scoping; migrates as-is.
+- **File-level feature gate** (`e2e_p3_mcp_subprocess_tools_call.rs:10`): `#![cfg(feature = "mcp-server")]` — the migrated mcp_router file's gate; tray's 2 gated tests keep per-test `#[cfg(feature = "mcp-server")]`.
+- **`#[doc(hidden)] pub` widening** (test-plan §2/§4; `unit_window_constraints.rs` imports `pulse_app::window::{WIDGET_MAX_ASPECT,…}` as the shipped window-module example).
+
+## Conventions to follow
+- **`unit_*` file family, flat `#[test]` fns** (test-plan §4): new files join `pulse-app/tests/unit_*.rs`.
+- **Collected BY NAME, reconciled added-by-name** (test-plan §1/§3): `cargo nextest list --workspace --profile ci | grep -c <target>` per new binary; workspace delta must equal the migrated count minus deletions.
+- **Run-scope**: narrow with `-E` under `--workspace`, never `-p` (test-plan §3); iterate per-binary with `cargo test --test <name> -p pulse-app`.
+- **Build-first de-race + `--jobs 4`** (testing.md 2026-06-28 family): ~12 NEW test binaries join a ~80-binary suite; `cargo build --workspace --tests --jobs 4` before the workspace nextest.
+- **Gate order**: full standard set with `cargo xtask capability-drift` LAST (staged assertion folded in); webview trio excluded (zero `pulse-app/ui/**` paths); boot-smoke trigger list not touched by the 14 files (and no widening reaches `main.rs`/`observability.rs`/ui-bridge — heartbeat/window/tray sit outside the trigger list).
+
+## New files to create (grouping basis — P4 finalizes)
+- `pulse-app/tests/unit_heartbeat_ticks.rs` — 25 heartbeat tests (+ its capture helpers).
+- `pulse-app/tests/unit_window_shell.rs` — 13 window tests (backends · labels · snap formula).
+- `pulse-app/tests/unit_tray_glyph_menu.rs` — 10 tray tests (2 per-test mcp-gated).
+- `pulse-app/tests/unit_diagnostics_router_template_distribution.rs` — 11 tests.
+- `pulse-app/tests/unit_plugins_router.rs` — 7 tests.
+- `pulse-app/tests/unit_snapshot_runtime.rs` — 7 tests.
+- `pulse-app/tests/unit_storage_router.rs` — 7 tests (3 fix-as-stale to 5-table/v2 expectations).
+- `pulse-app/tests/unit_mcp_router.rs` — 6 tests, `#![cfg(feature = "mcp-server")]`.
+- `pulse-app/tests/unit_connection_router.rs` — 4 tests.
+- `pulse-app/tests/unit_span_observers.rs` — 8 tests (baseline_observer 2 + restart_observer 4 + storm_observer 2 — restart's composite test already imports baseline's adapter, so the trio coheres).
+- `pulse-app/tests/unit_streams_api.rs` — 2 tests.
+- `pulse-app/tests/unit_digest_runtime_scrub.rs` — 2 tests.
+
+## Files to modify
+- The 14 `pulse-app/src/*.rs` modules — delete each `#[cfg(test)] mod tests` block (replacement comment pointing at the destination file, per the chunk #72 / observability_pins precedent); widenings in 7 of them: `heartbeat.rs` (5 `emit_*` fns), `window.rs` (`sanitize_window_label` → pub, `widget_position_label`/`compute_snap_position` pub(crate) → pub, all `#[doc(hidden)]`), `tray.rs` (~10 symbols), `snapshot_runtime.rs` (3 `preset_*` fns), `mcp_router.rs` (2 fns), `plugins_router.rs` (`registry` field), `streams.rs` (`senders` field). Zero widenings in the other 7.
+- `pulse-app/tests/unit_observability_allowlist_sweep.rs` — `LEGACY_DEAD_BASELINE` drained to an empty slice (growth guard + leaf-equality guards untouched).
+- Caller threading: NONE — no production signature changes, so no caller set to thread; `lib.rs` unchanged (all modules already `pub mod`); manifest unchanged (auto-discovery).
+
+## Open questions
+- none blocking plan-decision. One implementation-scope note: exact-count first-run assertions (heartbeat `lines.len() == 2` / `spawn` handle count 5; possibly others) may fail against emit sites that grew after the tests were written — each takes the scope's disposition rule (fix-as-stale against the emit site as authority, per obs rules' emit-site-is-the-authority); the file list above is otherwise final.

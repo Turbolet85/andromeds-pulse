@@ -1,0 +1,98 @@
+[
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "352b879e",
+"ts": "2026-10-05T15:21:42Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/architecture.md",
+"--out",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/architecture-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §Infrastructure Patterns in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "352b879e",
+"ts": "2026-10-05T15:21:43Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/test-plan.md",
+"--out",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/test-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Test Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "352b879e",
+"ts": "2026-10-05T15:21:43Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/obs-plan.md",
+"--out",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/obs-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Observability Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "352b879e",
+"ts": "2026-10-05T15:21:43Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/a11y-plan.md",
+"--out",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap/a11y-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. A11y Assertion Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+}
+]

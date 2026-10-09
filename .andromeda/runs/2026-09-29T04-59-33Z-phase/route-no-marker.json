@@ -1,0 +1,30 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-29T05:00:01Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-09-29T04-59-33Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 2 of 59 entries · freight blocks 4 · rows are an INDEX, not the text",
+"130 · CONTEXT: · 160 chars · CONTEXT: first step is U05's reflow from the setup upgrade `8b86529` — `cargo fmt --all`, …",
+"130 · CONTEXT: · 763 chars · CONTEXT: Conductor's contract `D:/dev/projects/conductor/contracts/pulse-p025-measurement-…",
+"130 · PREREQ: · 396 chars · PREREQ: close rust gate deferral (deferred since 2026-08-30-agent-harness-teardown-truth — …",
+"130 · PREREQ: · 1006 chars · PREREQ: re-check `cargo audit` (standing deferral since `2026-08-15-corpus-key-persistence…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

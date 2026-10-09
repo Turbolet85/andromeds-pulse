@@ -1,10 +1,10 @@
-//! Integration tests для `pulse-app/src/degraded_mode_runtime.rs`
+//! Integration tests for `pulse-app/src/degraded_mode_runtime.rs`
 //! `LocalDegradedModeStatus` concrete impl (chunk #86).
 //!
 //! pulse-app's `[lib] test = false` setting disables source-level
-//! `mod tests` blocks on Windows due к WebView2 DLL load (per CLAUDE.md
+//! `mod tests` blocks on Windows due to WebView2 DLL load (per CLAUDE.md
 //! testing.md 2026-05-20 session 107 entry); all unit tests for pulse-app
-//! crate code live в `pulse-app/tests/unit_*.rs` integration test files.
+//! crate code live in `pulse-app/tests/unit_*.rs` integration test files.
 
 use std::sync::{Arc, Mutex};
 
@@ -106,7 +106,7 @@ fn record_failure_outside_window_resets_counter() {
     dm.record_failure(t0 + NANOS_PER_SEC);
     // Gap > FAILURE_WINDOW_SECS from the LAST failure (not t0) — counter
     // restarts from 1. Last failure was at t0+1s; outside must be
-    // > t0+1s + 300s = t0 + 301s. Use +302s к stay strictly outside.
+    // > t0+1s + 300s = t0 + 301s. Use +302s to stay strictly outside.
     let outside = t0 + NANOS_PER_SEC + (FAILURE_WINDOW_SECS as i64 + 1) * NANOS_PER_SEC;
     let snap = dm.record_failure(outside);
     assert_eq!(snap.consecutive_failures, 1);
@@ -225,8 +225,8 @@ fn interpretation_retry_error_to_app_error_covers_all_variants_with_sanitization
 
 // =============================================================================
 // Tracing event emission tests — CapturingSubscriber pattern from chunk #44
-// (CLAUDE.md testing.md 2026-05-11 entry — extends к field-VALUE assertions
-// для chunk #86 degraded.enter / degraded.exit events).
+// (CLAUDE.md testing.md 2026-05-11 entry — extends to field-VALUE assertions
+// for chunk #86 degraded.enter / degraded.exit events).
 // =============================================================================
 
 struct CapturedEvent {

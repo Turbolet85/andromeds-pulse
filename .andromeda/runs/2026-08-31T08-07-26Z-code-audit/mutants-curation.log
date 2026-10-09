@@ -1,0 +1,43 @@
+Found 105 mutants to test
+ok       Unmutated baseline in 10s build + 1s test
+ INFO Auto-set test timeout to 20s
+MISSED   crates/curation/src/aggregation.rs:91:59: replace - with + in percentiles in 1s build + 1s test
+MISSED   crates/curation/src/aggregation.rs:91:59: replace - with / in percentiles in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:63:5: replace kind_ordinal -> u8 with 0 in 2s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:63:5: replace kind_ordinal -> u8 with 1 in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:74:20: replace < with == in detect_latency_outliers in 2s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:74:20: replace < with <= in detect_latency_outliers in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:79:49: replace / with % in detect_latency_outliers in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:80:81: replace / with % in detect_latency_outliers in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:80:51: replace - with + in detect_latency_outliers in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:80:51: replace - with / in detect_latency_outliers in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:90:39: replace / with % in detect_latency_outliers in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:90:39: replace / with * in detect_latency_outliers in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:90:31: replace - with + in detect_latency_outliers in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:91:18: replace > with >= in detect_latency_outliers in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:119:27: replace += with *= in detect_error_correlation in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:135:72: replace * with + in detect_error_correlation in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:135:72: replace * with / in detect_error_correlation in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:135:49: replace / with % in detect_error_correlation in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:135:49: replace / with * in detect_error_correlation in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:177:32: replace < with == in detect_cardinality_spikes in 2s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:177:32: replace < with <= in detect_cardinality_spikes in 2s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:183:38: replace / with % in detect_cardinality_spikes in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:187:28: replace * with + in detect_cardinality_spikes in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:193:29: replace < with <= in detect_cardinality_spikes in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:196:45: replace / with % in detect_cardinality_spikes in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:196:45: replace / with * in detect_cardinality_spikes in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:197:50: replace * with + in detect_cardinality_spikes in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:197:50: replace * with / in detect_cardinality_spikes in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:197:43: replace - with + in detect_cardinality_spikes in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:197:43: replace - with / in detect_cardinality_spikes in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:225:11: replace < with == in span_duration_ms in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:225:11: replace < with <= in span_duration_ms in 1s build + 1s test
+MISSED   crates/curation/src/anomaly.rs:225:32: replace / with * in span_duration_ms in 1s build + 1s test
+MISSED   crates/curation/src/critical_path.rs:45:41: replace += with *= in extract_critical_path in 1s build + 1s test
+MISSED   crates/curation/src/critical_path.rs:80:20: replace match guard !c.is_empty() with true in longest_path_from in 1s build + 1s test
+MISSED   crates/curation/src/critical_path.rs:109:56: replace == with != in prefer_longer_or_lex in 1s build + 1s test
+MISSED   crates/curation/src/critical_path.rs:109:88: replace < with == in prefer_longer_or_lex in 1s build + 1s test
+MISSED   crates/curation/src/critical_path.rs:109:88: replace < with <= in prefer_longer_or_lex in 1s build + 1s test
+MISSED   crates/curation/src/critical_path.rs:121:11: replace < with <= in span_duration_ms in 1s build + 1s test
+105 mutants tested in 6m: 39 missed, 58 caught, 8 unviable

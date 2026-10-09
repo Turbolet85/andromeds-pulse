@@ -1,0 +1,3 @@
+The operator's word at this run's invocation (2026-10-07, the session's first message, `/andromeda-implement` arguments, verbatim):
+
+Re-enter for a third reading BEFORE the operator pass; CO stays in the tree, nothing is committed yet. Read ~/dev/projects/additional/pc-overseer/relays/pulse-implement-third-reading-2026-10-07.md first: d1 and d3 were never read under CO or CX and the captures die with this chunk, so read d1 and d3 under shipped, CO, CX and d2 under CO, CX at n 40 (320 generations). It selects nothing: the founder decides which remedy ships with these numbers. Pre-register it and the own lines first, then ask me for the go.

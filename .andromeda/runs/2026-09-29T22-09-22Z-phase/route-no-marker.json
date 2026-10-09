@@ -1,0 +1,34 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-29T22:09:36Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-09-29T22-09-22Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 5 of 64 entries · freight blocks 8 · rows are an INDEX, not the text",
+"134 · CONTEXT: · 356 chars · CONTEXT: measured by Conductor's real-model series (Conductor `c97f697`; that repo is read…",
+"134 · CONTEXT: · 298 chars · CONTEXT: FOUNDER 2026-09-29 (asked, answered): fix the cause; Conductor's v3-09 series wai…",
+"134 · WATCH: · 724 chars · 1/3 since 2026-09-29-ci-wall-time-and-round-trips · WATCH: Linux boot silent death — re-watc…",
+"136 · CONTEXT: · 390 chars · CONTEXT: founder 2026-09-29 verbatim «надо будет добавить лицензии апачи мит»; `LICENSE-MI…",
+"138 · CONTEXT: · 346 chars · CONTEXT: measured at 2026-09-29-p-025-hue-shift-observable-made-gradable — first rise 9986…",
+"140 · CONTEXT: · 377 chars · CONTEXT: measured at 2026-09-29-p-025-hue-shift-observable-made-gradable — CI's `ci-gates`…",
+"140 · CARRY: · 534 chars · CARRY: the CI `release` job (macOS/Windows) restores the `lint-test-{os}` rust cache read-on…",
+"140 · CARRY: · 264 chars · CARRY: mirror `agent-run.sh`'s boot end-status recorder in `scripts/agent-run.ps1` — the wai…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

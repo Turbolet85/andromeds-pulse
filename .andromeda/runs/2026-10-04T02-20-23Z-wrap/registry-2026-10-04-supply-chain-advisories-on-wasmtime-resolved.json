@@ -1,0 +1,122 @@
+[
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "712d7818",
+"ts": "2026-10-04T02:22:49Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/architecture.md",
+"--out",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap/architecture-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §Infrastructure Patterns in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "712d7818",
+"ts": "2026-10-04T02:22:49Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/test-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap/test-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Test Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "712d7818",
+"ts": "2026-10-04T02:22:49Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/obs-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap/obs-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Observability Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "712d7818",
+"ts": "2026-10-04T02:22:49Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/a11y-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap/a11y-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. A11y Assertion Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "712d7818",
+"ts": "2026-10-04T02:22:54Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/architecture.md",
+"--out",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap/architecture-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §Infrastructure Patterns in the body",
+"wrote": [],
+"before": null,
+"after": null
+}
+]

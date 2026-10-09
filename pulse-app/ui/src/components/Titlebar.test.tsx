@@ -106,6 +106,27 @@ describe("Titlebar — semantic HTML + drag region + ARIA", () => {
     expect(onInvestigateClick).toHaveBeenCalledWith(btn);
   });
 
+  it("does NOT render the dashboard-toggle button when onToggleDashboardClick is undefined", () => {
+    render(<Titlebar />);
+    expect(screen.queryByTestId("titlebar-toggle-dashboard")).toBeNull();
+  });
+
+  it("renders the dashboard-toggle button with aria-label when onToggleDashboardClick is provided", () => {
+    render(<Titlebar onToggleDashboardClick={() => {}} />);
+    const btn = screen.getByRole("button", { name: "Toggle dashboard" });
+    expect(btn.tagName).toBe("BUTTON");
+    expect(btn.getAttribute("type")).toBe("button");
+    expect(screen.getByTestId("titlebar-toggle-dashboard")).toBe(btn);
+  });
+
+  it("clicking the dashboard-toggle button forwards onToggleDashboardClick", async () => {
+    const onToggleDashboardClick = vi.fn();
+    const user = userEvent.setup();
+    render(<Titlebar onToggleDashboardClick={onToggleDashboardClick} />);
+    await user.click(screen.getByTestId("titlebar-toggle-dashboard"));
+    expect(onToggleDashboardClick).toHaveBeenCalledTimes(1);
+  });
+
   it("renders the connection-state dot with role=img and a Connection aria-label", () => {
     render(<Titlebar />);
     const dot = screen.getByTestId("connection-dot");

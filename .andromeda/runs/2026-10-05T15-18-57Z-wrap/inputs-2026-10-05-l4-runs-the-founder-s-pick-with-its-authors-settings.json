@@ -1,0 +1,50 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "d30b83fd",
+"ts": "2026-10-05T15:19:08Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: the operator (overseer) relaying the founder, phase directive 2026-10-05 ~15:50",
+"I1 cited scope.md:12 · scope.md:15 · scope.md:21 · scope.md:42 · scope.md:46 · scope.md:62 · scope.md:73 · scope.md:80 · scope.md:91 · scope.md:93 · research.md:7 · research.md:47 · plan.md:17 · plan.md:31 · plan.md:320 (in fence) · plan.md:436 · plan.md:437 · plan.md:449 · plan.md:454 · plan.md:457 · plan.md:483 · plan.md:486",
+"I2 unchanged · copy no-repo · ~/dev/data/l4-model-comparison-2026-10/l4-output.gbnf",
+"I2 cited scope.md:18 · scope.md:19 · research.md:7 · research.md:51 · research.md:55 · research.md:67 · plan.md:48 · plan.md:210 (in fence) · plan.md:211 (in fence) · plan.md:436 · plan.md:449",
+"I3 unchanged · copy no-repo · ../additional/pc-overseer/l4-env.sh",
+"I3 cited scope.md:54 · research.md:7 · research.md:61 · plan.md:449 · plan.md:464 · plan.md:493",
+"I4 unchanged · pointer committed@63248fc3 · ~/dev/tools/llama.cpp-b9305:examples/json_schema_to_grammar.py",
+"I4 cited scope.md:19 · scope.md:23 · research.md:7 · research.md:69 · plan.md:43 · plan.md:147 · plan.md:210 (in fence) · plan.md:211 (in fence) · plan.md:436 · plan.md:449",
+"I5 unchanged · pointer committed@63248fc3 · ~/dev/tools/llama.cpp-b9305:LICENSE",
+"I5 UNCITED",
+"inputs: 5 entries — unchanged 4 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 1 · uncited 1 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 5,
+"counts": {
+"unchanged": 4,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 1
+},
+"uncited": 1,
+"unparsed": 0
+}
+}
+]

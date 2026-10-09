@@ -1,0 +1,6 @@
+{
+ "line": 84.35,
+ "function": 84.06,
+ "branch": null,
+ "note": "branch null: -Z coverage-options=branch is nightly-only on stable 1.95.0; function% kept in this twin"
+}

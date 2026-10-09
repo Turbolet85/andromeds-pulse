@@ -1,0 +1,93 @@
+[
+{
+"sql": "SELECT symbol, crate, file, def_line FROM symbol WHERE symbol LIKE '%ServiceListItem%' OR symbol LIKE '%list_with_states%' ORDER BY file",
+"rows": 14,
+"result": [
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 lifecycle/registry/ServiceListItem#",
+"crate": "triage",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"def_line": 53
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 lifecycle/registry/ServiceListItem#service.",
+"crate": "triage",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"def_line": 54
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 lifecycle/registry/ServiceListItem#state.",
+"crate": "triage",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"def_line": 55
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 lifecycle/registry/ServiceListItem#last_seen_unix_nano.",
+"crate": "triage",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"def_line": 56
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 lifecycle/registry/ServiceListItem#manual_override.",
+"crate": "triage",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"def_line": 57
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 lifecycle/registry/ServiceListItem#priority_tier.",
+"crate": "triage",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"def_line": 64
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 observability/tests/allowlist_for_target_resolves_services_list_with_states_request_field_set().",
+"crate": "pulse-app",
+"file": "pulse-app/src/observability.rs",
+"def_line": 3652
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServicesApi#list_with_states().",
+"crate": "pulse-app",
+"file": "pulse-app/src/services_router.rs",
+"def_line": 49
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 services_router/impl#[ServicesApiImpl][ServicesApi]list_with_states().",
+"crate": "pulse-app",
+"file": "pulse-app/src/services_router.rs",
+"def_line": 92
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 services_list_with_states_resolver_returns_typed_payload().",
+"crate": "pulse-app",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"def_line": 203
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 list_with_states_returns_empty_for_fresh_registry().",
+"crate": "pulse-app",
+"file": "pulse-app/tests/unit_services_router.rs",
+"def_line": 67
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 list_with_states_reflects_manual_override_with_no_severity().",
+"crate": "pulse-app",
+"file": "pulse-app/tests/unit_services_router.rs",
+"def_line": 78
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 list_with_states_enriches_priority_tier_from_active_service_incidents().",
+"crate": "pulse-app",
+"file": "pulse-app/tests/unit_services_router.rs",
+"def_line": 95
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 capability_drift_tests/expected_procedures_includes_services_list_with_states_at_chunk_67().",
+"crate": "xtask",
+"file": "xtask/src/main.rs",
+"def_line": 1453
+}
+],
+"db_state": "fresh"
+}
+]

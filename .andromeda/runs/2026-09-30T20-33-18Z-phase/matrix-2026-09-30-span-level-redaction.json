@@ -1,0 +1,31 @@
+[
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-01T04:32:07Z",
+"argv": [
+"coverage",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--run-dir",
+".andromeda/runs/2026-09-30T20-33-18Z-phase",
+"--marker",
+"2026-09-30-span-level-redaction"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"verified 21/22 · deferred 0 · planned 1 · implemented 0 · unclaimed 1",
+"unclaimed: P-075",
+"claimed-unfinished: none",
+"done-test: NO — 1 not verified|deferred · unclaimed 1",
+"chunks referenced: 19 distinct",
+"UNPARSED: P-072 — legacy notes placement (verification.notes); top-level notes is the convention"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

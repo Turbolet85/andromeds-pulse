@@ -1,0 +1,32 @@
+[
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T12:30:27Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-perf-budget-gate-reads-real-samples/research.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T12-15-03Z-phase",
+"--marker",
+"2026-09-30-perf-budget-gate-reads-real-samples"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 9 items (new 1 · modify 8 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 9,
+"unparsed": 0
+}
+}
+]

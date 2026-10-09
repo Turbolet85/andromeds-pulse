@@ -243,6 +243,61 @@ fn count_redactions_counts_redacted_fields() {
 }
 
 #[test]
+fn count_redactions_span_mask_counts_a_mid_value_placeholder() {
+    let masked = sample_incident(
+        "user [redacted: email] signed in",
+        "fine",
+        None,
+        None,
+        vec![],
+        IncidentStatus::Active,
+        Severity::Info,
+    );
+    let rows = [row_for(&masked, 1, "/ws", "active")];
+    let records = assemble_records(&rows).expect("assemble");
+    assert_eq!(count_redactions(&records), 1);
+}
+
+#[test]
+fn export_interpretation_span_mask_keeps_json_parseable_across_delimiters() {
+    // The `symptom` key match runs to the end of its line, and the whole
+    // summary is one compact-JSON line; `timeline` ends in a key word whose
+    // value would start at the next JSON delimiter.
+    let summary = r#"{"symptom":"login password=hunter2 failed","timeline":"rotate the secret:","title":"auth errors"}"#;
+    let incident = sample_incident(
+        "ok",
+        "fine",
+        None,
+        Some(summary),
+        vec![],
+        IncidentStatus::Resolved,
+        Severity::Info,
+    );
+    let rows = [row_for(&incident, 1, "/ws", "resolved")];
+    let records = assemble_records(&rows).expect("assemble");
+    let exported = records[0]
+        .interpretation
+        .as_deref()
+        .expect("interpretation exported");
+
+    assert!(
+        !exported.contains("hunter2"),
+        "the keyed value must not export"
+    );
+    let parsed: serde_json::Value =
+        serde_json::from_str(exported).expect("the exported interpretation stays parseable JSON");
+    assert_eq!(
+        parsed,
+        serde_json::json!({
+            "symptom": "login [redacted: secret_kv]",
+            "timeline": "rotate the secret:",
+            "title": "auth errors",
+        })
+    );
+    assert_eq!(count_redactions(&records), 1);
+}
+
+#[test]
 fn resolve_default_target_uses_injected_timestamp_under_downloads() {
     let path = resolve_default_target(987_654_321).expect("home dir available in test env");
     assert_eq!(

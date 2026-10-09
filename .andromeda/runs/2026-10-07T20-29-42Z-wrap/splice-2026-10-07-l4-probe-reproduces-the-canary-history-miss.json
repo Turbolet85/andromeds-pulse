@@ -1,0 +1,125 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "7c097b95",
+"ts": "2026-10-07T20:48:43Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap/architecture-entry.md",
+"--lines",
+"12",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+12 at line 761 · lines 760→772 · bytes 116995→119799 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-07T20-29-42Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 760,
+"bytes": 116995,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 772,
+"bytes": 119799
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "7c097b95",
+"ts": "2026-10-07T20:48:43Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap/security-plan-entry.md",
+"--lines",
+"9",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+9 at line 589 · lines 588→597 · bytes 109826→112285 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-07T20-29-42Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 588,
+"bytes": 109826,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 597,
+"bytes": 112285
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "7c097b95",
+"ts": "2026-10-07T20:48:43Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap/test-plan-entry.md",
+"--lines",
+"10",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+10 at line 668 · lines 667→677 · bytes 114282→116217 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-07T20-29-42Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 667,
+"bytes": 114282,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 677,
+"bytes": 116217
+}
+}
+]

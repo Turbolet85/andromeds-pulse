@@ -1,0 +1,135 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "e387d64c",
+"ts": "2026-10-04T15:06:20Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-04-retry-storm-interpretation-names-its-cause",
+"--run-dir",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:92 - 2026-10-04-retry-storm-interpretation-names-its-cause pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "e387d64c",
+"ts": "2026-10-04T15:06:20Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-retry-storm-interpretation-names-its-cause",
+"--date",
+"2026-10-04",
+"--run-dir",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :158 strip CONTEXT: 226ch \"CONTEXT: measure first — Conductor's d3 \"",
+"pin :158 strip WATCH: 479ch clause UNPARSED \"WATCH: CI `boot smoke (ubuntu-22.04)` — \"",
+"pin next markerless :160 holds CONTEXT:×1",
+"158 · 2026-10-04-retry-storm-interpretation-names-its-cause · strip 2 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 158,
+"marker": "2026-10-04-retry-storm-interpretation-names-its-cause",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "e387d64c",
+"ts": "2026-10-04T15:06:26Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-retry-storm-interpretation-names-its-cause",
+"--date",
+"2026-10-04",
+"--run-dir",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :158 strip CONTEXT: 226ch \"CONTEXT: measure first — Conductor's d3 \"",
+"pin :158 strip WATCH: 479ch clause UNPARSED \"WATCH: CI `boot smoke (ubuntu-22.04)` — \"",
+"pin next markerless :160 holds CONTEXT:×1",
+"158 · 2026-10-04-retry-storm-interpretation-names-its-cause · strip 2 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/route-archive.md",
+"./andromeda-pulse-0.3.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 158,
+"marker": "2026-10-04-retry-storm-interpretation-names-its-cause",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

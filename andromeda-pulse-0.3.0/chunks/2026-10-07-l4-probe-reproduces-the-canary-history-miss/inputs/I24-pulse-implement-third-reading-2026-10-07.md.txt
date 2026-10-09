@@ -1,0 +1,43 @@
+# Operator relay: a third reading before the operator pass, Pulse (2026-10-07)
+
+From the pc overseer. Facts are `measured 2026-10-07` unless marked `hypothesis:`. Re-derive what you rely on.
+
+## 1. Why the operator pass waits
+
+- The remedy reading selected `CO` by the pre-registered order, and that selection stands as measured (recounted by the
+  overseer from `target/l4-decision-probe/remedy-20261007T133532Z/runs.json`, 500 rows): on d2 `shipped` 11 of 20 `both`
+  (sibling named in 13), `CR` 16, `CO` 19 (named 2), `CC` 14, `CX` 20 (named 0); every guard cell 20 of 20.
+- Your own report names what it does not cover: d1 and d3 were never read under `CO` or `CX`. Under `shipped` they read
+  17 of 20 and 18 of 20 in the same run (19 and 20 in the replay reading), so the real prompts carry a residual miss the
+  selection never met.
+- The captures are deleted when this chunk closes. After that no real prompt can be read under any arm: this is the only
+  slot in which the residual can be sized. The alternative is that Conductor's sixth series (three drives, one generation
+  each, MET only at 3 of 3) is the first reading of d1- and d3-type prompts under the remedy.
+- `hypothesis:` `CX` may clear d1 where `CO` cannot. d1's block holds one line; if it is the sibling's, a reorder leaves
+  the prompt byte-identical and a drop removes it.
+
+## 2. The reading (it SELECTS NOTHING; pre-register it as its own section before anything is read)
+
+- **Prompts and arms:** d1 and d3 under `shipped`, `CO`, `CX`; d2 under `CO` and `CX`. **n = 40 per cell**, 320 generations,
+  about 34 minutes. `names_other` counted in every cell.
+- **Own lines for d1 and d3:** pre-registered from what Conductor's records attribute to each scope and from the prompts
+  themselves, written down before the reading, as d2's were. Where an arm composes byte-identical to `shipped` on a prompt,
+  it takes `shipped`'s counts and the evidence says so (your guard mechanics).
+- **What it states, per cell:** `both`, service misses, unparsed, `names_other`. No bar, no verdict, no exit code that reads
+  as one; `CO` stays the selected candidate of the remedy reading whatever this reads.
+- **What it is for:** the founder decides which remedy ships. `CO` keeps the sibling's history in the digest and orders
+  it; `CX` removes other scopes' history from a cued digest. That is a product behaviour, so it is his, and he gets these
+  numbers with the question. Until he answers, nothing is committed.
+- No product file changes for this reading. If `CX` on d1 or d3 needs a probe change (own lines on a non-`miss` replay),
+  build and pin it as you did `--remedy-read-as`.
+
+## 3. After it
+
+Report the table and stop. The overseer raises one dialog with the founder (he answers by phone). Then either the operator
+pass on the tree as it stands (`CO`), or a short re-entry that swaps the product change to `CX` with its pins and the gate
+block, and then the operator pass.
+
+## 4. The GPU
+
+Open; nothing else holds it (Conductor's builder is idle and held). Ask the overseer for the go before the launch. The
+bound stands: the reading ends by 19:00 local, no go asked after 18:25 local.

@@ -1,0 +1,234 @@
+[
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%/copyMarkdown%' OR callee LIKE '%/useReport().%' OR callee LIKE '%CopyState#%' ORDER BY file, line;",
+"rows": 12,
+"result": [
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/useReport().",
+"file": "pulse-app/ui/src/report/Report.tsx",
+"line": 10
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/useReport().",
+"file": "pulse-app/ui/src/report/Report.tsx",
+"line": 23
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`report-types.ts`/CopyState#",
+"file": "pulse-app/ui/src/report/ReportRenderer.tsx",
+"line": 20
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`report-types.ts`/CopyState#",
+"file": "pulse-app/ui/src/report/ReportRenderer.tsx",
+"line": 39
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`report-types.ts`/CopyState#",
+"file": "pulse-app/ui/src/report/ReportRenderer.tsx",
+"line": 448
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`report-types.ts`/CopyState#",
+"file": "pulse-app/ui/src/report/report-types.ts",
+"line": 127
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`report-types.ts`/CopyState#",
+"file": "pulse-app/ui/src/report/use-report.ts",
+"line": 15
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`report-types.ts`/CopyState#",
+"file": "pulse-app/ui/src/report/use-report.ts",
+"line": 21
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`report-types.ts`/CopyState#",
+"file": "pulse-app/ui/src/report/use-report.ts",
+"line": 31
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/useReport().(incidentId)",
+"file": "pulse-app/ui/src/report/use-report.ts",
+"line": 35
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/useReport().(incidentId)",
+"file": "pulse-app/ui/src/report/use-report.ts",
+"line": 50
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/useReport().(incidentId)",
+"file": "pulse-app/ui/src/report/use-report.ts",
+"line": 69
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%/useReport().%' AND callee NOT LIKE '%(incidentId)%' ORDER BY file, line;",
+"rows": 2,
+"result": [
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/useReport().",
+"file": "pulse-app/ui/src/report/Report.tsx",
+"line": 10
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/useReport().",
+"file": "pulse-app/ui/src/report/Report.tsx",
+"line": 23
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%STAGES%' OR callee LIKE '%stage_ids%' ORDER BY file, line;",
+"rows": 10,
+"result": [
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/stage_ids().",
+"file": "xtask/src/webview_drive.rs",
+"line": 133
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 138
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 142
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 244
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 270
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/green_arm_fails_when_any_stage_is_absent().",
+"file": "xtask/src/webview_drive.rs",
+"line": 1381
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/green_arm_passes_when_every_stage_is_observed().",
+"file": "xtask/src/webview_drive.rs",
+"line": 1388
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/red_arm_fails_when_the_named_stage_is_present().",
+"file": "xtask/src/webview_drive.rs",
+"line": 1395
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/red_arm_passes_when_only_the_named_stage_is_absent().",
+"file": "xtask/src/webview_drive.rs",
+"line": 1402
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/stage_ids_are_unique_and_nonempty().",
+"file": "xtask/src/webview_drive.rs",
+"line": 1412
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT symbol, crate, file, def_line FROM symbol WHERE symbol LIKE '%StageHalves%' OR symbol LIKE '%report_window%' OR symbol LIKE '%Stage#%' ORDER BY file;",
+"rows": 10,
+"result": [
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 webview_drive/Stage#",
+"crate": "xtask",
+"file": "xtask/src/webview_drive.rs",
+"def_line": 47
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 webview_drive/Stage#id.",
+"crate": "xtask",
+"file": "xtask/src/webview_drive.rs",
+"def_line": 48
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 webview_drive/Stage#what.",
+"crate": "xtask",
+"file": "xtask/src/webview_drive.rs",
+"def_line": 49
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 webview_drive/StageHalves#",
+"crate": "xtask",
+"file": "xtask/src/webview_drive.rs",
+"def_line": 307
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 webview_drive/StageHalves#obs.",
+"crate": "xtask",
+"file": "xtask/src/webview_drive.rs",
+"def_line": 308
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 webview_drive/StageHalves#dom.",
+"crate": "xtask",
+"file": "xtask/src/webview_drive.rs",
+"def_line": 309
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 webview_drive/impl#[StageHalves]satisfied().",
+"crate": "xtask",
+"file": "xtask/src/webview_drive.rs",
+"def_line": 313
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 webview_drive/dom_report_window_ok().",
+"crate": "xtask",
+"file": "xtask/src/webview_drive.rs",
+"def_line": 576
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/report_window_requires_the_full_escape_chain().",
+"crate": "xtask",
+"file": "xtask/src/webview_drive.rs",
+"def_line": 1275
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/a_lost_focus_restore_fails_report_window().",
+"crate": "xtask",
+"file": "xtask/src/webview_drive.rs",
+"def_line": 1286
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT symbol, crate, file, def_line FROM symbol WHERE symbol LIKE '%copyMarkdown%' OR symbol LIKE '%onCopyMarkdown%' ORDER BY file;",
+"rows": 2,
+"result": [
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`ReportRenderer.tsx`/ReportRendererProps#onCopyMarkdown.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/report/ReportRenderer.tsx",
+"def_line": 38
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/report/`use-report.ts`/UseReportResult#copyMarkdown.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/report/use-report.ts",
+"def_line": 22
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+}
+]

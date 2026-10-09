@@ -10,12 +10,12 @@ use tokio::sync::broadcast;
 
 use crate::contract::Digest;
 
-/// Tauri IPC broadcast topic identifier для L3 digest events emitted by
+/// Tauri IPC broadcast topic identifier for L3 digest events emitted by
 /// the digest assembler.
 pub const STREAM_NAME_DIGESTS: &str = "pulse://stream/digests";
 
 /// Broadcast channel capacity — matches `cue::broadcast::BROADCAST_CAPACITY`
-/// (32) + chunks #62/#63/#67/#78/#80 precedents. Sized к absorb subscriber
+/// (32) + chunks #62/#63/#67/#78/#80 precedents. Sized to absorb subscriber
 /// lag under typical workloads without dropping events.
 pub const BROADCAST_CAPACITY: usize = 32;
 

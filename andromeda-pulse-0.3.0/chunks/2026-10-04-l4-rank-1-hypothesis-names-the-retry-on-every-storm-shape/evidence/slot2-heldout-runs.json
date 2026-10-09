@@ -1,0 +1,342 @@
+[
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "f3f6d7bd91287d6e",
+    "run": 1,
+    "severity": "autonomous",
+    "shape": "S5",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "bf66da292690f786",
+    "run": 2,
+    "severity": "autonomous",
+    "shape": "S5",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "ab681f6c7ee90acc",
+    "run": 3,
+    "severity": "autonomous",
+    "shape": "S5",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "watch",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "fffde3717805bea6",
+    "run": 4,
+    "severity": "suggested",
+    "shape": "S5",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "a7e0d3e43d09e363",
+    "run": 5,
+    "severity": "suggested",
+    "shape": "S5",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "dc318aeb9a11bab4",
+    "run": 6,
+    "severity": "autonomous",
+    "shape": "S5",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "ab0a8077aa925ad6",
+    "run": 7,
+    "severity": "autonomous",
+    "shape": "S5",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "ec7f7e4261074242",
+    "run": 8,
+    "severity": "autonomous",
+    "shape": "S5",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "b7872aa8c2ed393d",
+    "run": 9,
+    "severity": "autonomous",
+    "shape": "S5",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "937c101e2d1bf398",
+    "run": 10,
+    "severity": "autonomous",
+    "shape": "S5",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "1b9c2bb82650472f",
+    "run": 1,
+    "severity": "suggested",
+    "shape": "S6",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "0cdfbac6b9a7c697",
+    "run": 2,
+    "severity": "autonomous",
+    "shape": "S6",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "4c20cda7224448c3",
+    "run": 3,
+    "severity": "autonomous",
+    "shape": "S6",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "7c220cf81279967a",
+    "run": 4,
+    "severity": "autonomous",
+    "shape": "S6",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "fb249669127a3d46",
+    "run": 5,
+    "severity": "autonomous",
+    "shape": "S6",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "54d87a14c81a4529",
+    "run": 6,
+    "severity": "autonomous",
+    "shape": "S6",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "b79c0e8beb358e25",
+    "run": 7,
+    "severity": "autonomous",
+    "shape": "S6",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "watch",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "c8c6bcc808a906c9",
+    "run": 8,
+    "severity": "suggested",
+    "shape": "S6",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "a1e44c3e91f394a6",
+    "run": 9,
+    "severity": "autonomous",
+    "shape": "S6",
+    "would_create": true
+  },
+  {
+    "arm": "shipped",
+    "decision": "surface",
+    "first_keys": [
+      "schema_version",
+      "prompt_version",
+      "title"
+    ],
+    "is_resolution_summary": false,
+    "names_trigger": "rank1",
+    "names_trigger_stem": "rank1",
+    "output_hash": "0a68132f86442ffe",
+    "run": 10,
+    "severity": "suggested",
+    "shape": "S6",
+    "would_create": true
+  }
+]

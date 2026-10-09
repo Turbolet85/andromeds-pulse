@@ -1,0 +1,209 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T12:40:08Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap/architecture-entry.md",
+"--lines",
+"6",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap",
+"--marker",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 620 · lines 619→625 · bytes 88277→90072 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T12-30-22Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 619,
+"bytes": 88277,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 625,
+"bytes": 90072
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T12:40:08Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap/security-plan-entry.md",
+"--lines",
+"6",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap",
+"--marker",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 498 · lines 497→503 · bytes 92018→93304 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T12-30-22Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 497,
+"bytes": 92018,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 503,
+"bytes": 93304
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T12:40:08Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap/obs-plan-entry.md",
+"--lines",
+"6",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap",
+"--marker",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+6 at line 360 · lines 359→365 · bytes 64073→65272 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T12-30-22Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 359,
+"bytes": 64073,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 365,
+"bytes": 65272
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T12:40:08Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap/test-plan-entry.md",
+"--lines",
+"6",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap",
+"--marker",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+6 at line 570 · lines 569→575 · bytes 95923→96987 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T12-30-22Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 569,
+"bytes": 95923,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 575,
+"bytes": 96987
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T12:42:16Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap/route-insert.txt",
+"--lines",
+"2",
+"--after-line",
+"159",
+"--expect-last-prefix",
+"   ↓",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap",
+"--marker",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append working-route.md:+2 at line 160 · lines 162→164 · bytes 27113→27811 · term lf",
+"last line now: pre-push:linux runs natively on Linux — the local Linux pre-push check runs on"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 162,
+"bytes": 27113,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 164,
+"bytes": 27811
+}
+}
+]

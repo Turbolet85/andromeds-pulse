@@ -1,0 +1,21 @@
+[[pattern]]
+id = "hw-profile"
+regex = 'hardware[ _-]?profile'
+ignore_case = true
+
+[[pattern]]
+id = "gpu-tier"
+regex = 'GPU-(primary|fallback)'
+ignore_case = true
+
+[[pattern]]
+id = "env-registry"
+fixed = 'Environment variables (reserved'
+
+[[pattern]]
+id = "cli-env-row"
+fixed = 'CLI / env var inputs'
+
+[[pattern]]
+id = "interp-crate"
+fixed = 'interpretation crate'

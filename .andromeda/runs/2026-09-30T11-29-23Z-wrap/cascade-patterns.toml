@@ -1,0 +1,51 @@
+# Cascade step-2 sweep — 2026-09-30-p-027-discovery-bound
+# Amendments this pass: arch :242 (smoke:discovery CLI + sibling count), arch :177 (P-027 anchor),
+# security-plan :434 (tap fan-out), test-plan §1 (new trigger), test-plan §3 (fourth scenario leg),
+# obs-plan §8 :543 (P-027 anchor).
+# Dropped (control unfired on pre-pass masters; hand-controlled over leaves): triage.lifecycle.transition, last_seen_unix_nano.
+
+[[pattern]]
+id = "hue-leg"
+fixed = 'smoke:hue-shift'
+
+[[pattern]]
+id = "scenario-leg"
+regex = 'scenario leg'
+ignore_case = true
+
+[[pattern]]
+id = "sibling"
+regex = 'sibling scenario|two sibling|three sibling'
+ignore_case = true
+
+[[pattern]]
+id = "disc-ms"
+fixed = 'discovery_ms'
+
+[[pattern]]
+id = "disc-latency"
+regex = 'discovery[ _]latency|discovery bound|auto-discovery'
+ignore_case = true
+
+[[pattern]]
+id = "span-arrival"
+regex = 'span.arrival'
+ignore_case = true
+
+[[pattern]]
+id = "tick-wait"
+regex = 'first (15 ?s )?(lifecycle )?tick|registry tick|heartbeat tick'
+ignore_case = true
+
+[[pattern]]
+id = "extract-sn"
+fixed = 'extract_service_name'
+
+[[pattern]]
+id = "tap"
+regex = 'SpanObserver` tap|SpanObserver tap|baseline tap|observer tap'
+ignore_case = true
+
+[[pattern]]
+id = "svc-registry"
+regex = 'ServiceRegistry'

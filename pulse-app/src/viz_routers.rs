@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use duckdb::Connection;
 use ui_bridge::AppError;
+use viz::query::read_connection;
 use viz::{
     LogRow, LogsQueryArgs, MetricRow, MetricsQueryArgs, PaginatedResponse, TraceRow,
     TracesQueryArgs, VizState, query_logs, query_metrics, query_traces,
@@ -20,7 +21,10 @@ pub struct TracesApiImpl {
 
 impl TracesApiImpl {
     pub fn new(conn: Arc<Mutex<Connection>>, state: Arc<VizState>) -> Self {
-        Self { conn, state }
+        Self {
+            conn: read_connection(&conn),
+            state,
+        }
     }
 }
 
@@ -51,7 +55,10 @@ pub struct MetricsApiImpl {
 
 impl MetricsApiImpl {
     pub fn new(conn: Arc<Mutex<Connection>>, state: Arc<VizState>) -> Self {
-        Self { conn, state }
+        Self {
+            conn: read_connection(&conn),
+            state,
+        }
     }
 }
 
@@ -82,7 +89,10 @@ pub struct LogsApiImpl {
 
 impl LogsApiImpl {
     pub fn new(conn: Arc<Mutex<Connection>>, state: Arc<VizState>) -> Self {
-        Self { conn, state }
+        Self {
+            conn: read_connection(&conn),
+            state,
+        }
     }
 }
 

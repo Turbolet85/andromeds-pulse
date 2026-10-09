@@ -1,0 +1,24 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%record_frame_ms%' ORDER BY file, line;",
+"rows": 3,
+"result": [
+{
+"caller": "rust-analyzer cargo ui-bridge 0.1.0 telemetry/tests/record_frame_ms_emits_tracing_info_at_metric_target_on_success().",
+"file": "crates/ui-bridge/src/telemetry.rs",
+"line": 313
+},
+{
+"caller": "rust-analyzer cargo ui-bridge 0.1.0 telemetry/tests/record_frame_ms_returns_validation_error_on_negative_duration().",
+"file": "crates/ui-bridge/src/telemetry.rs",
+"line": 336
+},
+{
+"caller": "rust-analyzer cargo ui-bridge 0.1.0 telemetry/tests/record_frame_ms_returns_validation_error_on_nan().",
+"file": "crates/ui-bridge/src/telemetry.rs",
+"line": 356
+}
+],
+"db_state": "fresh"
+}
+]

@@ -1,0 +1,62 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "0404fdd3",
+"ts": "2026-10-07T06:47:26Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-06-l4-first-hypothesis-names-the-triggering-service",
+"--run-dir",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap",
+"--marker",
+"2026-10-06-l4-first-hypothesis-names-the-triggering-service"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: the overseer (founder-delegated), as the arguments of the /andromeda-phase invocation, 2026-10-06T23:22Z",
+"I1 cited scope.md:18 · scope.md:31 · scope.md:43 · scope.md:105 · scope.md:120 · research.md:12 · plan.md:22 · plan.md:276 (in fence) · plan.md:389",
+"I2 unchanged · pointer committed@29adafa1 · ../conductor:crates/conductor-run/tests/real_model_harvest.rs",
+"I2 cited scope.md:33 · scope.md:36 · scope.md:99 · scope.md:125 · research.md:14 · research.md:61 · research.md:99 · plan.md:49 · plan.md:87 · plan.md:370",
+"I3 unchanged · pointer committed@29adafa1 · ../conductor:conductor-0.3.0/chunks/2026-10-06-a-fourth-pre-registered-real-model-series-for-v3-09/evidence/rm-capture-d1.txt",
+"I3 cited scope.md:38 · scope.md:74 · scope.md:82 · scope.md:91 · scope.md:93 · research.md:16 · research.md:83 · research.md:84 · plan.md:13",
+"I4 unchanged · pointer committed@29adafa1 · ../conductor:conductor-0.3.0/chunks/2026-10-06-a-fourth-pre-registered-real-model-series-for-v3-09/evidence/rm-capture-d2.txt",
+"I4 cited scope.md:74 · scope.md:92 · scope.md:94 · research.md:16 · research.md:83 · research.md:84 · plan.md:13",
+"I5 unchanged · pointer committed@29adafa1 · ../conductor:conductor-0.3.0/chunks/2026-10-06-a-fourth-pre-registered-real-model-series-for-v3-09/evidence/rm-capture-d3.txt",
+"I5 cited scope.md:74 · scope.md:82 · scope.md:85 · scope.md:93 · scope.md:94 · research.md:16 · research.md:61 · research.md:78 · research.md:83 · research.md:85 · plan.md:13 · plan.md:370",
+"I6 unchanged · copy no-repo · ../additional/pc-overseer/l4-env.sh",
+"I6 cited research.md:18 · plan.md:34 · plan.md:286 (in fence)",
+"I7 n/a — a message has no live source · copy message · message: the overseer (founder-delegated), answering the P4 fork in this session, 2026-10-06T23:45Z",
+"I7 cited scope.md:22 · research.md:20 · research.md:127 · research.md:133 · plan.md:19 · plan.md:25 · plan.md:286 (in fence) · plan.md:372 · plan.md:384 · plan.md:389",
+"I8 n/a — a message has no live source · copy message · message: the overseer (founder-delegated), at the P5 review in this session, folded at 2026-10-06T23:51:25Z",
+"I8 cited scope.md:27 · research.md:22 · plan.md:27 · plan.md:59 · plan.md:128 · plan.md:286 (in fence) · plan.md:328 · plan.md:375 · plan.md:392",
+"I9 n/a — a message has no live source · copy message · message: the overseer, relaying the founder's live word, in this session, 2026-10-07 07:42 local",
+"I9 UNCITED",
+"I10 n/a — a message has no live source · copy message · message: the overseer (founder-delegated), in this session, 2026-10-07",
+"I10 UNCITED",
+"I11 n/a — a message has no live source · copy message · message: the overseer (founder-delegated), in this session, 2026-10-07",
+"I11 UNCITED",
+"inputs: 11 entries — unchanged 5 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 6 · uncited 3 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 11,
+"counts": {
+"unchanged": 5,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 6
+},
+"uncited": 3,
+"unparsed": 0
+}
+}
+]

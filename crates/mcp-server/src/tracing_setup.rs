@@ -91,7 +91,7 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
-        // Chunk #49 — per-tool latency metric event (cardinality bounded к 4
+        // Chunk #49 — per-tool latency metric event (cardinality bounded to 4
         // enumerated tool names per obs plan §5 Metric label cardinality discipline).
         by_target.insert(
             "metric.mcp.tool_call_duration_ms",
@@ -107,20 +107,20 @@ impl AllowList {
         if let Some(set) = self.by_target.get(target) {
             return Some(set);
         }
-        if let Some(stripped) = target.strip_suffix(".tick") {
-            if let Some(set) = self.by_target.get(stripped) {
-                return Some(set);
-            }
+        if let Some(stripped) = target.strip_suffix(".tick")
+            && let Some(set) = self.by_target.get(stripped)
+        {
+            return Some(set);
         }
-        if let Some((first, _)) = target.split_once('.') {
-            if let Some(set) = self.by_target.get(first) {
-                return Some(set);
-            }
+        if let Some((first, _)) = target.split_once('.')
+            && let Some(set) = self.by_target.get(first)
+        {
+            return Some(set);
         }
-        if let Some((first, _)) = target.split_once("::") {
-            if let Some(set) = self.by_target.get(first) {
-                return Some(set);
-            }
+        if let Some((first, _)) = target.split_once("::")
+            && let Some(set) = self.by_target.get(first)
+        {
+            return Some(set);
         }
         None
     }

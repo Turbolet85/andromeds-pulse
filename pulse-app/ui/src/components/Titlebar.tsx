@@ -16,6 +16,10 @@ interface TitlebarProps {
   // rendered (preserves chunk #24 default shape for surfaces without an
   // Investigate flow).
   onInvestigateClick?: (trigger: HTMLElement | null) => void;
+  // P-066 — compact-widget "Toggle dashboard" affordance (intent F6): opens the
+  // dashboard when hidden, closes it when visible; the glance widget stays put.
+  // When undefined the button is not rendered, so it stays off the dashboard.
+  onToggleDashboardClick?: () => void;
 }
 
 export interface TitlebarHandle {
@@ -36,7 +40,12 @@ export interface TitlebarHandle {
 // "semantic HTML first". Drag region carries no tabindex per §11 Keyboard.
 export const Titlebar = forwardRef<TitlebarHandle, TitlebarProps>(
   function Titlebar(
-    { title = "andromeda-pulse", onSettingsClick, onInvestigateClick },
+    {
+      title = "andromeda-pulse",
+      onSettingsClick,
+      onInvestigateClick,
+      onToggleDashboardClick,
+    },
     ref,
   ) {
     const platform = usePlatform();
@@ -90,6 +99,28 @@ export const Titlebar = forwardRef<TitlebarHandle, TitlebarProps>(
         {title}
       </span>
       <span className="titlebar__grow" data-tauri-drag-region style={{ flex: 1 }} />
+      {onToggleDashboardClick ? (
+        <button
+          type="button"
+          aria-label="Toggle dashboard"
+          onClick={onToggleDashboardClick}
+          className="titlebar__toggle-dashboard motion-reduce:transition-none motion-reduce:duration-0"
+          data-testid="titlebar-toggle-dashboard"
+          style={{
+            background: "transparent",
+            border: 0,
+            color: "var(--color-text-secondary)",
+            cursor: "pointer",
+            padding: "var(--spacing-xs)",
+            minWidth: "var(--target-input-min)",
+            minHeight: "var(--target-input-min)",
+            transitionDuration: "var(--duration-fast)",
+            transitionTimingFunction: "var(--easing-out)",
+          }}
+        >
+          <Icon glyph="expand" size={20} />
+        </button>
+      ) : null}
       {onInvestigateClick ? (
         <button
           ref={investigateRef}

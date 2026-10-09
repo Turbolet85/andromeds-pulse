@@ -1,0 +1,482 @@
+[
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-10-03T12:08:43Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-02-incident-events-readable-through-mcp/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-03T09-17-05Z-implement",
+"--marker",
+"2026-10-02-incident-events-readable-through-mcp"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell C:\\Program Files\\Git\\bin\\bash.exe (from $SHELL; -c, non-login)",
+"root D:\\dev\\projects\\andromeda-pulse · marker 2026-10-02-incident-events-readable-through-mcp · entries 22",
+"logs C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z · bound: GNU timeout",
+"delta docs 6 · rust 7",
+"prose L142-157: The standard gate set in the test-plan §3 order (capability-drift before the default-featu… (1830 chars)",
+"  1 lint        green · exit 0 · 2.99s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 923.37s · 911 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 unit        green · exit 0 · 3971.55s · 332159 B → 3.log · cargo nextest run --workspace --features mcp-server --prof… (121 chars)",
+"  4 probe       green · exit 0 · 13.34s · 1644 B → 4.log · cargo nextest list --workspace --features mcp-server --pro… (95 chars)",
+"  5 unit        green · exit 0 · 2.55s · 19755 B → 5.log · cargo nextest run --workspace --features mcp-server --prof… (90 chars)",
+"  6 probe       red · no output ✗ (35 B) · exit 0 · 0.08s · 35 B → 6.log · git diff --name-only a69030a92d05cc3bb642593817c5cd78d0133… (140 chars)",
+"  7 probe       green · exit 0 · 431.23s · 100 B → 7.log · cargo xtask check:english-sources",
+"  8 probe       green · exit 0 · 2.49s · 382 B → 8.log · cargo xtask capability-widening-check",
+"  9 probe       green · exit 0 · 7.79s · 75 B → 9.log · cargo xtask check:ingest-progress",
+" 10 probe       green · exit 0 · 1.04s · 342 B → 10.log · cargo xtask check:staged-artifacts",
+" 11 probe       green · exit 0 · 1.23s · 702 B → 11.log · cargo xtask capability-drift",
+" 12 probe       green · exit 0 · 1.08s · 384 B → 12.log · cargo xtask verify:capability-matrix",
+" 13 unit        green · exit 0 · 3961.54s · 611474 B → 13.log · cargo nextest run --workspace --profile ci",
+" 14 build       green · exit 0 · 346.95s · 1124 B → 14.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 15 probe       green · exit 0 · 0.3s · 0 B → 15.log · git diff --quiet a69030a92d05cc3bb642593817c5cd78d0133d9a … (95 chars)",
+" 16 build       green · exit 0 · 608.77s · 901 B → 16.log · cargo build --workspace --release --features mcp-server",
+" 17 probe       not run — leg operator (the letter drives it) · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (84 chars)",
+" 18 integration not run — leg operator (the letter drives it) · cargo xtask pre-push:linux",
+" 19 probe       not run — leg operator (the letter drives it) · git rev-parse HEAD",
+" 20 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 21 probe       not run — leg operator (the letter drives it) · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (108 chars)",
+" 22 probe       not run — leg operator (the letter drives it) · grep -rlF '<id>' /d/dev/projects/conductor/conductor-0.3.0… (80 chars)",
+"entries 22 · green 15 · red 1 (6) · recorded 0 · timeout 0 · not-run 6"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-02-incident-events-readable-through-mcp",
+"plan": "D:\\dev\\projects\\andromeda-pulse\\andromeda-pulse-0.3.0\\chunks\\2026-10-02-incident-events-readable-through-mcp\\plan.md",
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"shell": "C:\\Program Files\\Git\\bin\\bash.exe",
+"out_dir": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z",
+"delta": {
+"docs": [
+"andromeda-pulse-0.3.0/chunks/2026-10-02-incident-events-readable-through-mcp/evidence/mutation-checks.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-02-incident-events-readable-through-mcp/evidence/operator-pass.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-02-incident-events-readable-through-mcp/evidence/round-request.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-02-incident-events-readable-through-mcp/evidence/premise-correction.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-02-incident-events-readable-through-mcp/evidence/round-binary.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-02-incident-events-readable-through-mcp/scope-record.md"
+],
+"rust": [
+"crates/corpus/src/contract.rs",
+"crates/mcp-server/src/jsonrpc.rs",
+"crates/mcp-server/src/tools.rs",
+"crates/mcp-server/tests/incident_events_subprocess.rs",
+"crates/triage/src/contract.rs",
+"pulse-app/src/inference_runtime.rs",
+"pulse-app/tests/e2e_p3_mcp_incident_events_content.rs"
+]
+},
+"unmapped": [],
+"prose": [
+{
+"from": 142,
+"to": 157,
+"text": "The standard gate set in the test-plan §3 order (capability-drift before the default-features workspace nextest; the `--features mcp-server` bindings regen as the last cargo-adjacent step; the base-identity bindings close — no procedure is added). No `pulse-app/ui/**` path is touched, so the webview gates are absent. No boot-path file is touched (`main.rs`, `observability.rs`, `crates/ui-bridge/src/`, `tauri.conf.json`, `capabilities/*.json` — the scope-guard entry below proves it), so the boot smoke does not bind (test-plan §3 Per-chunk gate discipline); the sidecar is driven by the subprocess legs instead. No dependency is added, so `cargo deny` / `cargo audit` are absent (a dependency-free chunk; the CI supply-chain job still runs them). Feature-gated tests sit outside the default workspace run (test-plan §9 `mcp-test`), so the `--features mcp-server` entries are listed explicitly. Targeted entries carry a `timeout` sized for a cold feature build (deferred learning, handoff 2026-10-02: 5400 s). The release build and the round sit in the operator's slot. ONE-SHOT controls at /implement, never listed: the RED-at-base read of the new pins (the subprocess leg's `tools/call` against the base sidecar returns `unknown tool`, -32601) and a mutation check of Step 4's coercion (pass-through) and Step 1's ORDER BY (dropped) — each reading recorded in `evidence/mutation-checks.md`. The P-075 criterion's `evidence/round-result.md` has no listed producer by design: it is written in the operator pass from Conductor's COMMITTED round (an external leg Pulse never runs), and the last entry below is its necessary-not- sufficient presence probe. The `agent-latest.jsonl*` family the obs/security criterion reads is produced INSIDE the targeted entry's subprocess leg (a per-test temp data dir), not by a separate entry."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 2.99,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\2.log",
+"bytes": 911,
+"log_sha8": "15f3a44b",
+"exit": 0,
+"seconds": 923.37,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "unit",
+"run": "cargo nextest run --workspace --features mcp-server --profile ci --success-output immediate -E 'test(/incident_events/)' ",
+"run_sha8": "5daaa236",
+"expect": [
+"exit 0",
+"lacks [skip] no OS credential store"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\3.log",
+"bytes": 332159,
+"log_sha8": "37a52832",
+"exit": 0,
+"seconds": 3971.55,
+"readings": [
+"exit 0 ✓",
+"lacks '[skip] no OS credential store' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "cargo nextest list --workspace --features mcp-server --profile ci -E 'test(/incident_events/)' ",
+"run_sha8": "ad6de02f",
+"expect": [
+"exit 0",
+"contains load_incident_events",
+"contains retrieve_incident_events",
+"contains incident_events_subprocess"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\4.log",
+"bytes": 1644,
+"log_sha8": "8f747a94",
+"exit": 0,
+"seconds": 13.34,
+"readings": [
+"exit 0 ✓",
+"contains 'load_incident_events' ✓",
+"contains 'retrieve_incident_events' ✓",
+"contains 'incident_events_subprocess' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "unit",
+"run": "cargo nextest run --workspace --features mcp-server --profile ci -E 'package(mcp-server)' ",
+"run_sha8": "6fcee2ce",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\5.log",
+"bytes": 19755,
+"log_sha8": "595d43f0",
+"exit": 0,
+"seconds": 2.55,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "git diff --name-only a69030a92d05cc3bb642593817c5cd78d0133d9a -- Cargo.lock deny.toml pulse-app crates/corpus/src/schema.rs crates/ui-bridge",
+"run_sha8": "c54882b9",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\6.log",
+"bytes": 35,
+"log_sha8": "9c234939",
+"exit": 0,
+"seconds": 0.08,
+"readings": [
+"exit 0 ✓",
+"no output ✗ (35 B)"
+],
+"survivors": [],
+"outcome": "red · no output ✗ (35 B)"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\7.log",
+"bytes": 100,
+"log_sha8": "5554d9ce",
+"exit": 0,
+"seconds": 431.23,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\8.log",
+"bytes": 382,
+"log_sha8": "884ae9fc",
+"exit": 0,
+"seconds": 2.49,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\9.log",
+"bytes": 75,
+"log_sha8": "c8b0edd8",
+"exit": 0,
+"seconds": 7.79,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\10.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 1.04,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\11.log",
+"bytes": 702,
+"log_sha8": "4642df59",
+"exit": 0,
+"seconds": 1.23,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\12.log",
+"bytes": 384,
+"log_sha8": "30d84df7",
+"exit": 0,
+"seconds": 1.08,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\13.log",
+"bytes": 611474,
+"log_sha8": "4f16f3c0",
+"exit": 0,
+"seconds": 3961.54,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\14.log",
+"bytes": 1124,
+"log_sha8": "0b847be5",
+"exit": 0,
+"seconds": 346.95,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "probe",
+"run": "git diff --quiet a69030a92d05cc3bb642593817c5cd78d0133d9a -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "bf3ad638",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\15.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.3,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "build",
+"run": "cargo build --workspace --release --features mcp-server",
+"run_sha8": "86f2cdfa",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-10-02-incident-events-readable-through-mcp\\implement-2026-10-03T09-17-05Z\\16.log",
+"bytes": 901,
+"log_sha8": "f768d7a2",
+"exit": 0,
+"seconds": 608.77,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "f0648308",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 18,
+"role": "integration",
+"run": "cargo xtask pre-push:linux",
+"run_sha8": "3bdf10d4",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"green\""
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "git rev-parse HEAD",
+"run_sha8": "8fbf345c",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2400",
+"run_sha8": "8d50257b",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "grep -rlF '<id>' /d/dev/projects/conductor/conductor-0.3.0/chunks --include=*.md",
+"run_sha8": "ca4c4d07",
+"expect": [
+"exit 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+}
+]

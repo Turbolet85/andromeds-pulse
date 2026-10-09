@@ -1,0 +1,36 @@
+[[pattern]]
+id = "decl-185"
+fixed = 'rust-version = "1.85"'
+
+[[pattern]]
+id = "any-185"
+regex = '1\.85'
+
+[[pattern]]
+id = "route-owner"
+fixed = 'The declared Rust floor matches the code'
+
+[[pattern]]
+id = "code-floor"
+regex = 'code floor'
+ignore_case = true
+
+[[pattern]]
+id = "ge-189"
+regex = '(≥|>=) ?(rustc )?1\.89'
+
+[[pattern]]
+id = "stale-decl"
+regex = 'rust-version[^|]{0,60}(is )?stale'
+
+[[pattern]]
+id = "appinfo-184"
+fixed = '1.84.0'
+
+[[pattern]]
+id = "suite-87"
+regex = '(→|->) ?87\b'
+
+[[pattern]]
+id = "msrv"
+regex = 'MSRV|incompatible_msrv'

@@ -1,0 +1,111 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-04T23:30:50Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape",
+"--message-file",
+".andromeda/runs/2026-10-04T23-29-50Z-phase/relay-1.md",
+"--origin",
+"overseer (founder-delegated), /andromeda-phase args, 2026-10-04T23:29Z",
+"--kind",
+"relay",
+"--why",
+"the 4317/4318 slot and the model slot are granted for this chunk; conductor-builder idle until its wrap; leg env unchanged",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-29-50Z-phase",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy message · message: overseer (founder-delegated), /andromeda-phase args, 2026-10-04T23:29Z",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "message: overseer (founder-delegated), /andromeda-phase args, 2026-10-04T23:29Z",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "228fb29ae4376c105ed2f06e7ead6e12ade97332320aa2f922fb9e9216c2cd1a",
+"copy": "I1-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-04T23:30:50Z",
+"step": "phase:P1",
+"why": "the 4317/4318 slot and the model slot are granted for this chunk; conductor-builder idle until its wrap; leg env unchanged"
+}
+},
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-04T23:30:50Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape",
+"--source",
+"/home/turbolet/dev/projects/additional/pc-overseer/l4-env.sh",
+"--kind",
+"sibling",
+"--why",
+"the real-model leg env: llama.cpp b9305 CUDA binary, CPU binary and GGUF path exports",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-29-50Z-phase",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy no-repo · ../additional/pc-overseer/l4-env.sh",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-l4-env.sh.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "sibling",
+"repo": null,
+"path": "../additional/pc-overseer/l4-env.sh",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "4a28d0fdd0c8fb6dcfb68259fd2dd85610da5e3bdf6ccd25b946c7ade4f77647",
+"copy": "I2-l4-env.sh.txt",
+"link": false,
+"read_at": "2026-10-04T23:30:50Z",
+"step": "phase:P1",
+"why": "the real-model leg env: llama.cpp b9305 CUDA binary, CPU binary and GGUF path exports"
+}
+}
+]

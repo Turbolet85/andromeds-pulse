@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T09:37:44Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland",
+"--expect-prefix",
+"Linux launch stays up on NVIDIA + Wayland",
+"--record-file",
+".andromeda/runs/2026-10-04T09-36-17Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-36-17Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:156 - [2026-10-04-linux-launch-stays-up-on-nvidia-wayland]",
+"record master-route.md:91 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-10-04-linux-launch-stays-up-on-nvidia-wayland - working-route:156 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

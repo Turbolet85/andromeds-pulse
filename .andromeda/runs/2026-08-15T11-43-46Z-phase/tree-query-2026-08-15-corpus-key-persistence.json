@@ -1,0 +1,165 @@
+[
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%OsKeychainBackend%' ORDER BY file, line;",
+"rows": 10,
+"result": [
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/OsKeychainBackend#",
+"file": "crates/corpus/src/contract.rs",
+"line": 18
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/OsKeychainBackend#",
+"file": "crates/corpus/src/keychain.rs",
+"line": 112
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/OsKeychainBackend#service.",
+"file": "crates/corpus/src/keychain.rs",
+"line": 115
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/OsKeychainBackend#",
+"file": "crates/corpus/src/keychain.rs",
+"line": 120
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/OsKeychainBackend#service.",
+"file": "crates/corpus/src/keychain.rs",
+"line": 122
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/OsKeychainBackend#",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 5
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/OsKeychainBackend#",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 65
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[OsKeychainBackend]new().",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 65
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/OsKeychainBackend#",
+"file": "pulse-app/src/main.rs",
+"line": 327
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[OsKeychainBackend]new().",
+"file": "pulse-app/src/main.rs",
+"line": 327
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT caller, callee, file, line FROM calls WHERE callee LIKE '%fetch_or_create_key%' ORDER BY file, line;",
+"rows": 7,
+"result": [
+{
+"caller": "rust-analyzer cargo corpus 0.1.0 contract/impl#[Corpus]open().",
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/KeychainBackend#fetch_or_create_key().",
+"file": "crates/corpus/src/contract.rs",
+"line": 102
+},
+{
+"caller": "rust-analyzer cargo corpus 0.1.0 contract/impl#[Corpus]open_in_memory().",
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/KeychainBackend#fetch_or_create_key().",
+"file": "crates/corpus/src/contract.rs",
+"line": 118
+},
+{
+"caller": "rust-analyzer cargo corpus 0.1.0 keychain/tests/fake_backend_returns_same_key_on_repeated_fetch().",
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[FakeKeychainBackend][KeychainBackend]fetch_or_create_key().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 190
+},
+{
+"caller": "rust-analyzer cargo corpus 0.1.0 keychain/tests/fake_backend_returns_same_key_on_repeated_fetch().",
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[FakeKeychainBackend][KeychainBackend]fetch_or_create_key().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 193
+},
+{
+"caller": "rust-analyzer cargo corpus 0.1.0 keychain/tests/fake_backend_returns_different_keys_for_different_services().",
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[FakeKeychainBackend][KeychainBackend]fetch_or_create_key().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 201
+},
+{
+"caller": "rust-analyzer cargo corpus 0.1.0 keychain/tests/fake_backend_returns_different_keys_for_different_services().",
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[FakeKeychainBackend][KeychainBackend]fetch_or_create_key().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 202
+},
+{
+"caller": "rust-analyzer cargo corpus 0.1.0 keychain/tests/fake_backend_with_seeded_key_returns_seed().",
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[FakeKeychainBackend][KeychainBackend]fetch_or_create_key().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 210
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%fetch_or_create_key%' ORDER BY file, line;",
+"rows": 7,
+"result": [
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/KeychainBackend#fetch_or_create_key().",
+"file": "crates/corpus/src/contract.rs",
+"line": 102
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/KeychainBackend#fetch_or_create_key().",
+"file": "crates/corpus/src/contract.rs",
+"line": 118
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[FakeKeychainBackend][KeychainBackend]fetch_or_create_key().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 190
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[FakeKeychainBackend][KeychainBackend]fetch_or_create_key().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 193
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[FakeKeychainBackend][KeychainBackend]fetch_or_create_key().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 201
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[FakeKeychainBackend][KeychainBackend]fetch_or_create_key().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 202
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[FakeKeychainBackend][KeychainBackend]fetch_or_create_key().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 210
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'corpus' OR from_crate = 'corpus';",
+"rows": 2,
+"result": [
+{
+"from_crate": "mcp-server",
+"to_crate": "corpus"
+},
+{
+"from_crate": "pulse-app",
+"to_crate": "corpus"
+}
+],
+"db_state": "fresh"
+}
+]

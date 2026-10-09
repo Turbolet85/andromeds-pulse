@@ -1,0 +1,84 @@
+[
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "bf89b279",
+"ts": "2026-10-01T18:43:03Z",
+"argv": [
+"conclusion",
+"--sha",
+"a2addb3755b3029cb79809b96efdd2522749b179",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-42-57Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"a2addb3755b3 verdict: in progress · checks 13/13 · runs secret-scan#36908445677 completed/success ci#36908445702 in_pro…",
+"runs: secret-scan#36908445677 pull_request completed/success · ci#36908445702 pull_request in_progress/-",
+"running 11: oldest a11y (windows-latest) 218 s",
+"run open: ci#36908445702 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "a2addb3755b3029cb79809b96efdd2522749b179",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+},
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "bf89b279",
+"ts": "2026-10-01T18:58:36Z",
+"argv": [
+"conclusion",
+"--sha",
+"a2addb3755b3029cb79809b96efdd2522749b179",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-42-57Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"a2addb3755b3 verdict: in progress · checks 13/13 · runs secret-scan#36908445677 completed/success ci#36908445702 in_pro…",
+"runs: secret-scan#36908445677 pull_request completed/success · ci#36908445702 pull_request in_progress/-",
+"running 1: oldest coverage gate (line ≥75% / branch ≥70% / function ≥85%) 1115 s",
+"run open: ci#36908445702 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "a2addb3755b3029cb79809b96efdd2522749b179",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+}
+]

@@ -61,7 +61,7 @@ New flag `--allow-arch-decision` for `/andromeda-evolve`. Narrow Refuse 1 except
 
 ```
 - **Flag used:** `--allow-arch-decision`
-- **Section modified:** `§Established Decisions` (или §Stack / §Cross-cutting Patterns)
+- **Section modified:** `§Established Decisions` (or §Stack / §Cross-cutting Patterns)
 - **Decision added:** "{decision title}"
 - **Rationale:** {≥2 sentence explanation}
 - **Downstream impact assessment:**
@@ -349,7 +349,7 @@ Both layers (per-marker detection + grep-expansion defense-in-depth) keep the ex
 
 | File | Change | Lines |
 |---|---|---|
-| `andromeda-evolve/SKILL.md` | Phase 4 step 2 — add pointer-table-grep step для Type 7 markers | ~15 |
+| `andromeda-evolve/SKILL.md` | Phase 4 step 2 — add pointer-table-grep step for Type 7 markers | ~15 |
 | `andromeda-evolve/references/output-templates.md` | Type 7 marker variant — `expected_propagation` pre-populate logic + example | ~25 |
 | `andromeda-setup-project/references/delta-rerun-protocol.md` | Plan→file table — add row for route chunk-count cascade (optional alternative path) | ~10 |
 | (`spec-amendment-protocol.md` does NOT need changes — schema unchanged; only authoring logic shifts) | — | 0 |
@@ -364,7 +364,7 @@ Now-soon. Two consecutive dogfood Type 7 amendments hitting the same gap is enou
 
 - Recurring pattern evidence: session 68 wrap Tier 3 entry "First /andromeda-setup-project --delta dogfood validates grep-expansion design" + session 69 setup-project --delta materialization-plan-delta.md "SECOND consecutive --delta run with same pattern" note.
 - Companion improvement: Proposal 6 (Form 1 §1 staleness) — different aspect of same Type 7 marker-authoring correctness theme.
-- Triggering chunks: #57 (session 67-68, Form 2) + #58 (session 69, Form 1) — both Form 1 AND Form 2 surfaced the same pointer-table cascade gap, so the proposed pre-populate logic applies к both forms.
+- Triggering chunks: #57 (session 67-68, Form 2) + #58 (session 69, Form 1) — both Form 1 AND Form 2 surfaced the same pointer-table cascade gap, so the proposed pre-populate logic applies to both forms.
 - Related skill mechanism: `delta-rerun-protocol.md` §Detection step 8 grep-expansion (the defense-in-depth safety net this proposal would shift load off of).
 
 ---
@@ -380,7 +380,7 @@ Now-soon. Two consecutive dogfood Type 7 amendments hitting the same gap is enou
 This asymmetry creates accumulating §1 staleness as Form 1 amendments land over time:
 
 - Chunk #44 amendment (2026-05-11, Form 1): left §1 stale at "Total chunks: 55" while §2 contained 56. Documented in amendment Decisions Log: "§1 Route Scope Summary 'Total chunks: 55' becomes stale; will refresh at next /andromeda-route or via manual edit."
-- Chunk #57 amendment (2026-05-16, Form 2): mechanically bumped §1 к "Total chunks: 55 → 56" (Form 2 auto-update; ALSO carried the pre-existing chunk-#44 staleness forward by NOT correcting к 56 → 57).
+- Chunk #57 amendment (2026-05-16, Form 2): mechanically bumped §1 to "Total chunks: 55 → 56" (Form 2 auto-update; ALSO carried the pre-existing chunk-#44 staleness forward by NOT correcting to 56 → 57).
 - Chunk #58 amendment (2026-05-16, Form 1, this session): leaves §1 at "Total chunks: 56" while §2 is now 57. Same staleness pattern as chunk #44 repeats.
 
 Pattern: every Form 1 amendment compounds §1 staleness by +1. Each amendment's Decisions Log explicitly documents the staleness as "intentional pending next `/andromeda-route` re-generation or manual edit", which treats user vigilance as the safety net — a known-bad workaround.
@@ -389,11 +389,11 @@ The asymmetry between Form 1 and Form 2 has no clear rationale. Both forms add c
 
 **Proposal:**
 
-Extend Form 1's mechanical auto-update к ALSO touch §1 "Total chunks: N" line, mirroring Form 2's behavior for this specific line. Keep "Epochs: N (...)" line untouched in Form 1 (no epoch creation, so no Epochs line change needed — Form 2 still owns that auto-update).
+Extend Form 1's mechanical auto-update to ALSO touch §1 "Total chunks: N" line, mirroring Form 2's behavior for this specific line. Keep "Epochs: N (...)" line untouched in Form 1 (no epoch creation, so no Epochs line change needed — Form 2 still owns that auto-update).
 
-Concretely, evolve Phase 6 atomic write для Form 1:
+Concretely, evolve Phase 6 atomic write for Form 1:
 
-- Currently: insert chunk + `↓` separator into §2 epoch body + append Decisions Log entry к §3.
+- Currently: insert chunk + `↓` separator into §2 epoch body + append Decisions Log entry to §3.
 - Add: edit §1 "Total chunks: N" → "Total chunks: N+M" where M = chunks added (typically 1; can be >1 for multi-chunk Form 1 batches).
 
 Form 2 behavior unchanged (already auto-updates both Total chunks + Epochs lines).
@@ -421,7 +421,7 @@ Decisions Log Impact field text changes: drop the "(§1 Route Scope Summary 'Tot
 |---|---|---|
 | `andromeda-evolve/SKILL.md` | Phase 6 step 4 — extend Form 1 atomic write to touch §1 Total chunks | ~10 |
 | `andromeda-evolve/references/output-templates.md` | Type 7 marker variant — Form 1 Plans amended block + Decisions Log entry template updates | ~20 |
-| `andromeda-evolve/references/refuse-taxonomy.md` | §Refuse 6 Exception → Form 1 specification — extend "purely additive" scope к include §1 Total chunks mechanical edit | ~10 |
+| `andromeda-evolve/references/refuse-taxonomy.md` | §Refuse 6 Exception → Form 1 specification — extend "purely additive" scope to include §1 Total chunks mechanical edit | ~10 |
 | `andromeda-evolve/references/validation-checks.md` | Check 8.1 (purely additive) clarification — Form 1 §1 mechanical edit permitted | ~5 |
 
 **Total:** ~45 lines across 4 files. Small-effort mechanical fix; high-value because it eliminates a recurring "intentional staleness" workaround that compounds with every Form 1 amendment.
@@ -434,10 +434,10 @@ Alternative: independently before chunk #59 lands. Each additional Form 1 amendm
 
 **Cross-references:**
 
-- Recurring pattern evidence: route.md §3 Decisions Log entries для chunks #44 + #58 — both explicitly document intentional §1 staleness as known workaround in the Impact field.
+- Recurring pattern evidence: route.md §3 Decisions Log entries for chunks #44 + #58 — both explicitly document intentional §1 staleness as known workaround in the Impact field.
 - Companion improvement: Proposal 5 (Type 7 expected_propagation pre-populate) — different aspect of same authoring-correctness theme.
 - Triggering chunks: chunk #44 (session 51) + chunk #58 (session 69) — Form 1 amendments accumulating §1 staleness across multiple wraps.
-- Related spec: Proposal 4 (Form 2 mechanism) intentionally restricted §1 auto-update к Form 2; this proposal revisits that restriction with two-amendment evidence base.
+- Related spec: Proposal 4 (Form 2 mechanism) intentionally restricted §1 auto-update to Form 2; this proposal revisits that restriction with two-amendment evidence base.
 - Current state.yaml.spec_amendments.archive[0] entry (chunk #58 amendment): preserves audit trail of this session's exact staleness instance for future readers.
 
 ---
@@ -937,22 +937,22 @@ Extend `/andromeda-implement` Phase 2b smoke-check protocol with an "integration
 
 ## Status: IMPLEMENTED — 2026-05-22 (session 116, commit pending) — wrap-session Phase 2 step 5 dead-test scan + Cargo.toml [lib]/[[bin]] test=false target detection + [package.metadata.andromeda] allow-dead-source-tests opt-out + Phase 11 report subsection + visual-references.md template landed via chunk #76 batch
 
-### Proposal 15 — `/andromeda-wrap-session` or `/andromeda-implement` should detect dead `#[cfg(test)] mod tests` blocks in crates с `[lib] test = false`
+### Proposal 15 — `/andromeda-wrap-session` or `/andromeda-implement` should detect dead `#[cfg(test)] mod tests` blocks in crates with `[lib] test = false`
 
 **Problem:**
 
-When a workspace member (e.g., `pulse-app`) declares `[lib] test = false` in `Cargo.toml` as а workaround for runtime build-time issues (e.g., Windows WebView2 DLL load failure per session-learning 2026-05-13), any source-level `#[cfg(test)] mod tests { … }` blocks in that crate compile but NEVER run as nextest binaries. Authors writing those tests assume they run (the `mod tests` pattern is universal Rust idiom); wrap-session test reports show "N/N pass" without noting source-level tests are silently absent from the discovered set; the gap persists across multiple chunks without surfacing.
+When a workspace member (e.g., `pulse-app`) declares `[lib] test = false` in `Cargo.toml` as a workaround for runtime build-time issues (e.g., Windows WebView2 DLL load failure per session-learning 2026-05-13), any source-level `#[cfg(test)] mod tests { … }` blocks in that crate compile but NEVER run as nextest binaries. Authors writing those tests assume they run (the `mod tests` pattern is universal Rust idiom); wrap-session test reports show "N/N pass" without noting source-level tests are silently absent from the discovered set; the gap persists across multiple chunks without surfacing.
 
-This actually happened on andromeda-pulse: chunks #69 / #70 / #71 each added substantial `#[cfg(test)] mod tests` blocks to `pulse-app/src/{drain,lifecycle,storm,baseline}_persistence.rs` (47 tests total across 4 files). All 47 were dead code — never executed, never caught regressions, never validated chunk acceptance criteria. The gap surfaced only at chunk #72 wrap session 107 when the new tests added в that chunk's scope were observed missing from nextest output, and audit revealed the prior tests were equally absent. Bug-finding cost was nontrivial: chunk #72 wrap discovered a real production OOM-on-corrupt-input bug in `baseline_persistence::migrate_legacy_inner` that the dead `migrate_legacy_failed_on_corrupt_bytes_preserves_legacy_file` test WOULD have caught at chunk #70 if it had actually run.
+This actually happened on andromeda-pulse: chunks #69 / #70 / #71 each added substantial `#[cfg(test)] mod tests` blocks to `pulse-app/src/{drain,lifecycle,storm,baseline}_persistence.rs` (47 tests total across 4 files). All 47 were dead code — never executed, never caught regressions, never validated chunk acceptance criteria. The gap surfaced only at chunk #72 wrap session 107 when the new tests added in that chunk's scope were observed missing from nextest output, and audit revealed the prior tests were equally absent. Bug-finding cost was nontrivial: chunk #72 wrap discovered a real production OOM-on-corrupt-input bug in `baseline_persistence::migrate_legacy_inner` that the dead `migrate_legacy_failed_on_corrupt_bytes_preserves_legacy_file` test WOULD have caught at chunk #70 if it had actually run.
 
 **Proposal:**
 
-Add a "dead-test detection" pass к `/andromeda-wrap-session` Phase 2 (test run) OR `/andromeda-implement` Phase 2 (fix-loop entry). The pass scans each workspace member's `Cargo.toml` for `[lib] test = false` (or `[[bin]] test = false`) declarations; for each such crate, grep src/ for `#[cfg(test)]\s*mod\s+tests` occurrences; if any found, emit warning:
+Add a "dead-test detection" pass to `/andromeda-wrap-session` Phase 2 (test run) OR `/andromeda-implement` Phase 2 (fix-loop entry). The pass scans each workspace member's `Cargo.toml` for `[lib] test = false` (or `[[bin]] test = false`) declarations; for each such crate, grep src/ for `#[cfg(test)]\s*mod\s+tests` occurrences; if any found, emit warning:
 
 ```
 ⚠ Dead source-level tests detected:
-  - pulse-app/src/drain_persistence.rs:105 — `mod tests` in crate с [lib] test = false
-    (will compile but NEVER run as nextest binary; move к pulse-app/tests/<file>.rs)
+  - pulse-app/src/drain_persistence.rs:105 — `mod tests` in crate with [lib] test = false
+    (will compile but NEVER run as nextest binary; move to pulse-app/tests/<file>.rs)
 ```
 
 Posture: warning-not-fatal. User decides whether to migrate (recommended) OR accept the dead code (rare; might be intentional documentation-only).
@@ -960,17 +960,17 @@ Posture: warning-not-fatal. User decides whether to migrate (recommended) OR acc
 **Design:**
 
 - `/andromeda-wrap-session` Phase 2 §Step 4 (new) "Dead-test scan":
-  1. Parse all workspace `Cargo.toml` files; collect crates с `[lib] test = false` OR `[[bin] test = false` declarations into a target list
+  1. Parse all workspace `Cargo.toml` files; collect crates with `[lib] test = false` OR `[[bin] test = false` declarations into a target list
   2. For each target crate, glob `src/**/*.rs`; grep each file for `^#\[cfg\(test\)\]\s*\n?\s*mod\s+tests`
   3. For each match, emit warning line into Phase 11 report under new "Dead-test warnings" subsection
   4. Surface count in commit message body Phase 10 under "Dead tests: {N} blocks in {M} files ({K} crates)"
-  5. Continue к Phase 3 regardless. Dead-test hits do NOT block commit.
+  5. Continue to Phase 3 regardless. Dead-test hits do NOT block commit.
 - Configuration knob: per-crate opt-out via new `Cargo.toml [package.metadata.andromeda]` block:
   ```toml
   [package.metadata.andromeda]
   allow-dead-source-tests = true  # disables wrap-session dead-test warnings for this crate
   ```
-- Handles the rare "intentional documentation-only" case без forcing the user к delete legitimate-but-unrunnable code.
+- Handles the rare "intentional documentation-only" case without forcing the user to delete legitimate-but-unrunnable code.
 
 **Implementation cost:**
 
@@ -982,20 +982,20 @@ Posture: warning-not-fatal. User decides whether to migrate (recommended) OR acc
 | `~/.claude/skills/andromeda-wrap-session/references/visual-references.md` | Dead-test warning rendering template | ~10 |
 | `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 2 | Opt-out parsing for `[package.metadata.andromeda] allow-dead-source-tests` | ~15 |
 
-**Total:** ~95 lines across 2 files. Low-medium-effort pipeline detection; high value for any project с workspace members carrying `[lib] test = false` workarounds (rare pattern but happens in Tauri / GUI runtime constraint situations).
+**Total:** ~95 lines across 2 files. Low-medium-effort pipeline detection; high value for any project with workspace members carrying `[lib] test = false` workarounds (rare pattern but happens in Tauri / GUI runtime constraint situations).
 
 **When to do:**
 
 - File-and-defer per the P5 / P7 / P12 / P13 / P14 precedent. The first occurrence (this session 107) is a costly bug-finding event — the dead-test gap hid a real OOM vulnerability for 3 chunks. The fix would prevent the same gap from recurring on any future project adopting the same Tauri workaround pattern (or any analogous `[[bin]] test = false` situation).
-- Defer-until-second-occurrence may not apply here — the cost of the FIRST miss already validated the proposal. But Andromeda improvement convention is "wait for two evidences before implementing"; sticking к the convention means waiting until another project hits the same shape (or until pulse-v0.2.0 next phase introduces another `[lib] test = false` situation).
-- Author preference — lean toward filing-and-deferring. Workaround (manual `cargo nextest list -p {crate} | grep <test-name>` audit pre-commit; documented в `.claude/rules/testing.md` Session Addition 2026-05-20 session 107) works as a disciplined-author check; pipeline support via P15 lands когда there's clear two-project-occurrence evidence.
+- Defer-until-second-occurrence may not apply here — the cost of the FIRST miss already validated the proposal. But Andromeda improvement convention is "wait for two evidences before implementing"; sticking to the convention means waiting until another project hits the same shape (or until pulse-v0.2.0 next phase introduces another `[lib] test = false` situation).
+- Author preference — lean toward filing-and-deferring. Workaround (manual `cargo nextest list -p {crate} | grep <test-name>` audit pre-commit; documented in `.claude/rules/testing.md` Session Addition 2026-05-20 session 107) works as a disciplined-author check; pipeline support via P15 lands when there's clear two-project-occurrence evidence.
 
 **Cross-references:**
 
 - Triggering session: session 107 (this wrap; chunk #72 PII scrubber coverage extension wrap + dead-test cleanup discovered 47 dead tests across chunks #69/#70/#71 source-level `mod tests` blocks).
 - Sibling proposal: **Proposal 13** — first-class sub-phase state for two-phase chunks (filed session 97). Both P13 + P15 are wrap-session enhancements closing detection gaps; P13 detects sub-phase progress, P15 detects dead test code. Different domains but same wrap-session-as-detection-gate framing.
 - `.claude/rules/testing.md` Session Addition 2026-05-13 — documents the `[lib] test = false` Windows WebView2 workaround.
-- `.claude/rules/testing.md` Session Addition 2026-05-20 session 107 (filed this same wrap) — documents migration discipline for moving dead source-level tests к integration tests + the visibility-bump pattern (private fns → pub с `#[doc(hidden)]` for integration access).
+- `.claude/rules/testing.md` Session Addition 2026-05-20 session 107 (filed this same wrap) — documents migration discipline for moving dead source-level tests to integration tests + the visibility-bump pattern (private fns → pub with `#[doc(hidden)]` for integration access).
 
 ---
 
@@ -1005,13 +1005,13 @@ Posture: warning-not-fatal. User decides whether to migrate (recommended) OR acc
 
 **Problem:**
 
-wrap-session Phase 10 step 4 ("post-commit state.yaml SHA-fixup amend") attempts к update `state.yaml.last_completed_chunk.commit_sha` from the `"pending"` placeholder к the real short SHA of the wrap commit. The sequence:
+wrap-session Phase 10 step 4 ("post-commit state.yaml SHA-fixup amend") attempts to update `state.yaml.last_completed_chunk.commit_sha` from the `"pending"` placeholder to the real short SHA of the wrap commit. The sequence:
 
 1. Pre-wrap: state.yaml.commit_sha = `"pending"` (placeholder)
 2. Make wrap commit → produces SHA `X`
 3. Capture `X` via `git rev-parse --short HEAD`
 4. Update state.yaml.commit_sha = `X`
-5. `git commit --amend --no-edit` к fold state.yaml into the same commit → produces NEW SHA `Y` (different from `X` because amend changes content + SHA)
+5. `git commit --amend --no-edit` to fold state.yaml into the same commit → produces NEW SHA `Y` (different from `X` because amend changes content + SHA)
 
 Result: state.yaml inside the final commit `Y` contains `commit_sha = X` (the pre-amend SHA), but `X` is now a DANGLING orphan commit (not reachable from HEAD = `Y`). The next /new-session detects State H drift; the next /wrap-session's "State H housekeeping" fixes it by setting commit_sha = `Y` (the now-reachable HEAD).
 
@@ -1027,15 +1027,15 @@ This is a fundamental git constraint: a commit's SHA cannot be known until the c
 Three viable mitigation options; recommend Option (b) per minimal-surgery preference:
 
 **Option (a) — Detect + label as known-stale:**
-After Phase 10 step 4 amend, re-read state.yaml + add a comment block above commit_sha citing "SHA is pre-amend; actual post-amend SHA in git is unknown (chicken-and-egg). Next wrap auto-heals via State H housekeeping." Surfaces honest intent в audit trail. Cost: every commit_sha field carries an explanatory comment forever.
+After Phase 10 step 4 amend, re-read state.yaml + add a comment block above commit_sha citing "SHA is pre-amend; actual post-amend SHA in git is unknown (chicken-and-egg). Next wrap auto-heals via State H housekeeping." Surfaces honest intent in audit trail. Cost: every commit_sha field carries an explanatory comment forever.
 
 **Option (b) — Remove Phase 10 step 4 entirely; accept the lag:**
-Skip the amend attempt; leave commit_sha = `"pending"` placeholder. New-session detects State H with severity info (downgraded from warning because the lag is now part of the documented pipeline). Next wrap-session's State H housekeeping path (which already exists per session 106 + 108 evidence) sets commit_sha = real HEAD SHA в that wrap's atomic state.yaml write. Cost: one-wrap-cycle lag в state.yaml accuracy (cosmetic; doesn't affect correctness because audit trail in marker files + amendment IDs remain unambiguous).
+Skip the amend attempt; leave commit_sha = `"pending"` placeholder. New-session detects State H with severity info (downgraded from warning because the lag is now part of the documented pipeline). Next wrap-session's State H housekeeping path (which already exists per session 106 + 108 evidence) sets commit_sha = real HEAD SHA in that wrap's atomic state.yaml write. Cost: one-wrap-cycle lag in state.yaml accuracy (cosmetic; doesn't affect correctness because audit trail in marker files + amendment IDs remain unambiguous).
 
 **Option (c) — Two-commit pattern (wrap commit then SHA-fixup commit):**
-Phase 10 makes the wrap commit normally; Phase 10 step 4 creates a SEPARATE follow-up commit `chore(state-cursor): record chunk #N commit_sha {real-sha}`. Audit trail has two commits per wrap instead of one; commit_sha records the prior wrap commit's actual SHA. Cost: doubles wrap commit count (98 wraps → 196 commits if applied retroactively); violates the "one-commit-per-wrap" invariant documented в session-state-contract.md.
+Phase 10 makes the wrap commit normally; Phase 10 step 4 creates a SEPARATE follow-up commit `chore(state-cursor): record chunk #N commit_sha {real-sha}`. Audit trail has two commits per wrap instead of one; commit_sha records the prior wrap commit's actual SHA. Cost: doubles wrap commit count (98 wraps → 196 commits if applied retroactively); violates the "one-commit-per-wrap" invariant documented in session-state-contract.md.
 
-Recommended: **Option (b)**. Simplest; respects the git constraint; acknowledges the chronic lag as part of the documented pipeline rather than fighting it with imperfect mitigations. State H detection at /new-session continues к function (it already handles the existing pattern); the dashboard's existing remediation hint ("next wrap-session Phase 8 should auto-fix") becomes load-bearing rather than aspirational.
+Recommended: **Option (b)**. Simplest; respects the git constraint; acknowledges the chronic lag as part of the documented pipeline rather than fighting it with imperfect mitigations. State H detection at /new-session continues to function (it already handles the existing pattern); the dashboard's existing remediation hint ("next wrap-session Phase 8 should auto-fix") becomes load-bearing rather than aspirational.
 
 **Design:**
 
@@ -1043,12 +1043,12 @@ For Option (b):
 
 1. Edit `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 10:
    - Remove step 4 ("Post-commit state.yaml SHA-fixup amend") entirely
-   - Update step 3 commit composition: leave `commit_sha = "pending"` in state.yaml inside the wrap commit; document this как deliberate (audit trail preserved by amendment markers + commit subject lines)
-   - Add Phase 8 step 6 (NEW): "State H housekeeping — if state.yaml.last_completed_chunk.commit_sha is `'pending'` OR points к а SHA not reachable from HEAD, update it к the most recent commit matching chunk progression pattern (`^chunk\\(\\d+\\):` OR `^feat\\(\\{module\\}\\):` against the last_completed_chunk's title)". This becomes the auto-heal path every wrap (currently only documented as "next wrap-session Phase 8 should auto-fix" but not explicitly wired — codify it).
+   - Update step 3 commit composition: leave `commit_sha = "pending"` in state.yaml inside the wrap commit; document this as deliberate (audit trail preserved by amendment markers + commit subject lines)
+   - Add Phase 8 step 6 (NEW): "State H housekeeping — if state.yaml.last_completed_chunk.commit_sha is `'pending'` OR points to a SHA not reachable from HEAD, update it to the most recent commit matching chunk progression pattern (`^chunk\\(\\d+\\):` OR `^feat\\(\\{module\\}\\):` against the last_completed_chunk's title)". This becomes the auto-heal path every wrap (currently only documented as "next wrap-session Phase 8 should auto-fix" but not explicitly wired — codify it).
 
 2. Edit `~/.claude/skills/andromeda-new-session/references/visual-references.md` Phase 9:
-   - Downgrade State H from warning severity к info severity when state.yaml.commit_sha = `"pending"` (this is the EXPECTED post-wrap state under Option b — not an anomaly)
-   - Keep warning severity when state.yaml.commit_sha points к an unreachable non-pending SHA (this would be an unhealed previous-wrap leftover)
+   - Downgrade State H from warning severity to info severity when state.yaml.commit_sha = `"pending"` (this is the EXPECTED post-wrap state under Option b — not an anomaly)
+   - Keep warning severity when state.yaml.commit_sha points to an unreachable non-pending SHA (this would be an unhealed previous-wrap leftover)
 
 3. No spec-amendment-protocol.md changes needed (state.yaml schema unchanged; Phase 10 step 4 was procedural, not schema-defining).
 
@@ -1063,46 +1063,46 @@ After chunk #76 starts (Phase 6 v3 plan sequence). Could land standalone if user
 **Cross-references:**
 
 - Triggering observation: session 108 /new-session detected State H carry-over from session 107 wrap (ae62162 orphan); resolved via State H housekeeping in this wrap (ae62162 → e08693e).
-- Historical precedent: session 105/106 pair (orphan 95a9619 → 2537e44 fix); session 107 carried it forward; pattern visible в commit log по subject lines.
+- Historical precedent: session 105/106 pair (orphan 95a9619 → 2537e44 fix); session 107 carried it forward; pattern visible in commit log by subject lines.
 - Sibling proposal: **Proposal 15** — dead-test detection gate for wrap-session/implement (filed session 107). Both P15 + P16 are wrap-session meta-improvements; P15 fixes detection gap, P16 fixes mechanism flaw. Both target chunk #76 batch.
 - `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 10 step 4 — the load-bearing mechanism being deprecated.
 - `~/.claude/skills/andromeda-new-session/references/visual-references.md` Phase 9 State H rendering — needs severity downgrade for `"pending"` case.
-- `state.yaml.last_completed_chunk.commit_sha` field — semantics shift from "real post-amend SHA" к "real HEAD-reachable SHA OR `'pending'` placeholder until next wrap heals".
+- `state.yaml.last_completed_chunk.commit_sha` field — semantics shift from "real post-amend SHA" to "real HEAD-reachable SHA OR `'pending'` placeholder until next wrap heals".
 - `~/.claude/skills/andromeda-wrap-session/references/visual-references.md` Phase 11 — current report sections; P15 adds new "Dead-test warnings" subsection.
 
 ---
 
-## Status: IMPLEMENTED — 2026-05-22 (session 116, commit pending) — implement SKILL.md Phase 1 step 0 META detection (≥80% signature) + NEW Phase 1b sibling-skill orchestration с availability check / branch path + MUST NOT arch.md clause clarified with META EXCEPTION + Phase 3 META-chunk-orchestrated success variant + visual-references.md banners (Phase 1 META detection / Phase 1b orchestration / Phase 3 META success) + fix-loop-protocol.md META bypass note landed via chunk #76 batch
+## Status: IMPLEMENTED — 2026-05-22 (session 116, commit pending) — implement SKILL.md Phase 1 step 0 META detection (≥80% signature) + NEW Phase 1b sibling-skill orchestration with availability check / branch path + MUST NOT arch.md clause clarified with META EXCEPTION + Phase 3 META-chunk-orchestrated success variant + visual-references.md banners (Phase 1 META detection / Phase 1b orchestration / Phase 3 META success) + fix-loop-protocol.md META bypass note landed via chunk #76 batch
 
 ### Proposal 17 — `/andromeda-implement` META-chunk recognition + inline sibling-skill orchestration
 
 **Problem:**
 
-When `/andromeda-implement` encounters a META chunk (a chunk whose `plan.md` Implementation Steps consist entirely of `/andromeda-evolve --allow-arch-registry` or similar sibling-skill invocations rather than code edits), the current behavior is inconsistent с user expectations:
+When `/andromeda-implement` encounters a META chunk (a chunk whose `plan.md` Implementation Steps consist entirely of `/andromeda-evolve --allow-arch-registry` or similar sibling-skill invocations rather than code edits), the current behavior is inconsistent with user expectations:
 
-1. **First-attempt observation (this session):** /andromeda-implement Phase 1 read plan.md, recognized that each Implementation Step said "Invoke /andromeda-evolve --allow-arch-registry с descriptor X", classified the chunk как out-of-scope (per MUST NOT clause "Do not modify .andromeda/architecture.md") and surfaced а META-handoff variant requesting user to manually invoke /andromeda-evolve × N. **Correct per skill constraints** but suboptimal UX: user already approved the plan at /andromeda-phase Phase 6; surfacing only к invoke another skill manually feels like artificial friction.
+1. **First-attempt observation (this session):** /andromeda-implement Phase 1 read plan.md, recognized that each Implementation Step said "Invoke /andromeda-evolve --allow-arch-registry with descriptor X", classified the chunk as out-of-scope (per MUST NOT clause "Do not modify .andromeda/architecture.md") and surfaced a META-handoff variant requesting user to manually invoke /andromeda-evolve × N. **Correct per skill constraints** but suboptimal UX: user already approved the plan at /andromeda-phase Phase 6; surfacing only to invoke another skill manually feels like artificial friction.
 
 2. **Second-attempt observation:** user explicitly removed `disable-model-invocation: true` from andromeda-evolve + andromeda-setup-project skill definitions, then re-invoked /andromeda-implement. This time, the orchestrator recognized that the relevant sibling skills were Skill-tool-invocable, executed inline orchestration (3 amendments + 3 propagations + standard gates) successfully. **Same chunk; different UX path; outcome identical.**
 
-The skill currently doesn't have explicit guidance for META chunks. The constraint MUST NOT modify .andromeda/architecture.md is correctly enforced, but the implicit assumption "META chunks are out-of-scope" is wrong: META chunks ARE in-scope if the sibling skills are available + permitted к invoke.
+The skill currently doesn't have explicit guidance for META chunks. The constraint MUST NOT modify .andromeda/architecture.md is correctly enforced, but the implicit assumption "META chunks are out-of-scope" is wrong: META chunks ARE in-scope if the sibling skills are available + permitted to invoke.
 
 **Proposal:**
 
-Extend /andromeda-implement Phase 1 с а META-chunk detection step + orchestration policy:
+Extend /andromeda-implement Phase 1 with a META-chunk detection step + orchestration policy:
 
-1. **Phase 1 step 0 (NEW) — META chunk detection.** After reading plan.md but before Phase 2 (fix loop), scan `## Implementation Steps` for the signature pattern: each step's primary verb is "Invoke /andromeda-{skill} с args ..." (no Read / Edit / Write file references in the step body). If ≥80% of Implementation Steps match this pattern → classify chunk as META.
+1. **Phase 1 step 0 (NEW) — META chunk detection.** After reading plan.md but before Phase 2 (fix loop), scan `## Implementation Steps` for the signature pattern: each step's primary verb is "Invoke /andromeda-{skill} with args ..." (no Read / Edit / Write file references in the step body). If ≥80% of Implementation Steps match this pattern → classify chunk as META.
 
-2. **META-chunk path:** when classified as META, route к а new Phase 1b "Sibling-skill orchestration":
+2. **META-chunk path:** when classified as META, route to a new Phase 1b "Sibling-skill orchestration":
    - Enumerate the sibling skills referenced in plan.md Implementation Steps (e.g., `/andromeda-evolve --allow-arch-registry`, `/andromeda-setup-project --delta`).
    - Check Skill-tool availability for each referenced skill (introspect the system-injected skill list).
-   - **If ALL referenced skills are Skill-tool-invocable:** proceed with inline orchestration (invoke each per plan.md step sequence; capture artifacts; record outcomes). Skip the existing MUST NOT для architecture.md (sibling-skill writes к arch.md are authorized by their own discipline, not /implement's).
+   - **If ALL referenced skills are Skill-tool-invocable:** proceed with inline orchestration (invoke each per plan.md step sequence; capture artifacts; record outcomes). Skip the existing MUST NOT for architecture.md (sibling-skill writes to arch.md are authorized by their own discipline, not /implement's).
    - **If ANY referenced skill is NOT Skill-tool-invocable:** surface the current META-handoff variant ("user runs the following N skills manually...") — preserves existing behavior for skills not yet enabled.
 
-3. **Update MUST NOT clause** about arch.md: clarify that the prohibition is on /implement DIRECTLY editing arch.md as а fix-loop delta; sibling-skill orchestration (where the sibling skill — e.g., /andromeda-evolve --allow-arch-registry — has its own arch-write discipline + Type 6 authorization) is permitted under the META-chunk path.
+3. **Update MUST NOT clause** about arch.md: clarify that the prohibition is on /implement DIRECTLY editing arch.md as a fix-loop delta; sibling-skill orchestration (where the sibling skill — e.g., /andromeda-evolve --allow-arch-registry — has its own arch-write discipline + Type 6 authorization) is permitted under the META-chunk path.
 
 4. **Phase 2 fix-loop adaptation:** for META chunks, "tests" = standard chunk-gate baseline run AFTER all sibling-skill orchestrations complete (zero `.rs` changes mean tests preserve baseline trivially; the gate confirms no regressions induced by the orchestration). bindings.ts regen discipline applies if any default-features nextest fires during the gate run (per testing.md 2026-05-13 + 2026-05-17 entries).
 
-5. **Phase 3 report variants:** add а "META-chunk-orchestrated" success variant alongside the existing default-success / Path A / Path A' / Path B / Stuck / Smoke-surfaced variants. Reports each sibling-skill invocation's outcome + final standard-gate status + amendment marker paths for wrap-session pickup.
+5. **Phase 3 report variants:** add a "META-chunk-orchestrated" success variant alongside the existing default-success / Path A / Path A' / Path B / Stuck / Smoke-surfaced variants. Reports each sibling-skill invocation's outcome + final standard-gate status + amendment marker paths for wrap-session pickup.
 
 **Design:**
 
@@ -1110,13 +1110,13 @@ Concrete edits:
 
 1. Edit `~/.claude/skills/andromeda-implement/SKILL.md`:
    - Phase 1 — insert "step 0 META-chunk detection" before existing step 1
-   - New Phase 1b "Sibling-skill orchestration" between Phase 1 + Phase 2 (conditional на META detection)
-   - MUST NOT clause "Modify .andromeda/architecture.md as а delta amendment" — clarify scope: "directly via Edit/Write tool during fix loop OR Trigger 4 Path A. EXCEPTION: when chunk is classified as META AND plan.md Implementation Steps explicitly delegate к sibling-skill invocations carrying their own arch-write discipline (e.g., /andromeda-evolve --allow-arch-registry), inline orchestration via Skill tool is permitted; the sibling skill's own constraints + audit trail (amendment marker + state.yaml lifecycle) apply."
+   - New Phase 1b "Sibling-skill orchestration" between Phase 1 + Phase 2 (conditional on META detection)
+   - MUST NOT clause "Modify .andromeda/architecture.md as a delta amendment" — clarify scope: "directly via Edit/Write tool during fix loop OR Trigger 4 Path A. EXCEPTION: when chunk is classified as META AND plan.md Implementation Steps explicitly delegate to sibling-skill invocations carrying their own arch-write discipline (e.g., /andromeda-evolve --allow-arch-registry), inline orchestration via Skill tool is permitted; the sibling skill's own constraints + audit trail (amendment marker + state.yaml lifecycle) apply."
    - Phase 3 — add "META-chunk-orchestrated" success variant.
 
 2. Edit `~/.claude/skills/andromeda-implement/references/visual-references.md`:
-   - New banner template для Phase 1 META detection ("⊙ META chunk detected: orchestrating sibling skills inline").
-   - New banner template для Phase 3 META success variant (lists each sibling-skill invocation outcome + amendment marker paths + standard-gate status).
+   - New banner template for Phase 1 META detection ("⊙ META chunk detected: orchestrating sibling skills inline").
+   - New banner template for Phase 3 META success variant (lists each sibling-skill invocation outcome + amendment marker paths + standard-gate status).
 
 3. Edit `~/.claude/skills/andromeda-implement/references/fix-loop-protocol.md`:
    - Add brief note that META chunks bypass the standard fix loop (no code edits; "fix" is verifying gates stay green after orchestration).
@@ -1129,12 +1129,12 @@ Concrete edits:
 
 **When to do:**
 
-Chunk #76 (Andromeda pipeline meta-improvements P7 + P12 + P15-P18) is the natural batch. P17 joins P15/P16/P18 (already filed) as session-meta-improvements landing together. Pre-condition: chunks #75 + earlier consolidation chunks must complete first к stabilize the consolidation Phase 6 baseline.
+Chunk #76 (Andromeda pipeline meta-improvements P7 + P12 + P15-P18) is the natural batch. P17 joins P15/P16/P18 (already filed) as session-meta-improvements landing together. Pre-condition: chunks #75 + earlier consolidation chunks must complete first to stabilize the consolidation Phase 6 baseline.
 
 **Cross-references:**
 
 - Triggering observation: this session 111 /andromeda-implement first-attempt (META-handoff surface) → user enabled skill invocation → second-attempt (inline orchestration). Both attempts in the same conversation; comparison evidence of the UX gap.
-- Sibling proposals: P14 (Phase 2b smoke check protocol extension) — both modify /andromeda-implement Phase 2/2b behavior; P17 modifies Phase 1 + Phase 3. P15 (dead-test detection) — sibling wrap-session improvement, joins P17 в chunk #76 batch.
+- Sibling proposals: P14 (Phase 2b smoke check protocol extension) — both modify /andromeda-implement Phase 2/2b behavior; P17 modifies Phase 1 + Phase 3. P15 (dead-test detection) — sibling wrap-session improvement, joins P17 in chunk #76 batch.
 - `~/.claude/skills/andromeda-implement/SKILL.md` Phase 1 + Phase 3 — the load-bearing skill body sections to extend.
 - `~/.claude/skills/andromeda-implement/references/visual-references.md` Phase 1 + Phase 3 — banner templates to add.
 - Chunk #74 marker files (`.andromeda/runs/2026-05-21T12-08-11-spec-amendment-acknowledge-log-templates-and-corpus-schema/amendment.md` + 2 siblings) — proof of concept for the META-orchestration path; preserved as audit trail.
@@ -1202,7 +1202,7 @@ Chunk #76 (Andromeda pipeline meta-improvements P7 + P12 + P15-P18) is the natur
 - `~/.claude/skills/andromeda-wrap-session/references/integrity-protocol.md` + `~/.claude/skills/andromeda-setup-project/references/integrity-protocol.md` — must stay byte-identical per 6-contract cross-skill diff.
 - CLAUDE.md §Architecture block at line 96 (current; verifies the cascade path).
 - arch.md §Design Philosophy line 3 (the source of truth narrative line for the derivation).
-- Skill tool availability semantics — depends on Claude Code harness allowing model-invocation per-skill (via removing `disable-model-invocation: true`); P17 assumes this is the project's preferred posture для Andromeda skill set.
+- Skill tool availability semantics — depends on Claude Code harness allowing model-invocation per-skill (via removing `disable-model-invocation: true`); P17 assumes this is the project's preferred posture for Andromeda skill set.
 - chunks #75 + #77 — future META chunks that will benefit from P17 implementation; canonical test cases post-implementation.
 
 ---
@@ -1213,34 +1213,34 @@ Chunk #76 (Andromeda pipeline meta-improvements P7 + P12 + P15-P18) is the natur
 
 **Problem:**
 
-P16 Option (b) landed at chunk #76 session 116. Phase 8 step 3 advances `state.yaml.last_completed_chunk` (potentially к а new chunk number) с `commit_sha = "pending"`. Phase 8 step 7 then runs State H housekeeping: "If commit_sha == 'pending' OR points к unreachable orphan → heal к most recent commit matching chunk progression pattern с title token overlap ≥0.5".
+P16 Option (b) landed at chunk #76 session 116. Phase 8 step 3 advances `state.yaml.last_completed_chunk` (potentially to a new chunk number) with `commit_sha = "pending"`. Phase 8 step 7 then runs State H housekeeping: "If commit_sha == 'pending' OR points to unreachable orphan → heal to most recent commit matching chunk progression pattern with title token overlap ≥0.5".
 
-**Subtle ordering issue surfaced this session:** step 7's "pending" check fires on commit_sha that was JUST set к "pending" by step 3 in the SAME wrap. The healing then tries к find а commit matching the new chunk's title — but the CURRENT wrap's commit hasn't been made yet (Phase 10 makes it later). So step 7 looks at git log + finds the PREVIOUS chunk's commit (or finds nothing matching the new chunk's title с ≥0.5 overlap, in which case it leaves "pending" — which is correct).
+**Subtle ordering issue surfaced this session:** step 7's "pending" check fires on commit_sha that was JUST set to "pending" by step 3 in the SAME wrap. The healing then tries to find a commit matching the new chunk's title — but the CURRENT wrap's commit hasn't been made yet (Phase 10 makes it later). So step 7 looks at git log + finds the PREVIOUS chunk's commit (or finds nothing matching the new chunk's title with ≥0.5 overlap, in which case it leaves "pending" — which is correct).
 
 The token-overlap threshold (≥0.5) effectively GUARDS against incorrect healing because the new chunk's title won't match the previous chunk's commit subject. But this guard is implicit, not explicit design.
 
 **Dogfood evidence (session 116):**
-- This wrap: state.yaml.last_completed_chunk advanced 75 → 76; commit_sha = "pending"; step 7 looked at recent commits (21d5663 "chunk #76 route-append amendment archived", 73be075 "chunk #75 documentation consolidation"); no match с ≥0.5 token overlap к the new last_completed_chunk.title "Andromeda pipeline meta-improvements"; step 7 left commit_sha = "pending"; this is the correct outcome.
-- But the LOGIC works by accident — the ≥0.5 token overlap check happens к prevent incorrect healing. A future chunk с simpler title (e.g., "P-019 fingerprinting") could spuriously match а recent commit and heal incorrectly.
+- This wrap: state.yaml.last_completed_chunk advanced 75 → 76; commit_sha = "pending"; step 7 looked at recent commits (21d5663 "chunk #76 route-append amendment archived", 73be075 "chunk #75 documentation consolidation"); no match with ≥0.5 token overlap to the new last_completed_chunk.title "Andromeda pipeline meta-improvements"; step 7 left commit_sha = "pending"; this is the correct outcome.
+- But the LOGIC works by accident — the ≥0.5 token overlap check happens to prevent incorrect healing. A future chunk with simpler title (e.g., "P-019 fingerprinting") could spuriously match a recent commit and heal incorrectly.
 
 **Proposal:**
 
-Add an EXPLICIT discriminator к Phase 8 step 7: track whether step 3 just-updated `last_completed_chunk` in this wrap. If step 3 advanced last_completed_chunk in this wrap, step 7 should:
+Add an EXPLICIT discriminator to Phase 8 step 7: track whether step 3 just-updated `last_completed_chunk` in this wrap. If step 3 advanced last_completed_chunk in this wrap, step 7 should:
 
 - **NOT heal** commit_sha = "pending" — that's intentional for this wrap's pending state.
-- **STILL heal** unreachable orphan SHAs from previous wraps (a "pending" left by previous wrap that didn't get healed; OR а historical SHA that's no longer reachable).
+- **STILL heal** unreachable orphan SHAs from previous wraps (a "pending" left by previous wrap that didn't get healed; OR a historical SHA that's no longer reachable).
 
-Concrete edit: add а sub-step 7a before the heal logic:
+Concrete edit: add a sub-step 7a before the heal logic:
 
 ```
 7a. Determine whether step 3 advanced last_completed_chunk this wrap:
-    - Read state.yaml BEFORE step 3 ran (capture а snapshot at Phase 8 entry).
+    - Read state.yaml BEFORE step 3 ran (capture a snapshot at Phase 8 entry).
     - Compare snapshot.last_completed_chunk.route_index vs current value.
-    - If current > snapshot: step 3 advanced; this-wrap progressed а chunk;
+    - If current > snapshot: step 3 advanced; this-wrap progressed a chunk;
       commit_sha = "pending" is the deliberate this-wrap pending state →
-      SKIP step 7 heal entirely (leave commit_sha = "pending" для next wrap).
-    - If current == snapshot: step 3 didn't progress а chunk; commit_sha
-      should be the previous wrap's actual SHA OR а "pending" leftover from
+      SKIP step 7 heal entirely (leave commit_sha = "pending" for next wrap).
+    - If current == snapshot: step 3 didn't progress a chunk; commit_sha
+      should be the previous wrap's actual SHA OR a "pending" leftover from
       previous wrap → run step 7 heal logic per the existing P16 design.
 ```
 
@@ -1248,8 +1248,8 @@ This makes the timing discrimination explicit AND eliminates reliance on the imp
 
 **Design:**
 
-1. Add the snapshot capture к Phase 8 step entry (the start of Phase 8, before step 1).
-2. Add the discriminator к Phase 8 step 7 prologue.
+1. Add the snapshot capture to Phase 8 step entry (the start of Phase 8, before step 1).
+2. Add the discriminator to Phase 8 step 7 prologue.
 3. Update the rationale prose to explain BOTH the previous-wrap-orphan-heal case AND the same-wrap-pending-skip case.
 
 **Implementation cost:**
@@ -1258,13 +1258,13 @@ This makes the timing discrimination explicit AND eliminates reliance on the imp
 |---|---|---|
 | `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 step entry + step 7 | Snapshot capture + 7a discriminator + rationale prose | ~25 |
 
-**Total:** ~25 LOC в 1 file. Minimal-effort refinement к close the timing-subtlety gap.
+**Total:** ~25 LOC in 1 file. Minimal-effort refinement to close the timing-subtlety gap.
 
 **When to do:**
 
-Next-soon. Confidence the pattern recurs: MEDIUM (depends on future chunks с simple title token sets that could spuriously match recent commits с ≥0.5 overlap). Current ≥0.5 threshold IS the implicit guard; tightening к explicit discriminator improves predictability.
+Next-soon. Confidence the pattern recurs: MEDIUM (depends on future chunks with simple title token sets that could spuriously match recent commits with ≥0.5 overlap). Current ≥0.5 threshold IS the implicit guard; tightening to explicit discriminator improves predictability.
 
-Defer-acceptable IF user prefers minimal additional skill surgery this soon after P16 lands; manual heal at next wrap if а spurious match fires.
+Defer-acceptable IF user prefers minimal additional skill surgery this soon after P16 lands; manual heal at next wrap if a spurious match fires.
 
 **Cross-references:**
 
@@ -1283,9 +1283,9 @@ Defer-acceptable IF user prefers minimal additional skill surgery this soon afte
 
 The existing meta-improvement loop (wrap-session Phase 3 step 2 "Andromeda pipeline friction" scan + `docs/andromeda-improvements.md` proposal log + amendment cycle as apply mechanism) sees only the CURRENT session's conversation. It dedups against existing PROPOSED entries by title token overlap >0.6 but cannot detect the PATTERN that keeps generating proposals across sessions. Three concrete consequences observable in the project today:
 
-1. **No accumulation tracking.** P15 (dead `mod tests`) shipped in session 116 as а patch; the structural cause ("pulse-app declares `[lib] test = false` for WebView2 workaround") was never raised because there's nowhere to track "this pattern keeps surfacing". 16 blocks across 16 files all sit awaiting individual remediation; the system can't ask "is this а recurring pattern that needs а structural fix rather than 16 patches?"
-2. **No honest-healthy authoring.** When zero proposals file in а wrap, Phase 11 says nothing about meta-observation. Zero candidates is indistinguishable from didn't-look. The user can't audit the scan.
-3. **No patch/refactor class distinction.** All entries in `andromeda-improvements.md` are shaped as single fixes. Chunk #76 batched 6 proposals (P7+P12+P15-P18) without anyone asking "do these share а structural cause?" — they might. The schema can't tell.
+1. **No accumulation tracking.** P15 (dead `mod tests`) shipped in session 116 as a patch; the structural cause ("pulse-app declares `[lib] test = false` for WebView2 workaround") was never raised because there's nowhere to track "this pattern keeps surfacing". 16 blocks across 16 files all sit awaiting individual remediation; the system can't ask "is this a recurring pattern that needs a structural fix rather than 16 patches?"
+2. **No honest-healthy authoring.** When zero proposals file in a wrap, Phase 11 says nothing about meta-observation. Zero candidates is indistinguishable from didn't-look. The user can't audit the scan.
+3. **No patch/refactor class distinction.** All entries in `andromeda-improvements.md` are shaped as single fixes. Chunk #76 batched 6 proposals (P7+P12+P15-P18) without anyone asking "do these share a structural cause?" — they might. The schema can't tell.
 
 Specific observable matured pattern in the project today: `state.yaml.living_artifact_freshness.api_surface_deferred = true` for **22 consecutive wraps** (sessions 91-116). The state.yaml field literally cites the count. No patch has been filed because there's no patch to file — the structural cost (cargo +nightly public-api on 14 crates ≈ 7-14 min) exceeds the wrap budget (~3 min). The deferral IS the workflow. This is exactly the case the current meta-layer cannot recognize as actionable.
 
@@ -1293,7 +1293,7 @@ Specific observable matured pattern in the project today: `state.yaml.living_art
 
 EVOLVE the existing meta-layer at 4 coordinates (no new skill; no parallel log; no separate cron):
 
-1. **`wrap-session/references/curation-guide.md`** gains а "Maturation logic" subsection (Filter 6 parallel to existing 5 quality filters). Classifies each survivor as `noise | patch | refactor`. Wrap-session-local — out of the triangle's 6-contract byte-identity surface (preserves Invariant 7).
+1. **`wrap-session/references/curation-guide.md`** gains a "Maturation logic" subsection (Filter 6 parallel to existing 5 quality filters). Classifies each survivor as `noise | patch | refactor`. Wrap-session-local — out of the triangle's 6-contract byte-identity surface (preserves Invariant 7).
 
 2. **`state.yaml`** gains `pipeline_observation_state` field (schema bump v2.1 → v2.2; migration step in wrap-session Phase 8). Persistent cross-session registers:
    - `recurring_patch[pattern_key]`: count, first/last observed session, related_proposals, evidence list, matured_at_session, resolved_in_chunk
@@ -1301,22 +1301,22 @@ EVOLVE the existing meta-layer at 4 coordinates (no new skill; no parallel log; 
    - `amendment_clustering[plan_path]`: same shape
    - `high_severity_recurrence[drift_id]`: same shape
    - `deferral_recurrence[artifact_path]`: same shape
-   Justification for this one new field (only non-pure-transformation in the design): cross-session accumulation has nowhere to live in the existing schema. `state.yaml.drift_warnings[].first_observed_session_count` is per-drift not per-pipeline-pattern. `andromeda-improvements.md` is unstructured prose. State.yaml IS the cross-session state hub (Invariant 1); adding а field is purely additive and uses the existing schema-migration mechanism (Invariant 14).
+   Justification for this one new field (only non-pure-transformation in the design): cross-session accumulation has nowhere to live in the existing schema. `state.yaml.drift_warnings[].first_observed_session_count` is per-drift not per-pipeline-pattern. `andromeda-improvements.md` is unstructured prose. State.yaml IS the cross-session state hub (Invariant 1); adding a field is purely additive and uses the existing schema-migration mechanism (Invariant 14).
 
 3. **`wrap-session` Phase 3 step 2** body extends:
    - **2a** (existing): scan this session's conversation for friction candidates.
    - **2b** (NEW): for each candidate that passes Filters 1-5, classify per `curation-guide.md` §Maturation logic.
    - **2c** (NEW): update `state.yaml.pipeline_observation_state.registers.*` from session evidence + amendment archive + drift_warnings with first_observed_session_count > 7 + deferral counter increments.
-   - **2d** (NEW): scan registers for newly-matured patterns; file а Refactor R{N} entry in `andromeda-improvements.md` (class: refactor) with accumulation evidence MANDATORY in entry body.
+   - **2d** (NEW): scan registers for newly-matured patterns; file a Refactor R{N} entry in `andromeda-improvements.md` (class: refactor) with accumulation evidence MANDATORY in entry body.
 
 4. **`docs/andromeda-improvements.md`** schema extends: each entry gets `**Class:** patch | refactor`; refactor entries additionally require `**Accumulation evidence:**` field citing ≥3 patches OR matured-criterion-specific data. Existing P1-P19 backfill as `Class: patch` (one-line edit). New refactor entries use `### Refactor R{N} — {title}` heading parallel to `### Proposal P{N}`.
 
-5. **`wrap-session` Phase 11** extends with а "Pipeline meta-observation" subsection rendering one of three modes:
+5. **`wrap-session` Phase 11** extends with a "Pipeline meta-observation" subsection rendering one of three modes:
    - **Mode P** (patch filed): lists patches + pattern_key + register touched
    - **Mode R** (refactor matured): lists refactor + accumulation evidence + scope class + routing
-   - **Mode H** (honest healthy, evidence-backed): lists registers scanned с current counts + closest-to-maturing top 3 + explicit "nothing matured this wrap" conclusion. NOT а silent void — а demonstrated scan.
+   - **Mode H** (honest healthy, evidence-backed): lists registers scanned with current counts + closest-to-maturing top 3 + explicit "nothing matured this wrap" conclusion. NOT a silent void — a demonstrated scan.
 
-6. **`new-session` Phase 9** dashboard extends with а "Matured pipeline patterns" subsection reading `state.yaml.pipeline_observation_state.registers.*.matured_at_session != null` entries. Section omitted entirely when empty (preserves new-session read-only role per Invariant 19).
+6. **`new-session` Phase 9** dashboard extends with a "Matured pipeline patterns" subsection reading `state.yaml.pipeline_observation_state.registers.*.matured_at_session != null` entries. Section omitted entirely when empty (preserves new-session read-only role per Invariant 19).
 
 **Design:**
 
@@ -1358,11 +1358,11 @@ First application (would be R1 if self-evolve active today): `api_surface.md` 22
 | `~/.claude/skills/andromeda-wrap-session/references/session-state-contract.md` Part B | ADD `pipeline_observation_state` schema | ~40 |
 | `~/.claude/skills/andromeda-setup-project/references/session-state-contract.md` Part B | byte-identical copy of above | ~40 |
 | `~/.claude/skills/andromeda-new-session/references/session-state-contract.md` Part B | byte-identical copy of above | ~40 |
-| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 3 step 2 | EXTEND с 2b/2c/2d sub-steps | ~30 |
+| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 3 step 2 | EXTEND with 2b/2c/2d sub-steps | ~30 |
 | `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 | ADD v2.1→v2.2 migration step (seed `pipeline_observation_state` + backfill `deferral_recurrence['api_surface']` from existing state.yaml.api_surface_deferred_reason text) | ~25 |
-| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 11 | EXTEND report template с "Pipeline meta-observation" subsection (Modes P / R / H) | ~40 |
+| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 11 | EXTEND report template with "Pipeline meta-observation" subsection (Modes P / R / H) | ~40 |
 | `~/.claude/skills/andromeda-wrap-session/references/visual-references.md` | ADD Mode P / Mode R / Mode H banner templates | ~30 |
-| `~/.claude/skills/andromeda-new-session/SKILL.md` Phase 9 | EXTEND dashboard с "Matured pipeline patterns" subsection (omitted-if-empty rendering) | ~20 |
+| `~/.claude/skills/andromeda-new-session/SKILL.md` Phase 9 | EXTEND dashboard with "Matured pipeline patterns" subsection (omitted-if-empty rendering) | ~20 |
 | `~/.claude/skills/andromeda-new-session/references/visual-references.md` | ADD matured-patterns subsection template | ~15 |
 | `docs/andromeda-improvements.md` (this project) | Backfill P1-P19 with `**Class:** patch` (one-line per entry; mechanical) | ~20 |
 
@@ -1370,7 +1370,7 @@ First application (would be R1 if self-evolve active today): `api_surface.md` 22
 
 **When to do:**
 
-After P19 (P16 timing discriminator) lands — they don't conflict but P19 is cheaper (~25 LOC, single file) and matures the State H story before this larger evolution. P20 itself is ~420 LOC across 11 files; substantial META chunk. Justification for the cost is direct: 22-wrap api-surface deferral is the existing matured pattern; without P20, no mechanism exists to surface it as а refactor candidate beyond ad-hoc human attention.
+After P19 (P16 timing discriminator) lands — they don't conflict but P19 is cheaper (~25 LOC, single file) and matures the State H story before this larger evolution. P20 itself is ~420 LOC across 11 files; substantial META chunk. Justification for the cost is direct: 22-wrap api-surface deferral is the existing matured pattern; without P20, no mechanism exists to surface it as a refactor candidate beyond ad-hoc human attention.
 
 Defer-acceptable IF user prefers continuing per-wrap proposal filing without cross-session pattern tracking — the existing meta-layer continues to work for individual patches; only refactor-class observations are missed.
 
@@ -1378,7 +1378,7 @@ Defer-acceptable IF user prefers continuing per-wrap proposal filing without cro
 
 - Triggering session: 117 (this wrap; self-evolve design experiment commissioned by user via two-step prompt). Empirical evidence: 22-wrap api-surface deferral preserved in state.yaml.living_artifact_freshness.api_surface_deferred_reason text since session 91.
 - Step 1 schema (this session conversation): localized friction to (skill × phase × invariant × artifact) coordinates — the substrate this design assumes.
-- Sibling proposals: P15 (dead mod tests detection — а patch that would be tracked in `recurring_patch['dead-mod-tests']` for future maturation if pattern recurs); P17 (META-chunk orchestration — the path P20 implementation uses); P19 (P16 timing discriminator — sequenced before P20 per "When to do" above).
+- Sibling proposals: P15 (dead mod tests detection — a patch that would be tracked in `recurring_patch['dead-mod-tests']` for future maturation if pattern recurs); P17 (META-chunk orchestration — the path P20 implementation uses); P19 (P16 timing discriminator — sequenced before P20 per "When to do" above).
 - `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 3 step 2 + Phase 8 + Phase 11 — load-bearing sections to extend.
 - `~/.claude/skills/andromeda-wrap-session/references/curation-guide.md` — new "Maturation logic" subsection home.
 - `~/.claude/skills/andromeda-{setup-project,wrap-session,new-session}/references/session-state-contract.md` Part B — triangle byte-identity surface for the schema addition.
@@ -1392,22 +1392,22 @@ Defer-acceptable IF user prefers continuing per-wrap proposal filing without cro
 
 **Problem:**
 
-Chunk #77 ("Specialist plan reconciliation (security + tests)" — pulse v0.2.0 FINAL Consolidation Phase 6 chunk) introduced the FIRST instance of the v3 "manual body rewrite" mechanism per `docs/v0_2_0/pulse-v0_2_0-route.md` §77 Mechanism note. The chunk explicitly declares "Specialist plan touches: security-plan (definitely — manual body rewrite of §Threat Model + §Data Protection + §Secret Management + §Anti-Pattern Logging), test-plan / .claude/rules/testing.md (definitely — manual §Pending coverage triggers update + materialize deferred tests)" in its canonical chunk description. The /implement skill's MUST NOT clause categorically forbids modifying these files except via Trigger 4 → Path A (spec-drift dialogue triggered by UNEXPECTED gap between specialist plan + impl). Chunk #77's rewrites are PLANNED — not drift; not surprise. P17 (META-chunk inline sibling-skill orchestration) covers а different case (Implementation Steps invoke sibling skills like /andromeda-evolve), but chunk #77's plan.md directly Edits the spec files — there's no sibling skill to orchestrate.
+Chunk #77 ("Specialist plan reconciliation (security + tests)" — pulse v0.2.0 FINAL Consolidation Phase 6 chunk) introduced the FIRST instance of the v3 "manual body rewrite" mechanism per `docs/v0_2_0/pulse-v0_2_0-route.md` §77 Mechanism note. The chunk explicitly declares "Specialist plan touches: security-plan (definitely — manual body rewrite of §Threat Model + §Data Protection + §Secret Management + §Anti-Pattern Logging), test-plan / .claude/rules/testing.md (definitely — manual §Pending coverage triggers update + materialize deferred tests)" in its canonical chunk description. The /implement skill's MUST NOT clause categorically forbids modifying these files except via Trigger 4 → Path A (spec-drift dialogue triggered by UNEXPECTED gap between specialist plan + impl). Chunk #77's rewrites are PLANNED — not drift; not surprise. P17 (META-chunk inline sibling-skill orchestration) covers a different case (Implementation Steps invoke sibling skills like /andromeda-evolve), but chunk #77's plan.md directly Edits the spec files — there's no sibling skill to orchestrate.
 
 Concrete observation at chunk #77 implementation:
 - /implement Phase 1 step 0 META detection looked for sibling-skill invocations OR USER-level skill body edits — neither matched (Steps 1-5 target `.andromeda/security-plan.md`; Step 6 targets `.claude/rules/testing.md`; project files but NOT skill files); chunk classified as `standard`.
 - The standard Phase 1 path would fire the MUST NOT clause immediately on Step 1's Edit attempt.
 - /implement had to surface the ambiguity via AskUserQuestion and the user approved a "chunk-scoped exception" branch (1 of 3 options: execute all 13 steps treating chunk plan as authoritative override of MUST NOT clause).
-- The dialogue worked, but is friction that will recur on EVERY future v3 reconciliation chunk (specialist re-derivation is deferred к v3 per chunk #77 Mechanism note; reconciliation chunks are how v2 covers the gap until then).
+- The dialogue worked, but is friction that will recur on EVERY future v3 reconciliation chunk (specialist re-derivation is deferred to v3 per chunk #77 Mechanism note; reconciliation chunks are how v2 covers the gap until then).
 
 **Proposal:**
 
-Add а new recognition path in /implement Phase 1 step 0 (alongside the existing META-chunk classification per P17):
+Add a new recognition path in /implement Phase 1 step 0 (alongside the existing META-chunk classification per P17):
 
 Detection signal — "Chunk-scoped manual specialist plan rewrite":
 - plan.md `## Implementation Steps` include Edit/Write operations targeting `.andromeda/{security,design,test,obs,a11y,layout-templates}-plan.md` OR `.claude/rules/*.md` paths, AND
-- plan.md `## Codebase touchpoints > Files к modify` list explicitly enumerates these spec/rule files (not silent extension), AND
-- combined.md OR research.md (or referenced docs like `docs/v0_2_0/pulse-v0_2_0-route.md` §N) explicitly declares the chunk performs "manual body rewrite" of these plans within а declared "Specialist plan touches" metadata field.
+- plan.md `## Codebase touchpoints > Files to modify` list explicitly enumerates these spec/rule files (not silent extension), AND
+- combined.md OR research.md (or referenced docs like `docs/v0_2_0/pulse-v0_2_0-route.md` §N) explicitly declares the chunk performs "manual body rewrite" of these plans within a declared "Specialist plan touches" metadata field.
 
 Routing — new Phase 1c "Chunk-scoped spec rewrite orchestration":
 - Applies the spec edits per plan with same audit-trail discipline as Trigger 4 → Path A (write amendment marker at `.andromeda/runs/{ISO}-spec-amendment-chunk-{N}-{slug}/amendment.md` capturing the rewrite scope + Decisions Log entry; append `state.yaml.spec_amendments.active` entry with `flag_used: --chunk-scoped-rewrite` + `chunk_index: N` + `noted_at: null` for lifecycle progression).
@@ -1416,20 +1416,20 @@ Routing — new Phase 1c "Chunk-scoped spec rewrite orchestration":
 
 **Design:**
 
-- Detection precedence: Phase 1 step 0 sub-step order: (1) META sibling-skill check per P17; (2) Chunk-scoped spec rewrite check per this proposal; (3) fall through к standard chunk classification. The two recognition paths are mutually exclusive in practice (META chunks invoke skills; v3 reconciliation chunks Edit directly) but order matters if а future chunk does both.
-- Audit-trail equivalence: the amendment marker + state.yaml lifecycle preserves the spec-amendment-protocol.md contract. Wrap-session Phase 6 D5 amendment-aware classification + Phase 8 lifecycle progression apply unchanged. The only difference от Path A: no user dialogue (chunk-plan approval substitutes).
+- Detection precedence: Phase 1 step 0 sub-step order: (1) META sibling-skill check per P17; (2) Chunk-scoped spec rewrite check per this proposal; (3) fall through to standard chunk classification. The two recognition paths are mutually exclusive in practice (META chunks invoke skills; v3 reconciliation chunks Edit directly) but order matters if a future chunk does both.
+- Audit-trail equivalence: the amendment marker + state.yaml lifecycle preserves the spec-amendment-protocol.md contract. Wrap-session Phase 6 D5 amendment-aware classification + Phase 8 lifecycle progression apply unchanged. The only difference from Path A: no user dialogue (chunk-plan approval substitutes).
 - D4 drift detection: chunk's "Specialist plan touches" metadata defines the within-scope plan list. Edits within this list = within-scope; edits outside = D4 drift fires (matches current discipline per route §77 Mechanism note).
-- Composability с P17: а future chunk could BOTH invoke а sibling skill AND directly Edit а spec file. Phase 1b (META orchestration) + Phase 1c (spec-rewrite orchestration) run in sequence if both detected.
-- Failure mode: if Phase 1c detects the signal but plan.md's Files-to-modify list is INCOMPLETE relative к the spec edits actually attempted (research.md drift), surface as Trigger 4 deferred ("Path A' fix impl OR Path B defer") — falling back к the existing dialogue.
+- Composability with P17: a future chunk could BOTH invoke a sibling skill AND directly Edit a spec file. Phase 1b (META orchestration) + Phase 1c (spec-rewrite orchestration) run in sequence if both detected.
+- Failure mode: if Phase 1c detects the signal but plan.md's Files-to-modify list is INCOMPLETE relative to the spec edits actually attempted (research.md drift), surface as Trigger 4 deferred ("Path A' fix impl OR Path B defer") — falling back to the existing dialogue.
 
 **Implementation cost:**
 
 | File | Change | LOC est |
 |---|---|---|
-| `~/.claude/skills/andromeda-implement/SKILL.md` Phase 1 step 0 | EXTEND META detection с new sub-step 0b "Chunk-scoped spec rewrite detection" + branch routing | ~25 |
+| `~/.claude/skills/andromeda-implement/SKILL.md` Phase 1 step 0 | EXTEND META detection with new sub-step 0b "Chunk-scoped spec rewrite detection" + branch routing | ~25 |
 | `~/.claude/skills/andromeda-implement/SKILL.md` Phase 1c | NEW phase "Chunk-scoped spec rewrite orchestration" (orchestration loop + amendment marker write + state.yaml.spec_amendments append) | ~60 |
-| `~/.claude/skills/andromeda-implement/SKILL.md` constraints MUST NOT clause | UPDATE EXCEPTION list к include "Phase 1c chunk-scoped rewrite" alongside existing Trigger 4 → Path A | ~5 |
-| `~/.claude/skills/andromeda-implement/references/visual-references.md` | ADD Phase 3 success variant "chunk-scoped-spec-rewrite-orchestrated" (parallel к existing "amendment-applied" / "META-chunk-orchestrated") | ~15 |
+| `~/.claude/skills/andromeda-implement/SKILL.md` constraints MUST NOT clause | UPDATE EXCEPTION list to include "Phase 1c chunk-scoped rewrite" alongside existing Trigger 4 → Path A | ~5 |
+| `~/.claude/skills/andromeda-implement/references/visual-references.md` | ADD Phase 3 success variant "chunk-scoped-spec-rewrite-orchestrated" (parallel to existing "amendment-applied" / "META-chunk-orchestrated") | ~15 |
 | `~/.claude/skills/andromeda-implement/references/spec-drift-protocol.md` | ADD section "Phase 1c vs Trigger 4 path A — when each applies" (decision tree) | ~30 |
 | `docs/andromeda-improvements.md` | mark P21 IMPLEMENTED post-application | ~5 |
 
@@ -1437,7 +1437,7 @@ Total ~140 LOC across 5 files at user-level skill toolkit + 1 project file.
 
 **When to do:**
 
-When the NEXT v3 reconciliation chunk fires (likely chunk #78+ if pulse-v0_2_0 evolves toward Phase 7+ surfaces that need specialist re-touch; OR а future scope's reconciliation chunk). Filing now captures the friction while fresh; implementation pays off when the next dialogue would have fired.
+When the NEXT v3 reconciliation chunk fires (likely chunk #78+ if pulse-v0_2_0 evolves toward Phase 7+ surfaces that need specialist re-touch; OR a future scope's reconciliation chunk). Filing now captures the friction while fresh; implementation pays off when the next dialogue would have fired.
 
 Empirical anchor: chunk #77 took ~3min of dialogue ceremony (user question + option selection + acknowledgment) that the proposal removes. Across N future reconciliation chunks (estimated 2-5 across pulse-v0_2_0 remaining), saves 6-15min of friction + standardizes the audit trail (current dialogue path doesn't generate amendment markers; rewrites are visible only in chunk implementation commit body).
 
@@ -1530,7 +1530,7 @@ NOW. The accumulator has been past threshold for 1 wrap by session 129 (matured 
 
 ### Proposal P22 — Phase 8 step 4b.i clears matured_at_session BEFORE step 8 verification, breaking one-wrap-lag gate for ANY accumulator-driven refactor
 
-## Status: IMPLEMENTED — 2026-05-24 (session 135) — Option 2 applied: 2 edits к `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 step 4b.i (conditional preserve when refactor in flight) + step 8 IF-PASS branch (deferred cleanup of matured_at_session post-transition). Skills repo commit base `076a01b` (R1 changes) + `pre-P22-apply` tag for rollback. [READ_AFTER_WRITE] + [NO_COLLATERAL_DAMAGE] (2 hunks / 1 file) + [§12_10_SANITY] 5/5 PASS. Manually-applied patch (no accumulator binding → no Phase 8 step 8 one-wrap-lag gate applies; transition is user-driven per patch convention).
+## Status: IMPLEMENTED — 2026-05-24 (session 135) — Option 2 applied: 2 edits to `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 step 4b.i (conditional preserve when refactor in flight) + step 8 IF-PASS branch (deferred cleanup of matured_at_session post-transition). Skills repo commit base `076a01b` (R1 changes) + `pre-P22-apply` tag for rollback. [READ_AFTER_WRITE] + [NO_COLLATERAL_DAMAGE] (2 hunks / 1 file) + [§12_10_SANITY] 5/5 PASS. Manually-applied patch (no accumulator binding → no Phase 8 step 8 one-wrap-lag gate applies; transition is user-driven per patch convention).
 
 **Problem:** wrap-session Phase 8's intra-phase ordering creates a verification-gap when the same wrap that completes a matured refactor's apply ALSO triggers the natural cycle clear that step 8 needs to observe:
 
@@ -1590,55 +1590,55 @@ Option 2 is least disruptive (smallest protocol change; preserves all design int
 
 ## Status: PROPOSED — 2026-05-25 (session 145)
 
-**Problem:** When а Type 6 arch-registry amendment (per spec-amendment-protocol.md Part D Architecture.md exception → Narrow exception) declares empty `## Expected downstream propagation` (no CLAUDE.md cascade needed; no Tier 2/3 cascade needed — additions land в а §Occupied Resources sub-section that no `GENERATED:setup:*` anchor derives from), the propagation lifecycle stalls indefinitely OR requires а full /andromeda-setup-project re-derive (over-cost для known no-op cascade) OR requires а manual `propagated_by_run` sentinel write (workaround). setup-project --delta is the canonical propagation path BUT its Trigger exact-match defense correctly refuses manually-authored markers — designed-in defense against fake-flag use. This creates а stuck-amendment pattern когда the sibling-skill (/andromeda-evolve) is not Skill-tool-invocable (disable-model-invocation: true) AND user authorizes manual replication of /evolve output.
+**Problem:** When a Type 6 arch-registry amendment (per spec-amendment-protocol.md Part D Architecture.md exception → Narrow exception) declares empty `## Expected downstream propagation` (no CLAUDE.md cascade needed; no Tier 2/3 cascade needed — additions land in a §Occupied Resources sub-section that no `GENERATED:setup:*` anchor derives from), the propagation lifecycle stalls indefinitely OR requires a full /andromeda-setup-project re-derive (over-cost for known no-op cascade) OR requires a manual `propagated_by_run` sentinel write (workaround). setup-project --delta is the canonical propagation path BUT its Trigger exact-match defense correctly refuses manually-authored markers — designed-in defense against fake-flag use. This creates a stuck-amendment pattern when the sibling-skill (/andromeda-evolve) is not Skill-tool-invocable (disable-model-invocation: true) AND user authorizes manual replication of /evolve output.
 
 **Encountered:** session 145 wrap (chunk #84 L4 LLM runtime swap implementation + Type 6 arch-registry amendment manually authored). Chain of constraints:
-1. Plan-81 step 11 delegated arch-registry registration к `/andromeda-evolve --allow-arch-registry`
+1. Plan-81 step 11 delegated arch-registry registration to `/andromeda-evolve --allow-arch-registry`
 2. /implement skill correctly refused inline orchestration (chunk #84 was NOT META-classified per P17's ≥80% signature; 1/11 steps = 9%)
 3. Skill tool refused /evolve invocation (disable-model-invocation: true posture)
 4. User authorized manual replication via "proceed" — agent created marker file + arch.md edits + state.yaml entry with honest Trigger field documenting manual provenance
 5. setup-project --delta correctly refused propagation per Trigger exact-match defense (per delta-rerun-protocol.md Architecture.md exception → Type 6 permit path step "Defense-in-depth")
 6. setup-project full would be 100% no-op cascade (verified: 0 of 8 GENERATED:setup:* anchors derive from §Occupied Resources Environment variables OR §Architecture Registry Updates sub-sections) — pure compute waste
-7. Outcome: user picked "skip setup-project + go straight к wrap-session"; wrap-session must handle unpropagated lifecycle
+7. Outcome: user picked "skip setup-project + go straight to wrap-session"; wrap-session must handle unpropagated lifecycle
 
-Total friction: 4 user prompts + 2 AskUserQuestion exchanges + ~3 tool-call rounds к navigate а true no-op cascade. The amendment IS effectively propagated (nothing к cascade); the lifecycle machinery doesn't recognize this state.
+Total friction: 4 user prompts + 2 AskUserQuestion exchanges + ~3 tool-call rounds to navigate a true no-op cascade. The amendment IS effectively propagated (nothing to cascade); the lifecycle machinery doesn't recognize this state.
 
-**Proposed fix:** wrap-session Phase 8 spec_amendments lifecycle progression adds а new auto-progress branch:
+**Proposed fix:** wrap-session Phase 8 spec_amendments lifecycle progression adds a new auto-progress branch:
 
 ```python
 # Existing branches preserved.
 # NEW: trivially-empty cascade auto-progression
-for entry в state.yaml.spec_amendments.active where propagated_by_run is null:
+for entry in state.yaml.spec_amendments.active where propagated_by_run is null:
     marker = read_marker_file(entry.marker_path)
     if marker has Type 6 signature (flag_used: --allow-arch-registry):
         expected_prop = parse_expected_downstream_propagation(marker)
         if expected_prop is empty OR contains only "no CLAUDE.md cascade required" sentinel:
-            # Trivially-empty cascade: nothing к propagate
-            # Auto-set propagated_by_run к а wrap-session sentinel
+            # Trivially-empty cascade: nothing to propagate
+            # Auto-set propagated_by_run to a wrap-session sentinel
             entry.propagated_by_run = (
                 f".andromeda/runs/{current_wrap_iso}-wrap-session-auto-progress-"
                 f"trivially-empty-cascade-verified-{session_count}/"
             )
             entry.noted_at = current_iso
-            # Continue к archive branch (entry now has propagated_by_run set)
+            # Continue to archive branch (entry now has propagated_by_run set)
 ```
 
 This auto-progresses Type 6 amendments where the marker explicitly declares no Tier 2/3 cascade required. The sentinel `propagated_by_run` value documents the auto-progression provenance for audit-trail clarity (preserves intent: amendment WAS propagated; cascade was just empty).
 
-Defense preserved: only Type 6 amendments (flag_used: --allow-arch-registry) с marker-declared empty expected_propagation can auto-progress. Type 7 route-append amendments OR Type 6 с non-empty expected_propagation still require setup-project --delta (preserves the existing Trigger exact-match defense для cases where propagation MUST cascade).
+Defense preserved: only Type 6 amendments (flag_used: --allow-arch-registry) with marker-declared empty expected_propagation can auto-progress. Type 7 route-append amendments OR Type 6 with non-empty expected_propagation still require setup-project --delta (preserves the existing Trigger exact-match defense for cases where propagation MUST cascade).
 
-Edge case: if marker is manually authored (e.g., this session's chain) AND Trigger doesn't match canonical /evolve signature, the wrap-session auto-progress branch STILL fires — но the audit trail в the marker's lifecycle status checkbox + state.yaml sentinel both document the manual provenance. setup-project --delta's strict Trigger check remains unchanged (it stops manual markers from triggering Tier 2/3 cascade; wrap-session's path is purely lifecycle-progression-only, no Tier 2/3 writes).
+Edge case: if marker is manually authored (e.g., this session's chain) AND Trigger doesn't match canonical /evolve signature, the wrap-session auto-progress branch STILL fires — but the audit trail in the marker's lifecycle status checkbox + state.yaml sentinel both document the manual provenance. setup-project --delta's strict Trigger check remains unchanged (it stops manual markers from triggering Tier 2/3 cascade; wrap-session's path is purely lifecycle-progression-only, no Tier 2/3 writes).
 
-**Why this matters:** Type 6 arch-registry amendments are the most common amendment type post-MVP (every chunk that adds а workspace crate / TauRPC procedure / broadcast topic / env var triggers one). Many of these don't actually require Tier 2/3 cascade (env var additions, broadcast topic additions). The current lifecycle machinery treats all Type 6 amendments как requiring setup-project --delta propagation, but а subset are trivially-empty cascades that don't need it. Recognizing this auto-progresses lifecycle cleanly + saves compute + reduces stuck-amendment carryover.
+**Why this matters:** Type 6 arch-registry amendments are the most common amendment type post-MVP (every chunk that adds a workspace crate / TauRPC procedure / broadcast topic / env var triggers one). Many of these don't actually require Tier 2/3 cascade (env var additions, broadcast topic additions). The current lifecycle machinery treats all Type 6 amendments as requiring setup-project --delta propagation, but a subset are trivially-empty cascades that don't need it. Recognizing this auto-progresses lifecycle cleanly + saves compute + reduces stuck-amendment carryover.
 
-**When to do:** moderate priority. The workaround (skip setup-project; wrap-session sentinel write OR carry-over к next session) works но adds friction per Type 6 amendment с empty cascade. Implementation cost is modest (~30-50 LOC в wrap-session SKILL.md Phase 8 + protocol update в spec-amendment-protocol.md Part D).
+**When to do:** moderate priority. The workaround (skip setup-project; wrap-session sentinel write OR carry-over to next session) works but adds friction per Type 6 amendment with empty cascade. Implementation cost is modest (~30-50 LOC in wrap-session SKILL.md Phase 8 + protocol update in spec-amendment-protocol.md Part D).
 
 **Cross-references:**
 - Encountered chunk/amendment: chunk #84 L4 LLM runtime swap + manual Type 6 amendment at `.andromeda/runs/2026-05-25T12-34-46-spec-amendment-acknowledge-chunk-84-llama-bin-paths/amendment.md` (session 145 wrap)
-- Related precedent: P17 META-chunk inline orchestration (covers ≥80% META path); P24 covers the complementary path где а non-META chunk has а minority sibling-skill invocation step + user authorizes manual replication
+- Related precedent: P17 META-chunk inline orchestration (covers ≥80% META path); P24 covers the complementary path where a non-META chunk has a minority sibling-skill invocation step + user authorizes manual replication
 - Affected SKILL.md: `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 spec_amendments lifecycle progression block
 - Affected references: `references/spec-amendment-protocol.md` Part D Architecture.md exception → Type 6 permit path subsection (add trivially-empty-cascade auto-progress sub-clause)
-- Affected referenced delta protocol: `~/.claude/skills/andromeda-setup-project/references/delta-rerun-protocol.md` (no change required; defense-in-depth Trigger check stays unchanged — setup-project --delta refuses manual markers correctly; wrap-session is the proper lifecycle resolution path для trivially-empty cascades)
+- Affected referenced delta protocol: `~/.claude/skills/andromeda-setup-project/references/delta-rerun-protocol.md` (no change required; defense-in-depth Trigger check stays unchanged — setup-project --delta refuses manual markers correctly; wrap-session is the proper lifecycle resolution path for trivially-empty cascades)
 
 ---
 

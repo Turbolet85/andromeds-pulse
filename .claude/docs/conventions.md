@@ -18,18 +18,20 @@ _Extracted from `.andromeda/architecture.md` Conventions section by `/setup-proj
 - **OTLP receivers:** spec-fixed paths — `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`. NO project-specific URL versioning prefix beyond OTLP spec.
 - **Tauri IPC procedures:** two authorized shapes:
   - **Top-level bare `snake_case` verbs** (cross-cutting envelope): `app_info`, `health`, `ready`, `get_settings`, `update_settings`
-  - **`<router>.<verb>` dotted namespaces** (per-crate routers): `traces.query`, `metrics.query`, `logs.query`, `snapshot.generate`, `snapshot.list_recent`, `snapshot.copy_to_clipboard`, `plugins.list`, `plugins.reload`, `plugins.invoke`, `mcp.status`, `mcp.start`, `mcp.stop`, `workspace.detect`, `workspace.list`, `telemetry.frontend.record_web_vital`, `telemetry.frontend.record_frame_ms`
+  - **`<router>.<verb>` dotted namespaces** (per-crate routers): `traces.query`, `metrics.query`, `logs.query`, `snapshot.generate`, `snapshot.list_recent`, `snapshot.copy_to_clipboard`, `plugins.list`, `plugins.reload`, `plugins.invoke`, `mcp.status`, `mcp.start`, `mcp.stop`, `workspace.detect`, `workspace.list`, `telemetry.frontend.record_frame_ms`
   - Both segments are `snake_case`. The canonical procedure list is in arch §Occupied Resources Tauri IPC routes.
-- **MCP server:** spec-fixed JSON-RPC 2.0 method names — `initialize`, `tools/list`, `tools/call`, `notifications/*`. Tool methods: `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot`.
+- **MCP server:** spec-fixed JSON-RPC 2.0 method names — `initialize`, `tools/list`, `tools/call`, `notifications/*`. Tool methods (9): `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot`, `query_incident_list`, `retrieve_report`, `retrieve_telemetry_slice`, `mark_incident_resolved` (these 4 chunk #94), `retrieve_incident_events` (chunk 2026-10-02-incident-events-readable-through-mcp).
 
 ## Database entity naming
-- DuckDB tables use plural `snake_case` matching OTLP entity: `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`.
+- DuckDB tables use plural `snake_case` matching OTLP entity: `spans`, `span_events`, `metrics_points`, `log_records`, `log_templates` — every reserved table has a producer since the producer-less `span_links`/`resources`/`instrumentation_scopes` CREATEs were deleted (chunk 2026-08-30-diagnostics-un-muting-harness-truth-sweep); the periodic cutoff task sweeps only the four live OTLP tables.
 - Columns: `snake_case`.
 - Ring-buffer cutoff via periodic `DELETE FROM <table> WHERE ts < now() - INTERVAL '<retention> minutes'`.
 
 ## Primary keys
 - Spans: OTLP-native 16-byte `trace_id` + 8-byte `span_id` composite (no surrogate UUID).
-- Metric points + log records: OTLP-native identity (timestamp + resource hash + name).
+- Metric points: `(metric_name, ts_unix_nano, resource_hash, seq)`. `metrics_points` carries a scrubbed `labels` column (`VARCHAR NOT NULL DEFAULT ''`, 2026-08-23) that is deliberately OUTSIDE the key, so two data points of one metric differing only by label set are still identical on every KEY column — `seq` separates them, labels carry the dimension for read-back only — and since `metric_name` is span-masked at ingestion (`mask_secret_spans`, 2026-09-30), two distinct names that differ only inside a masked span mask to one text and collide there too (a single-token credential-shaped name still masks whole; a multi-word name keeps its non-secret words); `seq` is a monotonic in-process ordinal allocated per batch by `BufferState::reserve_metric_seq_block`.
+- Log records: `(ts_unix_nano, resource_hash, severity_number, seq)`. An OTLP LogRecord has no spec-defined unique id and the table has no `name` column, so the OTLP-native columns alone cannot separate two records from one resource in the same nanosecond at the same severity; `seq` is a monotonic in-process ordinal allocated per batch by `BufferState::reserve_log_seq_block`.
+- No UUID or random surrogate keys. `seq` is the one declared exception — an internal disambiguating ordinal, never an observable (absent from `BufferStateSnapshot`, `buffer.tick`, `viz` `SELECT_LOGS`, and the MCP response shape).
 
 ## Timestamp handling
 - All DuckDB timestamp columns: `TIMESTAMPTZ` (microsecond precision, UTC-stored).

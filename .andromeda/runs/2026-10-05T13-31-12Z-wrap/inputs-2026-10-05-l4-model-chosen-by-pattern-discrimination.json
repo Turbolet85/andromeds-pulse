@@ -1,0 +1,48 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T13:31:33Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-model-chosen-by-pattern-discrimination",
+"--run-dir",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap",
+"--marker",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: pc overseer draft, founder-approved whole 2026-10-05; D7 snapshot at the 2026-10-05T09-41-57Z wrap",
+"I1 cited scope.md:9 · scope.md:13 · scope.md:15 · scope.md:18 · scope.md:24 · scope.md:28 · scope.md:35 · scope.md:39 · scope.md:42 · scope.md:46 · scope.md:53 · scope.md:54 · scope.md:59 · scope.md:63 · scope.md:93 · scope.md:176 · research.md:18 · research.md:163 · plan.md:12 · plan.md:18 · plan.md:28 · plan.md:46 · plan.md:62 · plan.md:64 · plan.md:171 · plan.md:395 (in fence) · plan.md:557 · plan.md:563 · plan.md:581 · plan.md:607",
+"I2 n/a — a message has no live source · copy message · message: overseer (founder-delegated), the /andromeda-phase args, 2026-10-05",
+"I2 cited scope.md:24 · scope.md:35 · scope.md:42 · scope.md:58 · scope.md:87 · research.md:19 · plan.md:28 · plan.md:158 · plan.md:199 · plan.md:346 (in fence) · plan.md:510 · plan.md:557 · plan.md:563",
+"I3 unchanged · copy no-repo · ../additional/pc-overseer/l4-env.sh",
+"I3 cited research.md:21 · research.md:134 · plan.md:202 · plan.md:557",
+"I4 unchanged · copy no-repo · ../additional/pc-overseer/relays/2026-10-05-l4-e4b-qat-head-to-head.md",
+"I4 UNCITED",
+"inputs: 4 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 1 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 4,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 1,
+"unparsed": 0
+}
+}
+]

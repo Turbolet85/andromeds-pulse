@@ -1,0 +1,62 @@
+[
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-29T16:39:02Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-ci-wall-time-and-round-trips/research.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-54-46Z-phase",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 6 items (new 2 · modify 4 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 6,
+"unparsed": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-29T16:43:55Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-ci-wall-time-and-round-trips/research.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-54-46Z-phase",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 5 items (new 1 · modify 4 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 5,
+"unparsed": 0
+}
+}
+]

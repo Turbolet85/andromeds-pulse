@@ -1,0 +1,91 @@
+{
+ "functions_rust": 5770,
+ "functions_ts": 2361,
+ "cyclomatic_p50": 1,
+ "cyclomatic_p90": 4.0,
+ "cyclomatic_max": 90.0,
+ "cognitive_p50": 0,
+ "cognitive_p90": 1.0,
+ "cognitive_max": 90.0,
+ "cognitive_population": "rust functions only (lizard has no cognitive — noted)",
+ "population": "FILTERED to population.txt (git-tracked) — fs-walk had leaked untracked crates/triage-experimental + tests-e2e/*.mjs",
+ "excluded_offpopulation_files": [
+  "crates/triage-experimental/src/lib.rs",
+  "crates/triage-experimental/src/main.rs",
+  "pulse-app/ui/tests-a11y/aggregator.mjs",
+  "pulse-app/ui/tests-a11y/helpers/static-server.mjs",
+  "pulse-app/ui/tests-a11y/lighthouse/lighthouse-runner.mjs",
+  "pulse-app/ui/tests-a11y/pa11y/run-pa11y.mjs",
+  "pulse-app/ui/tests-a11y/regression-detector.mjs",
+  "pulse-app/ui/tests-e2e/webview-drive.mjs"
+ ],
+ "over_ceiling": 32,
+ "ceiling": "cognitive>15 (rust) + cyclomatic>15 (ts)",
+ "max": {
+  "fn": "main",
+  "file": "pulse-app/src/main.rs",
+  "val": 90.0
+ },
+ "top": [
+  {
+   "fn": "main",
+   "file": "pulse-app/src/main.rs",
+   "value": 90.0,
+   "metric": "cognitive"
+  },
+  {
+   "fn": "<anonymous>",
+   "file": "pulse-app/src/main.rs",
+   "value": 53.0,
+   "metric": "cognitive"
+  },
+  {
+   "fn": "verify_capability_matrix",
+   "file": "xtask/src/main.rs",
+   "value": 52.0,
+   "metric": "cognitive"
+  },
+  {
+   "fn": "main",
+   "file": "crates/ingest/examples/inject_demo.rs",
+   "value": 49.0,
+   "metric": "cognitive"
+  },
+  {
+   "fn": "parse_bindings",
+   "file": "xtask/src/main.rs",
+   "value": 37.0,
+   "metric": "cognitive"
+  },
+  {
+   "fn": "security_workspace_wide_loopback_only_no_non_loopback_bind_literals",
+   "file": "pulse-app/tests/e2e_security_negative_canaries.rs",
+   "value": 35.0,
+   "metric": "cognitive"
+  },
+  {
+   "fn": "capability_widening_check",
+   "file": "xtask/src/main.rs",
+   "value": 35.0,
+   "metric": "cognitive"
+  },
+  {
+   "fn": "validate",
+   "file": "crates/interpretation/src/schema.rs",
+   "value": 34.0,
+   "metric": "cognitive"
+  },
+  {
+   "fn": "walk",
+   "file": "pulse-app/tests/e2e_security_negative_canaries.rs",
+   "value": 34.0,
+   "metric": "cognitive"
+  },
+  {
+   "fn": "SettingsModalForm",
+   "file": "pulse-app/ui/src/dashboard/routes/SettingsModalForm.tsx",
+   "value": 33,
+   "metric": "cyclomatic"
+  }
+ ]
+}

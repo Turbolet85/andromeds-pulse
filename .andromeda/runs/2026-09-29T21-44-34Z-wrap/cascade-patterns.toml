@@ -1,0 +1,43 @@
+[[pattern]]
+id = "ltb"
+fixed = 'lint-test-build'
+
+[[pattern]]
+id = "pidIS"
+regex = 'spawn(ed)? pid IS the app'
+
+[[pattern]]
+id = "ubkey"
+fixed = 'ubuntu-22.04-cargo'
+
+[[pattern]]
+id = "oskey"
+fixed = 'runner.os }}-cargo'
+
+[[pattern]]
+id = "everyjob"
+fixed = 'every CI job (fmt'
+
+[[pattern]]
+id = "relsmoke"
+fixed = 'release profile smoke'
+
+[[pattern]]
+id = "ownexit"
+fixed = 'its own exit status'
+
+[[pattern]]
+id = "shape5"
+fixed = '{verdict, pid, log_file_basename'
+
+[[pattern]]
+id = "matrix3"
+fixed = 'matrix over Linux/macOS/Windows'
+
+[[pattern]]
+id = "provpid"
+regex = 'provisional (spawn pid|value)'
+
+[[pattern]]
+id = "linuxboot"
+regex = 'Linux-only[^|]{0,20}Boot pulse-app smoke|Boot pulse-app smoke[^|]{0,20}\(Linux[- ]only\)'

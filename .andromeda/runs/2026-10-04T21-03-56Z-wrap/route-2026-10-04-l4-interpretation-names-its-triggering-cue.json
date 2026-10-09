@@ -1,0 +1,221 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T21:15:06Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-interpretation-names-its-triggering-cue",
+"--to",
+"gated",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "2026-10-04-l4-interpretation-names-its-triggering-cue: no gated cap held below verified -- a `gated` record must wait on something the ledger can see (`matrix.py claim --gated-file`)",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T21:15:06Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-interpretation-names-its-triggering-cue",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"dry-run - would flip .andromeda/master-route.md:94",
+"  2026-10-04-l4-interpretation-names-its-triggering-cue · pending · the L4 prompt … (305 chars)",
+"-> 2026-10-04-l4-interpretation-names-its-triggering-cue · complete · the L4 prompt… (306 chars)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T21:16:27Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-interpretation-names-its-triggering-cue",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap",
+"--desc-file",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap/master-desc.txt",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"dry-run - would flip .andromeda/master-route.md:94",
+"  2026-10-04-l4-interpretation-names-its-triggering-cue · pending · the L4 prompt … (305 chars)",
+"-> 2026-10-04-l4-interpretation-names-its-triggering-cue · complete · the digest na… (561 chars)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T21:18:31Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-interpretation-names-its-triggering-cue",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap",
+"--desc-file",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap/master-desc.txt"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:94 - 2026-10-04-l4-interpretation-names-its-triggering-cue pending -> complete - desc REWRITTEN from --desc-file"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T21:18:31Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-interpretation-names-its-triggering-cue",
+"--date",
+"2026-10-04",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :162 strip CONTEXT: 1391ch \"CONTEXT: hypothesis: on Conductor's d3 r\"",
+"pin :162 strip BLOCKED-ON: 537ch \"BLOCKED-ON: a Linux llama.cpp CUDA binar\"",
+"pin next markerless :164 holds CONTEXT:×2 · BLOCKED-ON:×1",
+"162 · 2026-10-04-l4-interpretation-names-its-triggering-cue · strip 2 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 162,
+"marker": "2026-10-04-l4-interpretation-names-its-triggering-cue",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T21:18:36Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-interpretation-names-its-triggering-cue",
+"--date",
+"2026-10-04",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :162 strip CONTEXT: 1391ch \"CONTEXT: hypothesis: on Conductor's d3 r\"",
+"pin :162 strip BLOCKED-ON: 537ch \"BLOCKED-ON: a Linux llama.cpp CUDA binar\"",
+"pin next markerless :164 holds CONTEXT:×2 · BLOCKED-ON:×1",
+"162 · 2026-10-04-l4-interpretation-names-its-triggering-cue · strip 2 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/route-archive.md",
+"./andromeda-pulse-0.3.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 162,
+"marker": "2026-10-04-l4-interpretation-names-its-triggering-cue",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

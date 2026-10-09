@@ -1,0 +1,29 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-02T14:40:09Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-02T14-39-48Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 2 of 69 entries · freight blocks 3 · rows are an INDEX, not the text",
+"150 · CARRY: · 298 chars · CARRY: P-075 is re-verified after this entry — its content-fidelity acceptance extends to th…",
+"150 · CARRY: · 476 chars · CARRY: obs-plan §1 and §3 init-order step (2), `.claude/rules/observability.md` \"Dual sink (…",
+"152 · CONTEXT: · 226 chars · CONTEXT: measure first — Conductor's d3 rank-1 interpretation (2026-10-01, relayed by the …",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

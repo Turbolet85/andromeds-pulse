@@ -1,0 +1,351 @@
+## OTel SDK Core
+
+### opentelemetry (Rust API crate)
+
+- **Version:** 0.31.0
+- **Last release:** 2025-09-26
+- **Status:** actively maintained (open-telemetry/opentelemetry-rust; 133M+ all-time downloads; Metrics-SDK promoted to stable in 0.30.0)
+- **Agent-readable:** yes — produces OTLP-native span/metric/log structures consumable as JSON by stdout/file exporters; configuration: `cargo add opentelemetry@0.31` then build resources with `Resource::builder().with_service_name("com.andromeda.pulse")`.
+- **Fits because:** primary tracing API surface for the entire Rust workspace (obs-scope Sec 2 surfaces: ingest gRPC `:4317`, ingest HTTP `:4318`, ipc-internal, viz, snapshot, plugins, mcp-server). Required for must-trace P1 (`otlp.grpc.export.request` parent span chain), P2 (`snapshot.generate.request` parent), P3 (`mcp.tools.call.request` parent), P4 (`plugin.lifecycle` parent), P6 (`realtime.push.session` parent), P7 (`app.boot` parent).
+- **Key detail:** MSRV 1.75; tracks "latest stable Rust + 3 prior minor versions" — comfortably satisfies arch's rustc 1.84+ floor. Logs API stable; Traces API still Beta but production-shipped by major Rust users.
+- **Source:** https://crates.io/crates/opentelemetry
+
+### opentelemetry_sdk (Rust SDK crate)
+
+- **Version:** 0.31.0
+- **Last release:** 2025-09-26
+- **Status:** actively maintained (same workspace as opentelemetry; co-versioned)
+- **Agent-readable:** yes — emits SpanData / LogRecord / Metric structs that any registered exporter serializes; configuration: `SdkTracerProvider::builder().with_resource(...).with_simple_exporter(stdout_exporter).build()`.
+- **Fits because:** required by Harness Spec OTel SDK init (obs-scope Sec 3): "opentelemetry crate (Rust stable) with opentelemetry-stdout exporter". Provides BatchLogRecordProcessor, BatchSpanProcessor, BatchLogProcessor used by heartbeat-tick pattern and creator-explicit-telemetry triggers (Sec 5: 100ms throughput counter and aggregation metrics).
+- **Key detail:** Metrics SDK reached stable in 0.30; histogram and counter instruments now production-ready for `snapshot.token_count_ms` / `buffer.ingest_throughput_spans_per_sec` / `webgpu.canvas.frame_duration_ms` perf-budget triggers. Resource API supports `service.name` / `service.version` / `deployment.environment` per arch convention.
+- **Source:** https://crates.io/crates/opentelemetry_sdk
+
+### opentelemetry-semantic-conventions
+
+- **Version:** 0.31.0
+- **Last release:** 2025-09-26
+- **Status:** actively maintained
+- **Agent-readable:** yes — provides string constants used in agent-parsed span attribute names (e.g., `service.name`, `http.request.method`).
+- **Fits because:** standardizes attribute keys for ingest spans (`http.route`, `rpc.system`, `rpc.service`) so agents pasting `agent-latest.jsonl` into LLMs see canonical OTel key names without project-specific aliases. Required for cross-surface trace propagation triggers (Sec 5).
+- **Key detail:** purely const strings; zero runtime overhead. Bundles attribute groups for HTTP, RPC, database (DuckDB instrumentation maps to `db.system="duckdb"`, `db.statement` — must be omitted per logging-sensitive Vector 5).
+- **Source:** https://crates.io/crates/opentelemetry-semantic-conventions
+
+## Structured Logger
+
+### tracing + tracing-subscriber
+
+- **Version:** tracing 0.1.41 / tracing-subscriber 0.3.20
+- **Last release:** 2025-12 (tracing 0.1.41 stable; subscriber 0.3.20 active line)
+- **Status:** actively maintained (tokio-rs umbrella; de-facto Rust standard)
+- **Agent-readable:** yes — `tracing_subscriber::fmt().json()` produces JSON-per-line structured logs matching exactly the obs-scope Sec 3 binding contract; configuration: `tracing_subscriber::fmt().json().with_writer(file_appender).init()`.
+- **Fits because:** matches verbatim log schema in obs-scope Sec 3 (`{"timestamp", "level", "target", "message", "fields": {...}}`); required by every CLI + IPC-internal + API service surface (Sec 2). The `#[instrument]` attribute macro is the canonical instrumentation hook for TauRPC routers, plugin invocation handlers, and DuckDB query wrappers (must-trace P1-P7).
+- **Key detail:** JSON formatter is "intended for production use with systems where structured logs are consumed as JSON by analysis and viewing tools" — exact match for agent paste-to-AI workflow. CRITICAL for rmcp stdio server: tracing must be wired via `with_writer(std::io::stderr)` to avoid `println!`-class stdout pollution that would corrupt JSON-RPC stream (Sec 4 P3).
+- **Source:** https://docs.rs/tracing-subscriber
+
+### tracing-appender (file rolling sink)
+
+- **Version:** 0.2.3
+- **Last release:** 2025-09 (matches tracing 0.1)
+- **Status:** actively maintained (tokio-rs/tracing workspace member)
+- **Agent-readable:** yes — writes JSON-per-line to rolled file with `Rotation::DAILY | HOURLY | MINUTELY | NEVER`; configuration: `tracing_appender::rolling::daily("~/.andromeda-pulse/logs/", "agent-latest.jsonl")`.
+- **Fits because:** required by obs-scope Sec 3 log file location (`~/.andromeda-pulse/logs/agent-latest.jsonl`). Daily rotation is appropriate for self-observing desktop app where the agent expects to find a recent file but does not expect log retention compliance (security_tier=Minimal). `non_blocking()` wrapper mandatory to avoid blocking ingest hot path.
+- **Key detail:** RollingFileAppender implements `MakeWriter`, plugs directly into `tracing_subscriber::fmt().with_writer(...)` — no glue code needed. Use `Rotation::DAILY` and let user-configurable `ANDROMEDA_PULSE_DATA_DIR` override apply (per-platform path resolution per arch Obs-Relevant Conventions).
+- **Source:** https://docs.rs/tracing-appender
+
+### tracing-error (SpanTrace context for errors)
+
+- **Version:** 0.2.1
+- **Last release:** 2025-09 (matches tracing 0.1)
+- **Status:** actively maintained (tokio-rs/tracing workspace member)
+- **Agent-readable:** yes — produces SpanTrace (human-readable span ancestry) that JSON-serializes into log fields, no stack-frame-level noise.
+- **Fits because:** required for AppError sanitization (logging-sensitive Vector 2 in obs-scope Sec 5: "never expose stack traces, Rust struct names, file paths, or library versions"). SpanTrace captures only USER-defined spans, naturally excluding raw Rust struct names — aligns with the "category + user-facing message only" rule.
+- **Key detail:** `InstrumentResult::in_current_span()` extension trait wraps `Result<T,E>` with SpanTrace at error sites. Pairs with thiserror 2.x (workspace stack) at module boundaries; replaces anyhow's full-chain serialization at ui-bridge crate.
+- **Source:** https://docs.rs/tracing-error
+
+## Stdout OTel Exporter (Minimal floor)
+
+### opentelemetry-stdout
+
+- **Version:** 0.31.0
+- **Last release:** 2025-09-25
+- **Status:** actively maintained (open-telemetry/opentelemetry-rust workspace member)
+- **Agent-readable:** yes — writes OTLP-shaped JSON to any `std::io::Write` target (configurable: stdout, file, in-memory buffer); configuration: `SpanExporter::builder().with_writer(file_handle).build()`.
+- **Fits because:** **the** primary exporter mandated by upstream-context Observability Hints ("`opentelemetry-stdout` (or file exporter targeting `~/.andromeda-pulse/logs/`) is the only exporter the product itself uses for its own telemetry") and creator brief Obs Anti-Patterns ("For Rust: `opentelemetry_sdk` + `opentelemetry-stdout` crate (not `opentelemetry-otlp`). Exporting OTLP to itself would be an infinite recursion loop"). Self-observing recursion-guard architecture depends on this crate.
+- **Key detail:** Crate explicitly labels itself "intended solely for educational and debugging purposes" upstream — but this project **legitimately requires** debug-style output as its only self-export path. The output format is JSON-shaped OTLP, parseable by agents. Build with `--no-default-features` + `trace`, `metrics`, `logs` selectively. Uses any `Write`, so `tracing_appender::non_blocking::NonBlocking` works as the writer to keep ingest hot path fast.
+- **Source:** https://crates.io/crates/opentelemetry-stdout
+
+### tracing-opentelemetry (tracing → OTel bridge)
+
+- **Version:** 0.32.0
+- **Last release:** 2025-12 (one minor ahead of opentelemetry 0.31)
+- **Status:** actively maintained (tokio-rs/tracing-opentelemetry)
+- **Agent-readable:** yes — converts tracing spans into OTel SpanData consumable by stdout exporter; agent reads either tracing-fmt JSON (human surface) or OTel JSON (machine surface) of the same span.
+- **Fits because:** dual-sink obs harness (Sec 3) requires bridging the `tracing` macros (`#[instrument]` ergonomic Rust) into OTel SpanData so the same code emits BOTH structured JSON logs AND OTel span records. Critical for trace-context propagation across IPC boundary (must-trace P5 cross-surface coordination).
+- **Key detail:** Versioning: tracing-opentelemetry 0.32.x ↔ opentelemetry 0.31.x (one minor ahead). Wire as `tracing_subscriber::registry().with(OpenTelemetryLayer::new(tracer)).with(fmt_json_layer)` — composes both sinks in one subscriber.
+- **Source:** https://crates.io/crates/tracing-opentelemetry
+
+### opentelemetry-appender-tracing (tracing-event → OTel logs)
+
+- **Version:** 0.31.1
+- **Last release:** 2025-09-25 (co-released with 0.31 line)
+- **Status:** actively maintained (open-telemetry/opentelemetry-rust workspace member)
+- **Agent-readable:** yes — converts tracing events into OTel LogRecord including trace_id/span_id auto-attached.
+- **Fits because:** required by harness spec for log-OTel correlation (obs-scope Sec 3: "Optional fields supported per `fields` map: `trace_id` (W3C traceparent)"). This appender attaches OpenTelemetry trace context (TraceId, SpanId, TraceFlags) to log lines automatically — agent can correlate a log entry with the surrounding span chain.
+- **Key detail:** Distinct from tracing-opentelemetry (which handles spans). This crate handles tracing **events** as OTel **logs**. Both required: spans → tracing-opentelemetry → OTel SpanExporter; events → opentelemetry-appender-tracing → OTel LogRecordExporter (both stdout-flavored).
+- **Source:** https://docs.rs/opentelemetry-appender-tracing
+
+## Per-Surface Instrumentation Library
+
+### tonic-tracing-opentelemetry (gRPC server `:4317`)
+
+- **Version:** 0.32.3
+- **Last release:** 2026-03-15
+- **Status:** actively maintained (davidB/tracing-opentelemetry-instrumentation-sdk monorepo)
+- **Agent-readable:** yes — emits OTel-conformant gRPC server spans (`rpc.system="grpc"`, `rpc.service`, `rpc.method`); structured JSON via tracing-subscriber sink.
+- **Fits because:** must-trace P1 ("Receive OTLP telemetry (gRPC), visualize") root span `otlp.grpc.export.request` lives at the tonic boundary. Reads OTel headers from incoming gRPC metadata (W3C `traceparent` via `grpc-trace-bin`) per Standard Contract in upstream-context Sec 1, propagates trace_id end-to-end into DuckDB append + Tauri IPC channel emission.
+- **Key detail:** Compatible with tonic 0.14.x (project's exact pinned version per arch). Provides interceptor: `OtelGrpcLayer::new()` integrates with tonic's tower middleware. CRITICAL: this is the ONLY agent-readable instrumentation for the gRPC ingest receiver — vendor-lock check passes.
+- **Source:** https://crates.io/crates/tonic-tracing-opentelemetry
+
+### axum-tracing-opentelemetry (HTTP server `:4318`)
+
+- **Version:** 0.32.3
+- **Last release:** 2026-03-15
+- **Status:** actively maintained
+- **Agent-readable:** yes — emits OTel HTTP server spans with `http.route`, `http.method`, `http.status_code`; pairs with tracing-subscriber JSON sink.
+- **Fits because:** must-trace P1 + chaos-instrumentation trigger (`ingest.http.body_size.exceeded` 413 path), compliance-test trigger (HTTP OTLP protocol compliance 415/200). Provides `OtelAxumLayer` and `OtelInResponseLayer` middleware for `axum::Router`; reads `traceparent` header per W3C convention.
+- **Key detail:** Axum 0.8 compatibility confirmed via davidB SDK 0.32.x line. Place `OtelAxumLayer` BEFORE `DefaultBodyLimit::max(8388608)` so 413 spans still emit on rejection path. Alternative: `axum-otel` 0.29 also targets axum 0.8 (note: `axum-otel-metrics` final release 0.29 has unresolved security issues with unmaintained protobuf crate — REJECT that variant; the davidB family does NOT have that vulnerability).
+- **Source:** https://crates.io/crates/axum-tracing-opentelemetry
+
+### init-tracing-opentelemetry (boot helper)
+
+- **Version:** 0.32.0
+- **Last release:** 2026-01 (recently updated; matches 2026 maintenance signal)
+- **Status:** actively maintained
+- **Agent-readable:** yes — composes the registry with `tracing-subscriber::fmt().json()` + OtelLayer + custom file writer; one call site initializes the dual-sink harness.
+- **Fits because:** obs-scope Sec 3 lists 4-step initialization order (load config → init tracing JSON → init OTel SDK with stdout exporter → spawn Tauri). `TracingConfig::production().init_subscriber()?` packages this and returns an OtelGuard for clean shutdown — required so heartbeat tick spans flush before exit.
+- **Key detail:** The OtelGuard pattern (`let _guard = ...`) is essential for the desktop app: on user quit, batch span processor must drain or telemetry is lost. Custom builder chain accommodates self-observation (override default OTLP exporter with stdout+file writer).
+- **Source:** https://crates.io/crates/init-tracing-opentelemetry
+
+### Tauri TauRPC instrumentation (IPC-internal surface)
+
+- **Version:** 0.1.41 (uses tracing 0.1 directly; no separate auto-instrumentation crate exists for TauRPC in 2025-2026)
+- **Last release:** 2025-12 (tracing 0.1.41)
+- **Status:** actively maintained (uses tracing 0.1 — already listed)
+- **Agent-readable:** yes — `#[instrument(skip_all, fields(traceparent = %tp))]` on TauRPC handlers emits structured spans propagated to JSON file sink.
+- **Fits because:** obs-scope Sec 2 explicitly notes "Tauri IPC bridge (taurpc) instrumentation: manual OTel spans on command handler entry/exit". No auto-instrumentation crate exists — must annotate each TauRPC router method manually. Pattern: extract IPC envelope's optional `traceparent` field at method entry, build span with matching trace_id, exit returns serialize-friendly AppError (sanitized per Vector 2).
+- **Key detail:** No agent-readable TauRPC-specific OTel package in 2025-2026 search results. Use plain `tracing::instrument` + parent context extraction. Trade-off: small boilerplate per router method but full control over which fields enter logs (critical for Vector 2 sanitization).
+- **Source:** https://docs.rs/tracing/0.1.41/tracing/attr.instrument.html
+
+### tauri-plugin-log (alternative / supplementary CLI sink)
+
+- **Version:** 2.7.1
+- **Last release:** 2026-04 (`2.7.x` line co-versioned with Tauri 2 plugins-workspace)
+- **Status:** actively maintained (tauri-apps/plugins-workspace)
+- **Agent-readable:** yes — supports targets `Stdout`, `LogDir`, `Webview`; LogDir target writes per-platform log files matching arch Obs-Relevant Conventions (`%APPDATA%`/`~/Library/Application Support`/`~/.local/share`).
+- **Fits because:** obs-scope Sec 2 desktop-webview surface — Tauri-aware logging plugin auto-resolves per-platform log directory matching arch convention. Provides JS-to-Rust log bridge so webview frontend `console.error` events arrive in the same `agent-latest.jsonl` (single agent paste-to-AI surface).
+- **Key detail:** Use as **secondary** (frontend bridge only) — primary backend logging stays on `tracing` + `tracing-subscriber` JSON for richer span integration. Note: tauri-plugin-log default formatter is text; for JSON-per-line, prefer using `tracing` directly and feed Tauri's own logs via `log` → `tracing-log` adapter.
+- **Source:** https://docs.rs/crate/tauri-plugin-log/latest
+
+### console-subscriber (tokio runtime instrumentation)
+
+- **Version:** 0.4.1
+- **Last release:** 2025 cycle (tokio-rs/console)
+- **Status:** actively maintained (tokio-rs/console)
+- **Agent-readable:** yes — exposes wire format via gRPC; tokio-console CLI consumes it OR you can capture state via custom subscriber and emit JSON snapshots.
+- **Fits because:** obs-scope Sec 2 IPC-internal surface explicitly emits "tokio channel metrics (mpsc capacity %, broadcast subscriber count)" per heartbeat tick. Required for Standard Contract `health.subsystems.ingest_channel.broadcast_subscribers` field. Observes `tokio::sync::mpsc` and `tokio::sync::broadcast` capacity utilization (arch Stack lists exactly these channels).
+- **Key detail:** Requires `RUSTFLAGS="--cfg tokio_unstable"` and `tokio` feature `tracing` enabled at build. Optional / debug-only: gate behind `#[cfg(feature = "tokio-console")]` so production builds skip the gRPC server overhead. NOTE: console-subscriber's gRPC port is for tokio-console CLI consumption — not OTLP — so it does NOT recurse into the project's own `:4317`/`:4318` ports (uses default `127.0.0.1:6669`).
+- **Source:** https://crates.io/crates/console-subscriber
+
+### @opentelemetry/api + @opentelemetry/sdk-trace-web (desktop-webview frontend)
+
+- **Version:** @opentelemetry/api 1.9.0 / @opentelemetry/sdk-trace-web 2.7.0
+- **Last release:** 2026-04-20 (sdk-trace-web 2.7.0)
+- **Status:** actively maintained (open-telemetry/opentelemetry-js)
+- **Agent-readable:** yes — emits W3C traceparent format spans; can be wired to a custom exporter that pushes to Tauri IPC `pulse://stream/spans` channel as Arrow IPC payload (per upstream constraint: never dial own `:4317`/`:4318`).
+- **Fits because:** desktop-webview surface (obs-scope Sec 2) requires browser-side spans for WebGPU canvas render frames, skeleton pulse duration, empty/error state counters. Frontend traces propagate via Tauri IPC envelope (NOT network OTLP — recursion guard).
+- **Key detail:** CRITICAL — do NOT pair with `@opentelemetry/exporter-trace-otlp-http` pointed at `:4318`. Custom exporter pattern: implement `SpanExporter` interface that calls Tauri `invoke('telemetry.ingest_frontend_span', ...)` which routes through TauRPC into the same shared OTel pipeline that the backend uses. Only ~30 KB gzipped — acceptable for desktop-bundled webview.
+- **Source:** https://www.npmjs.com/package/@opentelemetry/sdk-trace-web
+
+### @opentelemetry/auto-instrumentations-web (desktop-webview frontend)
+
+- **Version:** 0.61.0
+- **Last release:** 2026-05-01
+- **Status:** actively maintained (opentelemetry-js-contrib)
+- **Agent-readable:** yes — auto-creates OTel spans for `fetch` / `XMLHttpRequest` / document load / user-interaction; spans flow through the registered exporter.
+- **Fits because:** desktop-webview frontend instrumentation hooks (obs-scope Sec 2) — captures fetch/XHR latency for any TauRPC `invoke()` (Tauri IPC compiles to fetch internally on some platforms). Also auto-traces document load (LCP proxy) which design system specifies as skeleton-pulse telemetry hook.
+- **Key detail:** Disable instrumentation modules NOT relevant to desktop webview (e.g., `@opentelemetry/instrumentation-user-interaction` may be excessive); selective enable via `getWebAutoInstrumentations({ '@opentelemetry/instrumentation-fetch': { enabled: true } })`. Avoid loading XHR instrumentation if you confirmed React 19 uses fetch only.
+- **Source:** https://www.npmjs.com/package/@opentelemetry/auto-instrumentations-web
+
+### web-vitals (desktop-webview frontend)
+
+- **Version:** 5.1.0
+- **Last release:** 2026-03-25
+- **Status:** actively maintained (Google Chrome team, GoogleChrome/web-vitals)
+- **Agent-readable:** yes — fires JS callbacks per metric (CLS, LCP, INP, FCP, TTFB); each callback delivers `{name, value, id, attribution}` consumable by custom OTel histogram instrument.
+- **Fits because:** design system Sec 3 explicitly requires "skeleton pulse — telemetry hook: time from mount to content visibility (LCP proxy)" and obs-scope Sec 2 desktop-webview lists `web-vitals (TTI, LCP, CLS, FID, INP)` as frontend hook. Required for cross-surface render-frame metrics paired with WebGPU `frame_duration_ms`.
+- **Key detail:** Bridge each metric to an OTel `Histogram` instrument: `onLCP(metric => histogram.record(metric.value, { 'webview.backend': 'WebView2'|'WKWebView'|'GTKWebKit' }))`. Per honeycomb.io 2026 article: official OTel `browser.web_vital` semantic convention is still in development — use stable attribute keys (`metric.name`, `metric.id`) until OTel formalizes.
+- **Source:** https://www.npmjs.com/package/web-vitals
+
+### rmcp (MCP server stdio surface)
+
+- **Version:** 0.6.0
+- **Last release:** 2026-04 (4.7M+ downloads on crates.io as of early 2026; macro-driven API)
+- **Status:** actively maintained (modelcontextprotocol/rust-sdk official Rust SDK)
+- **Agent-readable:** yes — JSON-RPC 2.0 over stdio is intrinsically agent-readable (LLMs and MCP clients consume JSON directly); spans on `tools/call` per request emit structured logs to stderr file sink.
+- **Fits because:** must-trace P3 (MCP server query) lives entirely inside rmcp boundary. Arch explicitly names `rmcp` as the MCP transport over stdio. Feature-gated via `--features mcp-server` plus runtime `ANDROMEDA_PULSE_MCP_ENABLED=true` (security plan double-gate Vector).
+- **Key detail:** **CRITICAL stdio rule for this project**: `tracing` output MUST go to `std::io::stderr` (`tracing_subscriber::fmt().with_writer(std::io::stderr).init()`); ANY accidental `println!` / `dbg!` / third-party `stdout` write corrupts JSON-RPC stream and the MCP client silently disconnects. Combine with: response-redaction span attribute scrubber for Vector 4 (do NOT log MCP `result_content`).
+- **Source:** https://crates.io/crates/rmcp
+
+### wasmtime tracing (plugin surface)
+
+- **Version:** wasmtime 25+ (arch-specified; current line 28.x as of 2026)
+- **Last release:** 2026 ongoing
+- **Status:** actively maintained (Bytecode Alliance)
+- **Agent-readable:** yes — wasmtime-wiggle includes a `tracing` integration module; host-side spans wrap module instantiation, capability-check, invocation; emit JSON-per-line via parent tracing subscriber.
+- **Fits because:** must-trace P4 (Plugin lifecycle) requires `plugin.load.request`, `wasmtime.instantiate`, `plugin.capability.check`, `plugin.invoke.request` spans. wasmtime's wiggle layer includes `tracing` instrumentation already; project layers HOST-SIDE custom spans on top per WIT capability boundary.
+- **Key detail:** No separate OTel-wasmtime crate exists; standard pattern is `#[tracing::instrument(skip(module), fields(plugin_path_basename, capability_name))]` on the host's plugin invocation function. WASM sandbox itself has NO OTel SDK (untrusted) — instrumentation only at host boundary. Strip full path before logging (Vector 3): `path.file_name().and_then(|s| s.to_str())`.
+- **Source:** https://docs.rs/wasmtime-wiggle/latest/wasmtime_wiggle/tracing/index.html
+
+### duckdb (manual instrumentation pattern)
+
+- **Version:** 1.10500.x (arch-specified)
+- **Last release:** 2026 active
+- **Status:** actively maintained (duckdb/duckdb-rs)
+- **Agent-readable:** yes — instrument via wrapping `Connection::prepare` / `Statement::query` calls with `#[tracing::instrument(name="duckdb.query", fields(query_id, param_count))]`; never log query text or params (Vector 5).
+- **Fits because:** obs-scope Sec 5 logging-sensitive Vector 5 mandates query anonymizer (emit `query_id: "q_abc123"`, `param_count: 2` but NOT `params`). Required for must-trace P1 (`duckdb.append`), P2 (`duckdb.query.aggregation`), P3 (`duckdb.query.traces`).
+- **Key detail:** No package exists for `duckdb` Rust crate OTel auto-instrumentation in 2025-2026 search results. Manual wrapper functions (`fn buffer_query<T>(conn: &Connection, query_id: &str, prepare: impl FnOnce(&mut Statement) -> Result<T>) -> Result<T>`) with `#[tracing::instrument]` emit anonymized spans. Pair with prepared-statement enforcement (security anti-pattern: never `format!` SQL).
+- **Source:** https://docs.rs/duckdb
+
+## CI Integration Pattern
+
+### opentelemetry-cicd / "OpenTelemetry for GitHub Workflows, Jobs and Steps"
+
+- **Version:** GitHub Marketplace action; line 2026
+- **Last release:** 2026-03 (TUnit Mar 2026 capture; "github-actions-opentelemetry" by paper2 active)
+- **Status:** actively maintained (multiple actions in this category)
+- **Agent-readable:** yes — exports OTLP-compliant traces from each step/job; JUnit XML test reports + OTLP trace artifacts uploaded as build artifacts.
+- **Fits because:** arch CI/CD Platform = GitHub Actions; pipeline = `ci.yml` (fmt + clippy + xtask test + release build). For agent-driven dev, CI artifacts must be machine-parseable (no human stares at green checkmarks). Pair "OpenTelemetry Upload Trace Artifact" + "OpenTelemetry Export Trace" actions: every workflow run uploads `otel-traces.json` artifact downloadable via `gh run download`.
+- **Key detail:** Use `OpenTelemetry CI/CD Action` for OTel CICD semantic conventions compliance (standard span names: `pipeline.run`, `job.run`, `step.run`). Agent inspecting failed CI run downloads `otel-traces.json` artifact + can paste to LLM for triage. AVOID actions that ONLY ship to a vendor backend without artifact upload (vendor-lock).
+- **Source:** https://github.com/marketplace/actions/opentelemetry-for-github-workflows-jobs-and-steps
+
+## Service Identity Convention
+
+### Compile-time + runtime hybrid (Cargo + tauri.conf.json + env override)
+
+- **Version:** 0.31.0 (opentelemetry_sdk Resource API + Rust standard `env!` macro)
+- **Last release:** 2025-09-26 (opentelemetry_sdk)
+- **Status:** stable (Rust language feature + opentelemetry_sdk 0.31)
+- **Agent-readable:** yes — Resource is serialized as part of every OTel span/log/metric; agent reads `service.name` / `service.version` from any span.
+- **Fits because:** obs-scope Sec 3 specifies `service.name = "com.andromeda.pulse"` (compile-time from Tauri bundle id); `service.version` from `tauri.conf.json` runtime read OR `env!("CARGO_PKG_VERSION")` for CLI binary; `deployment.environment = "production"` hardcoded. arch Stack: binary crate name `pulse-app`; binary bundle name `andromeda-pulse`.
+- **Key detail:** Pattern: at boot, build `Resource::builder() .with_service_name(env!("CARGO_PKG_NAME")) .with_service_version(env!("CARGO_PKG_VERSION")) .with_attribute(KeyValue::new("service.bundle_id", "com.andromeda.pulse")) .with_deployment_environment("production") .build()`. For CI override, allow `OTEL_SERVICE_NAME` env var. For mcp-server sidecar, set `service.name = "andromeda-pulse-mcp"` (different process, distinct identity per arch convention).
+- **Source:** https://docs.rs/opentelemetry/0.31.0/opentelemetry/struct.KeyValue.html
+
+## Network OTLP Exporter
+
+### opentelemetry-otlp (secondary / opt-in only)
+
+- **Version:** 0.31.1
+- **Last release:** 2026-03-19
+- **Status:** actively maintained
+- **Agent-readable:** yes — wire-format OTLP/gRPC (4317) or OTLP/HTTP (4318); both consumable by any OTel collector.
+- **Fits because:** obs-scope Sec 2 lists this as the optional fallback for forwarding to an external collector (`ANDROMEDA_OBSERVER_URL` per upstream Obs Anti-Patterns). **CRITICAL**: this project **never** points this exporter at its own `:4317`/`:4318` (infinite recursion). Role here is **secondary/optional** — only used if user explicitly configures forwarding to a separate external OTLP collector (e.g., remote Jaeger/Tempo for advanced debugging during development).
+- **Key detail:** **Self-observation guardrail**: at SDK init, validate that any user-configured OTLP endpoint is NOT `127.0.0.1:4317`, `127.0.0.1:4318`, `localhost:4317`, or `localhost:4318`; if so, refuse to construct exporter and emit warn-level structured log per the security-vector "No self-OTLP dialing" test in obs-scope Sec 5. Default state: this exporter is NOT registered. Only registered when `ANDROMEDA_OBSERVER_URL` env var is non-empty AND validates against own ports. Stdout/file remains primary.
+- **Source:** https://crates.io/crates/opentelemetry-otlp
+
+## Error Reporting Platform
+
+### sentry-rust + sentry-tauri (opt-in only, default disabled)
+
+- **Version:** sentry crate 0.46.0; sentry-tauri 0.5.0 (Tauri v2 line)
+- **Last release:** 2026 active maintenance (sentry-log 0.46.0 documented; sentry-rust + sentry-tauri tracked)
+- **Status:** actively maintained (getsentry/sentry-rust official; timfish/sentry-tauri community-recommended)
+- **Agent-readable:** yes — but ONLY in agent-readable mode (sentry has structured event JSON delivered via OTLP-aligned `before_send` callback that can be redirected to local log file); REJECT default mode if it ships to Sentry SaaS without scrubbing.
+- **Fits because:** Standard tier requires error reporting platform; obs-scope Sec 5 logging-sensitive Vector 2 explicitly mandates `before_send` scrubbing. Tauri 2 webview crashes go through sentry-tauri (community-developed, official Sentry SDK does not yet have first-party Tauri 2 support per Sentry Help Center 2026).
+- **Key detail:** **OPT-IN ONLY** per project conventions: Default DSN = empty string → SDK is no-op (correct default for local-first product). Enable via `ANDROMEDA_PULSE_SENTRY_DSN` runtime env var. `before_send` callback MUST strip OTLP attribute payloads, AppError stack traces (Vector 2), plugin file paths (Vector 3), DuckDB query params (Vector 5), MCP response bodies (Vector 4) BEFORE network egress. Use `sentry-opentelemetry` crate (`SentryPropagator` + `SentrySpanProcessor`) ONLY in user-initiated debug mode — DO NOT mix with project's primary OTel pipeline (Sentry doc: "mixing with Sentry tracing API results in incorrectly nested spans"). For self-observing Pulse: this is a deliberately-narrow option for the developer who wants to test Sentry integration; not the primary error pipeline (which is `panic_hook → tracing::error! → JSON file`).
+- **Source:** https://crates.io/crates/sentry-tauri
+
+### Default in-app error path (NO external platform)
+
+- **Version:** 0.31.0 (uses opentelemetry_sdk + tracing + tracing-error already listed)
+- **Last release:** 2025-09-26 (opentelemetry_sdk)
+- **Status:** stable
+- **Agent-readable:** yes — `std::panic::set_hook()` calling `tracing::error!()` with `panic.payload`, `panic.location`, `panic.thread`, optional `backtrace` (when `RUST_BACKTRACE=1`); JSON-per-line in `agent-latest.jsonl`.
+- **Fits because:** obs-scope Sec 5 error-budget-SLO: "set `std::panic::set_hook()` in app boot to emit structured error log on panic + emit span `app.panic.fatal`". This satisfies the Standard-tier error-reporting requirement WITHOUT a third-party SaaS — local-first product (creator brief: "every byte of telemetry stays on the developer's machine").
+- **Key detail:** Pattern: `std::panic::set_hook(Box::new(|info| { tracing::error!(target: "app.panic.fatal", panic_message = %info, location = ?info.location(), "panic"); }));`. For SpanTrace integration (Vector 2 sanitization), use `tracing-error::ErrorLayer` to capture `SpanTrace` rather than full Rust backtrace. Pair with `tracing-error` crate (already listed) — Sentry/Bugsnag/Rollbar are NOT required for Standard tier when local error capture satisfies agent-driven discipline.
+- **Source:** https://doc.rust-lang.org/std/panic/fn.set_hook.html
+
+## Frontend Telemetry
+
+### WebGPU frame-time custom instrument
+
+- **Version:** N/A — DOM `performance.now()` + WebGPU `timestamp-query` feature (W3C standard browser API)
+- **Last release:** 2026 (WebGPU spec stable in modern WebView2 / WKWebView / GTK WebKit)
+- **Status:** stable browser API (W3C); WebGPU timestamp-query optional
+- **Agent-readable:** yes — JavaScript callback fires per render frame; bridge to OTel Histogram `webgpu.canvas.frame_duration_ms`.
+- **Fits because:** perf-budget-instruments trigger (obs-scope Sec 5): `webgpu.canvas.frame_duration_ms` with assert `p99 ≤ 33ms (30 fps)`. Creator brief: "10k+ spans/sec... no jank at high cardinality".
+- **Key detail:** Pattern in render loop: `const start = performance.now(); device.queue.submit(...); device.queue.onSubmittedWorkDone().then(() => histogram.record(performance.now() - start, { 'wgpu.backend': adapter.info.backend }))`. For GPU-side timing use `timestamp-query` feature (optional WebGPU feature requested at adapter time); fall back to CPU `performance.now()` when not available — mark span attribute `timing_method: "cpu"|"gpu"`. NOT a packaged crate — wire manually to OTel browser SDK Histogram instrument.
+- **Source:** https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html
+
+## Heartbeat / Tick Pattern
+
+### Custom tokio interval pattern (tokio + tracing + opentelemetry_sdk)
+
+- **Version:** tokio 1.x (workspace pin); tracing 0.1.41; opentelemetry_sdk 0.31.0
+- **Last release:** 2025-09-26 (opentelemetry_sdk); 2025-12 (tracing 0.1.41)
+- **Status:** stable (pattern, not a packaged crate)
+- **Agent-readable:** yes — emits structured tracing event per tick OR OTel metric per tick, both consumable by file sink.
+- **Fits because:** obs-scope Sec 3 lists ingest.tick / buffer.tick / viz.tick / plugins.tick at 10-30s intervals. Creator brief realtime counter requires 100ms-tick `ingest.throughput_events_per_sec` for animation smoothness — separate fast-tick channel from slow heartbeat tick.
+- **Key detail:** No packaged "heartbeat" crate exists in 2025-2026 search. Idiomatic pattern: `let mut interval = tokio::time::interval(Duration::from_secs(15)); loop { interval.tick().await; tracing::info!(target: "ingest.tick", span_count, buffer_capacity_pct, broadcast_subscribers, "heartbeat"); }`. For 100ms throughput counter: separate `tokio::time::interval(Duration::from_millis(100))` task feeding a Tauri IPC `Channel` event with current rolling rate. Spawn each tick task on app boot; cancel on shutdown via `tokio::select!` against shutdown signal.
+- **Source:** https://docs.rs/tokio/latest/tokio/time/fn.interval.html
+
+## Performance Budget Histograms
+
+`[trigger-driven; pulled in by perf-budget-instruments triggers (snapshot.token_count_ms p99 ≤ 500ms; webgpu.canvas.frame_duration_ms p99 ≤ 33ms; buffer.memory_bytes ≤ 512MB) from obs-scope Sec 5; not standard for Standard but required for trigger coverage]`
+
+### opentelemetry_sdk Histogram instrument
+
+- **Version:** 0.31.0 (Metrics SDK reached stable in 0.30.0)
+- **Last release:** 2025-09-26
+- **Status:** actively maintained (open-telemetry/opentelemetry-rust)
+- **Agent-readable:** yes — histogram exports as OTLP metric with explicit bucket boundaries; agent reads bucket counts from JSON file.
+- **Fits because:** obs-scope Sec 5 lists three perf-budget histograms: `snapshot.token_count_ms` (token budget enforcement), `webgpu.canvas.frame_duration_ms` (frame-rate validation), `buffer.memory_bytes` (retention window enforcement). Creator brief explicitly: "token_budget: target ≤10k / ≤25k / ≤50k preset" and "10,000 spans/sec" target.
+- **Key detail:** Build via `meter.u64_histogram("snapshot.token_count_ms").with_description("...").with_unit("ms").with_boundaries(vec![10.0, 50.0, 100.0, 250.0, 500.0, 1000.0]).build()`. Custom boundaries for token-count budget (10k, 25k, 50k as hard upper bounds). Frame-time histogram boundaries: `[8.33, 16.67, 33.33, 66.67]` (120/60/30/15 fps).
+- **Source:** https://docs.rs/opentelemetry_sdk/latest/opentelemetry_sdk/metrics/struct.Histogram.html
+
+### criterion (regression assertion harness)
+
+- **Version:** 0.5.1
+- **Last release:** 2025-08 (bheisler/criterion.rs active)
+- **Status:** actively maintained (bheisler/criterion.rs)
+- **Agent-readable:** yes — outputs JSON benchmark results to `target/criterion/`; statistically detects regressions automatically and emits machine-parseable verdict.
+- **Fits because:** Standard-tier perf-budget-instruments triggers + creator brief "10,000 spans/sec... assert buffer ingests all without dropping; frame-rate validation". Pair with histogram in xtask benchmark suite — criterion measures, OTel histogram instrument records the budget assertion. Regression detection (statistical significance) → exit code → CI fail → agent reads JSON in `target/criterion/<bench>/new/estimates.json`.
+- **Key detail:** Criterion has no formal "performance budget" feature; threshold checking via `assert!(result.median.point_estimate < BUDGET_NS)` in the bench test body. For project Standard tier, place benches under `xtask/benches/` (per arch CI/CD `xtask test` pipeline), publish `target/criterion/` summary as CI artifact. Pairs with OTel histogram for runtime self-observation; criterion is for offline regression assertion.
+- **Source:** https://github.com/bheisler/criterion.rs
+
+## Chaos / Fault Injection Telemetry
+
+`[trigger-driven; pulled in by chaos-instrumentation triggers (ingest.grpc.parse.error malformed span_id/trace_id; ingest.http.body_size.exceeded 8MB DefaultBodyLimit; buffer overflow / retention window enforcement) from obs-scope Sec 5; not standard for Standard but required for trigger coverage]`
+
+### Custom span-attribute fault tagging pattern
+
+- **Version:** 0.1.41 (uses tracing 0.1 + opentelemetry_sdk 0.31; not a separate packaged crate)
+- **Last release:** 2025-12 (tracing 0.1.41)
+- **Status:** stable (pattern, not packaged)
+- **Agent-readable:** yes — span emitted with explicit `chaos.type` attribute consumed by agent for fault-class categorization.
+- **Fits because:** obs-scope Sec 5 chaos-instrumentation triggers: malformed protobuf parse, oversized POST body, buffer overflow eviction. No packaged Rust chaos library found in 2025-2026 search results that produces OTel spans for fault-class — project-specific per research-targets.md note.
+- **Key detail:** Pattern: at fault-rejection sites, emit `tracing::error!(target: "chaos.fault", chaos.type = "invalid_span_id_length", expected_length = 8, actual_length = 4, rejection_reason = "...", "rejected")`. Required spans per obs-scope Sec 5: `ingest.grpc.parse.error`, `ingest.http.body_size.exceeded`, `buffer.tick` (with eviction count). NO third-party chaos engineering crate (e.g., `chaos-toolkit`) is appropriate here — all fault injection is at the OTLP receiver boundary or buffer ring eviction, both covered by tracing macros.
+- **Source:** https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-spans/
+
+## MCP Server Pattern
+
+`[intrinsic to this product — mcp-server is a workspace crate per arch Section 1; covered for tier completeness]`
+
+### rmcp (transport: stdio JSON-RPC 2.0)
+
+- **Version:** 0.6.0
+- **Last release:** 2026-04
+- **Status:** actively maintained (modelcontextprotocol/rust-sdk)
+- **Agent-readable:** yes — JSON-RPC 2.0 over stdio; LLMs and MCP clients consume JSON natively.
+- **Fits because:** must-trace P3 (MCP server query) lives entirely inside rmcp boundary. Tool methods: `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot` per arch Standard Contracts. Double-gated (`--features mcp-server` + `ANDROMEDA_PULSE_MCP_ENABLED=true`).
+- **Key detail:** `transport-io` feature → `stdio()` transport. All tracing must use stderr writer (`with_writer(std::io::stderr)`) to avoid stdout corruption of JSON-RPC stream. Macro-driven tool registration: `#[tool(...)]` attribute generates JSON-RPC method registration + arg schema.
+- **Source:** https://crates.io/crates/rmcp

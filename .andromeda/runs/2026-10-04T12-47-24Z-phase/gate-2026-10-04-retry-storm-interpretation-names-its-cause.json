@@ -1,0 +1,32 @@
+[
+{
+"tool": "gate",
+"v": "1.6",
+"sha8": "9419d56e",
+"ts": "2026-10-04T12:58:16Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-retry-storm-interpretation-names-its-cause/research.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 8 items (new 0 · modify 8 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 8,
+"unparsed": 0
+}
+}
+]

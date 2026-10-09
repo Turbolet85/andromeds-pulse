@@ -18,7 +18,7 @@ use std::sync::{Arc, Mutex, OnceLock};
 use chrono::Utc;
 use duckdb::Connection;
 use snapshot::contract::{
-    CurationOutput, FormatError, SpanRecord, TokenBudget, curate, format_markdown,
+    CurationOutput, FormatError, GenerationTimer, SpanRecord, TokenBudget, curate, format_markdown,
 };
 use tauri::{AppHandle, Emitter, Wry};
 use tauri_plugin_clipboard_manager::ClipboardExt;
@@ -50,7 +50,8 @@ const PRESET_PROMPT_DEFINITIONS: &[(&str, &str)] = &[
     ("summarize-service-health", "Summarize service health"),
 ];
 
-fn preset_prompts() -> Vec<PresetPromptDto> {
+#[doc(hidden)]
+pub fn preset_prompts() -> Vec<PresetPromptDto> {
     PRESET_PROMPT_DEFINITIONS
         .iter()
         .map(|(id, label)| PresetPromptDto {
@@ -60,7 +61,8 @@ fn preset_prompts() -> Vec<PresetPromptDto> {
         .collect()
 }
 
-fn preset_label(preset: SnapshotPreset) -> &'static str {
+#[doc(hidden)]
+pub fn preset_label(preset: SnapshotPreset) -> &'static str {
     match preset {
         SnapshotPreset::Conservative => "conservative",
         SnapshotPreset::Balanced => "balanced",
@@ -68,7 +70,8 @@ fn preset_label(preset: SnapshotPreset) -> &'static str {
     }
 }
 
-fn preset_to_budget(preset: SnapshotPreset) -> TokenBudget {
+#[doc(hidden)]
+pub fn preset_to_budget(preset: SnapshotPreset) -> TokenBudget {
     match preset {
         SnapshotPreset::Conservative => TokenBudget::Conservative,
         SnapshotPreset::Balanced => TokenBudget::Balanced,
@@ -127,6 +130,25 @@ fn load_recent_spans(
         })
 }
 
+/// Load the recent span window, curate it, and render the curated markdown
+/// context. Shared by `snapshot.generate` and `investigate.run_action` (P-072)
+/// so both consume one telemetry-context path. An empty buffer yields a bounded
+/// near-empty markdown (curate returns the default `CurationOutput`) — still a
+/// valid context, not an error.
+pub fn load_curated_markdown(conn: &Connection) -> Result<String, AppError> {
+    let now_ns = Utc::now().timestamp_nanos_opt().unwrap_or(0);
+    let since_ns = now_ns.saturating_sub(SNAPSHOT_TIME_WINDOW_NS);
+    let timer = GenerationTimer::start();
+    let spans = load_recent_spans(conn, since_ns, SPANS_RECENT_LIMIT)?;
+    let curated: CurationOutput = curate(&spans)?;
+    let formatted = format_markdown(&curated, TokenBudget::Balanced);
+    timer.finish(&formatted, &curated, TokenBudget::Balanced);
+    let report = formatted.map_err(|_: FormatError| AppError::Internal {
+        message: "snapshot: format failed".to_string(),
+    })?;
+    Ok(report.markdown)
+}
+
 #[taurpc::procedures(path = "snapshot")]
 pub trait SnapshotApi {
     async fn generate(
@@ -179,6 +201,7 @@ impl SnapshotApi for SnapshotApiImpl {
         let now_ns = Utc::now().timestamp_nanos_opt().unwrap_or(0);
         let since_ns = now_ns.saturating_sub(SNAPSHOT_TIME_WINDOW_NS);
 
+        let timer = GenerationTimer::start();
         let conn_for_load = Arc::clone(&conn);
         let spans = tokio::task::spawn_blocking(move || {
             let guard = conn_for_load.lock().map_err(|_| AppError::Storage {
@@ -190,7 +213,9 @@ impl SnapshotApi for SnapshotApiImpl {
         .map_err(|_| AppError::internal("snapshot: query task failed"))??;
 
         let curated: CurationOutput = curate(&spans)?;
-        let report = format_markdown(&curated, budget).map_err(|e: FormatError| {
+        let formatted = format_markdown(&curated, budget);
+        timer.finish(&formatted, &curated, budget);
+        let report = formatted.map_err(|e: FormatError| {
             // Sanitized per security plan §Error Handling — internals
             // (kinds / limits) do not cross the bridge.
             let _ = e;
@@ -293,238 +318,5 @@ impl SnapshotApi for SnapshotApiImpl {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::sync::{Arc, Mutex};
-    use tracing::field::{Field, Visit};
-    use tracing::span::{Attributes, Id, Record};
-    use tracing::{Event, Metadata, Subscriber};
-
-    // CapturingSubscriber: extends the chunk #43 substrate pattern by
-    // recording field values (not just target + level) so PII negative-
-    // canary tests can substring-search captured field strings.
-    struct CapturingSubscriber {
-        events: Arc<Mutex<Vec<(String, String)>>>,
-    }
-
-    struct FieldCollector {
-        sink: String,
-    }
-
-    impl Visit for FieldCollector {
-        fn record_debug(&mut self, field: &Field, value: &dyn std::fmt::Debug) {
-            use std::fmt::Write;
-            let _ = write!(&mut self.sink, " {}={:?}", field.name(), value);
-        }
-        fn record_str(&mut self, field: &Field, value: &str) {
-            use std::fmt::Write;
-            let _ = write!(&mut self.sink, " {}={}", field.name(), value);
-        }
-        fn record_bool(&mut self, field: &Field, value: bool) {
-            use std::fmt::Write;
-            let _ = write!(&mut self.sink, " {}={}", field.name(), value);
-        }
-        fn record_u64(&mut self, field: &Field, value: u64) {
-            use std::fmt::Write;
-            let _ = write!(&mut self.sink, " {}={}", field.name(), value);
-        }
-        fn record_i64(&mut self, field: &Field, value: i64) {
-            use std::fmt::Write;
-            let _ = write!(&mut self.sink, " {}={}", field.name(), value);
-        }
-    }
-
-    impl Subscriber for CapturingSubscriber {
-        fn enabled(&self, _: &Metadata<'_>) -> bool {
-            true
-        }
-        fn new_span(&self, _: &Attributes<'_>) -> Id {
-            Id::from_u64(1)
-        }
-        fn record(&self, _: &Id, _: &Record<'_>) {}
-        fn record_follows_from(&self, _: &Id, _: &Id) {}
-        fn event(&self, event: &Event<'_>) {
-            let metadata = event.metadata();
-            let mut collector = FieldCollector {
-                sink: String::new(),
-            };
-            event.record(&mut collector);
-            self.events
-                .lock()
-                .expect("event lock not poisoned")
-                .push((metadata.target().to_string(), collector.sink));
-        }
-        fn enter(&self, _: &Id) {}
-        fn exit(&self, _: &Id) {}
-    }
-
-    fn seed_span(conn: &Connection, service_name: &str, ts_ns: i64, span_byte: u8) {
-        conn.execute(
-            "INSERT INTO spans (trace_id, span_id, ts, ts_unix_nano, service_name, end_time_unix_nano, status_code) VALUES (?, ?, '2026-05-11T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?)",
-            duckdb::params![
-                vec![1u8; 16],
-                vec![span_byte; 8],
-                ts_ns,
-                service_name,
-                ts_ns + 1_000_000,
-                0i32,
-            ],
-        )
-        .expect("insert span");
-    }
-
-    #[test]
-    fn preset_prompts_returns_all_four_canonical_entries() {
-        let p = preset_prompts();
-        assert_eq!(p.len(), 4);
-        let ids: Vec<&str> = p.iter().map(|d| d.id.as_str()).collect();
-        assert!(ids.contains(&"diagnose-latency-outlier"));
-        assert!(ids.contains(&"find-error-correlation"));
-        assert!(ids.contains(&"trace-failed-request"));
-        assert!(ids.contains(&"summarize-service-health"));
-    }
-
-    #[test]
-    fn preset_label_maps_each_variant_to_lowercase_string() {
-        assert_eq!(preset_label(SnapshotPreset::Conservative), "conservative");
-        assert_eq!(preset_label(SnapshotPreset::Balanced), "balanced");
-        assert_eq!(preset_label(SnapshotPreset::Detailed), "detailed");
-    }
-
-    #[test]
-    fn preset_to_budget_maps_each_variant_to_matching_budget() {
-        assert_eq!(
-            preset_to_budget(SnapshotPreset::Conservative),
-            TokenBudget::Conservative
-        );
-        assert_eq!(
-            preset_to_budget(SnapshotPreset::Balanced),
-            TokenBudget::Balanced
-        );
-        assert_eq!(
-            preset_to_budget(SnapshotPreset::Detailed),
-            TokenBudget::Detailed
-        );
-    }
-
-    #[tokio::test]
-    async fn generate_returns_storage_error_when_conn_is_none() {
-        let temp_dir = tempfile::TempDir::new().expect("tempdir");
-        let impl_ = SnapshotApiImpl::new(None, temp_dir.path().to_path_buf());
-        match impl_.generate(SnapshotPreset::Balanced, None).await {
-            Err(AppError::Storage { message }) => assert_eq!(message, "buffer unavailable"),
-            other => panic!("expected Storage(buffer unavailable), got {other:?}"),
-        }
-    }
-
-    #[tokio::test]
-    async fn generate_emits_three_canonical_tracing_targets_on_success() {
-        let conn = Connection::open_in_memory().expect("in-memory DuckDB");
-        buffer::create_schema(&conn).expect("schema create");
-        let now_ns = chrono::Utc::now()
-            .timestamp_nanos_opt()
-            .expect("nanos in range");
-        seed_span(&conn, "checkout", now_ns - 1_000_000_000, 1);
-        seed_span(&conn, "checkout", now_ns - 2_000_000_000, 2);
-
-        let temp_dir = tempfile::TempDir::new().expect("tempdir");
-        let impl_ = SnapshotApiImpl::new(
-            Some(Arc::new(Mutex::new(conn))),
-            temp_dir.path().to_path_buf(),
-        );
-
-        let events: Arc<Mutex<Vec<(String, String)>>> = Arc::new(Mutex::new(Vec::new()));
-        let subscriber = CapturingSubscriber {
-            events: events.clone(),
-        };
-        let guard = tracing::subscriber::set_default(subscriber);
-        let dto = impl_
-            .generate(SnapshotPreset::Balanced, None)
-            .await
-            .expect("generate ok");
-        drop(guard);
-
-        assert_eq!(dto.preset_prompts.len(), 4);
-        assert!(dto.markdown_path_basename.ends_with(".md"));
-        assert!(dto.json_path_basename.ends_with(".json"));
-
-        let captured = events.lock().expect("lock").clone();
-        for required in [
-            "snapshot.generate.request",
-            "snapshot.clipboard.write",
-            "snapshot.notification.dispatch",
-        ] {
-            assert!(
-                captured.iter().any(|(t, _)| t == required),
-                "expected target `{required}` in captured events: {captured:?}"
-            );
-        }
-    }
-
-    #[tokio::test]
-    async fn generate_writes_dual_md_and_json_files_under_data_dir_snapshots() {
-        let conn = Connection::open_in_memory().expect("in-memory DuckDB");
-        buffer::create_schema(&conn).expect("schema create");
-
-        let temp_dir = tempfile::TempDir::new().expect("tempdir");
-        let impl_ = SnapshotApiImpl::new(
-            Some(Arc::new(Mutex::new(conn))),
-            temp_dir.path().to_path_buf(),
-        );
-        let dto = impl_
-            .generate(SnapshotPreset::Conservative, None)
-            .await
-            .expect("generate ok");
-
-        let snapshots_dir = temp_dir.path().join("snapshots");
-        assert!(snapshots_dir.exists(), "snapshots dir must be created");
-        assert!(
-            snapshots_dir.join(&dto.markdown_path_basename).exists(),
-            "md file `{}` must exist under {snapshots_dir:?}",
-            dto.markdown_path_basename
-        );
-        assert!(
-            snapshots_dir.join(&dto.json_path_basename).exists(),
-            "json file `{}` must exist under {snapshots_dir:?}",
-            dto.json_path_basename
-        );
-    }
-
-    #[tokio::test]
-    async fn generate_does_not_log_snapshot_or_clipboard_or_workspace_path_canaries() {
-        let canary = "secret-canary-API-key-12345-service";
-        let conn = Connection::open_in_memory().expect("in-memory DuckDB");
-        buffer::create_schema(&conn).expect("schema create");
-        let now_ns = chrono::Utc::now()
-            .timestamp_nanos_opt()
-            .expect("nanos in range");
-        seed_span(&conn, canary, now_ns - 1_000_000_000, 1);
-
-        let temp_dir = tempfile::TempDir::new().expect("tempdir");
-        let impl_ = SnapshotApiImpl::new(
-            Some(Arc::new(Mutex::new(conn))),
-            temp_dir.path().to_path_buf(),
-        );
-
-        let events: Arc<Mutex<Vec<(String, String)>>> = Arc::new(Mutex::new(Vec::new()));
-        let subscriber = CapturingSubscriber {
-            events: events.clone(),
-        };
-        let guard = tracing::subscriber::set_default(subscriber);
-        let _ = impl_.generate(SnapshotPreset::Balanced, None).await;
-        drop(guard);
-
-        let captured = events.lock().expect("lock").clone();
-        for (target, fields) in captured.iter() {
-            assert!(
-                !target.contains(canary),
-                "canary leaked into tracing target: {target}"
-            );
-            assert!(
-                !fields.contains(canary),
-                "canary leaked into tracing fields ({target}): {fields}"
-            );
-        }
-    }
-}
+// Tests migrated to `pulse-app/tests/unit_snapshot_runtime.rs` — a src-level `mod tests`
+// compiles but never runs under `[lib] test = false` (2026-05-20 precedent).

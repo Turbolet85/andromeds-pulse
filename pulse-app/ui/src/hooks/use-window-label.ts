@@ -13,10 +13,15 @@
 import { useState } from "react";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 
-export type WindowLabel = "compact-widget" | "main" | "unknown";
+export type WindowLabel = "compact-widget" | "main" | "findings" | "report" | "unknown";
 
 export function sanitizeWindowLabel(label: string): WindowLabel {
-  if (label === "compact-widget" || label === "main") {
+  if (
+    label === "compact-widget" ||
+    label === "main" ||
+    label === "findings" ||
+    label === "report"
+  ) {
     return label;
   }
   return "unknown";

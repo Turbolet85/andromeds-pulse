@@ -314,7 +314,7 @@ Pulse adapts its operational guarantees based on detected hardware capability. T
 
 | Profile | Hardware | Primary Tier Inference | Tier-1 SLO | Tier-2 SLO | Tier-3 SLO |
 |---|---|---|---|---|---|
-| `gpu-primary` | ≥16GB VRAM | 1-3s | < 5s | < 20s | < 90s |
+| `gpu-primary` | ≥16GB VRAM | ~5-7.5s | < 10s | < 20s | < 90s |
 | `gpu-fallback` | 4-8GB VRAM | (fallback model) | < 3s | < 15s | < 90s |
 | `cpu-primary` | No GPU, primary model | 10-30s | < 30s (degraded) | **disabled** | < 90s |
 | `cpu-fallback` | No GPU, fallback model | 3-8s | < 15s | < 30s | < 90s |
@@ -528,7 +528,7 @@ Three concurrent priority tiers govern pipeline rhythm. SLO targets depend on ha
 
 **Behavior:** Immediate L3 digest assembly + L4 invocation, bypassing cadence wait. Queue position 1 (interrupts cadence-mode if currently queued; does not interrupt mid-inference).
 
-**SLO:** Profile-dependent. < 5s on `gpu-primary`, < 30s on `cpu-primary`, etc.
+**SLO:** Profile-dependent. < 10s on `gpu-primary`, < 30s on `cpu-primary`, etc.
 
 ### Tier 2 — Medium-priority cue / Accelerated
 
@@ -857,11 +857,11 @@ CREATE VIEW recent_red_metrics AS ...;
 | L1a Q7 latency (p99) | < 200ms | Explicit timeout |
 | L1a Q7 fallback rate | < 5% | |
 | L3 digest assembly latency | < 100ms | |
-| L4 inference latency (primary, GPU p99) | 1-3s | |
+| L4 inference latency (primary, GPU p99) | < 10s | |
 | L4 inference latency (primary, CPU p99) | 10-30s | |
 | L4 inference latency (fallback, GPU p99) | < 1s | |
 | L4 inference latency (fallback, CPU p99) | 3-8s | |
-| End-to-end Tier-1 (gpu-primary) | < 5s p99 | |
+| End-to-end Tier-1 (gpu-primary) | < 10s p99 | |
 | End-to-end Tier-1 (cpu-primary) | < 30s p99 | Degraded SLO |
 | End-to-end Tier-2 (gpu-primary) | < 20s p99 | |
 | End-to-end Tier-2 (cpu-primary) | disabled | Falls through to Tier-3 |

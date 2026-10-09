@@ -33,20 +33,22 @@ pub use crate::baseline::{
 // `DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE` + `DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS`
 // + `DEFAULT_RESTART_GAP_THRESHOLD_SECONDS` +
 // `DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS` +
-// `DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS` cover the new
+// `DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SAMPLES` cover the new
 // `Thresholds` fields wired through `dual_condition_bypass` + the
 // `pattern::suppression` filter.
 pub use crate::cue::{
     AttentionCueBroadcast, BROADCAST_CAPACITY, CHANNEL_NAME_CADENCE_TRIGGERS,
-    CadenceTriggerChannel, DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE, DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,
+    CUE_LATCH_REFRACTORY_NANOS, CadenceTriggerChannel, CueLatch,
+    DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE, DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,
     DEFAULT_BASE_ERROR_RATE, DEFAULT_BASE_LATENCY_MS, DEFAULT_BOOTSTRAP_WINDOW_SECONDS,
     DEFAULT_ERROR_RATE_MULTIPLIER, DEFAULT_LATENCY_MULTIPLIER, DEFAULT_LATENCY_PERCENTILE,
     DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER, DEFAULT_MIN_PERSISTENCE_SECONDS,
     DEFAULT_QUIET_DURATION_PERCENTILE, DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
-    DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS, DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
-    DEFAULT_TICK_INTERVAL, MIN_EWMA_SAMPLES, MIN_LATENCY_SAMPLES, STREAM_NAME_ATTENTION_CUES,
-    Thresholds, ThresholdsError, classify_priority, dual_condition_bypass,
-    evaluate_service_went_silent, evaluate_thresholds, run_one_emit_cycle, start_emitter,
+    DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS, DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SAMPLES,
+    DEFAULT_TICK_INTERVAL, LatchOutcome, MIN_EWMA_SAMPLES, MIN_LATENCY_SAMPLES,
+    STREAM_NAME_ATTENTION_CUES, Thresholds, ThresholdsError, classify_priority,
+    dual_condition_bypass, evaluate_service_went_silent, evaluate_thresholds, run_one_emit_cycle,
+    start_emitter,
 };
 
 // Chunk #63 — restart event detector + dual-condition bypass. Re-export
@@ -75,12 +77,13 @@ pub use crate::pattern::{
 // `pattern` + `lifecycle` (all equal 32).
 pub use crate::incident::{
     DEFAULT_INCIDENT_ACK_COOLDOWN_SECS, DEFAULT_INCIDENT_AUTO_RESOLVE_WINDOW_SECS,
-    DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS, INCIDENT_PERSISTENCE_KIND, InMemoryIncidentRegistry,
-    IncidentError, IncidentLifecycleBroadcast, IncidentLifecycleEvent, IncidentPersistence,
-    IncidentRecordPayload, IncidentRegistry, IncidentRegistryError, ResolutionTrigger,
-    STREAM_NAME_INCIDENTS, TARGET_INCIDENT_PERSIST, TARGET_INCIDENT_PERSIST_ERROR,
-    cooldown_expiry_unix_nano, is_valid_incident_transition, run_incident_persist_cycle,
-    run_incident_persist_loop, should_auto_resolve, status_label as incident_status_label,
+    DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS, DurableActiveIncidents, INCIDENT_PERSISTENCE_KIND,
+    INCIDENT_RECONCILE_KIND, InMemoryIncidentRegistry, IncidentError, IncidentLifecycleBroadcast,
+    IncidentLifecycleEvent, IncidentPersistence, IncidentRecordPayload, IncidentRegistry,
+    IncidentRegistryError, IncidentWriteOutcome, ResolutionTrigger, STREAM_NAME_INCIDENTS,
+    TARGET_INCIDENT_PERSIST, TARGET_INCIDENT_PERSIST_ERROR, cooldown_expiry_unix_nano,
+    is_valid_incident_transition, run_incident_persist_cycle, run_incident_persist_loop,
+    should_auto_resolve, status_label as incident_status_label, tier_effective_at,
 };
 
 // Chunk #67 — service registry + lifecycle state machine. Re-export
@@ -109,15 +112,16 @@ pub use crate::cadence::{
     CADENCE_ACCELERATED_SECONDS_MIN, CADENCE_BASELINE_SECONDS_MIN, CADENCE_REFLECTION_SECONDS_MIN,
     CadenceConfig, CadenceConfigError, CadenceCoordinator, CadenceEvent, CadenceEventBroadcast,
     CadenceMode, CoordinatorCycleStats, DEFAULT_CADENCE_ACCELERATED_SECONDS,
-    DEFAULT_CADENCE_BASELINE_SECONDS, DEFAULT_CADENCE_REFLECTION_SECONDS, HardwareProfile,
-    HardwareProfileSource, STREAM_NAME_CADENCE_EVENTS, SqlQueryRunner, UnknownHardwareProfile,
-    mode_label, run_one_coordinator_cycle, start_cadence_coordinator,
+    DEFAULT_CADENCE_BASELINE_SECONDS, DEFAULT_CADENCE_REFLECTION_SECONDS, DigestTrigger,
+    DigestTriggerBroadcast, HardwareProfile, HardwareProfileSource, STREAM_NAME_CADENCE_EVENTS,
+    SqlQueryRunner, UnknownHardwareProfile, mode_label, run_one_coordinator_cycle,
+    start_cadence_coordinator,
 };
 
 // Chunk #79 — L1a SQL aggregation queries. Re-export to enable chunk #80
 // Cadence Coordinator's `SqlQueryRunner` adapter at the binary boundary
 // (`pulse-app/src/cadence_runner.rs`) to construct the runner over
-// `TriageSqlState` без directly reaching into `triage::baseline`. Mirrors
+// `TriageSqlState` without directly reaching into `triage::baseline`. Mirrors
 // chunk #62 pattern of contract-as-single-import-surface for pulse-app.
 pub use crate::baseline::{
     Q1RedRow, Q2OperationRow, Q3FingerprintRow, Q4InteractionRow, Q5CardinalityRow, Q6LogRow,
@@ -132,17 +136,41 @@ pub use crate::baseline::{
 // Capabilities P-031 / P-032 / P-044 / P-059.
 pub use crate::digest::{
     ACTIVE_INCIDENT_QUEUE_CAP, Assembler, BROADCAST_CAPACITY as DIGEST_BROADCAST_CAPACITY,
-    CORPUS_RETRIEVAL_WINDOW_SECONDS, CorpusIncidentSource, DIGEST_CORPUS_RETRIEVAL_LIMIT,
-    DIGEST_TOKEN_BUDGET_HARD_CAP, DIGEST_TOKEN_BUDGET_SOFT_MAX, DIGEST_TOKEN_BUDGET_SOFT_MIN,
-    DigestAssembler, DigestBroadcast, DigestError, DigestFuture, LwwQueue,
+    CORPUS_RETRIEVAL_WINDOW_SECONDS, CorpusIncidentSource, DAMPER_CUE_EVICTION_SECONDS,
+    DAMPER_INTERVAL_EVICTION_SECONDS, DIGEST_CORPUS_RETRIEVAL_LIMIT, DIGEST_TOKEN_BUDGET_HARD_CAP,
+    DIGEST_TOKEN_BUDGET_SOFT_MAX, DIGEST_TOKEN_BUDGET_SOFT_MIN, DamperVerdict, DigestAssembler,
+    DigestBroadcast, DigestError, DigestFuture, GenerateReason, GenerationDamper, LwwQueue,
     NoopCorpusIncidentSource, QueueAction, RetrievalError, RetrievalFuture, STREAM_NAME_DIGESTS,
     TARGET_DIGEST_ASSEMBLE, TARGET_DIGEST_CORPUS_RETRIEVE, TARGET_DIGEST_LWW_DROP,
     TARGET_DIGEST_LWW_REPLACE, TARGET_DIGEST_TOKEN_COUNT_VALIDATE,
     TARGET_METRIC_ACTIVE_INCIDENT_QUEUE_DEPTH, TARGET_METRIC_DIGEST_TOKEN_COUNT_MS,
     TARGET_METRIC_LWW_DROP_COUNT_TOTAL, TIER1_QUEUE_CAP,
     assembler::{DigestProjectContext, DigestRecentCommit},
-    format_corpus_match_line, select_corpus_matches, select_previously_seen,
+    format_corpus_match_line, generate_reason_label, select_corpus_matches, select_previously_seen,
 };
+#[doc(hidden)]
+pub use crate::digest::{
+    CORPUS_MATCHES_FRAMING_NOTE, TRIGGER_LINE_PREFIX, cue_summary, render_payload,
+};
+
+/// Lowercase-hex encode raw fingerprint bytes (the `{b:02x}` shape used
+/// across the workspace's fingerprint surfaces).
+///
+/// Lives here rather than in either consumer because BOTH sides of a
+/// fingerprint comparison must encode identically: the digest assembler
+/// builds the current-window set from Q3 `span_events.fingerprint` bytes,
+/// and the storm detector stamps the same encoding onto the cue that
+/// becomes `Incident.fingerprint`. One function makes that agreement
+/// structural. Note `pattern::storm::fingerprint_to_hex_prefix` is a
+/// DIFFERENT, deliberately narrower encoder (4 bytes, for bounded-
+/// cardinality tracing per obs-plan §5) — not interchangeable with this one.
+pub(crate) fn hex_lower(bytes: &[u8]) -> String {
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for b in bytes {
+        out.push_str(&format!("{b:02x}"));
+    }
+    out
+}
 
 /// Kind of detected condition emitted as an attention cue. Bounded
 /// enumeration; future kinds are added explicitly (no `Other(String)`
@@ -171,10 +199,24 @@ pub enum CueKind {
     ReflectionTrend,
 }
 
+/// Human-readable cause label for a cue kind, prefixed onto incident titles
+/// so an incident names its trigger whatever the model wrote. ASCII only: it
+/// reaches the L4 prompt through digest corpus-match lines (argv transport).
+pub fn cue_cause_label(kind: CueKind) -> &'static str {
+    match kind {
+        CueKind::ErrorRateSpike => "Error-rate spike",
+        CueKind::LatencyRegression => "Latency regression",
+        CueKind::RestartEvent => "Restart event",
+        CueKind::ServiceWentSilent => "Service went silent",
+        CueKind::RetryStorm => "Retry storm",
+        CueKind::ReflectionTrend => "Reflection trend",
+    }
+}
+
 /// Scope an attention cue applies to: a single service, a single operation
 /// within a service, or the global pipeline. Bounded enumeration; variants
 /// serialize as snake_case strings. Chunk #78 added `Hash` derive +
-/// cfg-gated `specta::Type` derive (parallel к `CueKind`).
+/// cfg-gated `specta::Type` derive (parallel to `CueKind`).
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -205,7 +247,7 @@ pub enum PriorityTier {
 /// serialize as snake_case strings. Chunk #78 added cfg-gated
 /// `specta::Type` derive (for cross-bridge `IncidentRecord` resolver
 /// envelope). The TypeScript binding is renamed `IncidentSeverity`
-/// к disambiguate from `ingest::connection::Severity` (same identifier,
+/// to disambiguate from `ingest::connection::Severity` (same identifier,
 /// distinct domain — connection severity vs incident severity); specta
 /// rejects duplicate type names across the bindings.ts emission.
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
@@ -234,6 +276,22 @@ pub enum IncidentStatus {
     Resolved,
 }
 
+/// `incident_events.event_kind` the L4 incident producer writes when it opens
+/// an incident; every later row is the status label of a value change.
+pub const INCIDENT_EVENT_CREATED: &str = "created";
+
+/// The closed `incident_events.event_kind` vocabulary: the creation event plus
+/// one label per `IncidentStatus`. The producer writes from it and the MCP read
+/// surface coerces against it, so neither can learn a kind the other lacks.
+pub fn incident_event_kinds() -> [&'static str; 4] {
+    [
+        INCIDENT_EVENT_CREATED,
+        incident_status_label(IncidentStatus::Active),
+        incident_status_label(IncidentStatus::Acknowledged),
+        incident_status_label(IncidentStatus::Resolved),
+    ]
+}
+
 /// Kind of digest emitted at the L3/L4 layer boundary. Bounded enumeration;
 /// future kinds are added explicitly. Variants serialize as snake_case
 /// strings.
@@ -241,7 +299,7 @@ pub enum IncidentStatus {
 /// Chunk #81 extension: cadence-mode tier variants
 /// (`CadenceTier1`/`Tier2`/`Tier3`/`Reflection`) + `ResolutionSummary`
 /// per dist-arch v3 §L3 invocation modes + §Queue behavior.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DigestKind {
     Snapshot,
@@ -295,8 +353,14 @@ pub struct AttentionCue {
     /// Absolute value of the detected metric (e.g., absolute error rate
     /// as a fraction; absolute p95 latency in milliseconds).
     pub absolute_value: f64,
-    /// How long the condition has persisted, in seconds.
-    pub persistence_seconds: u64,
+    /// How long the condition has persisted, in FAMILY-SPECIFIC units:
+    /// the spike families (error-rate / latency) assign the EWMA SAMPLE
+    /// count observed so far; the silence family assigns quiet SECONDS.
+    /// Renamed from `persistence_seconds` 2026-08-30 — that name lied for
+    /// two of the three producing families, and the `>= 30` Autonomous
+    /// gate in `classify_priority` therefore gates on 30 samples for
+    /// spikes (values unchanged by the rename).
+    pub persistence: u64,
     /// Detector confidence in (0.0, 1.0].
     pub confidence: f64,
     /// Priority tier assigned by the detector based on magnitude +
@@ -306,6 +370,20 @@ pub struct AttentionCue {
     /// (e.g., `magnitude > 10x` baseline OR `absolute_error_rate > 5%`
     /// overrides restart-window suppression).
     pub suppression_bypassed: bool,
+    /// Lowercase-hex L1 exception fingerprint of the fault that triggered
+    /// this cue, when the detector has one. Threaded structurally so the
+    /// incident-creation producer can populate `Incident.fingerprint` with
+    /// the anonymized grouping hash its contract and consumers expect,
+    /// instead of the model-authored `L4Output.fingerprint`.
+    ///
+    /// `None` for baseline-derived families (silence / error-rate /
+    /// latency), which detect a statistical condition rather than a
+    /// specific fault and so have no fingerprint in scope. Encoded via
+    /// [`hex_lower`] over the full 16 bytes — the SAME encoding the digest
+    /// assembler applies to Q3 rows, which is what lets
+    /// `select_corpus_matches` match the two.
+    #[serde(default)]
+    pub fingerprint: Option<String>,
 }
 
 /// User-visible incident produced when the model interprets an attention
@@ -323,13 +401,13 @@ pub struct AttentionCue {
 /// `read_at_unix_nano` (Report-opening event mutation; column exists in
 /// chunk #68 schema but UI trigger lands in chunk #87+).
 ///
-/// `id` is the corpus rowid (i64) assigned по `INSERT INTO incidents`;
+/// `id` is the corpus rowid (i64) assigned by `INSERT INTO incidents`;
 /// 0 = unpersisted sentinel for in-memory drafts. The `fingerprint`
 /// field is the UUID-shaped cross-incident grouping identifier (separate
 /// from id).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Incident {
-    /// Corpus rowid assigned по INSERT. 0 = unpersisted sentinel.
+    /// Corpus rowid assigned by INSERT. 0 = unpersisted sentinel.
     pub id: i64,
     /// Workspace attribution; canonicalized path from workspace-detector
     /// at the producer side. Per security plan §Anti-Patterns Input row
@@ -372,7 +450,7 @@ pub struct Incident {
     pub priority_tier: PriorityTier,
     pub evidence_refs: EvidenceRefs,
     pub opened_at_unix_nano: i64,
-    /// Re-emission timestamp; bumped по `IncidentRegistry::observe_reemission`.
+    /// Re-emission timestamp; bumped by `IncidentRegistry::observe_reemission`.
     /// The auto-resolve evaluator at chunk #78
     /// `pulse-app/src/incident_observer.rs` compares
     /// `now - updated_at_unix_nano >= 120s` and transitions Active /
@@ -381,13 +459,20 @@ pub struct Incident {
     pub acknowledged_at_unix_nano: Option<i64>,
     pub resolved_at_unix_nano: Option<i64>,
     pub read_at_unix_nano: Option<i64>,
-    /// L4-generated summary attached on Resolved transition per capability
-    /// spec P-022 + P-059 (chunk #86). `#[serde(default)]` keeps pre-chunk-#86
-    /// persisted rows deserializable (backward-compat for corpus BLOB payloads
-    /// authored by chunk #78 persist cycle). MUST be populated via the
-    /// `IncidentRegistry::attach_resolution_summary` API path так что
-    /// `security::scrubber::scrub_attribute` runs before persistence per
-    /// chunk #72 uniform-coverage invariant.
+    /// The LATEST cleanly-parsed L4 interpretation, JSON-serialized —
+    /// attached at incident creation and refreshed on every deduped
+    /// re-generation (chunk 2026-08-26 interpretation-brief-completeness),
+    /// so `incidents.get_report` renders the model's content for LIVE
+    /// incidents. The resolution-summary generation (chunk #86, P-022 +
+    /// P-059), when it fires, is the FINAL write. Field name unchanged for
+    /// bincode wire compat (`#[serde(default)]` keeps pre-chunk-#86 JSON
+    /// payloads deserializable; the corpus BLOB codec is bincode, where a
+    /// shape change would fail the whole hydration load). Every write path
+    /// scrubs via `security::scrubber::scrub_attribute` BEFORE persistence
+    /// per the chunk #72 uniform-coverage invariant: creation sets the
+    /// pre-scrubbed JSON directly; refresh goes through
+    /// `IncidentRegistry::attach_interpretation_summary`; resolution goes
+    /// through `IncidentRegistry::attach_resolution_summary`.
     #[serde(default)]
     pub resolution_summary_text: Option<String>,
 }
@@ -441,7 +526,7 @@ fn default_digest_cue_scope() -> CueScope {
     CueScope::Global
 }
 
-/// Compact attention-cue reference embedded in а digest's ATTENTION CUES
+/// Compact attention-cue reference embedded in a digest's ATTENTION CUES
 /// section. Carries enumerated cue kind + scope-summary string (NOT raw
 /// OTLP attributes — scrubbed at producer).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -456,6 +541,23 @@ pub struct DigestCueRef {
     /// archived digest BLOBs deserializable.
     #[serde(default = "default_digest_cue_scope")]
     pub scope: CueScope,
+    /// Lowercase-hex L1 exception fingerprint carried from
+    /// `AttentionCue.fingerprint`, when the originating detector had one.
+    /// Threaded structurally so the incident-creation producer can populate
+    /// `Incident.fingerprint` with the grouping hash its contract and the
+    /// corpus-retrieval `fingerprint_match` arm expect. `None` for
+    /// baseline-derived families. `#[serde(default)]` keeps archived digest
+    /// BLOBs written before this field deserializable.
+    ///
+    /// Deliberately NOT routed through the scrub closure in
+    /// [`Digest::scrubbed_clone`], unlike `summary` and `scope_id`: the value
+    /// is a blake3 digest computed in-process from post-`prost`-validated
+    /// bytes, so it carries no user content by construction. Scrubbing it
+    /// would be a no-op on real values while risking corruption of all-digit
+    /// hex (the credit-card pattern matches 13-19 digit runs), which would
+    /// silently re-starve the retrieval arm this field exists to feed.
+    #[serde(default)]
+    pub fingerprint: Option<String>,
     /// Originating service attribution (`AttentionCue.scope_id`; chunk #92).
     /// Threaded structurally (not only folded into `summary`) so the producer
     /// can populate `Incident.scope_id` and light up the per-service severity
@@ -465,14 +567,14 @@ pub struct DigestCueRef {
     pub scope_id: Option<String>,
 }
 
-/// Output of the L3 distillation layer — а digest summarizing incidents,
+/// Output of the L3 distillation layer — a digest summarizing incidents,
 /// baselines, attention cues, services, and corpus matches for downstream
 /// L4 LLM consumption + corpus archival.
 ///
 /// Chunk #81 extension: adds workspace identification, window timestamps,
 /// SERVICES + ATTENTION CUES + CORPUS MATCHES structured fields, and
 /// LWW metadata (lww_mode + active_incident_bypass + resolution_event)
-/// per dist-arch v3 §Appendix C. f64 fields в `services` force dropping
+/// per dist-arch v3 §Appendix C. f64 fields in `services` force dropping
 /// the `Eq` derive (preserving `PartialEq`); existing tests use
 /// `assert_eq!` which works on `PartialEq`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -490,7 +592,7 @@ pub struct Digest {
     pub generated_at_unix_nano: i64,
     /// Workspace canonical path (chunk #81). Drives corpus filter +
     /// active-incident lookup. Pre-canonicalized at workspace-detector;
-    /// not scrubbed (workspace path is а first-party detected identifier,
+    /// not scrubbed (workspace path is a first-party detected identifier,
     /// not OTLP-attribute-derived).
     pub workspace: String,
     /// Window start (chunk #81). Used for corpus retention / replay.
@@ -508,16 +610,16 @@ pub struct Digest {
     /// LWW queue mode (chunk #81). Drives `LwwQueue::push` decision.
     pub lww_mode: DigestLwwMode,
     /// True if active-incident exception bypassed LWW (chunk #81 / P-059).
-    /// Mirrored as а discriminating field в `digest.lww.replace` events
+    /// Mirrored as a discriminating field in `digest.lww.replace` events
     /// per obs plan binding.
     pub active_incident_bypass: bool,
-    /// True if this digest captures а Resolved transition (chunk #81 /
+    /// True if this digest captures a Resolved transition (chunk #81 /
     /// P-022). L4 prompt uses this flag to generate resolution summary.
     pub resolution_event: bool,
 }
 
 impl Digest {
-    /// Apply а scrubbing closure к every OTLP-attribute-derived string
+    /// Apply a scrubbing closure to every OTLP-attribute-derived string
     /// field per chunk #72 cross-crate `scrubbed_clone` pattern (CLAUDE.md
     /// §Session Learnings 2026-05-20). Pulse-app side dep-injects
     /// `security::scrubber::scrub_attribute`-wrapping closure; this
@@ -560,6 +662,8 @@ impl Digest {
                     priority_tier: cue.priority_tier,
                     summary: scrub(&cue.summary),
                     scope: cue.scope,
+                    // Not scrubbed by construction — see `DigestCueRef::fingerprint`.
+                    fingerprint: cue.fingerprint.clone(),
                     scope_id: cue.scope_id.as_deref().map(&scrub),
                 })
                 .collect(),
@@ -574,6 +678,48 @@ impl Digest {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn incident_events_vocabulary_is_created_plus_each_status_label() {
+        assert_eq!(
+            incident_event_kinds(),
+            ["created", "active", "acknowledged", "resolved"]
+        );
+    }
+
+    fn every_cue_kind() -> [CueKind; 6] {
+        // Exhaustive: a new variant fails to compile here until listed.
+        let _ = |kind: CueKind| match kind {
+            CueKind::ErrorRateSpike
+            | CueKind::LatencyRegression
+            | CueKind::RestartEvent
+            | CueKind::ServiceWentSilent
+            | CueKind::RetryStorm
+            | CueKind::ReflectionTrend => (),
+        };
+        [
+            CueKind::ErrorRateSpike,
+            CueKind::LatencyRegression,
+            CueKind::RestartEvent,
+            CueKind::ServiceWentSilent,
+            CueKind::RetryStorm,
+            CueKind::ReflectionTrend,
+        ]
+    }
+
+    #[test]
+    fn cause_label_names_retry_only_for_retry_storm() {
+        for kind in every_cue_kind() {
+            let label = cue_cause_label(kind);
+            assert!(!label.is_empty(), "{kind:?} has a label");
+            assert!(label.is_ascii(), "{kind:?} label is ASCII: {label}");
+            assert_eq!(
+                label.to_lowercase().contains("retry"),
+                kind == CueKind::RetryStorm,
+                "{kind:?} names the retry iff it is a retry storm: {label}",
+            );
+        }
+    }
 
     fn sample_evidence_refs() -> EvidenceRefs {
         EvidenceRefs {
@@ -591,10 +737,11 @@ mod tests {
             scope_id: Some("checkout".to_string()),
             magnitude: 3.5,
             absolute_value: 0.075,
-            persistence_seconds: 45,
+            persistence: 45,
             confidence: 0.87,
             priority_tier: PriorityTier::Suggested,
             suppression_bypassed: false,
+            fingerprint: None,
         }
     }
 
@@ -645,6 +792,7 @@ mod tests {
                 priority_tier: PriorityTier::Suggested,
                 summary: "auth-service error rate 12.3% vs 0.8% baseline".to_string(),
                 scope: CueScope::Service,
+                fingerprint: None,
                 scope_id: Some("auth-service".to_string()),
             }],
             corpus_matches: vec!["fp-a3f9".to_string()],
@@ -903,6 +1051,52 @@ mod tests {
             serde_json::from_str(pre_chunk_86_json).expect("deserialize pre-chunk-#86 row");
         assert_eq!(parsed.resolution_summary_text, None);
         assert_eq!(parsed.id, 42);
+    }
+
+    #[test]
+    fn hex_lower_encodes_full_width_lowercase() {
+        assert_eq!(hex_lower(&[0xAA, 0x0F, 0x00]), "aa0f00");
+        assert_eq!(hex_lower(&[0xAB; 16]).len(), 32);
+    }
+
+    #[test]
+    fn scrubbed_clone_passes_cue_fingerprint_through_untouched() {
+        // The fingerprint is a blake3 digest computed in-process from
+        // post-`prost`-validated bytes — construction-exempt from scrubbing.
+        // A scrub pass here would be a no-op on real values but could redact an
+        // all-digit hex run, silently re-starving the retrieval arm this field
+        // exists to feed. Guarded so the exemption cannot be "tidied away".
+        let mut d = sample_digest();
+        d.attention_cues[0].fingerprint = Some("a3f91c0b7e2d4568a3f91c0b7e2d4568".to_string());
+
+        let scrubbed = d.scrubbed_clone(|_| "[redacted]".to_string());
+
+        assert_eq!(
+            scrubbed.attention_cues[0].fingerprint.as_deref(),
+            Some("a3f91c0b7e2d4568a3f91c0b7e2d4568"),
+            "fingerprint must survive the scrub closure byte-identical",
+        );
+        assert_eq!(
+            scrubbed.attention_cues[0].summary, "[redacted]",
+            "the closure must genuinely have run, or this test is vacuous",
+        );
+    }
+
+    #[test]
+    fn digest_cue_ref_deserializes_payload_without_fingerprint_field() {
+        // Archived `digest_archive` BLOBs written before the fingerprint field
+        // existed must stay deserializable via `#[serde(default)]`.
+        let pre_field_json = r#"{
+            "kind": "retry_storm",
+            "priority_tier": "suggested",
+            "summary": "retry storm scope_id=checkout",
+            "scope": "service",
+            "scope_id": "checkout"
+        }"#;
+        let parsed: DigestCueRef =
+            serde_json::from_str(pre_field_json).expect("deserialize pre-fingerprint cue ref");
+        assert_eq!(parsed.fingerprint, None);
+        assert_eq!(parsed.scope_id.as_deref(), Some("checkout"));
     }
 
     #[test]

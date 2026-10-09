@@ -1,0 +1,136 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%classify_priority%' ORDER BY file, line",
+"rows": 15,
+"result": [
+{
+"caller": "rust-analyzer cargo triage 0.1.0 contract/",
+"file": "crates/triage/src/contract.rs",
+"line": 48
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/classify/tests/classify_priority_decision_boundary().",
+"file": "crates/triage/src/cue/classify.rs",
+"line": 108
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/classify/tests/classify_priority_nan_inputs_return_curious().",
+"file": "crates/triage/src/cue/classify.rs",
+"line": 115
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/classify/tests/classify_priority_nan_inputs_return_curious().",
+"file": "crates/triage/src/cue/classify.rs",
+"line": 116
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/classify/tests/classify_priority_nan_inputs_return_curious().",
+"file": "crates/triage/src/cue/classify.rs",
+"line": 118
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/classify/tests/priority_tier_label_matches_serde_snake_case().",
+"file": "crates/triage/src/cue/classify.rs",
+"line": 203
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/classify/tests/priority_tier_label_matches_serde_snake_case().",
+"file": "crates/triage/src/cue/classify.rs",
+"line": 204
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/classify/tests/priority_tier_label_matches_serde_snake_case().",
+"file": "crates/triage/src/cue/classify.rs",
+"line": 205
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 9
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/emit_cue().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 318
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/evaluate/",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 2
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/evaluate/evaluate_thresholds().",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 55
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/evaluate/evaluate_thresholds().",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 113
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/evaluate/evaluate_service_went_silent().",
+"file": "crates/triage/src/cue/evaluate.rs",
+"line": 187
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/",
+"file": "crates/triage/src/cue/mod.rs",
+"line": 28
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%save_incident_event%' ORDER BY file, line",
+"rows": 3,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 incident_persistence/impl#[CorpusIncidentPersistence][IncidentPersistence]save_incident_event().",
+"file": "pulse-app/src/incident_persistence.rs",
+"line": 175
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/create_incident_from_l4_output().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 899
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 impl#[InterleavingPersistence][IncidentPersistence]save_incident_event().",
+"file": "pulse-app/tests/integration_incident_write_guard.rs",
+"line": 116
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'corpus' OR to_crate = 'buffer' ORDER BY from_crate",
+"rows": 5,
+"result": [
+{
+"from_crate": "mcp-server",
+"to_crate": "buffer"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "corpus"
+},
+{
+"from_crate": "pulse-app",
+"to_crate": "buffer"
+},
+{
+"from_crate": "pulse-app",
+"to_crate": "corpus"
+},
+{
+"from_crate": "ui-bridge",
+"to_crate": "buffer"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

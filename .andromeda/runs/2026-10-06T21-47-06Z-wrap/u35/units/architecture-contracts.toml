@@ -1,0 +1,24 @@
+# architecture.md ## Infrastructure Patterns — the keyed-contract index (U35). Ask registry.py contracts; never read whole.
+schema = 1
+master = "architecture.md"
+section = "## Infrastructure Patterns"
+
+[[row]]
+key = "Build system"
+file = "contracts/architecture/build-system.md"
+labels = []
+
+[[row]]
+key = "Deployment model"
+file = "contracts/architecture/deployment-model.md"
+labels = []
+
+[[row]]
+key = "Project directory structure"
+file = "contracts/architecture/project-directory-structure.md"
+labels = []
+
+[[row]]
+key = "CI/CD approach"
+file = "contracts/architecture/ci-cd-approach.md"
+labels = []

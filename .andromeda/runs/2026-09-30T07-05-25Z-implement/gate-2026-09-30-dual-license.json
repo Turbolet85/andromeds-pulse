@@ -1,0 +1,1621 @@
+[
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T07:12:33Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/plan.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T07-05-25Z-implement",
+"--marker",
+"2026-09-30-dual-license"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell C:\\Program Files\\Git\\bin\\bash.exe (from $SHELL; -c, non-login)",
+"root D:\\dev\\projects\\andromeda-pulse · marker 2026-09-30-dual-license · entries 22",
+"logs C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z · bound: GNU timeout",
+"delta docs 30 · rust 3 · ts 2 · unmapped 3",
+"prose L115-119: **Order is load-bearing.** `cargo xtask capability-drift` runs BEFORE the default-features… (545 chars)",
+"prose L121-124: This departs from test-plan §3's \"`capability-drift` runs LAST\" wording, and the departure… (416 chars)",
+"prose L126-141: - **Webview gates:** `npm run lint` / `typecheck` / `test` are listed because the chunk to… (1467 chars)",
+"  1 lint        green · exit 0 · 0.82s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 70.82s · 1341 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 unit        green · exit 0 · 3.28s · 288765 B → 3.log · cargo nextest run --workspace --profile ci -E 'test(/licen… (72 chars)",
+"  4 probe       green · exit 0 · 0.07s · 95 B → 4.log · md5sum LICENSE-MIT LICENSE-APACHE",
+"  5 probe       green · exit 0 · 1.69s · 9454 B → 5.log · cargo deny check bans licenses sources",
+"  6 probe       green · exit 0 · 18.95s · 550 B → 6.log · cargo xtask check:npm-supply-chain",
+"  7 probe       green · exit 0 · 0.07s · 0 B → 7.log · git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983… (140 chars)",
+"  8 probe       recorded · exit 0 · 0.07s · 151 B → 8.log · git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983… (124 chars)",
+"  9 probe       green · exit 0 · 0.65s · 382 B → 9.log · cargo xtask capability-widening-check",
+" 10 probe       green · exit 0 · 6.43s · 75 B → 10.log · cargo xtask check:ingest-progress",
+" 11 probe       green · exit 0 · 0.78s · 342 B → 11.log · cargo xtask check:staged-artifacts",
+" 12 probe       green · exit 0 · 0.78s · 702 B → 12.log · cargo xtask capability-drift",
+" 13 unit        red · exit 0 ✗ (exit 100) · exit 100 · 22.62s · 577000 B → 13.log · cargo nextest run --workspace --profile ci",
+" 14 build       green · exit 0 · 69.21s · 1003 B → 14.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 15 probe       green · exit 0 · 0.15s · 0 B → 15.log · git diff --quiet 1dfca7412b0026cfbb5221ebf460bb5665983f9e … (95 chars)",
+" 16 lint        green · exit 0 · 3.69s · 45 B → 16.log · npm run lint --prefix pulse-app/ui",
+" 17 lint        green · exit 0 · 2.97s · 54 B → 17.log · npm run typecheck --prefix pulse-app/ui",
+" 18 unit        green · exit 0 · 8.19s · 46893 B → 18.log · npm run test --prefix pulse-app/ui",
+" 19 probe       not run — leg operator (the letter drives it) · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (84 chars)",
+" 20 integration not run — leg operator (the letter drives it) · cargo xtask pre-push:linux",
+" 21 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 22 probe       not run — leg operator (the letter drives it) · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (108 chars)",
+"entries 22 · green 16 · red 1 (13) · recorded 1 · timeout 0 · not-run 4"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-09-30-dual-license",
+"plan": "D:\\dev\\projects\\andromeda-pulse\\andromeda-pulse-0.3.0\\chunks\\2026-09-30-dual-license\\plan.md",
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"shell": "C:\\Program Files\\Git\\bin\\bash.exe",
+"out_dir": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z",
+"delta": {
+"docs": [
+".andromeda/friction-log.ndjson",
+".andromeda/master-route.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/evolve-2026-09-29-scrubber-path-false-positive.json",
+".claude/session-handoff.md",
+"andromeda-pulse-0.3.0/working-route.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/a11y.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/arch-history.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/arch.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/ci-no-marker.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/design.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/evolve-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/gate-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/layouts.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/master-record.txt",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/matrix-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/obs.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/planlint-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/registry-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/route-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/route-no-marker.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/security-history.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/security.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/sidecar-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/tests-history.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/tests.md",
+".andromeda/runs/2026-09-30T07-05-25Z-implement/evolve-2026-09-30-dual-license.json",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/evidence/witness-readings.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/plan.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/research.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/scope.md"
+],
+"rust": [
+"Cargo.toml",
+"xtask/src/main.rs",
+"xtask/src/license_check.rs"
+],
+"ts": [
+"pulse-app/ui/package-lock.json",
+"pulse-app/ui/package.json"
+]
+},
+"unmapped": [
+".github/workflows/update-channels.yml",
+"LICENSE-APACHE",
+"LICENSE-MIT"
+],
+"prose": [
+{
+"from": 115,
+"to": 119,
+"text": "**Order is load-bearing.** `cargo xtask capability-drift` runs BEFORE the default-features `cargo nextest run --workspace` (operator directive 2026-09-30). That run rewrites `pulse-app/ui/src/bindings/index.ts` to the no-mcp shape, the recurrence recorded in the handoff's deferred `recurrence-despite-learning`. The `--features mcp-server` `emit_taurpc_bindings` regen follows the workspace run as the last cargo-adjacent entry. A base-named probe then asserts the bindings end byte-identical to `1dfca74`, because this chunk adds no procedure."
+},
+{
+"from": 121,
+"to": 124,
+"text": "This departs from test-plan §3's \"`capability-drift` runs LAST\" wording, and the departure is recorded here and as an expected amendment. It is safe because the targeted witness selector runs only tests whose names match `license_check::`, so it constructs no TauRPC router and cannot regenerate the bindings. `check:staged-artifacts`, and the staged half of `capability-drift`, read the git index, not the worktree."
+},
+{
+"from": 126,
+"to": 141,
+"text": "- **Webview gates:** `npm run lint` / `typecheck` / `test` are listed because the chunk touches   `pulse-app/ui/package.json` and the lockfile (test-plan §3, trigger `chunk-gate-baseline-coverage`). - **Boot smoke:** none. No boot-path file is touched: `tauri.conf.json` is not edited, per test-plan §3 Boot-smoke   gate. There is no live leg. - **Advisories:** `cargo deny check advisories` stays a separate observation and is not folded into the   `bans licenses sources` gate (`.claude/rules/security.md` 2026-08-17). It is not a gate here because this chunk   moves no dependency: the `Cargo.lock` probe asserts that. - **The mutation check** (Step 7) mutates the tree, so it is a one-shot, not an entry. The listed non-mutating   witness selector guards the property on every re-run. - **Check 4 (8) ordering, resolved:** the `capability-drift` entry precedes the bindings regen (`role = 'build'`) on   purpose. It reads the committed bindings BEFORE anything can clobber them. The regen exists only to repair what   the later default-features workspace nextest rewrites. The regenerated artifact's verifier is the base-named   `git diff --quiet … bindings/index.ts` entry after it, and `check:staged-artifacts` reads the index, which no cargo   run touches. - **The CI half is operator-driven:** the hygiene read, then the local pre-push gate, then the commit+push, then the   CI read of the pushed head. The last warm round was 25.5 min, so the wait is 2400 s."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.82,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\2.log",
+"bytes": 1341,
+"log_sha8": "0871e73b",
+"exit": 0,
+"seconds": 70.82,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci -E 'test(/license_check::/)' ",
+"run_sha8": "607bdb31",
+"expect": [
+"exit 0",
+"contains 4 tests run: 4 passed"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\3.log",
+"bytes": 288765,
+"log_sha8": "2a1d8de3",
+"exit": 0,
+"seconds": 3.28,
+"readings": [
+"exit 0 ✓",
+"contains '4 tests run: 4 passed' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "md5sum LICENSE-MIT LICENSE-APACHE",
+"run_sha8": "a3788754",
+"expect": [
+"exit 0",
+"contains 0d9a205d780c21cbd7c042a596b7c446",
+"contains 1836efb2eb779966696f473ee8540542"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\4.log",
+"bytes": 95,
+"log_sha8": "6ad6b436",
+"exit": 0,
+"seconds": 0.07,
+"readings": [
+"exit 0 ✓",
+"contains '0d9a205d780c21cbd7c042a596b7c446' ✓",
+"contains '1836efb2eb779966696f473ee8540542' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "cargo deny check bans licenses sources",
+"run_sha8": "7593f094",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\5.log",
+"bytes": 9454,
+"log_sha8": "771fe216",
+"exit": 0,
+"seconds": 1.69,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "cargo xtask check:npm-supply-chain",
+"run_sha8": "ce778a8e",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\6.log",
+"bytes": 550,
+"log_sha8": "78eb028c",
+"exit": 0,
+"seconds": 18.95,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983f9e -- Cargo.lock deny.toml pulse-app/tauri.conf.json pulse-app/ui/npm-policy.json",
+"run_sha8": "3a3fe881",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\7.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.07,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983f9e -- . ':(exclude).andromeda' ':(exclude)andromeda-pulse-0.3.0' ",
+"run_sha8": "b32e6ffc",
+"expect": [],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\8.log",
+"bytes": 151,
+"log_sha8": "cf683fb3",
+"exit": 0,
+"seconds": 0.07,
+"readings": [
+"report-only (expect = [])"
+],
+"survivors": [],
+"outcome": "recorded"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\9.log",
+"bytes": 382,
+"log_sha8": "4b2bfcd2",
+"exit": 0,
+"seconds": 0.65,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\10.log",
+"bytes": 75,
+"log_sha8": "c8b0edd8",
+"exit": 0,
+"seconds": 6.43,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\11.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.78,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\12.log",
+"bytes": 702,
+"log_sha8": "6b8d2253",
+"exit": 0,
+"seconds": 0.78,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\13.log",
+"bytes": 577000,
+"log_sha8": "f2f9f74e",
+"exit": 100,
+"seconds": 22.62,
+"readings": [
+"exit 0 ✗ (exit 100)"
+],
+"survivors": [],
+"outcome": "red · exit 0 ✗ (exit 100)"
+},
+{
+"n": 14,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\14.log",
+"bytes": 1003,
+"log_sha8": "bd8d0aad",
+"exit": 0,
+"seconds": 69.21,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "probe",
+"run": "git diff --quiet 1dfca7412b0026cfbb5221ebf460bb5665983f9e -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "5a20f4de",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\15.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.15,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "lint",
+"run": "npm run lint --prefix pulse-app/ui",
+"run_sha8": "a2b8c586",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\16.log",
+"bytes": 45,
+"log_sha8": "ac02d22d",
+"exit": 0,
+"seconds": 3.69,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "lint",
+"run": "npm run typecheck --prefix pulse-app/ui",
+"run_sha8": "dda688fc",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\17.log",
+"bytes": 54,
+"log_sha8": "13bb67e5",
+"exit": 0,
+"seconds": 2.97,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 18,
+"role": "unit",
+"run": "npm run test --prefix pulse-app/ui",
+"run_sha8": "9436b307",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\18.log",
+"bytes": 46893,
+"log_sha8": "e4950986",
+"exit": 0,
+"seconds": 8.19,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "f0648308",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 20,
+"role": "integration",
+"run": "cargo xtask pre-push:linux",
+"run_sha8": "3bdf10d4",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"green\""
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2400",
+"run_sha8": "8d50257b",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T07:12:43Z",
+"argv": [
+"show",
+"--run-dir",
+".andromeda/runs/2026-09-30T07-05-25Z-implement",
+"--marker",
+"2026-09-30-dual-license",
+"--n",
+"13"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"13 unit red · exit 0 ✗ (exit 100)",
+"run (bf6e813a): cargo nextest run --workspace --profile ci",
+"  exit 0 ✗ (exit 100)",
+"log C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\13.log · 577000 B · f2f9f74e",
+"--- failing block from L725 ---",
+"        FAIL [   0.143s] ( 721/2433) pulse-app::distribution_manifests update_channels_workflow_scoop_manifest_required_keys",
+"  stdout ───",
+"",
+"    running 1 test",
+"    test update_channels_workflow_scoop_manifest_required_keys ... FAILED",
+"",
+"    failures:",
+"",
+"    failures:",
+"        update_channels_workflow_scoop_manifest_required_keys",
+"",
+"    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s",
+"",
+"  stderr ───",
+"",
+"    thread 'update_channels_workflow_scoop_manifest_required_keys' (38348) panicked at pulse-app\\tests\\distribution_manifests.rs:134:9:",
+"    update-channels.yml Scoop manifest template MUST contain required key/value `\"license\": \"MIT\"` per Scoop spec",
+"    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+"",
+"        PASS [   0.142s] ( 722/2433) pulse-app::distribution_manifests update_channels_workflow_sha_pin_discipline"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T07:13:55Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/plan.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T07-05-25Z-implement",
+"--marker",
+"2026-09-30-dual-license",
+"--only",
+"13,14,15"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell C:\\Program Files\\Git\\bin\\bash.exe (from $SHELL; -c, non-login)",
+"root D:\\dev\\projects\\andromeda-pulse · marker 2026-09-30-dual-license · entries 22",
+"logs C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z · bound: GNU timeout",
+"delta docs 32 · rust 4 · ts 2 · unmapped 3",
+"prose L115-119: **Order is load-bearing.** `cargo xtask capability-drift` runs BEFORE the default-features… (545 chars)",
+"prose L121-124: This departs from test-plan §3's \"`capability-drift` runs LAST\" wording, and the departure… (416 chars)",
+"prose L126-141: - **Webview gates:** `npm run lint` / `typecheck` / `test` are listed because the chunk to… (1467 chars)",
+"  1 lint        not run — excluded · cargo fmt --check",
+"  2 lint        not run — excluded · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 unit        not run — excluded · cargo nextest run --workspace --profile ci -E 'test(/licen… (72 chars)",
+"  4 probe       not run — excluded · md5sum LICENSE-MIT LICENSE-APACHE",
+"  5 probe       not run — excluded · cargo deny check bans licenses sources",
+"  6 probe       not run — excluded · cargo xtask check:npm-supply-chain",
+"  7 probe       not run — excluded · git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983… (140 chars)",
+"  8 probe       not run — excluded · git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983… (124 chars)",
+"  9 probe       not run — excluded · cargo xtask capability-widening-check",
+" 10 probe       not run — excluded · cargo xtask check:ingest-progress",
+" 11 probe       not run — excluded · cargo xtask check:staged-artifacts",
+" 12 probe       not run — excluded · cargo xtask capability-drift",
+" 13 unit        green · exit 0 · 28.18s · 576379 B → 13.log · cargo nextest run --workspace --profile ci",
+" 14 build       green · exit 0 · 18.29s · 502 B → 14.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 15 probe       green · exit 0 · 0.17s · 0 B → 15.log · git diff --quiet 1dfca7412b0026cfbb5221ebf460bb5665983f9e … (95 chars)",
+" 16 lint        not run — excluded · npm run lint --prefix pulse-app/ui",
+" 17 lint        not run — excluded · npm run typecheck --prefix pulse-app/ui",
+" 18 unit        not run — excluded · npm run test --prefix pulse-app/ui",
+" 19 probe       not run — excluded · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (84 chars)",
+" 20 integration not run — excluded · cargo xtask pre-push:linux",
+" 21 probe       not run — excluded · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 22 probe       not run — excluded · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (108 chars)",
+"entries 22 · green 3 · red 0 · recorded 0 · timeout 0 · not-run 19"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-09-30-dual-license",
+"plan": "D:\\dev\\projects\\andromeda-pulse\\andromeda-pulse-0.3.0\\chunks\\2026-09-30-dual-license\\plan.md",
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"shell": "C:\\Program Files\\Git\\bin\\bash.exe",
+"out_dir": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z",
+"delta": {
+"docs": [
+".andromeda/friction-log.ndjson",
+".andromeda/master-route.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/evolve-2026-09-29-scrubber-path-false-positive.json",
+".claude/session-handoff.md",
+"andromeda-pulse-0.3.0/working-route.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/a11y.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/arch-history.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/arch.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/ci-no-marker.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/design.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/evolve-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/gate-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/layouts.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/master-record.txt",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/matrix-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/obs.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/planlint-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/registry-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/route-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/route-no-marker.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/security-history.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/security.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/sidecar-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/tests-history.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/tests.md",
+".andromeda/runs/2026-09-30T07-05-25Z-implement/evolve-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T07-05-25Z-implement/gate-2026-09-30-dual-license.json",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/evidence/witness-readings.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/plan.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/research.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/scope-record.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/scope.md"
+],
+"rust": [
+"Cargo.toml",
+"pulse-app/tests/distribution_manifests.rs",
+"xtask/src/main.rs",
+"xtask/src/license_check.rs"
+],
+"ts": [
+"pulse-app/ui/package-lock.json",
+"pulse-app/ui/package.json"
+]
+},
+"unmapped": [
+".github/workflows/update-channels.yml",
+"LICENSE-APACHE",
+"LICENSE-MIT"
+],
+"prose": [
+{
+"from": 115,
+"to": 119,
+"text": "**Order is load-bearing.** `cargo xtask capability-drift` runs BEFORE the default-features `cargo nextest run --workspace` (operator directive 2026-09-30). That run rewrites `pulse-app/ui/src/bindings/index.ts` to the no-mcp shape, the recurrence recorded in the handoff's deferred `recurrence-despite-learning`. The `--features mcp-server` `emit_taurpc_bindings` regen follows the workspace run as the last cargo-adjacent entry. A base-named probe then asserts the bindings end byte-identical to `1dfca74`, because this chunk adds no procedure."
+},
+{
+"from": 121,
+"to": 124,
+"text": "This departs from test-plan §3's \"`capability-drift` runs LAST\" wording, and the departure is recorded here and as an expected amendment. It is safe because the targeted witness selector runs only tests whose names match `license_check::`, so it constructs no TauRPC router and cannot regenerate the bindings. `check:staged-artifacts`, and the staged half of `capability-drift`, read the git index, not the worktree."
+},
+{
+"from": 126,
+"to": 141,
+"text": "- **Webview gates:** `npm run lint` / `typecheck` / `test` are listed because the chunk touches   `pulse-app/ui/package.json` and the lockfile (test-plan §3, trigger `chunk-gate-baseline-coverage`). - **Boot smoke:** none. No boot-path file is touched: `tauri.conf.json` is not edited, per test-plan §3 Boot-smoke   gate. There is no live leg. - **Advisories:** `cargo deny check advisories` stays a separate observation and is not folded into the   `bans licenses sources` gate (`.claude/rules/security.md` 2026-08-17). It is not a gate here because this chunk   moves no dependency: the `Cargo.lock` probe asserts that. - **The mutation check** (Step 7) mutates the tree, so it is a one-shot, not an entry. The listed non-mutating   witness selector guards the property on every re-run. - **Check 4 (8) ordering, resolved:** the `capability-drift` entry precedes the bindings regen (`role = 'build'`) on   purpose. It reads the committed bindings BEFORE anything can clobber them. The regen exists only to repair what   the later default-features workspace nextest rewrites. The regenerated artifact's verifier is the base-named   `git diff --quiet … bindings/index.ts` entry after it, and `check:staged-artifacts` reads the index, which no cargo   run touches. - **The CI half is operator-driven:** the hygiene read, then the local pre-push gate, then the commit+push, then the   CI read of the pushed head. The last warm round was 25.5 min, so the wait is 2400 s."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 3,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci -E 'test(/license_check::/)' ",
+"run_sha8": "607bdb31",
+"expect": [
+"exit 0",
+"contains 4 tests run: 4 passed"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "md5sum LICENSE-MIT LICENSE-APACHE",
+"run_sha8": "a3788754",
+"expect": [
+"exit 0",
+"contains 0d9a205d780c21cbd7c042a596b7c446",
+"contains 1836efb2eb779966696f473ee8540542"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "cargo deny check bans licenses sources",
+"run_sha8": "7593f094",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "cargo xtask check:npm-supply-chain",
+"run_sha8": "ce778a8e",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983f9e -- Cargo.lock deny.toml pulse-app/tauri.conf.json pulse-app/ui/npm-policy.json",
+"run_sha8": "3a3fe881",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983f9e -- . ':(exclude).andromeda' ':(exclude)andromeda-pulse-0.3.0' ",
+"run_sha8": "b32e6ffc",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 13,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\13.log",
+"bytes": 576379,
+"log_sha8": "d3af66a7",
+"exit": 0,
+"seconds": 28.18,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\14.log",
+"bytes": 502,
+"log_sha8": "4bd01fd8",
+"exit": 0,
+"seconds": 18.29,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "probe",
+"run": "git diff --quiet 1dfca7412b0026cfbb5221ebf460bb5665983f9e -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "5a20f4de",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\15.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.17,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "lint",
+"run": "npm run lint --prefix pulse-app/ui",
+"run_sha8": "a2b8c586",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 17,
+"role": "lint",
+"run": "npm run typecheck --prefix pulse-app/ui",
+"run_sha8": "dda688fc",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 18,
+"role": "unit",
+"run": "npm run test --prefix pulse-app/ui",
+"run_sha8": "9436b307",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "f0648308",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 20,
+"role": "integration",
+"run": "cargo xtask pre-push:linux",
+"run_sha8": "3bdf10d4",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"green\""
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2400",
+"run_sha8": "8d50257b",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T07:15:06Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/plan.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T07-05-25Z-implement",
+"--marker",
+"2026-09-30-dual-license"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell C:\\Program Files\\Git\\bin\\bash.exe (from $SHELL; -c, non-login)",
+"root D:\\dev\\projects\\andromeda-pulse · marker 2026-09-30-dual-license · entries 22",
+"logs C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z · bound: GNU timeout",
+"delta docs 32 · rust 4 · ts 2 · unmapped 3",
+"prose L115-119: **Order is load-bearing.** `cargo xtask capability-drift` runs BEFORE the default-features… (545 chars)",
+"prose L121-124: This departs from test-plan §3's \"`capability-drift` runs LAST\" wording, and the departure… (416 chars)",
+"prose L126-141: - **Webview gates:** `npm run lint` / `typecheck` / `test` are listed because the chunk to… (1467 chars)",
+"  1 lint        green · exit 0 · 0.82s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 2.89s · 146 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 unit        green · exit 0 · 3.4s · 288765 B → 3.log · cargo nextest run --workspace --profile ci -E 'test(/licen… (72 chars)",
+"  4 probe       green · exit 0 · 0.07s · 95 B → 4.log · md5sum LICENSE-MIT LICENSE-APACHE",
+"  5 probe       green · exit 0 · 1.62s · 9454 B → 5.log · cargo deny check bans licenses sources",
+"  6 probe       green · exit 0 · 2.52s · 550 B → 6.log · cargo xtask check:npm-supply-chain",
+"  7 probe       green · exit 0 · 0.07s · 0 B → 7.log · git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983… (140 chars)",
+"  8 probe       recorded · exit 0 · 0.07s · 193 B → 8.log · git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983… (124 chars)",
+"  9 probe       green · exit 0 · 0.64s · 382 B → 9.log · cargo xtask capability-widening-check",
+" 10 probe       green · exit 0 · 6.48s · 75 B → 10.log · cargo xtask check:ingest-progress",
+" 11 probe       green · exit 0 · 0.76s · 342 B → 11.log · cargo xtask check:staged-artifacts",
+" 12 probe       green · exit 0 · 0.87s · 699 B → 12.log · cargo xtask capability-drift",
+" 13 unit        green · exit 0 · 22.67s · 576305 B → 13.log · cargo nextest run --workspace --profile ci",
+" 14 build       green · exit 0 · 1.49s · 427 B → 14.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 15 probe       green · exit 0 · 0.15s · 0 B → 15.log · git diff --quiet 1dfca7412b0026cfbb5221ebf460bb5665983f9e … (95 chars)",
+" 16 lint        green · exit 0 · 3.66s · 45 B → 16.log · npm run lint --prefix pulse-app/ui",
+" 17 lint        green · exit 0 · 3.0s · 54 B → 17.log · npm run typecheck --prefix pulse-app/ui",
+" 18 unit        green · exit 0 · 8.22s · 46827 B → 18.log · npm run test --prefix pulse-app/ui",
+" 19 probe       not run — leg operator (the letter drives it) · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (84 chars)",
+" 20 integration not run — leg operator (the letter drives it) · cargo xtask pre-push:linux",
+" 21 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 22 probe       not run — leg operator (the letter drives it) · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (108 chars)",
+"entries 22 · green 17 · red 0 · recorded 1 · timeout 0 · not-run 4"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-09-30-dual-license",
+"plan": "D:\\dev\\projects\\andromeda-pulse\\andromeda-pulse-0.3.0\\chunks\\2026-09-30-dual-license\\plan.md",
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"shell": "C:\\Program Files\\Git\\bin\\bash.exe",
+"out_dir": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z",
+"delta": {
+"docs": [
+".andromeda/friction-log.ndjson",
+".andromeda/master-route.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/evolve-2026-09-29-scrubber-path-false-positive.json",
+".claude/session-handoff.md",
+"andromeda-pulse-0.3.0/working-route.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/a11y.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/arch-history.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/arch.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/ci-no-marker.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/design.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/evolve-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/gate-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/layouts.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/master-record.txt",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/matrix-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/obs.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/planlint-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/registry-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/route-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/route-no-marker.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/security-history.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/security.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/sidecar-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/tests-history.md",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/tests.md",
+".andromeda/runs/2026-09-30T07-05-25Z-implement/evolve-2026-09-30-dual-license.json",
+".andromeda/runs/2026-09-30T07-05-25Z-implement/gate-2026-09-30-dual-license.json",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/evidence/witness-readings.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/plan.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/research.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/scope-record.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/scope.md"
+],
+"rust": [
+"Cargo.toml",
+"pulse-app/tests/distribution_manifests.rs",
+"xtask/src/main.rs",
+"xtask/src/license_check.rs"
+],
+"ts": [
+"pulse-app/ui/package-lock.json",
+"pulse-app/ui/package.json"
+]
+},
+"unmapped": [
+".github/workflows/update-channels.yml",
+"LICENSE-APACHE",
+"LICENSE-MIT"
+],
+"prose": [
+{
+"from": 115,
+"to": 119,
+"text": "**Order is load-bearing.** `cargo xtask capability-drift` runs BEFORE the default-features `cargo nextest run --workspace` (operator directive 2026-09-30). That run rewrites `pulse-app/ui/src/bindings/index.ts` to the no-mcp shape, the recurrence recorded in the handoff's deferred `recurrence-despite-learning`. The `--features mcp-server` `emit_taurpc_bindings` regen follows the workspace run as the last cargo-adjacent entry. A base-named probe then asserts the bindings end byte-identical to `1dfca74`, because this chunk adds no procedure."
+},
+{
+"from": 121,
+"to": 124,
+"text": "This departs from test-plan §3's \"`capability-drift` runs LAST\" wording, and the departure is recorded here and as an expected amendment. It is safe because the targeted witness selector runs only tests whose names match `license_check::`, so it constructs no TauRPC router and cannot regenerate the bindings. `check:staged-artifacts`, and the staged half of `capability-drift`, read the git index, not the worktree."
+},
+{
+"from": 126,
+"to": 141,
+"text": "- **Webview gates:** `npm run lint` / `typecheck` / `test` are listed because the chunk touches   `pulse-app/ui/package.json` and the lockfile (test-plan §3, trigger `chunk-gate-baseline-coverage`). - **Boot smoke:** none. No boot-path file is touched: `tauri.conf.json` is not edited, per test-plan §3 Boot-smoke   gate. There is no live leg. - **Advisories:** `cargo deny check advisories` stays a separate observation and is not folded into the   `bans licenses sources` gate (`.claude/rules/security.md` 2026-08-17). It is not a gate here because this chunk   moves no dependency: the `Cargo.lock` probe asserts that. - **The mutation check** (Step 7) mutates the tree, so it is a one-shot, not an entry. The listed non-mutating   witness selector guards the property on every re-run. - **Check 4 (8) ordering, resolved:** the `capability-drift` entry precedes the bindings regen (`role = 'build'`) on   purpose. It reads the committed bindings BEFORE anything can clobber them. The regen exists only to repair what   the later default-features workspace nextest rewrites. The regenerated artifact's verifier is the base-named   `git diff --quiet … bindings/index.ts` entry after it, and `check:staged-artifacts` reads the index, which no cargo   run touches. - **The CI half is operator-driven:** the hygiene read, then the local pre-push gate, then the commit+push, then the   CI read of the pushed head. The last warm round was 25.5 min, so the wait is 2400 s."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.82,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\2.log",
+"bytes": 146,
+"log_sha8": "271ae015",
+"exit": 0,
+"seconds": 2.89,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci -E 'test(/license_check::/)' ",
+"run_sha8": "607bdb31",
+"expect": [
+"exit 0",
+"contains 4 tests run: 4 passed"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\3.log",
+"bytes": 288765,
+"log_sha8": "e9d4a031",
+"exit": 0,
+"seconds": 3.4,
+"readings": [
+"exit 0 ✓",
+"contains '4 tests run: 4 passed' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "md5sum LICENSE-MIT LICENSE-APACHE",
+"run_sha8": "a3788754",
+"expect": [
+"exit 0",
+"contains 0d9a205d780c21cbd7c042a596b7c446",
+"contains 1836efb2eb779966696f473ee8540542"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\4.log",
+"bytes": 95,
+"log_sha8": "6ad6b436",
+"exit": 0,
+"seconds": 0.07,
+"readings": [
+"exit 0 ✓",
+"contains '0d9a205d780c21cbd7c042a596b7c446' ✓",
+"contains '1836efb2eb779966696f473ee8540542' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "cargo deny check bans licenses sources",
+"run_sha8": "7593f094",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\5.log",
+"bytes": 9454,
+"log_sha8": "771fe216",
+"exit": 0,
+"seconds": 1.62,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "cargo xtask check:npm-supply-chain",
+"run_sha8": "ce778a8e",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\6.log",
+"bytes": 550,
+"log_sha8": "78eb028c",
+"exit": 0,
+"seconds": 2.52,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983f9e -- Cargo.lock deny.toml pulse-app/tauri.conf.json pulse-app/ui/npm-policy.json",
+"run_sha8": "3a3fe881",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\7.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.07,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "git diff --name-only 1dfca7412b0026cfbb5221ebf460bb5665983f9e -- . ':(exclude).andromeda' ':(exclude)andromeda-pulse-0.3.0' ",
+"run_sha8": "b32e6ffc",
+"expect": [],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\8.log",
+"bytes": 193,
+"log_sha8": "59b1be9e",
+"exit": 0,
+"seconds": 0.07,
+"readings": [
+"report-only (expect = [])"
+],
+"survivors": [],
+"outcome": "recorded"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\9.log",
+"bytes": 382,
+"log_sha8": "f02d523a",
+"exit": 0,
+"seconds": 0.64,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\10.log",
+"bytes": 75,
+"log_sha8": "c8b0edd8",
+"exit": 0,
+"seconds": 6.48,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\11.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.76,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\12.log",
+"bytes": 699,
+"log_sha8": "2958afbb",
+"exit": 0,
+"seconds": 0.87,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\13.log",
+"bytes": 576305,
+"log_sha8": "7585b1b0",
+"exit": 0,
+"seconds": 22.67,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\14.log",
+"bytes": 427,
+"log_sha8": "838f3b86",
+"exit": 0,
+"seconds": 1.49,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "probe",
+"run": "git diff --quiet 1dfca7412b0026cfbb5221ebf460bb5665983f9e -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "5a20f4de",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\15.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.15,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "lint",
+"run": "npm run lint --prefix pulse-app/ui",
+"run_sha8": "a2b8c586",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\16.log",
+"bytes": 45,
+"log_sha8": "ac02d22d",
+"exit": 0,
+"seconds": 3.66,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "lint",
+"run": "npm run typecheck --prefix pulse-app/ui",
+"run_sha8": "dda688fc",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\17.log",
+"bytes": 54,
+"log_sha8": "13bb67e5",
+"exit": 0,
+"seconds": 3.0,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 18,
+"role": "unit",
+"run": "npm run test --prefix pulse-app/ui",
+"run_sha8": "9436b307",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-30-dual-license\\implement-2026-09-30T07-05-25Z\\18.log",
+"bytes": 46827,
+"log_sha8": "a687bbe5",
+"exit": 0,
+"seconds": 8.22,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "f0648308",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 20,
+"role": "integration",
+"run": "cargo xtask pre-push:linux",
+"run_sha8": "3bdf10d4",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"green\""
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2400",
+"run_sha8": "8d50257b",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T07:15:57Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license",
+"--run-dir",
+".andromeda/runs/2026-09-30T07-05-25Z-implement",
+"--marker",
+"2026-09-30-dual-license"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · base HEAD (no pre-CI commit) · lists new 3 · modify 7 · derived 0 · record 1",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"recorded companion pulse-app/tests/distribution_manifests.rs",
+"scope: clean — changed 9 · listed 8 · recorded 1 (companion 1 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 32"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"base": "HEAD",
+"base_why": "no pre-CI commit",
+"counts": {
+"changed": 9,
+"listed": 8,
+"recorded": 1,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 1,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 32,
+"unparsed": 0,
+"widening_without_word": 0
+}
+}
+]

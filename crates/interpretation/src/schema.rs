@@ -25,23 +25,38 @@ pub const L4_OUTPUT_JSON_SCHEMA: &str = include_str!("schema.json");
 pub const SCHEMA_VERSION: &str = "2.0";
 
 /// Prompt template version. Primary-tier prompt assembled by
-/// [`crate::prompt::build_primary_tier_prompt`] (chunk #83).
-pub const PROMPT_VERSION_PRIMARY: &str = "v2.1";
+/// [`crate::prompt::build_primary_tier_prompt`] (chunk #83; v2.2 adds the
+/// Citable Evidence Ids section + copy-don't-invent citing instruction; v2.3
+/// orders the embedded schema so `decision` / `severity` follow the analysis;
+/// v2.4 adds the trigger framing instruction over the digest's TRIGGER line
+/// and CORPUS MATCHES note; v2.5 rewords it so the first hypothesis statement
+/// names the TRIGGER line's signal in its own words; v2.6 adds the obligation
+/// that it names the cue line's scope_id value exactly as written).
+pub const PROMPT_VERSION_PRIMARY: &str = "v2.6";
 
 /// Prompt template version. Fallback-tier prompt assembled by
 /// [`crate::prompt::build_fallback_tier_prompt`] (chunk #85 — Epoch 9
 /// Foundation v0.2.0). Distinct namespace from primary's `v2.1` lineage;
-/// future fallback prompt iterations bump к `"v1.1-fallback"` etc.
-pub const PROMPT_VERSION_FALLBACK: &str = "v1.0-fallback";
+/// future fallback prompt iterations bump to `"v1.1-fallback"` etc.
+/// v1.3-fallback adds the trigger framing instruction; v1.4-fallback rewords
+/// it so the first hypothesis statement names the TRIGGER line's signal;
+/// v1.5-fallback adds the obligation that it names the cue line's scope_id.
+pub const PROMPT_VERSION_FALLBACK: &str = "v1.5-fallback";
 
 /// Prompt template version. Reflection-tier prompt assembled by
 /// [`crate::prompt::build_reflection_tier_prompt`] (chunk #98 — Epoch 9
 /// Foundation v0.2.0). Cumulative-pattern-emphasis variant of the
 /// primary prompt for the 30-minute background reflection window;
-/// distinct namespace from primary's `v2.1` + fallback's `v1.0-fallback`
+/// distinct namespace from primary's `v2.x` + fallback's `v1.x-fallback`
 /// lineages. Reflection runs at primary-tier quality (the model emits
-/// `model_tier: "primary"`); it is NOT a fallback-tier prompt.
-pub const PROMPT_VERSION_REFLECTION: &str = "v1.0-reflection";
+/// `model_tier: "primary"`); it is NOT a fallback-tier prompt
+/// (v1.1-reflection adds the Citable Evidence Ids section + citing
+/// instruction; v1.2-reflection carries the reordered schema; v1.3-reflection
+/// adds the trigger framing instruction; v1.4-reflection rewords it so the
+/// first hypothesis statement names the TRIGGER line's signal;
+/// v1.5-reflection adds the obligation that it names the cue line's
+/// scope_id).
+pub const PROMPT_VERSION_REFLECTION: &str = "v1.5-reflection";
 
 /// Defense-in-depth pre-parse cap on raw inference output bytes.
 /// mistralrs strict-schema-mode caps total tokens, but the byte budget
@@ -75,19 +90,19 @@ pub const HYPOTHESES_MAX: usize = 5;
 pub const INVESTIGATION_STEPS_MAX: usize = 5;
 
 /// Maximum count of hypotheses for fallback-tier outputs (chunk #85).
-/// Enforced как post-parse defense-in-depth on top of the prompt-level
+/// Enforced as post-parse defense-in-depth on top of the prompt-level
 /// constraint per P-053 reduced-quality contract.
 pub const FALLBACK_HYPOTHESES_MAX: usize = 1;
 
 /// Maximum count of investigation steps for fallback-tier outputs
-/// (chunk #85). Enforced как post-parse defense-in-depth on top of the
+/// (chunk #85). Enforced as post-parse defense-in-depth on top of the
 /// prompt-level constraint per P-053 reduced-quality contract.
 pub const FALLBACK_INVESTIGATION_STEPS_MAX: usize = 2;
 
 // Compile-time invariant: fallback bounds MUST be strictly smaller than
 // primary bounds per P-053 reduced-quality contract. Const-block per
 // CLAUDE.md testing.md 2026-05-11 pattern (clippy::assertions_on_constants
-// rejects the assertion inside а `#[test]` fn).
+// rejects the assertion inside a `#[test]` fn).
 const _: () = {
     assert!(FALLBACK_HYPOTHESES_MAX < HYPOTHESES_MAX);
     assert!(FALLBACK_INVESTIGATION_STEPS_MAX < INVESTIGATION_STEPS_MAX);
@@ -124,7 +139,7 @@ pub enum Severity {
     None,
 }
 
-/// Hypothesis confidence band. Bounded к three labels per dist-arch v3.
+/// Hypothesis confidence band. Bounded to three labels per dist-arch v3.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Confidence {
@@ -279,7 +294,7 @@ pub fn validate(output: &L4Output) -> Result<(), InferenceError> {
     }
     // Fallback-tier reduced-quality contract per P-053 (chunk #85): cap
     // hypotheses + investigation steps below primary's bounds. Defense-in-
-    // depth on top of the prompt-level instruction в OUTPUT_REMINDER_FALLBACK.
+    // depth on top of the prompt-level instruction in OUTPUT_REMINDER_FALLBACK.
     if output.model_tier == "fallback" {
         if output.hypotheses.len() > FALLBACK_HYPOTHESES_MAX {
             return Err(InferenceError::SchemaViolation {
@@ -626,7 +641,7 @@ mod tests {
     #[test]
     fn validate_accepts_fallback_with_single_hypothesis() {
         let sample = fallback_sample();
-        validate(&sample).expect("fallback с 1 hypothesis + 1 investigation step passes");
+        validate(&sample).expect("fallback with 1 hypothesis + 1 investigation step passes");
     }
 
     #[test]
@@ -642,7 +657,7 @@ mod tests {
                 expected_yield: "yield two".into(),
             },
         ];
-        validate(&sample).expect("fallback с 1 hypothesis + 2 investigation steps passes");
+        validate(&sample).expect("fallback with 1 hypothesis + 2 investigation steps passes");
     }
 
     #[test]
@@ -713,7 +728,7 @@ mod tests {
                 expected_yield: format!("yield {i}"),
             })
             .collect();
-        validate(&sample).expect("primary с 5 hypotheses + 5 investigation steps passes");
+        validate(&sample).expect("primary with 5 hypotheses + 5 investigation steps passes");
     }
 
     #[test]
@@ -742,7 +757,7 @@ mod tests {
     }
 
     // NOTE: the `FALLBACK_*_MAX < *_MAX` invariant is enforced at
-    // compile time via а module-level `const _: () = { assert!(...) };`
+    // compile time via a module-level `const _: () = { assert!(...) };`
     // block; clippy::assertions_on_constants rejects the assertion
     // here per CLAUDE.md testing.md 2026-05-11 pattern.
 }

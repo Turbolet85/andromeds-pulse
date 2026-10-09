@@ -1,0 +1,150 @@
+[
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "e257956a",
+"ts": "2026-10-05T06:48:48Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-44-54Z-implement",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2062→2063 · bytes 2126903→2127865 · term lf",
+"ts 2026-10-05T06:48:41Z · clock 2026-10-05T06:48:48Z · bound 2026-10-05T06:43:49Z (line 2062)",
+"ids 2026-10-05T06:48:41Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2062,
+"bytes": 2126903,
+"terminator": "LF",
+"bound": "2026-10-05T06:43:49Z"
+},
+"after": {
+"lines": 2063,
+"bytes": 2127865
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "e257956a",
+"ts": "2026-10-05T09:04:22Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"3",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-44-54Z-implement",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 3 record(s) · friction-log.ndjson lines 2063→2066 · bytes 2127865→2131282 · term lf",
+"ts 2026-10-05T09:04:10Z · clock 2026-10-05T09:04:22Z · bound 2026-10-05T06:48:41Z (line 2063)",
+"ids 2026-10-05T09:04:10Z-a … 2026-10-05T09:04:10Z-c (3)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2063,
+"bytes": 2127865,
+"terminator": "LF",
+"bound": "2026-10-05T06:48:41Z"
+},
+"after": {
+"lines": 2066,
+"bytes": 2131282
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "e257956a",
+"ts": "2026-10-05T09:04:28Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-44-54Z-implement",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [
+"REFUSED ts: 2026-10-05T09:04:30Z · 2026-10-05T09:04:30Z-a — later than the clock 2026-10-05T09:04:28Z"
+],
+"stderr": "refused — nothing written: 1 of 1 record(s) out of time; re-read `date -u`, re-letter the ids, re-fire",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "e257956a",
+"ts": "2026-10-05T09:04:34Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-44-54Z-implement",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2066→2067 · bytes 2131282→2132088 · term lf",
+"ts 2026-10-05T09:04:28Z · clock 2026-10-05T09:04:34Z · bound 2026-10-05T09:04:10Z (line 2066)",
+"ids 2026-10-05T09:04:28Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2066,
+"bytes": 2131282,
+"terminator": "LF",
+"bound": "2026-10-05T09:04:10Z"
+},
+"after": {
+"lines": 2067,
+"bytes": 2132088
+}
+}
+]

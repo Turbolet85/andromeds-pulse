@@ -1,6 +1,6 @@
 //! L3 digest assembler core implementation (chunk #81).
 //!
-//! `DigestAssembler` trait + `Assembler` concrete impl. Composes а
+//! `DigestAssembler` trait + `Assembler` concrete impl. Composes a
 //! `Digest` per dist-arch v3 §Appendix C from L1a Q1-Q7 (via
 //! `SqlQueryRunner` injected from chunk #80 substrate), attention cues
 //! (from `AttentionCue` triggering arg), project context (via
@@ -35,7 +35,8 @@ use tokenizers::Tokenizer;
 use crate::cadence::CadenceMode;
 use crate::contract::{
     AttentionCue, CueKind, Digest, DigestCueRef, DigestKind, DigestLwwMode, DigestServiceRow,
-    IncidentStatus, PriorityTier, Severity, SqlAggregationError, SqlQueryRunner,
+    IncidentStatus, PriorityTier, Severity, SqlAggregationError, SqlQueryRunner, cue_cause_label,
+    hex_lower,
 };
 use crate::digest::broadcast::DigestBroadcast;
 use crate::digest::queue::{LwwQueue, QueueAction};
@@ -53,7 +54,7 @@ use crate::digest::{
 use crate::incident::IncidentRegistry;
 
 /// Build-time-embedded Llama-3 tokenizer.json fixture (per
-/// `crates/triage/build.rs` Phase 2). Future chunk #82+ may swap к а
+/// `crates/triage/build.rs` Phase 2). Future chunk #82+ may swap to a
 /// different tokenizer if LLM runtime choice mandates.
 const TOKENIZER_BYTES: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/tokenizer.json"));
 
@@ -68,7 +69,7 @@ pub type DigestFuture<'a, T> = Pin<Box<dyn Future<Output = Result<T, DigestError
 /// adapter at `pulse-app/src/digest_runtime.rs` from
 /// `workspace_detector::ProjectContextProvider`. Triage owns this lower-
 /// level shape; binary-side does the mapping per arch §Module dependency
-/// direction (triage не depends on workspace-detector).
+/// direction (triage does not depend on workspace-detector).
 #[derive(Debug, Clone, Default)]
 pub struct DigestProjectContext {
     pub workspace_canonical_path: String,
@@ -85,8 +86,8 @@ pub struct DigestRecentCommit {
     pub files_changed_count: u32,
 }
 
-/// Trait для assembling а digest. Implemented by [`Assembler`]; tests
-/// can substitute а stub.
+/// Trait for assembling a digest. Implemented by [`Assembler`]; tests
+/// can substitute a stub.
 pub trait DigestAssembler: Send + Sync {
     fn assemble<'a>(
         &'a self,
@@ -98,7 +99,7 @@ pub trait DigestAssembler: Send + Sync {
     ) -> DigestFuture<'a, Digest>;
 }
 
-/// L3 digest assembler. Composes а digest from L1a queries + L2 cues +
+/// L3 digest assembler. Composes a digest from L1a queries + L2 cues +
 /// active-incident state + project context.
 ///
 /// Cross-crate dep injection per chunks #69/78 precedent:
@@ -111,11 +112,11 @@ pub trait DigestAssembler: Send + Sync {
 ///   (`security::scrubber::scrub_attribute`-wrapping at binary boundary)
 ///
 /// Corpus writes (digest_archive append) are routed through an injected
-/// adapter at the binary boundary к keep triage free of corpus crate dep
+/// adapter at the binary boundary to keep triage free of corpus crate dep
 /// (the assembler emits its digest and the binary boundary captures the
 /// emission, scrubs + persists). For chunk #81 substrate, this is
 /// implemented via the broadcast subscription pattern: pulse-app
-/// subscribes к `DigestBroadcast` and persists each emitted digest к
+/// subscribes to `DigestBroadcast` and persists each emitted digest to
 /// corpus via `CorpusWriter::save_digest` (chunk #81 trait extension).
 pub struct Assembler {
     tokenizer: Arc<Tokenizer>,
@@ -159,8 +160,8 @@ impl Assembler {
         })
     }
 
-    /// Test-only constructor that takes а pre-built tokenizer (lets unit
-    /// tests inject а tokenizer they constructed elsewhere). Production
+    /// Test-only constructor that takes a pre-built tokenizer (lets unit
+    /// tests inject a tokenizer they constructed elsewhere). Production
     /// callers use `new()`.
     #[cfg(test)]
     pub fn with_tokenizer(
@@ -242,8 +243,8 @@ impl DigestAssembler for Assembler {
                 .await
                 .map_err(map_sql_err)?;
             // Q2/Q4-Q7 fetched but not embedded in chunk #81 substrate digest;
-            // execution stays к ensure the SQL surface is exercised
-            // identically к the cadence coordinator (consistency +
+            // execution stays to ensure the SQL surface is exercised
+            // identically to the cadence coordinator (consistency +
             // diagnostics value). Future chunk integrates richer fields.
             // Q3 fingerprint rows feed the corpus-retrieval match below.
             let _q2 = self.sql_runner.run_q2(window_duration).await.ok();
@@ -263,12 +264,9 @@ impl DigestAssembler for Assembler {
                     vec![DigestCueRef {
                         kind: c.kind,
                         priority_tier: c.priority_tier,
-                        summary: c
-                            .scope_id
-                            .as_deref()
-                            .map(|s| format!("{} scope_id={s}", cue_kind_label(c.kind)))
-                            .unwrap_or_else(|| cue_kind_label(c.kind).to_string()),
+                        summary: cue_summary(c),
                         scope: c.scope,
+                        fingerprint: c.fingerprint.clone(),
                         scope_id: c.scope_id.clone(),
                     }]
                 })
@@ -276,10 +274,12 @@ impl DigestAssembler for Assembler {
 
             // CORPUS MATCHES (capability P-044): same-workspace, last-30-day
             // candidates matched on the window's Q3 fingerprints + Q1 service
-            // scopes; top-5 newest first. Each line is routed through the
-            // injected scrub closure at this egress boundary (chunk #88
-            // precedent) — `Digest::scrubbed_clone` deliberately skips
-            // `corpus_matches`, so this is the field's only scrub pass.
+            // scopes; top-5 newest first. Under a triggering cue that carries a
+            // scope_id the scope arm keeps that scope's incidents alone. Each
+            // line is routed through the injected scrub closure at this egress
+            // boundary (chunk #88 precedent) — `Digest::scrubbed_clone`
+            // deliberately skips `corpus_matches`, so this is the field's only
+            // scrub pass.
             let current_fingerprints: Vec<String> = q3
                 .as_deref()
                 .unwrap_or(&[])
@@ -302,6 +302,7 @@ impl DigestAssembler for Assembler {
                         candidates,
                         &current_fingerprints,
                         &current_scopes,
+                        triggering_cue.and_then(|c| c.scope_id.as_deref()),
                         DIGEST_CORPUS_RETRIEVAL_LIMIT,
                     );
                     tracing::info!(
@@ -573,7 +574,7 @@ fn priority_tier_label(tier: PriorityTier) -> &'static str {
 fn severity_at_least_suggested(s: Severity) -> bool {
     // Severity ≥ Warn means triggering of the active-incident exception
     // per dist-arch v3 §Queue behavior (severity ≥ Suggested per spec
-    // language; map к Severity::Warn since Severity enum lacks
+    // language; map to Severity::Warn since Severity enum lacks
     // explicit Suggested tier — Severity carries Info/Warn/Error/Critical
     // levels while PriorityTier carries the model-decision tiers).
     matches!(s, Severity::Warn | Severity::Error | Severity::Critical)
@@ -584,10 +585,10 @@ fn compose_services_from_q1(rows: &[crate::contract::Q1RedRow]) -> Vec<DigestSer
         .map(|r| {
             // Q1 rows expose RED-style aggregates (rate, error count, p99
             // latency over the window). Chunk #81 substrate maps directly;
-            // baselines per row default к the current observation так что
+            // baselines per row default to the current observation so that
             // the "vs baselines" comparison reads neutral (×1.0) until
             // chunk #82+ integrates L1b baseline state. Q1RedRow stores
-            // p99 в nanoseconds (per chunk #79 sql.rs); convert к ms for
+            // p99 in nanoseconds (per chunk #79 sql.rs); convert to ms for
             // digest payload.
             let p99_ms = r.p99_ns as f64 / 1_000_000.0;
             DigestServiceRow {
@@ -603,8 +604,32 @@ fn compose_services_from_q1(rows: &[crate::contract::Q1RedRow]) -> Vec<DigestSer
         .collect()
 }
 
+/// Prefix of the digest line naming the cue this digest was triggered by
+/// (the first cue, which the producer takes the incident identity from).
+/// ASCII: the line reaches the llama-cli argv inside `payload_summary`.
+#[doc(hidden)]
+pub const TRIGGER_LINE_PREFIX: &str = "TRIGGER: ";
+
+/// Note rendered directly under the `CORPUS MATCHES:` header so the model
+/// reads the matches as other incidents, never as the signal being reported.
+#[doc(hidden)]
+pub const CORPUS_MATCHES_FRAMING_NOTE: &str =
+    "(other or past incidents - context only, not the signal this digest reports)";
+
+/// The cue-summary text a digest's ATTENTION CUES line carries.
+#[doc(hidden)]
+pub fn cue_summary(c: &AttentionCue) -> String {
+    c.scope_id
+        .as_deref()
+        .map(|s| format!("{} scope_id={s}", cue_kind_label(c.kind)))
+        .unwrap_or_else(|| cue_kind_label(c.kind).to_string())
+}
+
+/// Renders a digest's `payload_summary` text. Public only so a dev tool can
+/// render synthetic digests through the real code; not a stable API.
+#[doc(hidden)]
 #[allow(clippy::too_many_arguments)]
-fn render_payload(
+pub fn render_payload(
     window: Duration,
     mode_label: &str,
     project: &DigestProjectContext,
@@ -638,16 +663,27 @@ fn render_payload(
             ));
         }
     }
+    // A Tier1 digest never carries the active-incident bypass, so keying the
+    // state word on the bypass alone told the model "nominal" during every storm.
+    let overall = if active_incident_bypass {
+        "degraded"
+    } else if !cues.is_empty() {
+        "anomalous"
+    } else {
+        "nominal"
+    };
     s.push_str(&format!(
-        "OVERALL: {} ({} active-bypass incident(s); {} cue(s))\n",
-        if active_incident_bypass {
-            "degraded"
-        } else {
-            "nominal"
-        },
+        "OVERALL: {overall} ({} active incident(s); {} cue(s))\n",
         incident_refs.len(),
         cues.len()
     ));
+    // The first cue is the one the producer takes the incident identity from.
+    if let Some(trigger) = cues.first() {
+        s.push_str(&format!(
+            "{TRIGGER_LINE_PREFIX}{}\n",
+            cue_cause_label(trigger.kind)
+        ));
+    }
     if !services.is_empty() {
         s.push_str("SERVICES (rate, error%, p99 vs baselines):\n");
         for row in services {
@@ -673,22 +709,12 @@ fn render_payload(
     }
     if !corpus_matches.is_empty() {
         s.push_str("CORPUS MATCHES:\n");
+        s.push_str(&format!("  {CORPUS_MATCHES_FRAMING_NOTE}\n"));
         for m in corpus_matches.iter().take(DIGEST_CORPUS_RETRIEVAL_LIMIT) {
             s.push_str(&format!("  - {m}\n"));
         }
     }
     s
-}
-
-/// Lowercase-hex encode raw fingerprint bytes from Q3 rows so they can
-/// match the string form carried on `Incident.fingerprint` (the
-/// `{b:02x}` shape used across the workspace's fingerprint surfaces).
-fn hex_lower(bytes: &[u8]) -> String {
-    let mut out = String::with_capacity(bytes.len() * 2);
-    for b in bytes {
-        out.push_str(&format!("{b:02x}"));
-    }
-    out
 }
 
 fn lowest_priority_cue_index(cues: &[DigestCueRef]) -> usize {
@@ -934,6 +960,75 @@ mod tests {
         assert!(digest.corpus_matches[0].contains("scoped incident"));
     }
 
+    fn service_cue(scope_id: Option<&str>) -> AttentionCue {
+        AttentionCue {
+            kind: CueKind::RetryStorm,
+            scope: CueScope::Service,
+            scope_id: scope_id.map(str::to_string),
+            magnitude: 20.0,
+            absolute_value: 1.0,
+            persistence: 30,
+            confidence: 0.95,
+            priority_tier: PriorityTier::Autonomous,
+            suppression_bypassed: false,
+            fingerprint: None,
+        }
+    }
+
+    /// The titles of a digest's corpus lines over two services' incidents, a
+    /// sibling's newest: under the given triggering cue, Tier1.
+    async fn corpus_titles_under(cue: Option<&AttentionCue>) -> Vec<&'static str> {
+        const TITLES: [&str; 3] = ["sibling newest", "own earlier", "sibling oldest"];
+        let fp = "ffff0000ffff0000ffff0000ffff0000";
+        let assembler = make_assembler(
+            vec![q1_row("svc-api"), q1_row("svc-api-canary")],
+            vec![],
+            Arc::new(|s: &str| s.to_string()),
+            Arc::new(CannedCorpusSource {
+                candidates: vec![
+                    past_incident(1, fp, Some("svc-api-canary"), TITLES[0], NOW - 1_000),
+                    past_incident(2, fp, Some("svc-api"), TITLES[1], NOW - 2_000),
+                    past_incident(3, fp, Some("svc-api-canary"), TITLES[2], NOW - 3_000),
+                ],
+                fail: false,
+            }),
+        );
+        let digest = assembler
+            .assemble(
+                CadenceMode::Tier1,
+                cue,
+                &project_context(),
+                NOW,
+                Duration::from_secs(60),
+            )
+            .await
+            .expect("assemble succeeds");
+        digest
+            .corpus_matches
+            .iter()
+            .map(|line| {
+                TITLES
+                    .into_iter()
+                    .find(|title| line.contains(title))
+                    .expect("each line carries one of the three titles")
+            })
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn assemble_drops_other_scopes_corpus_lines_under_a_cue_scope() {
+        let cue = service_cue(Some("svc-api"));
+        assert_eq!(corpus_titles_under(Some(&cue)).await, ["own earlier"]);
+    }
+
+    #[tokio::test]
+    async fn assemble_keeps_every_scopes_corpus_lines_without_a_cue_scope() {
+        let every_scope = ["sibling newest", "own earlier", "sibling oldest"];
+        assert_eq!(corpus_titles_under(None).await, every_scope);
+        let unscoped = service_cue(None);
+        assert_eq!(corpus_titles_under(Some(&unscoped)).await, every_scope);
+    }
+
     #[tokio::test]
     async fn assemble_degrades_to_empty_matches_on_retrieval_error() {
         let assembler = make_assembler(
@@ -1044,6 +1139,189 @@ mod tests {
             !rendered.contains("commit-6"),
             "render caps at 5 commits per spec P-032"
         );
+    }
+
+    fn storm_cue_ref() -> DigestCueRef {
+        DigestCueRef {
+            kind: CueKind::RetryStorm,
+            priority_tier: PriorityTier::Autonomous,
+            summary: "retry_storm scope_id=svc".to_string(),
+            scope: CueScope::Service,
+            fingerprint: None,
+            scope_id: Some("svc".to_string()),
+        }
+    }
+
+    fn overall_line_of(rendered: &str) -> &str {
+        rendered
+            .lines()
+            .find(|l| l.starts_with("OVERALL: "))
+            .expect("the render carries an OVERALL line")
+    }
+
+    #[test]
+    fn overall_line_reads_anomalous_for_a_cue_bearing_tier1_digest() {
+        let rendered = render_payload(
+            Duration::from_secs(60),
+            "tier1",
+            &project_context(),
+            &[],
+            &[storm_cue_ref()],
+            &[],
+            &[],
+            false,
+        );
+        assert_eq!(
+            overall_line_of(&rendered),
+            "OVERALL: anomalous (0 active incident(s); 1 cue(s))"
+        );
+    }
+
+    #[test]
+    fn overall_line_reads_nominal_without_cue_or_incident() {
+        let rendered = render_payload(
+            Duration::from_secs(60),
+            "tier3",
+            &project_context(),
+            &[],
+            &[],
+            &[],
+            &[],
+            false,
+        );
+        assert_eq!(
+            overall_line_of(&rendered),
+            "OVERALL: nominal (0 active incident(s); 0 cue(s))"
+        );
+    }
+
+    #[test]
+    fn overall_line_reads_degraded_with_an_active_incident() {
+        let rendered = render_payload(
+            Duration::from_secs(60),
+            "tier2",
+            &project_context(),
+            &[],
+            &[storm_cue_ref()],
+            &[],
+            &["7".to_string()],
+            true,
+        );
+        assert_eq!(
+            overall_line_of(&rendered),
+            "OVERALL: degraded (1 active incident(s); 1 cue(s))"
+        );
+    }
+
+    fn cue_ref_of(kind: CueKind) -> DigestCueRef {
+        DigestCueRef {
+            kind,
+            priority_tier: PriorityTier::Autonomous,
+            summary: format!("{} scope_id=svc", cue_kind_label(kind)),
+            scope: CueScope::Service,
+            fingerprint: None,
+            scope_id: Some("svc".to_string()),
+        }
+    }
+
+    fn render_with(cues: &[DigestCueRef], corpus_matches: &[String]) -> String {
+        render_payload(
+            Duration::from_secs(60),
+            "tier1",
+            &project_context(),
+            &[],
+            cues,
+            corpus_matches,
+            &[],
+            false,
+        )
+    }
+
+    #[test]
+    fn render_payload_names_the_trigger_from_the_first_cue() {
+        let rendered = render_with(
+            &[
+                cue_ref_of(CueKind::RetryStorm),
+                cue_ref_of(CueKind::ErrorRateSpike),
+            ],
+            &[],
+        );
+        let lines: Vec<&str> = rendered.lines().collect();
+        let trigger_lines: Vec<usize> = lines
+            .iter()
+            .enumerate()
+            .filter(|(_, l)| l.starts_with(TRIGGER_LINE_PREFIX))
+            .map(|(i, _)| i)
+            .collect();
+        assert_eq!(trigger_lines.len(), 1, "exactly one TRIGGER line");
+        let at = trigger_lines[0];
+        assert_eq!(lines[at], "TRIGGER: Retry storm");
+        assert!(
+            at > 0 && lines[at - 1].starts_with("OVERALL: "),
+            "the TRIGGER line directly follows OVERALL"
+        );
+    }
+
+    #[test]
+    fn render_payload_omits_the_trigger_line_without_a_cue() {
+        let rendered = render_with(&[], &[]);
+        assert!(
+            !rendered.lines().any(|l| l.starts_with(TRIGGER_LINE_PREFIX)),
+            "a cue-less digest names no trigger"
+        );
+    }
+
+    #[test]
+    fn render_payload_frames_corpus_matches_as_other_incidents() {
+        let rendered = render_with(
+            &[cue_ref_of(CueKind::RetryStorm)],
+            &["[abcd] Error-rate spike: past incident - 3m ago, active".to_string()],
+        );
+        let lines: Vec<&str> = rendered.lines().collect();
+        let header = lines
+            .iter()
+            .position(|l| *l == "CORPUS MATCHES:")
+            .expect("the corpus header renders");
+        assert_eq!(
+            lines.get(header + 1).copied(),
+            Some(format!("  {CORPUS_MATCHES_FRAMING_NOTE}").as_str()),
+            "the framing note directly follows the header"
+        );
+        assert_eq!(
+            lines.get(header + 2).copied(),
+            Some("  - [abcd] Error-rate spike: past incident - 3m ago, active"),
+            "the match line follows the note"
+        );
+    }
+
+    #[test]
+    fn render_payload_omits_the_corpus_framing_note_without_matches() {
+        let rendered = render_with(&[cue_ref_of(CueKind::RetryStorm)], &[]);
+        assert!(!rendered.contains(CORPUS_MATCHES_FRAMING_NOTE));
+    }
+
+    #[test]
+    fn render_payload_framing_lines_are_ascii() {
+        for kind in [
+            CueKind::ErrorRateSpike,
+            CueKind::LatencyRegression,
+            CueKind::RestartEvent,
+            CueKind::ServiceWentSilent,
+            CueKind::RetryStorm,
+            CueKind::ReflectionTrend,
+        ] {
+            let rendered = render_with(&[cue_ref_of(kind)], &["m".to_string()]);
+            let trigger = rendered
+                .lines()
+                .find(|l| l.starts_with(TRIGGER_LINE_PREFIX))
+                .unwrap_or_else(|| panic!("{kind:?}: the render carries a TRIGGER line"));
+            assert!(trigger.is_ascii(), "{kind:?}: TRIGGER line is ASCII");
+            let note = rendered
+                .lines()
+                .find(|l| l.trim_start() == CORPUS_MATCHES_FRAMING_NOTE)
+                .unwrap_or_else(|| panic!("{kind:?}: the render carries the framing note"));
+            assert!(note.is_ascii(), "{kind:?}: framing note is ASCII");
+        }
     }
 
     #[test]

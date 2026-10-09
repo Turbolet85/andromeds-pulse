@@ -1,0 +1,81 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%mark_resolved%' ORDER BY file, line;",
+"rows": 11,
+"result": [
+{
+"caller": "rust-analyzer cargo triage 0.1.0 incident/registry/tests/mark_resolved_active_succeeds().",
+"file": "crates/triage/src/incident/registry.rs",
+"line": 562
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 incident/registry/tests/mark_resolved_acknowledged_succeeds().",
+"file": "crates/triage/src/incident/registry.rs",
+"line": 575
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 incident/registry/tests/mark_resolved_already_resolved_returns_invalid_transition().",
+"file": "crates/triage/src/incident/registry.rs",
+"line": 585
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 incident/registry/tests/mark_resolved_not_found_returns_not_found().",
+"file": "crates/triage/src/incident/registry.rs",
+"line": 595
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 incident_observer/impl#[AutoResolveObserver]run_one_tick().",
+"file": "pulse-app/src/incident_observer.rs",
+"line": 66
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 incidents_router/impl#[IncidentsApiImpl][IncidentsApi]list_active().",
+"file": "pulse-app/src/incidents_router.rs",
+"line": 299
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 create_to_resolved_via_resolver_returns_empty_active_list().",
+"file": "pulse-app/tests/e2e_incidents_lifecycle.rs",
+"line": 98
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 mark_resolved_not_found_returns_app_error_notfound().",
+"file": "pulse-app/tests/e2e_incidents_lifecycle.rs",
+"line": 118
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 explicit_resolve_then_re_resolve_returns_validation_error().",
+"file": "pulse-app/tests/e2e_incidents_lifecycle.rs",
+"line": 310
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 explicit_resolve_then_re_resolve_returns_validation_error().",
+"file": "pulse-app/tests/e2e_incidents_lifecycle.rs",
+"line": 313
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 a_fresh_write_still_applies_through_the_adapter().",
+"file": "pulse-app/tests/integration_incident_write_guard.rs",
+"line": 227
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'corpus' OR from_crate = 'corpus' ORDER BY from_crate, to_crate;",
+"rows": 2,
+"result": [
+{
+"from_crate": "mcp-server",
+"to_crate": "corpus"
+},
+{
+"from_crate": "pulse-app",
+"to_crate": "corpus"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

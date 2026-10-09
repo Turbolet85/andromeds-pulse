@@ -4,7 +4,7 @@
 //! audit Section 3.S ("algorithm correctness verified via unit tests but no
 //! golden directory visible"):
 //!
-//! Loads committed LogHub-style log line fixtures от `tests/fixtures/drain/`
+//! Loads committed LogHub-style log line fixtures from `tests/fixtures/drain/`
 //! and drives the Drain mining algorithm via the public `DrainMiner` API
 //! (per arch §Cross-cutting Test-time telemetry injection — NOT pre-seeded
 //! DuckDB rows). Asserts the mined template output matches committed
@@ -79,8 +79,8 @@ fn drain_mines_synthetic_basic_matches_golden_expected() {
         ts_nano += 1_000_000;
     }
 
-    // Read back the template distribution. top_n large enough к surface ALL
-    // templates (we expect ≤10; choose 50 для safety margin).
+    // Read back the template distribution. top_n large enough to surface ALL
+    // templates (we expect ≤10; choose 50 for safety margin).
     let distribution = miner.template_distribution(50);
 
     // Assert 1: template count matches expected.
@@ -102,12 +102,12 @@ fn drain_mines_synthetic_basic_matches_golden_expected() {
     // expected_occurrence_count).
     for expected_template in &expected.expected_templates {
         let matched = distribution.iter().find(|mined| {
-            // All required tokens present в the mined template content.
+            // All required tokens present in the mined template content.
             let tokens_match = expected_template
                 .must_contain_tokens
                 .iter()
                 .all(|token| mined.content.contains(token.as_str()));
-            // Mask requirement (if specified) present в mined content.
+            // Mask requirement (if specified) present in mined content.
             let mask_match = match &expected_template.must_contain_mask {
                 Some(mask) => mined.content.contains(mask.as_str()),
                 None => true,
@@ -136,7 +136,7 @@ fn drain_mines_synthetic_basic_matches_golden_expected() {
 fn drain_template_count_matches_input_template_diversity() {
     // Sanity invariant: after mining the synthetic_basic fixture, the miner
     // reports the expected total template count via the public
-    // `template_count()` API. Pairs с the structural test above for
+    // `template_count()` API. Pairs with the structural test above for
     // belt-and-suspenders regression coverage.
     let dir = fixtures_dir();
     let input = std::fs::read_to_string(dir.join("synthetic_basic.log")).expect("read fixture");

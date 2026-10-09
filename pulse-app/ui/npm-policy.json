@@ -1,0 +1,89 @@
+{
+  "doc": "Project-owned npm supply-chain policy for pulse-app/ui, evaluated by `cargo xtask check:npm-supply-chain` (xtask/src/npm_gate.rs). Advisory exceptions are GHSA-id-scoped; license exceptions are package-scoped; both carry provenance and a closing condition and are PRUNED once the condition fires (security-plan §Dependency Security: a finding with a stated safe forward upgrade is never excepted — it stays red until upgraded). License source is package-lock.json license fields (906/909 coverage measured 2026-08-30); class split rides the lockfile dev flags: runtime = prod-reachable (Vite-bundled into the shipped webview), dev = harness/build-only.",
+  "advisory_exceptions": [
+    {
+      "ghsa": "GHSA-jmr9-qjv8-65gv",
+      "package": "extract-zip",
+      "reason": "no fixed version exists — the advisory's vulnerable range is '*'; reached via puppeteer/@puppeteer/browsers under webdriverio 9 and under pa11y-ci 4.1.1 (latest), which internally nests pa11y 9 although the top-level pa11y is 10. Dev/harness-only chains, no runtime or bundle path.",
+      "owner": "2026-08-30-npm-advisory-coverage",
+      "closing_condition": "upstream publishes a fixed extract-zip (or the advisory range narrows) and the puppeteer chains move onto it, or both consuming chains (webdriverio, pa11y-ci) drop extract-zip; prune when the gate runs green without this entry",
+      "added": "2026-08-30"
+    },
+    {
+      "ghsa": "GHSA-7pqw-9j4j-h8q3",
+      "package": "extract-zip",
+      "reason": "no fixed version exists — the advisory's vulnerable range is '*' and 2.0.1 (unchanged since 2023) is the latest release; npm's suggested remediation is a major DOWNGRADE of pa11y-ci to 3.1.0, rejected. Same chains as GHSA-jmr9-qjv8-65gv: puppeteer/@puppeteer/browsers under webdriverio 9 and pa11y-ci 4. Dev/harness-only, no runtime or bundle path.",
+      "owner": "2026-09-29-p-025-hue-shift-observable-made-gradable",
+      "closing_condition": "upstream publishes a fixed extract-zip (or the advisory range narrows) and the puppeteer chains move onto it, or both consuming chains (webdriverio, pa11y-ci) drop extract-zip; prune when the gate runs green without this entry",
+      "added": "2026-09-29"
+    }
+  ],
+  "license_allow": {
+    "runtime": [
+      "MIT",
+      "Apache-2.0",
+      "ISC",
+      "BSD-2-Clause",
+      "BSD-3-Clause",
+      "0BSD",
+      "MIT-0",
+      "Unlicense",
+      "CC0-1.0",
+      "BlueOak-1.0.0",
+      "(MIT OR CC0-1.0)",
+      "MIT OR Apache-2.0",
+      "Apache-2.0 OR MIT",
+      "(MIT AND Zlib)"
+    ],
+    "dev_additional": [
+      "LGPL-3.0-only",
+      "MPL-2.0",
+      "CC-BY-4.0",
+      "Python-2.0",
+      "BSD",
+      "(MIT OR GPL-3.0-or-later)",
+      "(MIT OR GPL-2.0)",
+      "(WTFPL OR MIT)"
+    ]
+  },
+  "license_exceptions": [
+    {
+      "package": "css-value",
+      "version": "0.0.1",
+      "reason": "no license field in the lockfile entry or upstream manifest; ancient webdriverio-chain transitive",
+      "owner": "2026-08-30-npm-advisory-coverage",
+      "closing_condition": "upstream publishes a license or the webdriverio chain drops the package",
+      "added": "2026-08-30"
+    },
+    {
+      "package": "union",
+      "version": "0.5.0",
+      "reason": "no license field in the lockfile entry or upstream manifest; http-server-chain transitive",
+      "owner": "2026-08-30-npm-advisory-coverage",
+      "closing_condition": "upstream publishes a license or the http-server chain drops the package",
+      "added": "2026-08-30"
+    }
+  ],
+  "banned_packages": [
+    {
+      "name": "@radix-ui/",
+      "reason": "second ARIA component library — react-aria-components is the picked one; a11y-plan §11 Universal bans running two simultaneously"
+    },
+    {
+      "name": "@headlessui/",
+      "reason": "second ARIA component library — a11y-plan §11 Universal"
+    },
+    {
+      "name": "@ariakit/",
+      "reason": "second ARIA component library — a11y-plan §11 Universal"
+    },
+    {
+      "name": "ariakit",
+      "reason": "second ARIA component library — a11y-plan §11 Universal"
+    },
+    {
+      "name": "@reach/",
+      "reason": "second ARIA component library — a11y-plan §11 Universal"
+    }
+  ]
+}

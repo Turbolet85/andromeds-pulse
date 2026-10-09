@@ -1,0 +1,84 @@
+[
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "bf89b279",
+"ts": "2026-10-04T12:47:29Z",
+"argv": [
+"conclusion",
+"--sha",
+"e71dba539a7d0379d960b49b37b2cf3538de6ec2",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"e71dba539a7d verdict: in progress · checks 13/13 · runs ci#37203184509 in_progress/- secret-scan#37203184546 completed/…",
+"runs: ci#37203184509 pull_request in_progress/- · secret-scan#37203184546 pull_request completed/success",
+"running 12: oldest lint / test (ubuntu-22.04) 139 s",
+"run open: ci#37203184509 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "e71dba539a7d0379d960b49b37b2cf3538de6ec2",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+},
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "bf89b279",
+"ts": "2026-10-04T12:56:47Z",
+"argv": [
+"conclusion",
+"--sha",
+"e71dba539a7d0379d960b49b37b2cf3538de6ec2",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"e71dba539a7d verdict: in progress · checks 13/13 · runs ci#37203184509 in_progress/- secret-scan#37203184546 completed/…",
+"runs: ci#37203184509 pull_request in_progress/- · secret-scan#37203184546 pull_request completed/success",
+"running 1: oldest coverage gate (line ≥75% / branch ≥70% / function ≥85%) 696 s",
+"run open: ci#37203184509 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "e71dba539a7d0379d960b49b37b2cf3538de6ec2",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+}
+]

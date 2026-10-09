@@ -1,0 +1,202 @@
+[
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "42efbdea",
+"ts": "2026-10-06T23:08:47Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2179→2180 · bytes 2229421→2230561 · term lf",
+"ts 2026-10-06T23:08:37Z · clock 2026-10-06T23:08:47Z · bound 2026-10-06T22:35:41Z (line 2179)",
+"ids 2026-10-06T23:08:37Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2179,
+"bytes": 2229421,
+"terminator": "LF",
+"bound": "2026-10-06T22:35:41Z"
+},
+"after": {
+"lines": 2180,
+"bytes": 2230561
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "42efbdea",
+"ts": "2026-10-06T23:16:17Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"3",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 3 record(s) · friction-log.ndjson lines 2180→2183 · bytes 2230561→2233883 · term lf",
+"ts 2026-10-06T23:16:03Z · clock 2026-10-06T23:16:17Z · bound 2026-10-06T23:08:37Z (line 2180)",
+"ids 2026-10-06T23:16:03Z-a … 2026-10-06T23:16:03Z-c (3)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2180,
+"bytes": 2230561,
+"terminator": "LF",
+"bound": "2026-10-06T23:08:37Z"
+},
+"after": {
+"lines": 2183,
+"bytes": 2233883
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "42efbdea",
+"ts": "2026-10-06T23:16:45Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"3",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 3 record(s) · friction-log.ndjson lines 2183→2186 · bytes 2233883→2235975 · term lf",
+"ts 2026-10-06T23:16:35Z · clock 2026-10-06T23:16:45Z · bound 2026-10-06T23:16:03Z (line 2183)",
+"ids 2026-10-06T23:16:35Z-a … 2026-10-06T23:16:35Z-c (3)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2183,
+"bytes": 2233883,
+"terminator": "LF",
+"bound": "2026-10-06T23:16:03Z"
+},
+"after": {
+"lines": 2186,
+"bytes": 2235975
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "42efbdea",
+"ts": "2026-10-06T23:18:01Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"7",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 7 record(s) · friction-log.ndjson lines 2186→2193 · bytes 2235975→2240709 · term lf",
+"ts 2026-10-06T23:17:40Z · clock 2026-10-06T23:18:01Z · bound 2026-10-06T23:16:35Z (line 2186)",
+"ids 2026-10-06T23:17:40Z-a … 2026-10-06T23:17:40Z-g (7)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2186,
+"bytes": 2235975,
+"terminator": "LF",
+"bound": "2026-10-06T23:16:35Z"
+},
+"after": {
+"lines": 2193,
+"bytes": 2240709
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "42efbdea",
+"ts": "2026-10-06T23:20:31Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2193→2194 · bytes 2240709→2241894 · term lf",
+"ts 2026-10-06T23:20:23Z · clock 2026-10-06T23:20:31Z · bound 2026-10-06T23:17:40Z (line 2193)",
+"ids 2026-10-06T23:20:23Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2193,
+"bytes": 2240709,
+"terminator": "LF",
+"bound": "2026-10-06T23:17:40Z"
+},
+"after": {
+"lines": 2194,
+"bytes": 2241894
+}
+}
+]

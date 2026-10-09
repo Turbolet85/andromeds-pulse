@@ -1,12 +1,27 @@
 {
+  "env": {
+    "PYTHONUTF8": "1",
+    "PYTHONIOENCODING": "utf-8"
+  },
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit|MultiEdit|Write",
+        "matcher": "Edit|MultiEdit|Write|NotebookEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'path=$(jq -r \".tool_input.file_path\" <<< \"$CLAUDE_TOOL_INPUT\"); if echo \"$path\" | grep -qE \"^(dist|build|\\\\.next|node_modules|coverage|target|vendor)/\"; then echo \"Blocked: attempting to edit generated directory\"; exit 1; fi'"
+            "timeout": 5,
+            "command": "bash -c 'command -v jq >/dev/null 2>&1 || exit 0; inp=$(cat); if [ -z \"$inp\" ]; then inp=\"$CLAUDE_TOOL_INPUT\"; fi; path=$(printf \"%s\" \"$inp\" | jq -r \".tool_input.file_path // empty\" | tr -d \"\\r\" | tr \"\\134\" \"/\"); if printf \"%s\" \"$path\" | grep -qE \"(^|/)(dist|build|[.]next|node_modules|coverage|target|vendor)/\"; then echo \"Blocked: edit to a generated directory ($path)\" >&2; exit 2; fi'"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "bash -c 'command -v jq >/dev/null 2>&1 || exit 0; inp=$(cat); if [ -z \"$inp\" ]; then inp=\"$CLAUDE_TOOL_INPUT\"; fi; cmd=$(printf \"%s\" \"$inp\" | jq -r \".tool_input.command // empty\" | tr -d \"\\r\"); case \"$(uname -s)\" in MINGW*|MSYS*|CYGWIN*) n=$(printf \"%s\" \"$cmd\" | wc -c | tr -d \" \"); if [ \"$n\" -gt 6500 ]; then echo \"Blocked: a ${n}-byte command - on a Windows/Git-Bash host the Bash transport corrupts a command past a fixed offset near 7.5 KB (measured): write the payload to a file (Write tool) and run it by path, or split the call\" >&2; exit 2; fi;; esac; if printf \"%s\" \"$cmd\" | grep -qE \"(^|[;&|([:space:]])cat[[:space:]][^|;&]*>>?[[:space:]]*[^&[:space:]][^|;&]*[^<]<<[^<]|(^|[;&|([:space:]])cat([[:space:]][^|;&]*)?[^<]<<[^<][^|;&]*>>?[[:space:]]*[^&[:space:]]|[^<]<<[^<][^|]*[|][[:space:]]*tee[[:space:]]|(^|[;&|([:space:]])tee([[:space:]][^|;&]*)?[^<]<<[^<]\"; then echo \"Blocked: a cat/tee heredoc with a file target - documents go through the Write tool; a script goes to a scratchpad file run by path\" >&2; exit 2; fi; case \"$cmd\" in *cd*) ;; *) exit 0;; esac; q=$(printf \"\\047\"); d=$(printf \"\\042\"); b=$(printf \"\\134\"); k=$(printf \"\\140\"); nl=$(printf \"\\nx\"); nl=\"${nl%x}\"; shopt -u patsub_replacement 2>/dev/null; p=$(printf \"%s\" \"$CLAUDE_PROJECT_DIR\" | tr \"\\134\" \"/\"); LC_ALL=C; s=\"${cmd%%\"<<\"*}\"; cp=1; n=0; m=\"\"; u=\"\"; h=\"\"; while [ -n \"$s\" ]; do if [ -n \"$m\" ]; then a=\"${s%%[\"$d$b\"]*}\"; s=\"${s:${#a}}\"; case \"${s:0:1}\" in \"$b\") s=\"${s:1}\";; *) m=\"\";; esac; s=\"${s:1}\"; continue; fi; w=\"$cp\"; if [ -n \"$cp\" ]; then cp=\"\"; s=\"${s#\"${s%%[![:blank:]]*}\"}\"; case \"$n${s:0:3}\" in \"0{\"|\"0{\"[[:space:]]*) s=\"${s:1}\"; cp=1; continue;; 0cd|0cd[[:blank:]]*) if [ -z \"$h\" ]; then h=$(printf \"%s\" \"$inp\" | jq -r \".cwd // empty\" | tr -d \"\\r\"); [ -n \"$h\" ] || h=\"${CLAUDE_PROJECT_DIR:-$PWD}\"; h=$(printf \"%s\" \"$h\" | tr \"\\134\" \"/\"); h=$(CDPATH= cd -- \"$h\" 2>/dev/null && pwd -P); [ -n \"$h\" ] || exit 0; c=\"$h\"; o=$(CDPATH= cd -- \"${p:-$h}\" 2>/dev/null && pwd -P); [ -n \"$o\" ] || o=\"$h\"; fi; r=\"${s#cd}\"; r=\"${r#\"${r%%[![:blank:]]*}\"}\"; g=\"\"; x=\"\"; case \"$r\" in \"$q\"*) t=\"${r#\"$q\"}\"; case \"$t\" in *\"$q\"*) ;; *) exit 0;; esac; t=\"${t%%\"$q\"*}\"; r=\"${r#\"$q$t$q\"}\";; \"$d\"*) t=\"${r#\"$d\"}\"; case \"$t\" in *\"$d\"*) ;; *) exit 0;; esac; t=\"${t%%\"$d\"*}\"; r=\"${r#\"$d$t$d\"}\"; x=1;; *) t=\"${r%%[[:space:];&|<>()]*}\"; r=\"${r#\"$t\"}\"; g=1; x=1;; esac; s=\"$r\"; r=\"${r#\"${r%%[![:blank:]]*}\"}\"; case \"$r\" in \"\"|\"&&\"*|\";\"*|\"$nl\"*) ;; *) t=\"$b\";; esac; case \"$t\" in *\"$q\"*|*\"$d\"*|*\"$b\"*) c=\"\"; continue;; esac; if [ -n \"$g\" ]; then case \"$t\" in \"~\") t=\"$HOME\";; \"~/\"*) t=\"$HOME/${t#\"~/\"}\";; esac; [ -n \"$t\" ] || t=\"$HOME\"; fi; if [ -n \"$x\" ]; then if [ -n \"$p\" ]; then t=\"${t//\"\\${CLAUDE_PROJECT_DIR}\"/$p}\"; t=\"${t//\"\\$CLAUDE_PROJECT_DIR\"/$p}\"; fi; if [ -n \"$HOME\" ]; then t=\"${t//\"\\${HOME}\"/$HOME}\"; t=\"${t//\"\\$HOME\"/$HOME}\"; fi; fi; case \"$t\" in \"\"|\"-\"|*\"$\"*|*\"$k\"*) c=\"\"; continue;; esac; case \"$c$t\" in /*) ;; *) continue;; esac; r=$([ -n \"$g\" ] || set -f; IFS=; CDPATH= cd -- \"${c:-/}\" 2>/dev/null && CDPATH= cd -- $t 2>/dev/null && pwd -P); case \"$r\" in \"$h\"|\"$o\") c=\"$r\"; continue;; esac; echo \"Blocked: cd ($t) moves the session cwd for every later call - keep it: absolute paths, git -C DIR, a tool dir flag, or a subshell ( cd DIR && ... ); a cd into the cwd or the project root passes\" >&2; exit 2;; esac; fi; a=\"${s%%[\"$q$d$b$k$nl\"\";&|()#\"]*}\"; s=\"${s:${#a}}\"; case \"${s:0:2}\" in \"$q\"*) s=\"${s:1}\"; a=\"${s%%\"$q\"*}\"; [ \"${#a}\" -lt \"${#s}\" ] || exit 0; s=\"${s:${#a}+1}\";; \"$d\"*) s=\"${s:1}\"; m=1;; \"$b\"*) s=\"${s:1}\"; s=\"${s:1}\";; \"(\"*) s=\"${s:1}\"; n=$((n+1));; \")\"*) s=\"${s:1}\"; n=$((n-1));; \"$k\"*) s=\"${s:1}\"; if [ -n \"$u\" ]; then u=\"\"; n=$((n-1)); else u=1; n=$((n+1)); fi;; \"&&\"|\"||\") s=\"${s:2}\"; cp=1;; \";\"*|\"$nl\"*) s=\"${s:1}\"; cp=1;; \"#\"*) case \"$w$a\" in 1|*[[:blank:]]) a=\"${s%%\"$nl\"*}\"; s=\"${s:${#a}}\";; *) s=\"${s:1}\";; esac;; *) s=\"${s:1}\";; esac; done; exit 0'"
           }
         ]
       }
@@ -17,23 +32,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'case \"$CLAUDE_FILE_PATH\" in *.rs) rustfmt \"$CLAUDE_FILE_PATH\" 2>/dev/null || true ;; esac'"
-          },
-          {
-            "type": "command",
-            "command": "bash -c 'case \"$CLAUDE_FILE_PATH\" in *.rs) (cd \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\" && cargo clippy --fix --allow-dirty --workspace --all-targets --all-features -- -D warnings 2>&1 | tail -50) ;; esac'"
-          },
-          {
-            "type": "command",
-            "command": "bash -c 'case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.js|*.jsx) (cd \"$(dirname $(find . -maxdepth 4 -name package.json -path \"*/ui/*\" | head -1) 2>/dev/null)\" 2>/dev/null && npx --no-install prettier --write \"$CLAUDE_FILE_PATH\" 2>/dev/null) || true ;; esac'"
-          },
-          {
-            "type": "command",
-            "command": "bash -c 'case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.js|*.jsx) (cd \"$(dirname $(find . -maxdepth 4 -name package.json -path \"*/ui/*\" | head -1) 2>/dev/null)\" 2>/dev/null && npx --no-install eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null) || true ;; esac'"
-          },
-          {
-            "type": "command",
-            "command": "bash -c 'case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx) (cd \"$(dirname $(find . -maxdepth 4 -name tsconfig.json -path \"*/ui/*\" | head -1) 2>/dev/null)\" 2>/dev/null && npx --no-install tsc --noEmit 2>&1 | tail -30) || true ;; esac'"
+            "timeout": 30,
+            "command": "bash -c 'command -v jq >/dev/null 2>&1 || exit 0; f=$(cat | jq -r \".tool_input.file_path // empty\" | tr -d \"\\r\"); [ -n \"$f\" ] || exit 0; case \"$f\" in *.rs) rustfmt \"$f\" 2>/dev/null || true;; esac'"
           }
         ]
       }

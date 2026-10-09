@@ -1,0 +1,157 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T15:56:07Z",
+"argv": [
+"route.py",
+"markerless",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · 146 lines · 66 entries · 63 stamped · 3 markerless · 60 separators",
+"142 · Span-level redaction · freight 1",
+"144 · Real-model incident surfacing · freight 1",
+"146 · Conductor return · freight 0",
+"UNPARSED: working-route.md:52 — separator-boundary token outside the letters' introducer shape: 'PREMISE CORRECTED 2026…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'TWO LAYERS, ONE QUESTI…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'WHY IT PRECEDES P-075/…",
+"UNPARSED: working-route.md:60 — separator-boundary token outside the letters' introducer shape: 'MEASURED, not inferred…",
+"INDETERMINATE: working-route.md:100 — after ONE space — freight or prose, no structural split: 'GPU:'",
+"UNPARSED: working-route.md:116 — entry line carrying `↓` inside it; read as an ENTRY",
+"UNPARSED: working-route.md:125 — entry line carrying `↓` inside it; read as an ENTRY"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T15:56:07Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 3 of 66 entries · freight blocks 2 · rows are an INDEX, not the text",
+"142 · CONTEXT: · 524 chars · CONTEXT: founder 2026-09-30 verbatim «да маскировать фрагмент» (overseer relay `pc-oversee…",
+"144 · CONTEXT: · 773 chars · CONTEXT: founder 2026-09-30 (asked, answered) «Чинить в Pulse 0.3.0» (same relay §2); meas…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T15:56:08Z",
+"argv": [
+"route.py",
+"epoch",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · 4 epoch headers · 66 entries · freeze state joined to 63 master records",
+"8 · Epoch 1 — Foundation: AI-debug spine · entries 3 · markerless 0 · frozen complete 3 · pending 0",
+"15 · Epoch 2 — Window & shell hygiene · entries 5 · markerless 0 · frozen complete 5 · pending 0",
+"26 · Epoch 3 — State honesty & legibility · entries 10 · markerless 0 · frozen complete 10 · pending 0",
+"47 · Epoch 4 — Polish & ship: verification · entries 48 · markerless 3 · frozen complete 44 · pending 1",
+"UNPARSED: working-route.md:52 — separator-boundary token outside the letters' introducer shape: 'PREMISE CORRECTED 2026…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'TWO LAYERS, ONE QUESTI…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'WHY IT PRECEDES P-075/…",
+"UNPARSED: working-route.md:60 — separator-boundary token outside the letters' introducer shape: 'MEASURED, not inferred…",
+"INDETERMINATE: working-route.md:100 — after ONE space — freight or prose, no structural split: 'GPU:'",
+"UNPARSED: working-route.md:116 — entry line carrying `↓` inside it; read as an ENTRY",
+"UNPARSED: working-route.md:125 — entry line carrying `↓` inside it; read as an ENTRY"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T15:56:41Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 4 of 67 entries · freight blocks 4 · rows are an INDEX, not the text",
+"142 · CONTEXT: · 1079 chars · CONTEXT: overseer relay 2026-09-30 (`pc-overseer/relays/pulse-wrap-perf-2026-09-30.md` §3…",
+"142 · CARRY: · 483 chars · CARRY: the CI `release` job's `release-${{ runner.os }}` rust-cache step lacks `cache-on-fai…",
+"144 · CONTEXT: · 524 chars · CONTEXT: founder 2026-09-30 verbatim «да маскировать фрагмент» (overseer relay `pc-oversee…",
+"146 · CONTEXT: · 773 chars · CONTEXT: founder 2026-09-30 (asked, answered) «Чинить в Pulse 0.3.0» (same relay §2); meas…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T16:00:10Z",
+"argv": [
+"route.py",
+"epoch",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · 4 epoch headers · 67 entries · freeze state joined to 63 master records",
+"8 · Epoch 1 — Foundation: AI-debug spine · entries 3 · markerless 0 · frozen complete 3 · pending 0",
+"15 · Epoch 2 — Window & shell hygiene · entries 5 · markerless 0 · frozen complete 5 · pending 0",
+"26 · Epoch 3 — State honesty & legibility · entries 10 · markerless 0 · frozen complete 10 · pending 0",
+"47 · Epoch 4 — Polish & ship: verification · entries 49 · markerless 4 · frozen complete 44 · pending 1",
+"UNPARSED: working-route.md:52 — separator-boundary token outside the letters' introducer shape: 'PREMISE CORRECTED 2026…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'TWO LAYERS, ONE QUESTI…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'WHY IT PRECEDES P-075/…",
+"UNPARSED: working-route.md:60 — separator-boundary token outside the letters' introducer shape: 'MEASURED, not inferred…",
+"INDETERMINATE: working-route.md:100 — after ONE space — freight or prose, no structural split: 'GPU:'",
+"UNPARSED: working-route.md:116 — entry line carrying `↓` inside it; read as an ENTRY",
+"UNPARSED: working-route.md:125 — entry line carrying `↓` inside it; read as an ENTRY"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

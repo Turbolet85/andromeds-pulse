@@ -1,0 +1,136 @@
+[
+{
+"tool": "planlint",
+"v": "1.6",
+"sha8": "bf918458",
+"ts": "2026-10-04T18:27:24Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-l4-interpretation-names-its-triggering-cue/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T18-13-03Z-phase",
+"--marker",
+"2026-10-04-l4-interpretation-names-its-triggering-cue"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"fence: 31 entries · plan: andromeda-pulse-0.3.0/chunks/2026-10-04-l4-interpretation-names-its-triggering-cue/plan.md · …",
+"check 9 · CI-outcome reads: 1 · leg operator exempt: 1 · Platform issues consulted: none · `none — no runner-only bull…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: filled · ``.claude/rules/verification-harness.md` — s…`",
+"check 4 (5) · leg entries with a content atom: 5 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 1 · not ci.py conclusion: 0",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 0 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13) · 4 (14)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "none",
+"ci_reads": 1,
+"operator": 1,
+"hit": false
+},
+"harness": {
+"slot": "filled",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 5,
+"bare": []
+},
+"tool": {
+"operator": 1,
+"hand": []
+},
+"base": {
+"operator": 11,
+"reads": []
+},
+"check2": {
+"entries": 16,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 0
+}
+},
+{
+"tool": "planlint",
+"v": "1.6",
+"sha8": "bf918458",
+"ts": "2026-10-04T18:29:21Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-l4-interpretation-names-its-triggering-cue/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T18-13-03Z-phase",
+"--marker",
+"2026-10-04-l4-interpretation-names-its-triggering-cue"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"fence: 31 entries · plan: andromeda-pulse-0.3.0/chunks/2026-10-04-l4-interpretation-names-its-triggering-cue/plan.md · …",
+"check 9 · CI-outcome reads: 1 · leg operator exempt: 1 · Platform issues consulted: none · `none — no runner-only bull…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: filled · ``.claude/rules/verification-harness.md` — s…`",
+"check 4 (5) · leg entries with a content atom: 5 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 1 · not ci.py conclusion: 0",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 0 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13) · 4 (14)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "none",
+"ci_reads": 1,
+"operator": 1,
+"hit": false
+},
+"harness": {
+"slot": "filled",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 5,
+"bare": []
+},
+"tool": {
+"operator": 1,
+"hand": []
+},
+"base": {
+"operator": 11,
+"reads": []
+},
+"check2": {
+"entries": 16,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 0
+}
+}
+]

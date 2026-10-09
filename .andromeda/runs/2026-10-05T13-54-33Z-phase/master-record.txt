@@ -1,0 +1,1 @@
+2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings · pending · L4 ships gemma-4-E4B with its authors' sampling, a committed GBNF via --grammar-file and thinking off; the GPU SLO raised · → andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings/

@@ -1,0 +1,162 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T13:41:21Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap/architecture-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap",
+"--marker",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 719 · lines 718→724 · bytes 106666→108114 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T13-31-12Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 718,
+"bytes": 106666,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 724,
+"bytes": 108114
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T13:41:21Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap/security-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap",
+"--marker",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 529 · lines 528→534 · bytes 97956→99336 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T13-31-12Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 528,
+"bytes": 97956,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 534,
+"bytes": 99336
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T13:41:21Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap/test-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap",
+"--marker",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+6 at line 614 · lines 613→619 · bytes 104477→105662 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T13-31-12Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 613,
+"bytes": 104477,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 619,
+"bytes": 105662
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T13:45:28Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap/route-new-entry.txt",
+"--lines",
+"2",
+"--after-line",
+"175",
+"--expect-last-prefix",
+"   ↓",
+"--run-dir",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap",
+"--marker",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append working-route.md:+2 at line 176 · lines 178→180 · bytes 31642→32803 · term lf",
+"last line now: pre-push:linux runs natively on Linux — the local Linux pre-push check runs on"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 178,
+"bytes": 31642,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 180,
+"bytes": 32803
+}
+}
+]

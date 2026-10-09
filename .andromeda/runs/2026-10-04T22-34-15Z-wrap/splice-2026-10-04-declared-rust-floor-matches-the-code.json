@@ -1,0 +1,119 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-04T22:43:52Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap/architecture-entry.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap",
+"--marker",
+"2026-10-04-declared-rust-floor-matches-the-code"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+11 at line 668 · lines 667→678 · bytes 96671→98564 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T22-34-15Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 667,
+"bytes": 96671,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 678,
+"bytes": 98564
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-04T22:43:52Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap/security-plan-entry.md",
+"--lines",
+"7",
+"--run-dir",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap",
+"--marker",
+"2026-10-04-declared-rust-floor-matches-the-code"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+7 at line 516 · lines 515→522 · bytes 95638→96881 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T22-34-15Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 515,
+"bytes": 95638,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 522,
+"bytes": 96881
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-04T22:43:52Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap/test-plan-entry.md",
+"--lines",
+"8",
+"--run-dir",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap",
+"--marker",
+"2026-10-04-declared-rust-floor-matches-the-code"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+8 at line 591 · lines 590→598 · bytes 100099→101885 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T22-34-15Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 590,
+"bytes": 100099,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 598,
+"bytes": 101885
+}
+}
+]

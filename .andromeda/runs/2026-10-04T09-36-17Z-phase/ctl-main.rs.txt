@@ -1,0 +1,6 @@
+fn main() {
+    // SAFETY note
+
+    let render_posture = render_posture::apply_linux_default();
+    let runtime = 1;
+}

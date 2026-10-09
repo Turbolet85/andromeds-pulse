@@ -51,14 +51,7 @@ pub fn format_markdown(
     let phase_a_tokens = count_tokens(&buf);
 
     if phase_a_tokens > budget_count {
-        return finish_phase_d(
-            started,
-            &span,
-            budget,
-            budget_count,
-            phase_a_tokens,
-            curated,
-        );
+        return finish_phase_d(started, &span, budget_count, phase_a_tokens, curated);
     }
 
     render_section_aggregation(&mut buf, curated);
@@ -175,17 +168,6 @@ fn finish_ok(
     );
     span.record("duration_ms", duration_ms);
 
-    tracing::info!(
-        target: "metric.snapshot.token_count_ms",
-        value = duration_ms as f64,
-        duration_ms,
-        token_budget = budget.label(),
-        time_range_minutes = 0_u64,
-        token_count_actual = token_count,
-        dedup_count = curated.dedup_count,
-        budget_exceeded = false,
-    );
-
     Ok(MarkdownReport {
         markdown,
         token_count,
@@ -197,7 +179,6 @@ fn finish_ok(
 fn finish_phase_d(
     started: Instant,
     span: &tracing::Span,
-    budget: TokenBudget,
     budget_count: usize,
     actual_tokens: usize,
     curated: &CurationOutput,
@@ -224,17 +205,6 @@ fn finish_phase_d(
         budget_exceeded = true,
         duration_ms,
         "snapshot token budget exceeded by anomaly + critical-path content",
-    );
-
-    tracing::info!(
-        target: "metric.snapshot.token_count_ms",
-        value = duration_ms as f64,
-        duration_ms,
-        token_budget = budget.label(),
-        time_range_minutes = 0_u64,
-        token_count_actual = actual_tokens,
-        dedup_count = curated.dedup_count,
-        budget_exceeded = true,
     );
 
     Err(FormatError::BudgetExceeded {

@@ -1,5 +1,6 @@
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::AtomicU64;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use std::{env, fs};
@@ -23,15 +24,16 @@ use triage::contract::{
     DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS,
     DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_PERSIST_INTERVAL_SECS,
     DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, DigestBroadcast,
-    HardwareProfileSource, InMemoryIncidentRegistry, InMemoryServiceRegistry,
-    IncidentLifecycleBroadcast, IncidentPersistence, IncidentRegistry, LifecyclePersistence,
-    LwwQueue, RestartDetector, RestartEventBroadcast, RetryStormDetector,
-    ServiceLifecycleBroadcast, ServiceRegistry, SqlQueryRunner, StormPersistence, SuppressionState,
-    TARGET_LIFECYCLE_CORPUS_RESTORE, TARGET_LIFECYCLE_PERSIST_ERROR,
-    TARGET_PATTERN_STORM_CORPUS_RESTORE, TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds,
-    TriageSqlState, bootstrap_state, run_incident_persist_loop, run_lifecycle_persist_loop,
-    run_persist_loop, run_storm_persist_loop, start_cadence_coordinator, start_emitter,
-    start_lifecycle_heartbeat, start_restart_detector, start_storm_detector,
+    DigestTriggerBroadcast, DurableActiveIncidents, HardwareProfileSource,
+    InMemoryIncidentRegistry, InMemoryServiceRegistry, IncidentLifecycleBroadcast,
+    IncidentPersistence, IncidentRegistry, LifecyclePersistence, LwwQueue, RestartDetector,
+    RestartEventBroadcast, RetryStormDetector, ServiceLifecycleBroadcast, ServiceRegistry,
+    SqlQueryRunner, StormPersistence, SuppressionState, TARGET_LIFECYCLE_CORPUS_RESTORE,
+    TARGET_LIFECYCLE_PERSIST_ERROR, TARGET_PATTERN_STORM_CORPUS_RESTORE,
+    TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds, TriageSqlState, bootstrap_state,
+    run_incident_persist_loop, run_lifecycle_persist_loop, run_persist_loop,
+    run_storm_persist_loop, start_cadence_coordinator, start_emitter, start_lifecycle_heartbeat,
+    start_restart_detector, start_storm_detector,
 };
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -43,7 +45,7 @@ use ui_bridge::workspace_ipc::{WorkspaceApi, WorkspaceApiImpl};
 use viz::VizState;
 
 use pulse_app::taurpc_export_config;
-use pulse_app::{heartbeat, observability, tray, window};
+use pulse_app::{heartbeat, observability, render_posture, tray, window, window_geometry};
 
 use pulse_app::baseline_observer::BaselineObserverAdapter;
 use pulse_app::baseline_persistence::{
@@ -53,10 +55,12 @@ use pulse_app::cadence_runner::CadenceSqlRunner;
 use pulse_app::config_router::{self, ConfigApi, ConfigApiImpl};
 use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBindStatus};
 use pulse_app::diagnostics_router::{DiagnosticsApi, DiagnosticsApiImpl};
+use pulse_app::discovery_observer::DiscoveryObserverAdapter;
 use pulse_app::drain_persistence::CorpusDrainPersistence;
 use pulse_app::incident_observer::{AutoResolveObserver, run_auto_resolution_loop};
 use pulse_app::incident_persistence::CorpusIncidentPersistence;
 use pulse_app::incidents_router::{IncidentsApi, IncidentsApiImpl};
+use pulse_app::investigate_router::{InvestigateApi, InvestigateApiImpl};
 use pulse_app::lifecycle_persistence::CorpusLifecyclePersistence;
 use pulse_app::llamacli_inference::LlamaCliInference;
 #[cfg(feature = "mcp-server")]
@@ -120,7 +124,7 @@ fn resolve_grpc_port() -> Result<OtlpPort, IngestError> {
 }
 
 // Resolves the path to the andromeda-pulse-mcp sidecar binary. Sibling of
-// the current executable (same dir, with .exe on Windows). Falls back to а
+// the current executable (same dir, with .exe on Windows). Falls back to a
 // non-resolving placeholder if the current binary path cannot be read —
 // `mcp.start` then surfaces AppError::Internal at spawn time. Chunk #49.
 #[cfg(feature = "mcp-server")]
@@ -223,8 +227,10 @@ fn write_pid_file(data_dir: &Path) {
     if !canonical_run.starts_with(&canonical_data) {
         tracing::error!(
             target: "app.boot.pid",
-            run_dir = ?canonical_run,
-            data_dir = ?canonical_data,
+            run_dir_basename = pulse_app::observability::log_basename(&canonical_run)
+                .unwrap_or("unknown"),
+            data_dir_basename = pulse_app::observability::log_basename(&canonical_data)
+                .unwrap_or("unknown"),
             "run dir escaped data dir; refusing to write PID",
         );
         return;
@@ -234,10 +240,44 @@ fn write_pid_file(data_dir: &Path) {
         tracing::warn!(target: "app.boot.pid", error = %e, "failed to write PID file");
         return;
     }
-    tracing::info!(target: "app.boot.pid", pid = pid, path = ?pid_path, "PID file written");
+    tracing::info!(
+        target: "app.boot.pid",
+        pid = pid,
+        path_basename = pulse_app::observability::log_basename(&pid_path).unwrap_or("unknown"),
+        "PID file written",
+    );
+}
+
+/// Publish the resolved incident workspace key so the MCP stdio sidecar —
+/// a separate process that shares only the data dir — filters incidents by
+/// the identity this process stamps them with. Non-fatal: on failure the
+/// sidecar falls back to `data_dir`, which is the pre-publication behaviour.
+///
+/// Basename only in the log line, per the chunk #43 `workspace.detect`
+/// precedent (obs-plan §5 Vector 5).
+fn publish_workspace_key_for_sidecar(data_dir: &Path, key: &str) {
+    match workspace_detector::contract::publish_workspace_key(data_dir, key) {
+        Ok(()) => tracing::info!(
+            target: "app.boot.workspace_key",
+            workspace_root_basename = Path::new(key)
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("unknown"),
+            key_bytes = key.len(),
+            "workspace key published for sidecar",
+        ),
+        Err(e) => tracing::warn!(
+            target: "app.boot.workspace_key",
+            error_category = "publish_failed",
+            error_detail = %e,
+            "workspace key publish failed; sidecar will fall back to data dir",
+        ),
+    }
 }
 
 fn main() {
+    let render_posture = render_posture::apply_linux_default();
+
     // taurpc's `Router::into_handler()` spawns a background handler-manager
     // task during binding emission and requires a tokio runtime in scope, but
     // Tauri's Builder doesn't establish one until `.run()` (which happens
@@ -252,10 +292,14 @@ fn main() {
     tauri::async_runtime::set(tokio::runtime::Handle::current());
 
     let data_dir = resolve_data_dir();
-    let _guard = observability::init(&data_dir);
+    observability::hold_log_guard(observability::init(&data_dir));
+    observability::install_exit_hook();
+    #[cfg(unix)]
+    observability::install_signal_listener();
     record_start();
     write_pid_file(&data_dir);
     window::emit_boot_spans();
+    render_posture::emit_posture(render_posture);
 
     let heartbeat_state = Arc::new(HeartbeatState::new());
     register_heartbeat_state(heartbeat_state.clone());
@@ -316,10 +360,10 @@ fn main() {
     let corpus_reader: Option<Arc<dyn corpus::contract::CorpusReader>> = corpus_arc
         .as_ref()
         .map(|c| Arc::clone(c) as Arc<dyn corpus::contract::CorpusReader>);
-    // Chunk #69 Phase B Session 4 — CorpusWriter trait view от the same
+    // Chunk #69 Phase B Session 4 — CorpusWriter trait view from the same
     // underlying Arc<Corpus>. Both reader + writer share one rusqlite
     // connection mutex; CorpusReader stays read-only-by-design per P-051
-    // while CorpusWriter is the additive write surface для pipeline-metric
+    // while CorpusWriter is the additive write surface for pipeline-metric
     // persistence (drain template tree this chunk; future chunks #71+
     // digest archive writes).
     let corpus_writer: Option<Arc<dyn corpus::contract::CorpusWriter>> = corpus_arc
@@ -329,6 +373,23 @@ fn main() {
         .as_ref()
         .zip(corpus_writer.as_ref())
         .map(|(r, w)| StorageApiImpl::new(Arc::clone(r), Arc::clone(w)));
+
+    // Retire content orphaned by an earlier key: inventory first, then purge.
+    // Runs before every other corpus consumer because one undecryptable row
+    // fails an entire query, so the reads below depend on it. Idempotent — a
+    // corpus with nothing orphaned is a no-op.
+    if let Some(c) = corpus_arc.as_ref() {
+        let now_nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| i64::try_from(d.as_nanos()).unwrap_or(i64::MAX))
+            .unwrap_or(0);
+        let outcome = corpus::disposition::dispose_orphaned_content(
+            c.as_ref(),
+            &data_dir.join("corpus"),
+            now_nanos,
+        );
+        corpus::disposition::emit_disposition_outcome(&outcome);
+    }
 
     // Chunk #100 — P-041 pipeline-metrics 30-day retention purge, once per
     // boot. The corpus-side DELETE preserves the newest row per
@@ -345,7 +406,7 @@ fn main() {
     // Chunk #70 — BaselineState corpus persistence adapter. Derives a
     // third trait view from the same Arc<Corpus> (alongside reader +
     // drain-writer); BaselineState moves from the chunk #61 flat-file
-    // bincode at `<data_dir>/triage/baseline-corpus.bin` к corpus SQLite
+    // bincode at `<data_dir>/triage/baseline-corpus.bin` to corpus SQLite
     // via Schema Option A (mirrors chunk #69 Drain — reuses the
     // `pipeline_metrics` blob slot with metric_name="baseline_state",
     // layer="l1b"). None ⇒ corpus unavailable at boot (keychain failure
@@ -411,24 +472,35 @@ fn main() {
     // surfaces (chunk #62); Thresholds carries hardcoded defaults this
     // chunk (hot-reload lands in #86).
     let baseline_now = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
+    // Resolved before the baseline state it configures: `Thresholds` carries
+    // the cold-start window, and the state receives that same value, so the
+    // silence evaluator, the emitter counters and the lifecycle registry all
+    // gate on one bound.
+    let thresholds = Arc::new(Thresholds::from_env());
     let baseline_state = Arc::new(bootstrap_state(
         baseline_persistence.as_deref(),
         DEFAULT_SERVICE_COUNT_CAP,
         baseline_now,
+        thresholds.bootstrap_window_seconds,
     ));
     let cue_broadcast = Arc::new(AttentionCueBroadcast::new());
     let cadence_channel = Arc::new(CadenceTriggerChannel::new());
-    let thresholds = Arc::new(Thresholds::default());
 
     // Chunk #80 — cadence coordinator substrate. CadenceEventBroadcast is
     // the L6-visibility emission topic (`pulse://stream/cadence-events`).
     // CadenceConfig loads from persisted Settings; coordinator reads once
-    // at spawn (hot-reload deferred к chunk #94 per pulse-v0_2_0-route §80).
+    // at spawn (hot-reload deferred to chunk #94 per pulse-v0_2_0-route §80).
     // SqlQueryRunner is wired via CadenceSqlRunner adapter ONLY when buffer_conn
     // is Some — else coordinator is disabled (warn-logged below). Hardware
-    // profile defaults к Unknown (Tier-2-enabled posture) until chunk #82
-    // delivers а real detector.
+    // profile defaults to Unknown (Tier-2-enabled posture) until chunk #82
+    // delivers a real detector.
     let cadence_event_broadcast = Arc::new(CadenceEventBroadcast::new());
+    // P-074 — the non-L6 digest-assembly trigger conveys the full triggering
+    // cue (incl. scope_id) from the coordinator to the digest assembler, so a
+    // cue-driven storm digest reaches L4 with its `attention_cues` populated and
+    // the producer can create + dedup the incident. Kept separate from the
+    // PII-free `pulse://stream/cadence-events` topic above.
+    let cadence_digest_trigger = Arc::new(DigestTriggerBroadcast::new());
     // Chunk #82 — replace the chunk #80 boot stub (UnknownHardwareProfile)
     // with the real `HardwareProfileDetector`. Detector probes GPU presence
     // + CPU core count at construction; cached for subsequent reads.
@@ -444,15 +516,36 @@ fn main() {
         detected_profile,
         model_status_broadcast.clone(),
     ));
+    // Deterministic env-gated L4 mode: when the gate is truthy the canned-output
+    // runner is the active L4 runner (reproducible incident path, no model);
+    // otherwise the real llama-cli subprocess runner. The llama-cli readiness
+    // check below still runs in either mode (cheap; file-existence only, no
+    // subprocess).
     let llm_runner: Arc<dyn interpretation::contract::LlmInferenceRunner> =
-        Arc::clone(&llamacli_inference) as Arc<dyn interpretation::contract::LlmInferenceRunner>;
+        if pulse_app::deterministic_inference::deterministic_mode_enabled() {
+            tracing::info!(
+                target: "interpretation.model.load",
+                inference_mode = "deterministic",
+                "L4 deterministic mode active (ANDROMEDA_PULSE_L4_DETERMINISTIC); canned output, no model",
+            );
+            Arc::new(
+                pulse_app::deterministic_inference::DeterministicInferenceRunner::new(model_tier),
+            )
+        } else {
+            tracing::info!(
+                target: "interpretation.model.load",
+                inference_mode = "real",
+                "L4 real mode (llama-cli subprocess D1)",
+            );
+            Arc::clone(&llamacli_inference) as Arc<dyn interpretation::contract::LlmInferenceRunner>
+        };
     let model_impl = ModelApiImpl::new(Arc::clone(&llm_runner), Arc::clone(&hardware_profile));
 
     // Chunk #84 — boot-time llama-cli readiness check. Fire-and-forget: if
     // `ANDROMEDA_PULSE_LLAMA_{CUDA,CPU}_BIN_PATH` or `ANDROMEDA_PULSE_MODEL_PATH`
-    // are unset OR resolve to invalid paths, the runner stays в `ModelStatus::Error`
+    // are unset OR resolve to invalid paths, the runner stays in `ModelStatus::Error`
     // and `generate_constrained` returns `ModelNotConfigured` — the L4 subscriber
-    // catches it as а runtime_error and skips. App boots cleanly in graceful-
+    // catches it as a runtime_error and skips. App boots cleanly in graceful-
     // degraded mode either way. Subprocess D1 means no actual model load happens
     // here (load happens per-generation inside llama-cli).
     {
@@ -476,7 +569,8 @@ fn main() {
     // holds per-service post-restart suppression windows consumed by the cue
     // emitter's surgical-suppression filter. RestartObserverAdapter wraps the
     // detector + broadcast for the span-observer hot path; CompositeSpanObserver
-    // fan-outs each ingested span to BOTH baseline + restart adapters.
+    // fan-outs each ingested span to the baseline, restart and first-sighting
+    // adapters (composed below, once the lifecycle registry exists).
     let restart_broadcast = Arc::new(RestartEventBroadcast::new());
     let restart_detector = Arc::new(RestartDetector::new(
         thresholds.restart_gap_threshold_seconds,
@@ -489,10 +583,6 @@ fn main() {
         Arc::clone(&restart_detector),
         Arc::clone(&restart_broadcast),
     ));
-    let span_observer: Arc<dyn SpanObserver> = Arc::new(CompositeSpanObserver::new(vec![
-        baseline_adapter,
-        restart_adapter,
-    ]));
 
     // Chunk #66 + chunk #71 corpus persistence — retry storm detector.
     // Tracks per-fingerprint occurrences in a 60s rolling window; ≥5/30s
@@ -500,7 +590,7 @@ fn main() {
     // existing chunk #62 attention-cues broadcast channel.
     // StormObserverAdapter wraps the detector + broadcast for the
     // buffer-side FingerprintObserver hot path; trait declaration lives
-    // в the lower buffer crate per arch §Cross-cutting Patterns Module
+    // in the lower buffer crate per arch §Cross-cutting Patterns Module
     // dependency direction.
     //
     // Chunk #71 — restore state from corpus at boot. Ok(Some(snapshot))
@@ -646,20 +736,49 @@ fn main() {
         );
         registry
     };
-    // Chunk #78 — incident records + lifecycle persistence. Derive а 5th
+    // P-027 discovery bound: the first-sighting adapter lists a service at its
+    // first span rather than at the heartbeat's first 15 s tick. It is LAST so
+    // the baseline has admitted the service (cap check) in the same fan-out.
+    let discovery_adapter: Arc<dyn SpanObserver> = Arc::new(DiscoveryObserverAdapter::new(
+        Arc::clone(&lifecycle_registry),
+        Arc::clone(&baseline_state),
+        Arc::clone(&lifecycle_broadcast),
+    ));
+    let span_observer: Arc<dyn SpanObserver> = Arc::new(CompositeSpanObserver::new(vec![
+        baseline_adapter,
+        restart_adapter,
+        discovery_adapter,
+    ]));
+    // Chunk #78 — incident records + lifecycle persistence. Derive a 5th
     // CorpusWriter trait view (alongside baseline + lifecycle + storm +
     // drain) from the same Arc<Corpus>. None ⇒ corpus unavailable at
     // boot; incident registry runs in-memory-only this session.
     // Hydrate the registry from corpus active-incidents on boot (P-042
-    // cross-session continuity). Workspace attribution uses data_dir as
-    // the workspace key for chunk #78 backend persistence; future chunks
-    // integrate workspace-detector for proper per-project keying.
-    let incident_workspace_key: String = data_dir.to_string_lossy().to_string();
+    // cross-session continuity). The workspace identity is single-sourced
+    // via workspace-detector so the FILTER key (services/incidents
+    // resolvers + persistence) equals the value incidents are STAMPED with
+    // (the producer's digest.workspace); the data_dir-vs-detected-root
+    // mismatch was the P-079 defect.
+    let (incident_workspace_key, digest_project_context) = {
+        let detected = std::env::current_dir()
+            .ok()
+            .and_then(|cwd| workspace_detector::detect::detect(&cwd).ok());
+        pulse_app::digest_runtime::resolve_workspace_for_incidents(detected.as_ref(), &data_dir)
+    };
+    publish_workspace_key_for_sidecar(&data_dir, &incident_workspace_key);
     let incident_broadcast = Arc::new(IncidentLifecycleBroadcast::new());
-    let incident_persistence: Option<Arc<dyn IncidentPersistence>> =
-        corpus_writer.as_ref().map(|w| {
-            Arc::new(CorpusIncidentPersistence::new(Arc::clone(w))) as Arc<dyn IncidentPersistence>
-        });
+    // One adapter instance, two trait views (write + the reconciliation read
+    // port) — the concrete Arc is the intermediate so both views share the
+    // single underlying corpus connection.
+    let incident_adapter: Option<Arc<CorpusIncidentPersistence>> = corpus_writer
+        .as_ref()
+        .map(|w| Arc::new(CorpusIncidentPersistence::new(Arc::clone(w))));
+    let incident_persistence: Option<Arc<dyn IncidentPersistence>> = incident_adapter
+        .as_ref()
+        .map(|a| Arc::clone(a) as Arc<dyn IncidentPersistence>);
+    let incident_durable: Option<Arc<dyn DurableActiveIncidents>> = incident_adapter
+        .as_ref()
+        .map(|a| Arc::clone(a) as Arc<dyn DurableActiveIncidents>);
     let restored_incidents: Vec<triage::contract::Incident> = incident_persistence
         .as_ref()
         .and_then(|p| match p.load_active_incidents(&incident_workspace_key) {
@@ -703,15 +822,15 @@ fn main() {
         Arc::clone(&lifecycle_broadcast),
     );
 
-    // Chunk #69 Phase B Session 4 — Drain miner construction с corpus-backed
+    // Chunk #69 Phase B Session 4 — Drain miner construction with corpus-backed
     // persistence. `CorpusDrainPersistence` wraps the writer trait object
     // via trait-in-lower-crate pattern (per session-learnings 2026-05-16);
     // serializes DrainState via bincode → AES-256-GCM cell encrypt →
     // `pipeline_metrics(metric_name="drain_template_tree", layer="l1c")`.
     // Boot is non-fatal: if corpus_writer is None the miner runs
     // in-memory-only; if `load_from_persistence` fails, we log + proceed
-    // (template tree resets к empty). Settings-driven config (Step 14)
-    // lands в Session 5 alongside the SettingsModalForm Drain UI.
+    // (template tree resets to empty). Settings-driven config (Step 14)
+    // lands in Session 5 alongside the SettingsModalForm Drain UI.
     let drain_persistence: Option<Arc<dyn buffer::DrainPersistence>> =
         corpus_writer.as_ref().map(|writer| {
             Arc::new(CorpusDrainPersistence::new(Arc::clone(writer)))
@@ -719,10 +838,10 @@ fn main() {
         });
     // Chunk #69 Phase B Session 5 — Settings-driven Drain knobs. Load
     // Settings from disk; if file missing OR parse-error, silent fallback
-    // к defaults via `Settings::load_from_data_dir` per chunk #30 boot-
+    // to defaults via `Settings::load_from_data_dir` per chunk #30 boot-
     // load precedent. Settings.drain_* fields shape DrainConfig before
     // DrainMiner construction; runtime config changes (via Settings UI)
-    // persist но do NOT mutate the live miner — restart required (P-055).
+    // persist but do NOT mutate the live miner — restart required (P-055).
     // similarity_x100 is the percent-scaled integer storage form (50 ↔ 0.50).
     let boot_settings = Settings::load_from_data_dir(&data_dir);
     let mut drain_config = DrainConfig::default_config();
@@ -828,6 +947,8 @@ fn main() {
         data_dir.clone(),
         features,
         Some(Arc::clone(&broadcast_senders)),
+        Some(Arc::clone(&buffer_state)),
+        retention_seconds,
     );
 
     // Chunk #44: SnapshotApiImpl constructed BEFORE the router build so the
@@ -837,6 +958,9 @@ fn main() {
     // IPC call.
     let snapshot_impl = SnapshotApiImpl::new(buffer_conn.clone(), data_dir.clone());
     let snapshot_impl_for_setup = snapshot_impl.clone();
+    // P-072 — Investigate-action resolver. Reuses the boot-built `llm_runner`
+    // (deterministic-aware) + the buffer connection for the telemetry context.
+    let investigate_impl = InvestigateApiImpl::new(buffer_conn.clone(), Arc::clone(&llm_runner));
 
     // Chunk #47: plugin host wiring. Engine is constructed at boot (shared
     // across all plugin operations); plugin dir is resolved + canonicalized
@@ -904,6 +1028,7 @@ fn main() {
                 .merge(services_impl.clone().into_handler())
                 .merge(diagnostics_impl.clone().into_handler())
                 .merge(model_impl.clone().into_handler())
+                .merge(investigate_impl.clone().into_handler())
                 .merge(config_impl.clone().into_handler());
             let base = match storage_impl.as_ref() {
                 Some(s) => base.merge(s.clone().into_handler()),
@@ -930,6 +1055,7 @@ fn main() {
                 .merge(services_impl.clone().into_handler())
                 .merge(diagnostics_impl.clone().into_handler())
                 .merge(model_impl.clone().into_handler())
+                .merge(investigate_impl.clone().into_handler())
                 .merge(config_impl.clone().into_handler());
             let base = match storage_impl.as_ref() {
                 Some(s) => base.merge(s.clone().into_handler()),
@@ -963,6 +1089,7 @@ fn main() {
     // workspace key for the setup closure spawn site (persist loop + auto-
     // resolution observer loop). Cloning Option<Arc<...>> is cheap (Arc).
     let incident_persistence_for_persist = incident_persistence.clone();
+    let incident_durable_for_persist = incident_durable.clone();
     let incident_registry_for_persist = Arc::clone(&incident_registry);
     // Chunk #86 — capture degraded_mode for the setup closure spawn site
     // (L4 inference subscriber + backoff-remaining heartbeat). Mirrors the
@@ -973,11 +1100,31 @@ fn main() {
     let incident_broadcast_for_observe = Arc::clone(&incident_broadcast);
     let incident_workspace_for_persist = incident_workspace_key.clone();
 
-    tauri::Builder::default()
+    // Window geometry (remembered position) — Rust-owned, decoupled from the
+    // webview Settings contract so an update_settings can never clobber it.
+    // The event handler records moves (throttled) + flushes on close-to-tray;
+    // boot restores it from the snapshot taken in the setup closure.
+    let window_geometry = Arc::new(Mutex::new(window_geometry::GeometryStore::load(&data_dir)));
+    let window_geometry_for_event = Arc::clone(&window_geometry);
+    let data_dir_for_event = data_dir.clone();
+    // Resize generation for the compact-widget aspect clamp (intent F2 /
+    // P-062): the handler debounces on this so the clamp snaps once after the
+    // resize settles instead of fighting the drag frame-by-frame.
+    let aspect_resize_gen = Arc::new(AtomicU64::new(0));
+
+    let app = tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_notification::init())
-        .on_window_event(window::on_window_event)
+        .on_window_event(move |w, e| {
+            window::on_window_event(
+                w,
+                e,
+                window_geometry_for_event.as_ref(),
+                &data_dir_for_event,
+                &aspect_resize_gen,
+            )
+        })
         .invoke_handler(invoke_router.into_handler())
         .setup(move |app| {
             // Chunk #44: populate the deferred AppHandle into SnapshotApiImpl.
@@ -989,7 +1136,13 @@ fn main() {
 
             window::show_compact_widget(app);
             let settings = Settings::load_from_data_dir(&data_dir);
+            let geometry_snapshot = window_geometry
+                .lock()
+                .map(|s| s.snapshot())
+                .unwrap_or_default();
             window::apply_widget_settings(app, &settings);
+            window::restore_main_window_position(app, &geometry_snapshot);
+            window::spawn_navigation_check(app.handle().clone());
             let tray_icon = tray::setup_tray(app.handle(), Arc::clone(&broadcast_senders))?;
             app.manage(tray_icon);
 
@@ -1061,6 +1214,17 @@ fn main() {
                     // Drain the receiver to keep the OTLP ingest path live so
                     // chunk #16/#17 receivers don't cascade into channel saturation.
                     // Retention task is also skipped — no connection to sweep.
+                    //
+                    // Announce it: draining is indistinguishable from a healthy
+                    // path in ingest's own counters (they count at receipt), so
+                    // without this line a dead fingerprint feed and absent
+                    // DuckDB appends can only be inferred from missing signal.
+                    tracing::warn!(
+                        target: "app.boot.buffer.degraded",
+                        reason = "buffer_conn_absent",
+                        consequence = "duckdb_appends_and_fingerprint_feed_inert",
+                        "buffer connection absent; ingest batches are drained and discarded this boot",
+                    );
                     tauri::async_runtime::spawn(async move {
                         let mut rx = ingest_receiver;
                         while rx.recv().await.is_some() {}
@@ -1191,7 +1355,7 @@ fn main() {
                 DEFAULT_HEARTBEAT_INTERVAL,
             ));
             // Chunk #66 — retry storm detector heartbeat tick (15s default;
-            // shares cadence с chunk #63 restart detector). Storm detection
+            // shares cadence with chunk #63 restart detector). Storm detection
             // itself happens inline at fingerprint-observation time via the
             // StormObserverAdapter buffer-side hot-path hook.
             tauri::async_runtime::spawn(start_storm_detector(
@@ -1201,9 +1365,9 @@ fn main() {
             // Chunk #80 — cadence coordinator + three-tier triggering.
             // CadenceConfig reads from persisted Settings (validated by
             // Settings::validate at load time); coordinator reads once at
-            // spawn per pulse-v0_2_0-route §80 (hot-reload deferred к chunk
+            // spawn per pulse-v0_2_0-route §80 (hot-reload deferred to chunk
             // #94). Spawn ONLY when buffer_conn is Some (cadence_sql_runner
-            // has а real DuckDB handle); else log warn + skip.
+            // has a real DuckDB handle); else log warn + skip.
             let cadence_config = Arc::new(
                 CadenceConfig::try_new(
                     settings.cadence_baseline_seconds,
@@ -1225,6 +1389,7 @@ fn main() {
                 tauri::async_runtime::spawn(start_cadence_coordinator(
                     Arc::clone(sql_runner),
                     Arc::clone(&cadence_event_broadcast),
+                    Arc::clone(&cadence_digest_trigger),
                     Arc::clone(&cue_broadcast),
                     Arc::clone(&cadence_channel),
                     Arc::clone(&hardware_profile),
@@ -1243,7 +1408,7 @@ fn main() {
             // chunk #80 / chunk #68 substrates). Spawns two tasks:
             // - cadence subscriber: invokes assembler.assemble() per
             //   CadenceEvent
-            // - digest persister: writes each assembled digest к
+            // - digest persister: writes each assembled digest to
             //   corpus.digest_archive via CorpusWriter::save_digest
             let digest_broadcast: Arc<DigestBroadcast> = Arc::new(DigestBroadcast::new());
             let digest_queue: Arc<std::sync::Mutex<LwwQueue>> =
@@ -1261,16 +1426,10 @@ fn main() {
                     )),
                 ) {
                     Ok(assembler) => {
-                        let project_context = std::env::current_dir()
-                            .ok()
-                            .and_then(|cwd| workspace_detector::detect::detect(&cwd).ok())
-                            .as_ref()
-                            .map(pulse_app::digest_runtime::workspace_to_digest_context)
-                            .unwrap_or_default();
                         pulse_app::digest_runtime::spawn_cadence_subscriber(
-                            Arc::clone(&cadence_event_broadcast),
+                            Arc::clone(&cadence_digest_trigger),
                             Arc::clone(&assembler),
-                            project_context,
+                            digest_project_context,
                         );
                         pulse_app::digest_runtime::spawn_digest_persister(
                             Arc::clone(&digest_broadcast),
@@ -1287,6 +1446,11 @@ fn main() {
                         // attachment happens in-memory but the durable
                         // write is deferred — defensive skip prevents
                         // None unwrap on Path A non-corpus boot).
+                        // Generation damper — shared by the L4 subscriber
+                        // (the unchanged-input gate) and the backoff
+                        // heartbeat (cumulative counters as tick fields).
+                        let generation_damper =
+                            Arc::new(triage::contract::GenerationDamper::new());
                         if let Some(persistence) = incident_persistence_for_persist.as_ref() {
                             pulse_app::inference_runtime::spawn_l4_inference_subscriber(
                                 Arc::clone(&digest_broadcast),
@@ -1294,6 +1458,7 @@ fn main() {
                                 Arc::clone(&degraded_mode_for_subscriber),
                                 Arc::clone(&incident_registry_for_persist),
                                 Arc::clone(persistence),
+                                Arc::clone(&generation_damper),
                             );
                         } else {
                             tracing::warn!(
@@ -1304,6 +1469,7 @@ fn main() {
                         pulse_app::inference_runtime::spawn_l4_queue_depth_heartbeat(|| 0);
                         pulse_app::inference_runtime::spawn_l4_backoff_remaining_heartbeat(
                             Arc::clone(&degraded_mode_for_heartbeat),
+                            Arc::clone(&generation_damper),
                         );
                         tracing::info!(
                             target: "digest.runtime.boot",
@@ -1327,7 +1493,7 @@ fn main() {
             // Chunk #67 — service lifecycle heartbeat tick (15s default
             // sibling cadence). Reads BaselineState activity snapshots,
             // emits ServiceLifecycleEvent transitions on the broadcast,
-            // and subscribes к pulse://stream/restart-events to trigger
+            // and subscribes to pulse://stream/restart-events to trigger
             // Bootstrapping transitions on any-state restart-observed gap.
             // Thresholds source from persisted Settings (loaded above).
             let lifecycle_restart_rx = restart_broadcast.subscribe();
@@ -1369,12 +1535,15 @@ fn main() {
             // (30s tick) evaluates Active+Acknowledged incidents for the
             // 120s no-reemission window (capability P-022).
             if let Some(persistence) = incident_persistence_for_persist.as_ref() {
-                tauri::async_runtime::spawn(run_incident_persist_loop(
-                    Arc::clone(&incident_registry_for_persist),
-                    Arc::clone(persistence),
-                    vec![incident_workspace_for_persist.clone()],
-                    DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS,
-                ));
+                if let Some(durable) = incident_durable_for_persist.as_ref() {
+                    tauri::async_runtime::spawn(run_incident_persist_loop(
+                        Arc::clone(&incident_registry_for_persist),
+                        Arc::clone(persistence),
+                        Arc::clone(durable),
+                        vec![incident_workspace_for_persist.clone()],
+                        DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS,
+                    ));
+                }
                 let observer = AutoResolveObserver::new(
                     Arc::clone(&incident_registry_for_persist),
                     Arc::clone(persistence),
@@ -1401,8 +1570,12 @@ fn main() {
             );
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application");
+    // `run` would end in tao's `process::exit` with the log worker undrained;
+    // `run_return` hands the code back so the exit is recorded first.
+    let exit_code = app.run_return(|_, _| {});
+    observability::exit_after_event_loop(exit_code);
 }
 
 fn init_buffer(heartbeat_state: &Arc<HeartbeatState>) -> Option<Arc<Mutex<Connection>>> {
@@ -1654,6 +1827,8 @@ mod tests {
             data_dir.clone(),
             vec![],
             Some(Arc::clone(&broadcast_senders)),
+            None,
+            600,
         );
 
         let snapshot_impl = SnapshotApiImpl::new(Some(Arc::clone(&conn)), data_dir.clone());
@@ -1791,7 +1966,7 @@ mod tests {
         // Chunk #82: ModelApiImpl participates in the emit so bindings.ts
         // ARGS_MAP includes model.current_profile (5-place binding 5th slot
         // per .claude/rules/security.md Session Additions 2026-05-12).
-        // Test uses UnknownHardwareProfile (deterministic) + а stub
+        // Test uses UnknownHardwareProfile (deterministic) + a stub
         // LlamaCliInference (status: Error, identity: None — env vars unset
         // in test process so binary_path + model_path both resolve to None).
         let model_hardware: Arc<dyn HardwareProfileSource> = Arc::new(UnknownHardwareProfile);
@@ -1803,6 +1978,18 @@ mod tests {
                 model_status_bcast_test,
             ));
         let model_impl = ModelApiImpl::new(model_runner_test, model_hardware);
+
+        // P-072: InvestigateApiImpl participates in the emit so bindings.ts
+        // ARGS_MAP includes investigate.run_action. Deterministic runner keeps
+        // the bindings test hermetic (no env / model / subprocess).
+        let investigate_impl = InvestigateApiImpl::new(
+            Some(Arc::clone(&conn)),
+            Arc::new(
+                pulse_app::deterministic_inference::DeterministicInferenceRunner::new(
+                    interpretation::contract::ModelTier::Primary,
+                ),
+            ),
+        );
 
         // Chunk #96: ConfigApiImpl participates in the emit so bindings.ts
         // ARGS_MAP includes config.reload / config.status. Empty handle slot
@@ -1844,6 +2031,7 @@ mod tests {
                 .merge(diagnostics_impl.into_handler())
                 .merge(incidents_impl.into_handler())
                 .merge(model_impl.into_handler())
+                .merge(investigate_impl.into_handler())
                 .merge(config_impl.into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.into_handler());

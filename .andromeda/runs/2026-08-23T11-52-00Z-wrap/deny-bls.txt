@@ -1,0 +1,176 @@
+warning[wildcard]: found 2 wildcard dependencies for crate 'buffer'
+   ┌─ D:\dev\projects\andromeda-pulse\crates\buffer\Cargo.toml:31:10
+   │
+31 │ ingest = { path = "../ingest" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   ·
+40 │ security = { path = "../security" }
+   │            ━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ├ buffer v0.1.0
+     ├── mcp-server v0.1.0
+     │   ├── pulse-app v0.1.0
+     │   └── ui-bridge v0.1.0
+     │       ├── config-watcher v0.1.0
+     │       │   └── pulse-app v0.1.0 (*)
+     │       ├── pulse-app v0.1.0 (*)
+     │       └── xtask v0.1.0
+     ├── pulse-app v0.1.0 (*)
+     └── ui-bridge v0.1.0 (*)
+
+warning[wildcard]: found 1 wildcard dependency for crate 'config-watcher'
+   ┌─ D:\dev\projects\andromeda-pulse\crates\config-watcher\Cargo.toml:17:13
+   │
+17 │ ui-bridge = { path = "../ui-bridge" }
+   │             ━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ├ config-watcher v0.1.0
+     └── pulse-app v0.1.0
+
+warning[wildcard]: found 1 wildcard dependency for crate 'corpus'
+   ┌─ D:\dev\projects\andromeda-pulse\crates\corpus\Cargo.toml:20:12
+   │
+20 │ security = { path = "../security" }
+   │            ━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ├ corpus v0.1.0
+     ├── mcp-server v0.1.0
+     │   ├── pulse-app v0.1.0
+     │   └── ui-bridge v0.1.0
+     │       ├── config-watcher v0.1.0
+     │       │   └── pulse-app v0.1.0 (*)
+     │       ├── pulse-app v0.1.0 (*)
+     │       └── xtask v0.1.0
+     └── pulse-app v0.1.0 (*)
+
+warning[wildcard]: found 2 wildcard dependencies for crate 'interpretation'
+   ┌─ D:\dev\projects\andromeda-pulse\crates\interpretation\Cargo.toml:31:10
+   │
+31 │ triage = { path = "../triage" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   ·
+38 │ security = { path = "../security" }
+   │            ━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ├ interpretation v0.1.0
+     ├── mcp-server v0.1.0
+     │   ├── pulse-app v0.1.0
+     │   └── ui-bridge v0.1.0
+     │       ├── config-watcher v0.1.0
+     │       │   └── pulse-app v0.1.0 (*)
+     │       ├── pulse-app v0.1.0 (*)
+     │       └── xtask v0.1.0
+     └── pulse-app v0.1.0 (*)
+
+warning[wildcard]: found 7 wildcard dependencies for crate 'mcp-server'
+   ┌─ D:\dev\projects\andromeda-pulse\crates\mcp-server\Cargo.toml:21:10
+   │
+21 │ buffer = { path = "../buffer" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+22 │ viz = { path = "../viz" }
+   │       ━━━━━━━━━━━━━━━━━━━ wildcard dependency
+23 │ snapshot = { path = "../snapshot" }
+   │            ━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   ·
+28 │ corpus = { path = "../corpus" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+29 │ triage = { path = "../triage" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+30 │ interpretation = { path = "../interpretation" }
+   │                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   ·
+34 │ workspace-detector = { path = "../workspace-detector" }
+   │                      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ├ mcp-server v0.1.0
+     ├── pulse-app v0.1.0
+     └── ui-bridge v0.1.0
+         ├── config-watcher v0.1.0
+         │   └── pulse-app v0.1.0 (*)
+         ├── pulse-app v0.1.0 (*)
+         └── xtask v0.1.0
+
+warning[wildcard]: found 12 wildcard dependencies for crate 'pulse-app'
+   ┌─ D:\dev\projects\andromeda-pulse\pulse-app\Cargo.toml:40:13
+   │
+40 │ ui-bridge = { path = "../crates/ui-bridge" }
+   │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+41 │ ingest = { path = "../crates/ingest" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+42 │ buffer = { path = "../crates/buffer" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+43 │ viz = { path = "../crates/viz" }
+   │       ━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+44 │ plugins = { path = "../crates/plugins" }
+   │           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+45 │ snapshot = { path = "../crates/snapshot" }
+   │            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+46 │ workspace-detector = { path = "../crates/workspace-detector" }
+   │                      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+47 │ triage = { path = "../crates/triage" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+48 │ corpus = { path = "../crates/corpus" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+49 │ security = { path = "../crates/security" }
+   │            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+50 │ interpretation = { path = "../crates/interpretation" }
+   │                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+51 │ config-watcher = { path = "../crates/config-watcher" }
+   │                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ├ pulse-app v0.1.0
+
+warning[wildcard]: found 1 wildcard dependency for crate 'snapshot'
+   ┌─ D:\dev\projects\andromeda-pulse\crates\snapshot\Cargo.toml:11:12
+   │
+11 │ curation = { path = "../curation" }
+   │            ━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ├ snapshot v0.1.0
+     ├── mcp-server v0.1.0
+     │   ├── pulse-app v0.1.0
+     │   └── ui-bridge v0.1.0
+     │       ├── config-watcher v0.1.0
+     │       │   └── pulse-app v0.1.0 (*)
+     │       ├── pulse-app v0.1.0 (*)
+     │       └── xtask v0.1.0
+     ├── pulse-app v0.1.0 (*)
+     └── ui-bridge v0.1.0 (*)
+
+warning[wildcard]: found 7 wildcard dependencies for crate 'ui-bridge'
+   ┌─ D:\dev\projects\andromeda-pulse\crates\ui-bridge\Cargo.toml:19:10
+   │
+19 │ ingest = { path = "../ingest" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+20 │ buffer = { path = "../buffer" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+21 │ viz = { path = "../viz" }
+   │       ━━━━━━━━━━━━━━━━━━━ wildcard dependency
+22 │ snapshot = { path = "../snapshot" }
+   │            ━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+23 │ plugins = { path = "../plugins" }
+   │           ━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+24 │ workspace-detector = { path = "../workspace-detector" }
+   │                      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+25 │ mcp-server = { path = "../mcp-server" }
+   │              ━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ├ ui-bridge v0.1.0
+     ├── config-watcher v0.1.0
+     │   └── pulse-app v0.1.0
+     ├── pulse-app v0.1.0 (*)
+     └── xtask v0.1.0
+
+warning[wildcard]: found 2 wildcard dependencies for crate 'xtask'
+   ┌─ D:\dev\projects\andromeda-pulse\xtask\Cargo.toml:19:13
+   │
+19 │ ui-bridge = { path = "../crates/ui-bridge", default-features = false }
+   │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   ·
+24 │ ingest = { path = "../crates/ingest" }
+   │          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ wildcard dependency
+   │
+   ├ xtask v0.1.0
+
+bans ok, licenses ok, sources ok
+DENY_BLS_EXIT=0

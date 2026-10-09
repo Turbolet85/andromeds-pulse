@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T06:20:18Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement",
+"--expect-prefix",
+"L4 runs on a small current model chosen by measurement",
+"--record-file",
+".andromeda/runs/2026-10-05T06-18-42Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-18-42Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:170 - [2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement]",
+"record master-route.md:98 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement - working-route:170 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

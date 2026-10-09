@@ -1,0 +1,27 @@
+{
+  "input_frictions": [
+    {
+      "skill": "andromeda-implement",
+      "step": "code",
+      "chunk": "2026-07-07-plain-language-connection-status",
+      "what": "research assumed chrono usable in buffer non-test code (grep saw it in retention.rs) but it is a dev-dep only; cost one re-edit of record_rows_appended (chrono -> std::time::SystemTime)"
+    },
+    {
+      "skill": "andromeda-implement",
+      "step": "fix-loop",
+      "chunk": "2026-07-10-incidents-floating-window-disclosure",
+      "what": "plan under-specified where the incident Report opens once the disclosure rows move to a separate window (row-select → plan implied a cross-window widget-hosted report); surfaced at the a11y gate — p9 opened the report via the removed in-widget dropdown row + a cross-window report is not single-page reachable; resolved in-impl by hosting the Report inside the findings window (deviation from the plan's cross-window implication), cleaner UX + testable"
+    }
+  ],
+  "consumed_bad": [
+    {
+      "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+      "consumer": "andromeda-implement/smoke",
+      "artifact": "agent-harness",
+      "quality": "wrong",
+      "note": "NOT used for this webview chunk: agent-run.ps1 boot=cold cargo run --release + cargo xtask self-verify both boot the STALE-embedded frontend, so neither validates a fresh webview change; substituted the 2026-07-05-directive manual warm-re-embed"
+    }
+  ],
+  "chains": [],
+  "cross_chunk": []
+}

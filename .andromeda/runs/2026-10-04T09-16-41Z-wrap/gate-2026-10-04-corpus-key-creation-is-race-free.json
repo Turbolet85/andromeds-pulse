@@ -1,0 +1,801 @@
+[
+{
+"tool": "gate",
+"v": "1.6",
+"sha8": "9419d56e",
+"ts": "2026-10-04T09:16:59Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-corpus-key-creation-is-race-free",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root /home/turbolet/dev/projects/andromeda-pulse · base 76d6ccac (the parent of the oldest pre-CI commit a0737221) · lists new 0 · modify 1 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 1 · listed 1 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 34"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"base": "76d6ccacf3eb238dca39ff2e939c7cd96c7aa13a",
+"base_why": "the parent of the oldest pre-CI commit a0737221",
+"counts": {
+"changed": 1,
+"listed": 1,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 34,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.6",
+"sha8": "9419d56e",
+"ts": "2026-10-04T09:32:48Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-corpus-key-creation-is-race-free/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root /home/turbolet/dev/projects/andromeda-pulse · marker 2026-10-04-corpus-key-creation-is-race-free · entries 28",
+"logs /tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z · bound: GNU timeout",
+"delta docs 43",
+"prose L75-79: The standard gate set runs in the test-plan §3 order: capability-drift before the default-… (551 chars)",
+"prose L81-86: Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gat… (896 chars)",
+"prose L88-88: `cargo xtask pre-push:linux` cannot evaluate on the Linux dev host, because it drives ever… (394 chars)",
+"prose L90-92: Two founder-ruled 2026-10-04 differences from the predecessor's literal form: - Stage 3 ru… (312 chars)",
+"prose L94-94: Because stage 5 (a default-features workspace test run) re-emits the bindings in the no-mc… (282 chars)",
+"prose L96-98: ONE-SHOT controls at /implement, never listed (they mutate source and revert; the light ga… (252 chars)",
+"prose L100-100: Both readings go in `evidence/mutation-checks.md`, which the second criterion names. That … (265 chars)",
+"prose L102-102: The CI read waits 2400 s, against the last measured green run's wall-clock of 1718 s (`a69… (220 chars)",
+"  1 lint        green · exit 0 · 0.58s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 0.58s · 72 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 probe       green · exit 0 · 1.04s · 670 B → 3.log · cargo nextest list --workspace --profile ci -E 'test(/race… (67 chars)",
+"  4 unit        green · exit 0 · 1.49s · 309974 B → 4.log · cargo nextest run --workspace --profile ci --success-outpu… (93 chars)",
+"  5 unit        green · exit 0 · 1.34s · 18593 B → 5.log · cargo nextest run --workspace --profile ci -E 'package(cor… (64 chars)",
+"  6 integration green · exit 0 · 3.88s · 3076 B → 6.log · cargo nextest run --workspace --features mcp-server --prof… (214 chars)",
+"  7 probe       green · exit 0 · 0.01s · 0 B → 7.log · git diff --name-only 76d6ccacf3eb238dca39ff2e939c7cd96c7aa… (182 chars)",
+"  8 probe       green · exit 0 · 0.01s · 2 B → 8.log · git diff 76d6ccacf3eb238dca39ff2e939c7cd96c7aa13a -- crate… (137 chars)",
+"  9 probe       green · exit 0 · 0.47s · 100 B → 9.log · cargo xtask check:english-sources",
+" 10 probe       green · exit 0 · 0.31s · 394 B → 10.log · cargo xtask capability-widening-check",
+" 11 probe       green · exit 0 · 0.33s · 99 B → 11.log · cargo xtask check:ingest-progress",
+" 12 probe       green · exit 0 · 0.34s · 342 B → 12.log · cargo xtask check:staged-artifacts",
+" 13 probe       green · exit 0 · 0.34s · 714 B → 13.log · cargo xtask capability-drift",
+" 14 probe       green · exit 0 · 0.29s · 396 B → 14.log · cargo xtask verify:capability-matrix",
+" 15 unit        green · exit 0 · 14.75s · 612698 B → 15.log · cargo nextest run --workspace --profile ci",
+" 16 build       green · exit 0 · 0.94s · 628 B → 16.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 17 probe       green · exit 0 · 0.01s · 0 B → 17.log · git diff --quiet 76d6ccacf3eb238dca39ff2e939c7cd96c7aa13a … (95 chars)",
+" 18 probe       not run — leg operator (the letter drives it) · python -X utf8 /home/turbolet/.claude/skills/andromeda-too… (84 chars)",
+" 19 integration not run — leg operator (the letter drives it) · git ls-files -s scripts/agent-run.sh",
+" 20 integration not run — leg operator (the letter drives it) · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (191 chars)",
+" 21 integration not run — leg operator (the letter drives it) · P=\"$PWD/target/pre-push/puppeteer-$(date -u +%Y%m%dT%H%M%S… (497 chars)",
+" 22 integration not run — leg operator (the letter drives it) · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (226 chars)",
+" 23 integration not run — leg operator (the letter drives it) · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (174 chars)",
+" 24 integration not run — leg operator (the letter drives it) · D=\"$PWD/target/pre-push/data-$(date -u +%Y%m%dT%H%M%SZ)\" &… (619 chars)",
+" 25 build       not run — leg operator (the letter drives it) · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 26 probe       not run — leg operator (the letter drives it) · git diff --quiet 76d6ccacf3eb238dca39ff2e939c7cd96c7aa13a … (95 chars)",
+" 27 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 28 probe       not run — leg operator (the letter drives it) · python -X utf8 /home/turbolet/.claude/skills/andromeda-too… (108 chars)",
+"entries 28 · green 17 · red 0 · recorded 0 · timeout 0 · not-run 11"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-04-corpus-key-creation-is-race-free",
+"plan": "/home/turbolet/dev/projects/andromeda-pulse/andromeda-pulse-0.3.0/chunks/2026-10-04-corpus-key-creation-is-race-free/plan.md",
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"shell": "/usr/bin/bash",
+"out_dir": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z",
+"delta": {
+"docs": [
+".andromeda/architecture-amendments.md",
+".andromeda/architecture.md",
+".andromeda/friction-log.ndjson",
+".andromeda/security-plan-amendments.md",
+".andromeda/security-plan.md",
+".andromeda/state.yaml",
+".andromeda/test-plan-amendments.md",
+".andromeda/test-plan.md",
+".claude/docs/commands.md",
+".claude/docs/security-summary.md",
+".claude/docs/services/corpus.md",
+".claude/docs/stack.md",
+".claude/rules/host-win32.md",
+".claude/rules/security.md",
+".claude/rules/testing.md",
+".claude/session-handoff.md",
+"CLAUDE.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-corpus-key-creation-is-race-free/evidence/operator-pass.md",
+"andromeda-pulse-0.3.0/working-route.md",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/.detectors-a11y-plan.yaml",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/.detectors-arch.yaml",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/.detectors-design-system.yaml",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/.detectors-layout-templates.yaml",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/.detectors-obs-plan.yaml",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/.detectors-security-plan.yaml",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/.detectors-test-plan.yaml",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/.sweep.txt",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/architecture-entry-1.md",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/architecture-entry-2.md",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/cascade-2026-10-04-corpus-key-creation-is-race-free.json",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/cascade-dispositions.md",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/cascade-patterns.toml",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/curation.md",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/evolve-2026-10-04-corpus-key-creation-is-race-free.json",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/fanout-results.md",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/gate-2026-10-04-corpus-key-creation-is-race-free.json",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/registry-2026-10-04-corpus-key-creation-is-race-free.json",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/route-no-marker.json",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/security-plan-entry-1.md",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/security-plan-entry-2.md",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/splice-2026-10-04-corpus-key-creation-is-race-free.json",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/test-plan-entry.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-corpus-key-creation-is-race-free/report.md"
+]
+},
+"unmapped": [],
+"prose": [
+{
+"from": 75,
+"to": 79,
+"text": "The standard gate set runs in the test-plan §3 order: capability-drift before the default-features workspace nextest, then the `--features mcp-server` bindings regen, then the base-identity bindings close, since no procedure is added. The chunk's own gates come first, all under `--workspace` (test-plan §11 run-scope rule): - the targeted witness/pin run with its collection proof; - the `corpus` package suite; - the three cross-process MCP legs that open the production entry, as a regression check under `--features mcp-server`; - the scope guard."
+},
+{
+"from": 81,
+"to": 86,
+"text": "Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gates are absent. - No boot-path file is touched (`main.rs`, `observability.rs`, `crates/ui-bridge/src/`, `tauri.conf.json`, `capabilities/*.json`; the scope-guard entry proves it), so the boot smoke does not bind (test-plan §3 Boot-smoke gate). - There is no harness live leg and no self-verify. The witness's real processes are re-executed test binaries inside the unit entry. - No dependency is added (`std` file locking plus `blake3`, already a `corpus` dep), so `cargo deny` / `cargo audit` are not listed locally. The CI `supply-chain` job runs them, and the operator CI read asserts it green. - CI runners have no credential store, so the witness clean-skips there. Its non-skip proof is the dev-host entry's `lacks [skip]` atom (test-plan §1 `mcp-incident-read-back-cross-process-coverage` precedent)."
+},
+{
+"from": 88,
+"to": 88,
+"text": "`cargo xtask pre-push:linux` cannot evaluate on the Linux dev host, because it drives every stage through `wsl.exe` (`xtask/src/pre_push.rs:23`). Under the founder deviation of 2026-10-04, its six stages run NATIVELY by hand before the push, as in the two predecessor chunks. They are the six `operator` entries after hygiene, in `Stage::ALL` order, each in the stage isolation of `Linux::cmd`."
+},
+{
+"from": 90,
+"to": 92,
+"text": "Two founder-ruled 2026-10-04 differences from the predecessor's literal form: - Stage 3 runs with `PUPPETEER_CACHE_DIR` pointed at a fresh, per-invocation path under `target/pre-push/`. The ruling is to isolate the cache, never delete `~/.cache/puppeteer`. - Stage 6 seeds a per-invocation data dir with no `rm`."
+},
+{
+"from": 94,
+"to": 94,
+"text": "Because stage 5 (a default-features workspace test run) re-emits the bindings in the no-mcp shape, the `--features mcp-server` regen and the base-identity close are RE-FIRED as `operator` entries after stage 6 and before the push. This is the stage-ORDER lesson the handoff carries."
+},
+{
+"from": 96,
+"to": 98,
+"text": "ONE-SHOT controls at /implement, never listed (they mutate source and revert; the light gate re-runs entries verbatim): - the witness's RED-at-base read against HEAD's unlocked get-then-set; - the mutation check that restores it after the fix (Step 5)."
+},
+{
+"from": 100,
+"to": 100,
+"text": "Both readings go in `evidence/mutation-checks.md`, which the second criterion names. That file has no listed producer by construction: /implement writes it from those two runs. The listed, non-mutating `race_free` targeted entry guards the property on every re-run."
+},
+{
+"from": 102,
+"to": 102,
+"text": "The CI read waits 2400 s, against the last measured green run's wall-clock of 1718 s (`a69030a`); its timeout is 2400 + 180. Targeted feature-gated entries carry 5400 s for a cold `--features mcp-server` workspace build."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.58,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/2.log",
+"bytes": 72,
+"log_sha8": "ec3275bd",
+"exit": 0,
+"seconds": 0.58,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "cargo nextest list --workspace --profile ci -E 'test(/race_free/)' ",
+"run_sha8": "61aba624",
+"expect": [
+"exit 0",
+"contains corpus_key_race_free_across_concurrent_first_run_processes",
+"contains corpus_key_race_free_child_resolves_after_barrier"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/3.log",
+"bytes": 670,
+"log_sha8": "5d33355a",
+"exit": 0,
+"seconds": 1.04,
+"readings": [
+"exit 0 ✓",
+"contains 'corpus_key_race_free_across_concurrent_first_run_processes' ✓",
+"contains 'corpus_key_race_free_child_resolves_after_barrier' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci --success-output immediate -E 'test(/race_free/)' ",
+"run_sha8": "0d13e83d",
+"expect": [
+"exit 0",
+"lacks [skip] no OS credential store"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/4.log",
+"bytes": 309974,
+"log_sha8": "bd505acb",
+"exit": 0,
+"seconds": 1.49,
+"readings": [
+"exit 0 ✓",
+"lacks '[skip] no OS credential store' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci -E 'package(corpus)' ",
+"run_sha8": "291a5435",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/5.log",
+"bytes": 18593,
+"log_sha8": "8276e37f",
+"exit": 0,
+"seconds": 1.34,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "integration",
+"run": "cargo nextest run --workspace --features mcp-server --profile ci --success-output immediate -E 'binary(e2e_p3_mcp_resolve_content) | binary(e2e_p3_mcp_incident_events_content) | binary(incident_events_subprocess)' ",
+"run_sha8": "57c63118",
+"expect": [
+"exit 0",
+"lacks [skip] no OS credential store"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/6.log",
+"bytes": 3076,
+"log_sha8": "37e355da",
+"exit": 0,
+"seconds": 3.88,
+"readings": [
+"exit 0 ✓",
+"lacks '[skip] no OS credential store' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "git diff --name-only 76d6ccacf3eb238dca39ff2e939c7cd96c7aa13a -- crates pulse-app xtask Cargo.toml Cargo.lock deny.toml rust-toolchain.toml .github ':!crates/corpus/src/keychain.rs' ",
+"run_sha8": "80569d87",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/7.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "git diff 76d6ccacf3eb238dca39ff2e939c7cd96c7aa13a -- crates/corpus/src/keychain.rs | grep -cE '^\\+.*(tracing::|println!|eprintln!|dbg!)' ",
+"run_sha8": "497f3249",
+"expect": [
+"exit 0",
+"last line 1"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/8.log",
+"bytes": 2,
+"log_sha8": "4355a46b",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"last line '1' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/9.log",
+"bytes": 100,
+"log_sha8": "3d222085",
+"exit": 0,
+"seconds": 0.47,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/10.log",
+"bytes": 394,
+"log_sha8": "b54fdd37",
+"exit": 0,
+"seconds": 0.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/11.log",
+"bytes": 99,
+"log_sha8": "09869944",
+"exit": 0,
+"seconds": 0.33,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/12.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.34,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/13.log",
+"bytes": 714,
+"log_sha8": "6afff60e",
+"exit": 0,
+"seconds": 0.34,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/14.log",
+"bytes": 396,
+"log_sha8": "639cbda4",
+"exit": 0,
+"seconds": 0.29,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/15.log",
+"bytes": 612698,
+"log_sha8": "b71af9c8",
+"exit": 0,
+"seconds": 14.75,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/16.log",
+"bytes": 628,
+"log_sha8": "bc05f4e5",
+"exit": 0,
+"seconds": 0.94,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "git diff --quiet 76d6ccacf3eb238dca39ff2e939c7cd96c7aa13a -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "d02da8f0",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-corpus-key-creation-is-race-free/wrap-2026-10-04T09-16-41Z/17.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 18,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "c6e5fd28",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 19,
+"role": "integration",
+"run": "git ls-files -s scripts/agent-run.sh",
+"run_sha8": "c3cf2093",
+"expect": [
+"exit 0",
+"contains 100755"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 20,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo xtask check:english-sources",
+"run_sha8": "b6a3fa09",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 21,
+"role": "integration",
+"run": "P=\"$PWD/target/pre-push/puppeteer-$(date -u +%Y%m%dT%H%M%SZ)\" && test ! -e \"$P\" && cd pulse-app/ui && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" PUPPETEER_CACHE_DIR=\"$P\" ANDROMEDA_PULSE_DATA_DIR=\"$OLDPWD/target/pre-push/data\" npm ci && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" PUPPETEER_CACHE_DIR=\"$P\" ANDROMEDA_PULSE_DATA_DIR=\"$OLDPWD/target/pre-push/data\" npm run build",
+"run_sha8": "ce55d38a",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 22,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f73db233",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 23,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo xtask test",
+"run_sha8": "6146313a",
+"expect": [
+"exit 0",
+"contains passed, 0 skipped"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 24,
+"role": "integration",
+"run": "D=\"$PWD/target/pre-push/data-$(date -u +%Y%m%dT%H%M%SZ)\" && test ! -e \"$D\" && mkdir -p \"$D/logs\" && printf '%s\\n' '{\"timestamp\":\"2026-01-01T00:00:00.000000Z\",\"level\":\"INFO\",\"target\":\"app.boot.ready\",\"fields\":{\"message\":\"pre-push seed\"}}' '{\"timestamp\":\"2026-01-01T00:00:00.000000Z\",\"level\":\"INFO\",\"target\":\"ingest.tick\",\"fields\":{}}' '{\"timestamp\":\"2026-01-01T00:00:15.000000Z\",\"level\":\"INFO\",\"target\":\"ingest.tick\",\"fields\":{}}' > \"$D/logs/agent-latest.jsonl\" && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$D\" cargo xtask ci-gates",
+"run_sha8": "3690d126",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 25,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 26,
+"role": "probe",
+"run": "git diff --quiet 76d6ccacf3eb238dca39ff2e939c7cd96c7aa13a -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "d02da8f0",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 27,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 28,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2400",
+"run_sha8": "2aa1f573",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.6",
+"sha8": "9419d56e",
+"ts": "2026-10-04T09:33:01Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root /home/turbolet/dev/projects/andromeda-pulse · case exact · planes rust, ts",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 25 (runs 24 · evidence 1) · trails 7 not read · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 24,
+"evidence": 1,
+"trails": 7,
+"binary": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.6",
+"sha8": "9419d56e",
+"ts": "2026-10-04T09:33:01Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-corpus-key-creation-is-race-free",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root /home/turbolet/dev/projects/andromeda-pulse · base 76d6ccac (the parent of the oldest pre-CI commit a0737221) · lists new 0 · modify 1 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 1 · listed 1 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 74"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"base": "76d6ccacf3eb238dca39ff2e939c7cd96c7aa13a",
+"base_why": "the parent of the oldest pre-CI commit a0737221",
+"counts": {
+"changed": 1,
+"listed": 1,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 74,
+"unparsed": 0,
+"widening_without_word": 0
+}
+}
+]

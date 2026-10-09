@@ -1,0 +1,43 @@
+[
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "bf89b279",
+"ts": "2026-10-01T12:03:42Z",
+"argv": [
+"conclusion",
+"--sha",
+"09d08091d392745c38062f0400c2b4bd32a06179",
+"--run-dir",
+".andromeda/runs/2026-10-01T12-03-34Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"09d08091d392 verdict: in progress · checks 13/13 · runs ci#36858849215 in_progress/- secret-scan#36858849245 completed/…",
+"runs: ci#36858849215 pull_request in_progress/- · secret-scan#36858849245 pull_request completed/success",
+"running 11: oldest supply-chain (audit + deny + auditable) 239 s",
+"run open: ci#36858849215 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "09d08091d392745c38062f0400c2b4bd32a06179",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+}
+]

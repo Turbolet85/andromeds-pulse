@@ -1,0 +1,8 @@
+
+## 2026-10-04-declared-rust-floor-matches-the-code — §4 Framework floor witnessed; corpus row: the skip arm leaves no lock file
+**Section:** §4 Unit Test Strategy → Framework (Rust crates) · §4 Unit Test Strategy → What unit tests cover → corpus crate
+**Change:**
+- Framework: was "the declared `rust-version = "1.85"` stale and owned by the route entry 'The declared Rust floor matches the code'", per "2026-10-04-corpus-key-creation-is-race-free — §4 corpus row: the concurrent-creation re-exec witness; the stated Rust floor"; now declared `rust-version = "1.95"` in `[workspace.package]`, inherited by all 16 members, equal to the pin and set by the dependency graph (28 packages declare 1.95.0) while the workspace's own code needs ≥ 1.89. Clippy reads its MSRV from it, and the xtask test `declared_floor_equals_the_pinned_channel` holds it equal to the pin in every `cargo nextest run --workspace`.
+- Corpus row: the store-less skip arm of `corpus_key_survives_a_real_process_boundary` removes its own test-scoped lock file. `corpus_key_skip_arm_leaves_no_lock_file` (Linux) re-executes the test binary with `env_clear()` and `XDG_RUNTIME_DIR` set to a fresh TempDir, and asserts (the `[skip] no OS credential store …` line present, lock files in that dir) == (true, 0); the `[skip]` half keeps it from passing vacuously. RED at base and with the cleanup deleted. Crate suite 87 → 88.
+**Why:** The skip arm took the lock before the store call failed and returned before its cleanup, so every store-less run left a pid-named lock file (the folded CARRY). The fix is test-only; the product never deletes the lock file. The floor witness's strength was the overseer's choice (founder-delegated, 2026-10-04).
+**Ref:** .andromeda/runs/2026-10-04T22-34-15Z-wrap/

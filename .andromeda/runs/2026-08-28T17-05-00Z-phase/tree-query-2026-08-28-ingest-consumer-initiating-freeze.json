@@ -1,0 +1,76 @@
+[
+{
+"sql": "SELECT symbol, crate, file, def_line FROM symbol WHERE symbol LIKE '%run_q7%' OR symbol LIKE '%interrupt%' OR symbol LIKE '%read_connection%' ORDER BY crate, file, def_line;",
+"rows": 11,
+"result": [
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 cadence_runner/impl#[CadenceSqlRunner][SqlQueryRunner]run_q7().",
+"crate": "pulse-app",
+"file": "pulse-app/src/cadence_runner.rs",
+"def_line": 50
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 impl#[CannedSqlRunner][SqlQueryRunner]run_q7().",
+"crate": "pulse-app",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"def_line": 99
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 baseline/sql/run_q7().",
+"crate": "triage",
+"file": "crates/triage/src/baseline/sql.rs",
+"def_line": 427
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 baseline/sql/run_q7_with_timeout().",
+"crate": "triage",
+"file": "crates/triage/src/baseline/sql.rs",
+"def_line": 447
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 baseline/sql/run_q7_primary_blocking().",
+"crate": "triage",
+"file": "crates/triage/src/baseline/sql.rs",
+"def_line": 646
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 baseline/sql/run_q7_fallback_blocking().",
+"crate": "triage",
+"file": "crates/triage/src/baseline/sql.rs",
+"def_line": 671
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 cadence/coordinator/SqlQueryRunner#run_q7().",
+"crate": "triage",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"def_line": 102
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 cadence/coordinator/tests/impl#[CountingSqlRunner][SqlQueryRunner]run_q7().",
+"crate": "triage",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"def_line": 547
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/impl#[CannedSqlRunner][SqlQueryRunner]run_q7().",
+"crate": "triage",
+"file": "crates/triage/src/digest/assembler.rs",
+"def_line": 752
+},
+{
+"symbol": "rust-analyzer cargo viz 0.1.0 query/read_connection().",
+"crate": "viz",
+"file": "crates/viz/src/query.rs",
+"def_line": 112
+},
+{
+"symbol": "rust-analyzer cargo viz 0.1.0 query/tests/read_connection_returns_a_distinct_usable_connection().",
+"crate": "viz",
+"file": "crates/viz/src/query.rs",
+"def_line": 497
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

@@ -1,0 +1,519 @@
+{
+ "schema": 1,
+ "project": "/home/turbolet/dev/projects/andromeda-pulse",
+ "masters": {
+  "a11y-plan.md": {
+   "sha256": "ad35390182020f98366d6bec72b19736e41f6b25d33cd27c6433d25484783ce3",
+   "bytes": 80055,
+   "terminator": "LF"
+  },
+  "architecture.md": {
+   "sha256": "61b2dc8ecba34aa53bfab260992340da96e69fbd1d58cae008c2da54a0a90d15",
+   "bytes": 138091,
+   "terminator": "LF"
+  },
+  "obs-plan.md": {
+   "sha256": "767b81e2d39927f1b2404792c583c63b08501eb71929d1f47f293a8bdafad7d1",
+   "bytes": 170799,
+   "terminator": "LF"
+  },
+  "test-plan.md": {
+   "sha256": "5f57beb3aa1af4e7f81fa55376b2c905ef17832385a82c15d84e4f99289d5a25",
+   "bytes": 211936,
+   "terminator": "LF"
+  }
+ },
+ "sections": [
+  {
+   "master": "a11y-plan.md",
+   "kind": "K",
+   "heading": "## 3. A11y Assertion Harness Contract",
+   "line": 274,
+   "end": 399,
+   "bytes": 11921,
+   "census": {
+    "dated": 0,
+    "h3": 10,
+    "bold": 6,
+    "dids": [],
+    "markers": [
+     "2026-08-30-npm-advisory-coverage",
+     "2026-09-29-ci-wall-time-and-round-trips",
+     "2026-09-30-perf-instruments-measure-their-budgets"
+    ]
+   },
+   "units": [
+    {
+     "key": "A11y testing tool pick",
+     "slug": "a11y-testing-tool-pick",
+     "file": "contracts/a11y-plan/a11y-testing-tool-pick.md",
+     "line": 278,
+     "bytes": 804,
+     "sha256": "65161913456ed965e696036520ef67edbd4939819752df4e33a94d794fad14d0",
+     "labels": [
+      "Primary tool per surface",
+      "Configuration"
+     ]
+    },
+    {
+     "key": "WCAG criteria mapping",
+     "slug": "wcag-criteria-mapping",
+     "file": "contracts/a11y-plan/wcag-criteria-mapping.md",
+     "line": 288,
+     "bytes": 660,
+     "sha256": "b1314b978119e8b949412f6e4a70ac40c40665cfd21f5e989f710a7795e67e4a",
+     "labels": [
+      "Tier coverage",
+      "Compliance trigger override",
+      "Motion-sensitive trigger escalation"
+     ]
+    },
+    {
+     "key": "Structured violation JSON schema",
+     "slug": "structured-violation-json-schema",
+     "file": "contracts/a11y-plan/structured-violation-json-schema.md",
+     "line": 294,
+     "bytes": 652,
+     "sha256": "c027fab5afb3493edb5f4569dc47ecc87f8204430eebfe2cdaacb773ab0d0ec6",
+     "labels": [
+      "Extensions (optional)"
+     ]
+    },
+    {
+     "key": "Focus management test harness",
+     "slug": "focus-management-test-harness",
+     "file": "contracts/a11y-plan/focus-management-test-harness.md",
+     "line": 308,
+     "bytes": 729,
+     "sha256": "75797b73a09d452c84e0092593a55dfef58a78de54772bebfea2461caf4fe6b7",
+     "labels": [
+      "Driver",
+      "Pattern"
+     ]
+    },
+    {
+     "key": "Keyboard test harness",
+     "slug": "keyboard-test-harness",
+     "file": "contracts/a11y-plan/keyboard-test-harness.md",
+     "line": 318,
+     "bytes": 690,
+     "sha256": "c1afc275466ce330aaf937a23fad0877d54d3e9ec4b5478391efe17809c8cdfb",
+     "labels": [
+      "Sequences per ARIA pattern",
+      "Button",
+      "Link",
+      "Dialog",
+      "Tabs",
+      "Combobox",
+      "Menu",
+      "Switch",
+      "Slider",
+      "Tooling"
+     ]
+    },
+    {
+     "key": "Screen reader test pattern",
+     "slug": "screen-reader-test-pattern",
+     "file": "contracts/a11y-plan/screen-reader-test-pattern.md",
+     "line": 332,
+     "bytes": 647,
+     "sha256": "f1b33589a1e1fa91de9ddbb60a999723d3a1f57218086672fe5d94ec5bc56c6e",
+     "labels": [
+      "Per-surface test spec",
+      "Manual pass spec format",
+      "Supplemental to automated"
+     ]
+    },
+    {
+     "key": "Contrast verification harness",
+     "slug": "contrast-verification-harness",
+     "file": "contracts/a11y-plan/contrast-verification-harness.md",
+     "line": 340,
+     "bytes": 1385,
+     "sha256": "6bb3a8a3131d192e7894740e19c4609657097f665c6a87398e2fbf9e4251e22a",
+     "labels": [
+      "Source-of-truth tokens",
+      "Verification tool",
+      "WCAG SC mapping"
+     ]
+    },
+    {
+     "key": "CI integration",
+     "slug": "ci-integration",
+     "file": "contracts/a11y-plan/ci-integration.md",
+     "line": 358,
+     "bytes": 2029,
+     "sha256": "a5099ea967bf48905bc7e1afd93243d7c88f8508f0d89b5237d99cb2fb0e6a41",
+     "labels": [
+      "Pipeline integration",
+      "Command",
+      "Artifact",
+      "Per-PR regression detection",
+      "CI gate"
+     ]
+    },
+    {
+     "key": "Harness wiring & conventions",
+     "slug": "harness-wiring-conventions",
+     "file": "contracts/a11y-plan/harness-wiring-conventions.md",
+     "line": 377,
+     "bytes": 2199,
+     "sha256": "c4eee967092a438271da8b67323b074468f3cd98681452b71c34a78993f955ca",
+     "labels": [
+      "Mock layer",
+      "Static serving",
+      "Adding a surface (standing rule)",
+      "Regression baseline"
+     ]
+    },
+    {
+     "key": "Bootstrap phases (derive for route / setup-project)",
+     "slug": "bootstrap-phases-derive-for-route-setup-project",
+     "file": "contracts/a11y-plan/bootstrap-phases-derive-for-route-setup-project.md",
+     "line": 384,
+     "bytes": 1982,
+     "sha256": "b2e4a9523482a43921f8fb683e38313539406676beb20326918d5a552580d230",
+     "labels": [
+      "a11y-tooling-install",
+      "focus-management-library-install",
+      "aria-component-library-install",
+      "contrast-verification-harness-setup",
+      "screen-reader-test-spec-setup",
+      "a11y-linting-install",
+      "motion-tokens-respect-install",
+      "a11y-ci-gate-wire",
+      "violation-json-emission-wire"
+     ]
+    }
+   ]
+  },
+  {
+   "master": "architecture.md",
+   "kind": "K",
+   "heading": "## Infrastructure Patterns",
+   "line": 255,
+   "end": 331,
+   "bytes": 6323,
+   "census": {
+    "dated": 0,
+    "h3": 0,
+    "bold": 4,
+    "dids": [],
+    "markers": [
+     "2026-09-29-ci-wall-time-and-round-trips",
+     "2026-09-30-perf-budget-gate-reads-real-samples",
+     "2026-09-30-perf-instruments-measure-their-budgets"
+    ]
+   },
+   "units": [
+    {
+     "key": "Build system",
+     "slug": "build-system",
+     "file": "contracts/architecture/build-system.md",
+     "line": 257,
+     "bytes": 494,
+     "sha256": "aea56e69e285a65c6843cb3c3fb4f3f566af374db4c36b6b27aa0fa347c40200",
+     "labels": []
+    },
+    {
+     "key": "Deployment model",
+     "slug": "deployment-model",
+     "file": "contracts/architecture/deployment-model.md",
+     "line": 263,
+     "bytes": 489,
+     "sha256": "7fa59610fbc031a4609a8aa707c3b2b6cd6e6cd1c93af5b4f78ea466554614d6",
+     "labels": []
+    },
+    {
+     "key": "Project directory structure",
+     "slug": "project-directory-structure",
+     "file": "contracts/architecture/project-directory-structure.md",
+     "line": 268,
+     "bytes": 2461,
+     "sha256": "f22fbb01c08ea6c896bebd7fb9036e03966887cf5c7d8f837c9137234736682b",
+     "labels": []
+    },
+    {
+     "key": "CI/CD approach",
+     "slug": "ci-cd-approach",
+     "file": "contracts/architecture/ci-cd-approach.md",
+     "line": 325,
+     "bytes": 2874,
+     "sha256": "e72005f1b8bd161d4d1a6412588167962920cfc9fee6fc3413f60f9097e37071",
+     "labels": []
+    }
+   ]
+  },
+  {
+   "master": "obs-plan.md",
+   "kind": "K",
+   "heading": "## 3. Observability Harness Contract",
+   "line": 168,
+   "end": 262,
+   "bytes": 12790,
+   "census": {
+    "dated": 0,
+    "h3": 8,
+    "bold": 3,
+    "dids": [],
+    "markers": [
+     "2026-08-30-agent-harness-teardown-truth",
+     "2026-08-30-npm-advisory-coverage",
+     "2026-10-02-incident-events-readable-through-mcp"
+    ]
+   },
+   "units": [
+    {
+     "key": "Tracing init",
+     "slug": "tracing-init",
+     "file": "contracts/obs-plan/tracing-init.md",
+     "line": 172,
+     "bytes": 2107,
+     "sha256": "9dbf4b2af29cf9abf1d344db67c0d91fef7188e30529c5452c3e0572df586d66",
+     "labels": [
+      "Crate set",
+      "Init order",
+      "Init body sketch (≤ 5 lines)",
+      "Why this approach"
+     ]
+    },
+    {
+     "key": "Service identity",
+     "slug": "service-identity",
+     "file": "contracts/obs-plan/service-identity.md",
+     "line": 187,
+     "bytes": 780,
+     "sha256": "780f0492469ec3cb5c95163e33d0ed55524e6373c84e49c389e5642a591cb902",
+     "labels": [
+      "service.name",
+      "service.version",
+      "deployment.environment",
+      "Default subscriber fields"
+     ]
+    },
+    {
+     "key": "Logging stack",
+     "slug": "logging-stack",
+     "file": "contracts/obs-plan/logging-stack.md",
+     "line": 194,
+     "bytes": 1692,
+     "sha256": "7652e4846708df8f141853d64fab12379ba251cb2b073889cef1ae99de09b01e",
+     "labels": [
+      "Library",
+      "Format",
+      "Sink",
+      "Frontend bridge"
+     ]
+    },
+    {
+     "key": "Log format JSON schema",
+     "slug": "log-format-json-schema",
+     "file": "contracts/obs-plan/log-format-json-schema.md",
+     "line": 201,
+     "bytes": 1103,
+     "sha256": "f1c6112d25272f85e02a4fbef7fbf89250b18ba68893b904178c176d9b9e25d8",
+     "labels": []
+    },
+    {
+     "key": "Log file location",
+     "slug": "log-file-location",
+     "file": "contracts/obs-plan/log-file-location.md",
+     "line": 223,
+     "bytes": 655,
+     "sha256": "0e84d8e5b174b71bcbe1353a55aa9683c436d47de2bde01e761cc877e01bc05c",
+     "labels": [
+      "Path",
+      "Rotation"
+     ]
+    },
+    {
+     "key": "Snapshot / paste-to-AI integration",
+     "slug": "snapshot-paste-to-ai-integration",
+     "file": "contracts/obs-plan/snapshot-paste-to-ai-integration.md",
+     "line": 228,
+     "bytes": 2399,
+     "sha256": "886ac53f3f0357e124eac426229abf0904ccc83a4ce067c3ad052e4b3d532176",
+     "labels": [
+      "External-OTLP snapshot",
+      "Path",
+      "Schema",
+      "Trigger",
+      "MCP tools (hand-rolled JSON-RPC 2.0 over stdio; rmcp 3.x declared-but-unused)",
+      "Self-observation paste-to-AI",
+      "Format",
+      "No separate snapshot needed"
+     ]
+    },
+    {
+     "key": "Trace context propagation",
+     "slug": "trace-context-propagation",
+     "file": "contracts/obs-plan/trace-context-propagation.md",
+     "line": 245,
+     "bytes": 1373,
+     "sha256": "0cc532b46175d8ad0dbc58c766df1b7703a6109742b3804dcf69189b83ed9835",
+     "labels": [
+      "HTTP boundaries (`:4318` OTLP/HTTP receiver on axum 0.8)",
+      "gRPC boundaries (`:4317` OTLP/gRPC receiver on tonic 0.14)",
+      "IPC boundaries (TauRPC)",
+      "Internal async boundaries",
+      "Real-time push streams"
+     ]
+    },
+    {
+     "key": "Heartbeat ticks",
+     "slug": "heartbeat-ticks",
+     "file": "contracts/obs-plan/heartbeat-ticks.md",
+     "line": 253,
+     "bytes": 1891,
+     "sha256": "6fd0b2eed57c2345383df497e19072d74cccf661629c584ec285eb6c9aedde8a",
+     "labels": [
+      "Tick interval",
+      "Tick event format",
+      "Stall detection (two signals — liveness AND progress)",
+      "Complementarity with the `health` command"
+     ]
+    }
+   ]
+  },
+  {
+   "master": "test-plan.md",
+   "kind": "K",
+   "heading": "## 3. Test Harness Contract",
+   "line": 182,
+   "end": 342,
+   "bytes": 40414,
+   "census": {
+    "dated": 0,
+    "h3": 7,
+    "bold": 13,
+    "dids": [],
+    "markers": [
+     "2026-08-15-tier-1-incident-path-investigation",
+     "2026-08-23-metrics-points-identity",
+     "2026-08-28-duplicate-span-replay-fails-loudly",
+     "2026-08-28-ingest-consumer-block-under-gap-resume",
+     "2026-08-28-ingest-consumer-initiating-freeze",
+     "2026-08-29-app-registry-reconciliation",
+     "2026-08-30-acl-rejection-logging",
+     "2026-08-30-agent-harness-teardown-truth",
+     "2026-08-30-diagnostics-un-muting-harness-truth-sweep",
+     "2026-08-30-staged-bindings-assertion",
+     "2026-09-29-ci-wall-time-and-round-trips",
+     "2026-09-29-p-025-hue-shift-observable-made-gradable",
+     "2026-09-30-dual-license",
+     "2026-09-30-p-027-discovery-bound",
+     "2026-09-30-perf-budget-gate-reads-real-samples",
+     "2026-09-30-perf-instruments-measure-their-budgets",
+     "2026-10-01-conductor-return",
+     "2026-10-01-real-model-incident-surfacing",
+     "2026-10-02-incident-events-readable-through-mcp"
+    ]
+   },
+   "units": [
+    {
+     "key": "5-command implementation",
+     "slug": "5-command-implementation",
+     "file": "contracts/test-plan/5-command-implementation.md",
+     "line": 184,
+     "bytes": 10776,
+     "sha256": "80b50f35d3c3e0b2ecc57030c5da3d09a3c9bbf5d97c51c7a25fa07949716fdd",
+     "labels": [
+      "boot",
+      "Command body",
+      "Readiness signal",
+      "Exit code",
+      "Timeout",
+      "run",
+      "Exit code semantics",
+      "Output format",
+      "Test selection",
+      "Narrow a `pulse-app` run with `--filter-expr` / `-E` under `--workspace`, not with `-p`",
+      "status",
+      "Verdict JSON (stdout)",
+      "cleanup",
+      "Idempotency",
+      "Verification",
+      "logs",
+      "Format",
+      "Retention window",
+      "Agent parsing"
+     ]
+    },
+    {
+     "key": "Status endpoint shape",
+     "slug": "status-endpoint-shape",
+     "file": "contracts/test-plan/status-endpoint-shape.md",
+     "line": 226,
+     "bytes": 1248,
+     "sha256": "045ffb6322e924067a86cab1b9ef89571eb0485297a137b5029dc753c1c15a2c",
+     "labels": [
+      "Agent reads"
+     ]
+    },
+    {
+     "key": "Log format",
+     "slug": "log-format",
+     "file": "contracts/test-plan/log-format.md",
+     "line": 251,
+     "bytes": 968,
+     "sha256": "2945fac9f48bb5c98cf21d64873c4395d2a526b6370e024f756e5b2f4ec66016",
+     "labels": [
+      "Stream",
+      "Format",
+      "Example",
+      "Agent-parseable signals"
+     ]
+    },
+    {
+     "key": "PID file",
+     "slug": "pid-file",
+     "file": "contracts/test-plan/pid-file.md",
+     "line": 269,
+     "bytes": 1602,
+     "sha256": "06aee768c45899cc38f2ee7aa2faafb3cce2f2b6d0a7fe74830df18c07a3bd7d",
+     "labels": [
+      "Location",
+      "Lifecycle",
+      "Format"
+     ]
+    },
+    {
+     "key": "Test data bootstrap",
+     "slug": "test-data-bootstrap",
+     "file": "contracts/test-plan/test-data-bootstrap.md",
+     "line": 278,
+     "bytes": 941,
+     "sha256": "539778cf054d476e402099672c89d85be01935ff1f591abf08811f223d215fd2",
+     "labels": [
+      "Strategy",
+      "Mechanism",
+      "Per-test isolation",
+      "Cleanup"
+     ]
+    },
+    {
+     "key": "Bootstrap phases",
+     "slug": "bootstrap-phases",
+     "file": "contracts/test-plan/bootstrap-phases.md",
+     "line": 287,
+     "bytes": 1634,
+     "sha256": "76a09dae5b07c4a7c3957765e7162f3c176c02f15f484a9bca5cb23f3567f158",
+     "labels": []
+    },
+    {
+     "key": "Per-chunk gate discipline",
+     "slug": "per-chunk-gate-discipline",
+     "file": "contracts/test-plan/per-chunk-gate-discipline.md",
+     "line": 298,
+     "bytes": 23237,
+     "sha256": "d0b60b1074297e68dac515987b9a327e665cc46b0ea5a99a7c80bd99a0263456",
+     "labels": [
+      "Boot-smoke gate (conditional)",
+      "Direct-binary smoke variant (accepted alternative form)",
+      "Process-end witness form (integration tier)"
+     ]
+    }
+   ]
+  }
+ ]
+}

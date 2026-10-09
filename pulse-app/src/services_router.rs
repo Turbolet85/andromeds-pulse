@@ -8,18 +8,20 @@
 //! dependency direction.
 //!
 //! The registry trait + in-memory impl live in `triage::lifecycle::registry`;
-//! this file wraps them in а `ServicesApi` TauRPC procedure trait + emits
+//! this file wraps them in a `ServicesApi` TauRPC procedure trait + emits
 //! the request-side observability event per
 //! `.claude/rules/observability.md` Session Addition 2026-05-07 (exact-match
 //! AllowList entry for `services.list_with_states.request`).
 //!
-//! Per-service severity enrichment: the resolver joins the active-incident
-//! registry on `Incident.scope_id` (service-scoped incidents only) so each
-//! `ServiceListItem.priority_tier` carries the max severity tier across that
-//! service's active incidents. The join lives at the binary boundary (the
-//! `triage` registry holds no cross-domain incident state); the incident
-//! producer path is deferred per `inference_runtime.rs`, so this surfaces
-//! `None` until incidents are created in production.
+//! Per-service severity enrichment: the resolver reads the workspace's
+//! incidents ONCE (Resolved included) and joins them on `Incident.scope_id`
+//! (service-scoped incidents only). `ServiceListItem.priority_tier` carries
+//! the max tier across the non-Resolved subset; `tier_effective_at_unix_nano`
+//! carries the instant that maximum last changed value (the raising
+//! incident's open, or the last max holder's resolution). Both come from the
+//! one snapshot, so they can never disagree across two reads. The join lives
+//! at the binary boundary (the `triage` service registry holds no
+//! cross-domain incident state).
 //!
 //! Tests live at `pulse-app/tests/unit_services_router.rs` (integration
 //! crate) because `pulse-app` sets `[lib] test = false` per the WebView2
@@ -30,8 +32,8 @@ use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 use triage::contract::{
-    CueScope, IncidentRegistry, PriorityTier, ServiceLifecycleBroadcast, ServiceListItem,
-    ServiceRegistry,
+    CueScope, IncidentRegistry, IncidentStatus, PriorityTier, ServiceLifecycleBroadcast,
+    ServiceListItem, ServiceRegistry, tier_effective_at,
 };
 use ui_bridge::contract::AppError;
 
@@ -92,16 +94,20 @@ impl ServicesApi for ServicesApiImpl {
     ))]
     async fn list_with_states(self) -> Result<ServiceListPayload, AppError> {
         let mut items = self.registry.list_all();
-        let active = self.incident_registry.list_active(&self.workspace_root);
+        let incidents = self
+            .incident_registry
+            .list_for_workspace(&self.workspace_root);
         for item in items.iter_mut() {
-            item.priority_tier = active
+            item.priority_tier = incidents
                 .iter()
                 .filter(|inc| {
-                    inc.scope == CueScope::Service
+                    inc.status != IncidentStatus::Resolved
+                        && inc.scope == CueScope::Service
                         && inc.scope_id.as_deref() == Some(item.service.as_str())
                 })
                 .map(|inc| inc.priority_tier)
                 .max_by_key(|tier| tier_rank(*tier));
+            item.tier_effective_at_unix_nano = tier_effective_at(&incidents, &item.service);
         }
         let total = items.len();
         let payload = ServiceListPayload {

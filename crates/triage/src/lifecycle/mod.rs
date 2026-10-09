@@ -10,7 +10,7 @@
 //! State derives at heartbeat tick (15s default) from chunk #61 baseline
 //! activity-floor snapshots (chunk #64 `ServiceSilenceSnapshot`). Restart
 //! events feed via subscription to chunk #63
-//! `pulse://stream/restart-events` broadcast — services transitioning к
+//! `pulse://stream/restart-events` broadcast — services transitioning to
 //! Bootstrapping bypass natural progression on restart-observed gap.
 //!
 //! Per arch §Cross-cutting Patterns Module dependency direction, this
@@ -176,10 +176,10 @@ pub fn emit_tick_observability(
         "tracked services total",
     );
     // State distribution metric emitted once per tick with the full count
-    // array; per-state values are bounded к the 7 enum tags. Field-name
+    // array; per-state values are bounded to the 7 enum tags. Field-name
     // discipline matches `.claude/rules/observability.md` Session Addition
     // 2026-05-03 plural-vs-singular: emit value=total + state="<enum-tag>"
-    // в separate events would inflate event count. Keep a single event
+    // in separate events would inflate event count. Keep a single event
     // carrying all counts as fields per chunk #61 baseline.tick precedent.
     tracing::info!(
         target: TARGET_METRIC_LIFECYCLE_STATE_DISTRIBUTION,
@@ -207,6 +207,17 @@ pub fn emit_tick_observability(
             .entry((event.from_state, event.to_state))
             .or_insert(0) += 1;
     }
+    // A first sighting performs the tick's first-observation transition
+    // early, off the hot path; it is counted here, never per span.
+    let first_sightings = registry.take_first_sightings();
+    if first_sightings > 0 {
+        *buckets
+            .entry((
+                ServiceLifecycleState::Unknown,
+                ServiceLifecycleState::Bootstrapping,
+            ))
+            .or_insert(0) += first_sightings;
+    }
     for ((from, to), count) in buckets {
         tracing::info!(
             target: TARGET_LIFECYCLE_TRANSITION,
@@ -221,7 +232,7 @@ pub fn emit_tick_observability(
 /// Stable snake_case label for a `ServiceLifecycleState` — used in
 /// tracing field VALUES for aggregate transition events. Matches the
 /// `#[serde(rename_all = "snake_case")]` serialization on the enum so
-/// log emissions are consistent с broadcast payloads + TypeScript bindings.
+/// log emissions are consistent with broadcast payloads + TypeScript bindings.
 pub fn state_label(state: ServiceLifecycleState) -> &'static str {
     match state {
         ServiceLifecycleState::Unknown => "unknown",
@@ -433,8 +444,35 @@ mod tests {
     }
 
     #[test]
+    fn first_sighting_transitions_fold_into_tick_aggregate() {
+        let (sub, events) = CapturingSubscriber::new();
+        let registry = InMemoryServiceRegistry::new();
+        assert!(registry.register_first_sighting("svc-a", 1_000).is_some());
+        tracing::subscriber::with_default(sub, || {
+            emit_tick_observability(&registry, &[]);
+        });
+        let captured = events.lock().expect("lock");
+        let transitions: Vec<&CapturedFields> = captured
+            .iter()
+            .filter(|(t, _, _)| t == TARGET_LIFECYCLE_TRANSITION)
+            .map(|(_, _, fields)| fields)
+            .collect();
+        assert_eq!(transitions.len(), 1);
+        let value = |name: &str| {
+            transitions[0]
+                .iter()
+                .find(|(k, _)| k == name)
+                .map(|(_, v)| v.as_str())
+        };
+        assert_eq!(value("from_state"), Some("unknown"));
+        assert_eq!(value("to_state"), Some("bootstrapping"));
+        assert_eq!(value("count"), Some("1"));
+        assert_eq!(registry.take_first_sightings(), 0);
+    }
+
+    #[test]
     fn emit_tick_observability_excludes_per_service_pii_fields() {
-        // PII negative-canary: even with а canary substring in а transition
+        // PII negative-canary: even with a canary substring in a transition
         // event's service field, the canary MUST NOT reach the aggregate
         // tracing emission. Per-service detail lives on broadcast only.
         let (sub, events) = CapturingSubscriber::new();

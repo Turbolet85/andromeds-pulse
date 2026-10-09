@@ -1,0 +1,1568 @@
+[
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%LwwQueue%' ORDER BY file, line",
+"rows": 91,
+"result": [
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/contract.rs",
+"line": 136
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 40
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 124
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 144
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 170
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 484
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]active_incident_depth().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 527
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 849
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 849
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 33
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 63
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push_default().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 73
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push_active_incident().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 74
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push_tier1().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 75
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push_reflection().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 76
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#default_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 82
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#active_incident_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 95
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#tier1.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 111
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#tier1.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 112
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#tier1.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 113
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#tier1.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 118
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#reflection_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 126
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#active_incident_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 141
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#active_incident_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 149
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#tier1.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 157
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#default_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 162
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#tier1.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 175
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#active_incident_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 179
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#active_incident_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 184
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#default_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 187
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#default_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 192
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#reflection_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 194
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#reflection_per_workspace.",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 199
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 245
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 245
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 246
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]default_slot_occupied().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 252
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 257
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 257
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 258
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 263
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 273
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 273
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 274
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 279
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]default_slot_occupied().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 286
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]default_slot_occupied().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 287
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 292
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 292
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 294
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]active_incident_depth().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 301
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 306
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 306
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 308
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 316
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]active_incident_depth().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 322
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 327
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 327
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 329
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]tier1_depth().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 336
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 341
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 341
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 343
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 349
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]tier1_depth().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 355
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 360
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 360
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 361
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 367
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 377
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 377
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 378
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 383
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 388
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]drain_all().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 393
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 402
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 402
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]push().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 403
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]drain_all().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 408
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]default_slot_occupied().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 409
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]active_incident_depth().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 410
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]tier1_depth().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 411
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 35
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 68
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "pulse-app/src/main.rs",
+"line": 27
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "pulse-app/src/main.rs",
+"line": 1269
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "pulse-app/src/main.rs",
+"line": 1270
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "pulse-app/src/main.rs",
+"line": 1270
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 28
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/LwwQueue#",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 130
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]new().",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 130
+}
+],
+"db_state": "regenerated"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%drain_all%' ORDER BY file, line",
+"rows": 2,
+"result": [
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]drain_all().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 393
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]drain_all().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 408
+}
+],
+"db_state": "regenerated"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%assemble%' ORDER BY file, line",
+"rows": 216,
+"result": [
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 markdown/assemble_report().",
+"file": "crates/interpretation/src/markdown.rs",
+"line": 540
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 markdown/assemble_report().",
+"file": "crates/interpretation/src/markdown.rs",
+"line": 552
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 markdown/assemble_report().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 25
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 markdown/assemble_report().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 373
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "crates/triage/src/contract.rs",
+"line": 133
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestFuture#",
+"file": "crates/triage/src/contract.rs",
+"line": 136
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestAssembler#",
+"file": "crates/triage/src/contract.rs",
+"line": 136
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "crates/triage/src/contract.rs",
+"line": 142
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/",
+"file": "crates/triage/src/contract.rs",
+"line": 142
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestRecentCommit#",
+"file": "crates/triage/src/contract.rs",
+"line": 142
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestRecentCommit#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 76
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 94
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestFuture#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 97
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 129
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#broadcast.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 132
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 137
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/TOKENIZER_BYTES.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 148
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#tokenizer.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 151
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#sql_runner.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 152
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#incident_registry.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 153
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#broadcast.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 154
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#queue.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 155
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#scrub.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 156
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#corpus_source.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 157
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#tokenizer.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 175
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#sql_runner.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 176
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#incident_registry.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 177
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#broadcast.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 178
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#queue.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 179
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#scrub.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 180
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#corpus_source.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 181
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#tokenizer.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 190
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestAssembler#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 197
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 197
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 202
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestFuture#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 205
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#workspace_canonical_path.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 207
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/cue_kind_label().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 212
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/priority_tier_label().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 214
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#incident_registry.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 220
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/severity_at_least_suggested().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 222
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#sql_runner.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 239
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/map_sql_err().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 242
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#sql_runner.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 248
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#sql_runner.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 249
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#sql_runner.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 250
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#sql_runner.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 251
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#sql_runner.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 252
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#sql_runner.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 253
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/compose_services_from_q1().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 257
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/cue_kind_label().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 268
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/cue_kind_label().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 269
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/hex_lower().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 286
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#corpus_source.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 294
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#scrub.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 316
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/severity_at_least_suggested().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 334
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/render_payload().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 339
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler]count_tokens().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 351
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/render_payload().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 363
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler]count_tokens().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 373
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/lowest_priority_cue_index().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 376
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/render_payload().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 378
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler]count_tokens().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 388
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/lowest_anomaly_service_index().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 392
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/render_payload().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 394
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler]count_tokens().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 404
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#scrub.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 478
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#queue.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 483
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#queue.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 526
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#broadcast.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 542
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 609
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#project_name.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 623
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#vcs_type.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 626
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#recent_commits.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 628
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#recent_commits.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 631
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestRecentCommit#age_seconds.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 634
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestRecentCommit#basename.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 635
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestRecentCommit#files_changed_count.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 636
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/priority_tier_label().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 667
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/cue_kind_label().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 668
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/priority_tier_rank().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 696
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 725
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedSqlRunner#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 741
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/SqlFuture#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 742
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedSqlRunner#q1.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 743
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/SqlFuture#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 746
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/SqlFuture#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 749
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedSqlRunner#q3.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 750
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/SqlFuture#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 753
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/SqlFuture#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 756
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/SqlFuture#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 759
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/SqlFuture#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 762
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 772
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#fail.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 778
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#candidates.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 779
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 841
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/TOKENIZER_BYTES.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 843
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 844
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler]with_tokenizer().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 844
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedSqlRunner#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 846
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedSqlRunner#q1.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 846
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedSqlRunner#q3.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 846
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 855
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 856
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#workspace_canonical_path.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 857
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#project_name.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 858
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#vcs_type.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 859
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#recent_commits.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 860
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#framework_signals.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 861
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 874
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 875
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/past_incident().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 877
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 877
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/make_assembler().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 878
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 882
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#candidates.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 883
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#fail.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 884
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 888
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/project_context().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 891
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 892
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/q1_row().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 905
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/past_incident().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 906
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 911
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/make_assembler().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 913
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 917
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#candidates.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 918
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#fail.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 919
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 923
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/project_context().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 926
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 927
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/make_assembler().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 938
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 942
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#candidates.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 943
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#fail.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 944
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 948
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/project_context().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 951
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 952
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/make_assembler().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 963
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 970
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/project_context().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 973
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 974
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 988
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 989
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 991
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/past_incident().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 991
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/make_assembler().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 992
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 996
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#candidates.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 997
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/CannedCorpusSource#fail.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 998
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1002
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/project_context().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1005
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/NOW.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1006
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/tests/project_context().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1018
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#recent_commits.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1019
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestRecentCommit#",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1020
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestRecentCommit#basename.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1021
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestRecentCommit#age_seconds.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1022
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestRecentCommit#files_changed_count.",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1023
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/render_payload().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1026
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/hex_lower().",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1050
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 26
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestFuture#",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 31
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestAssembler#",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 31
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 31
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 31
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 34
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestAssembler#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 34
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestRecentCommit#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 35
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 35
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestAssembler#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 70
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler]new().",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 72
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 72
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 88
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 89
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#workspace_canonical_path.",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 90
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#project_name.",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 91
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#vcs_type.",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 92
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestRecentCommit#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 93
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#recent_commits.",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 93
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#framework_signals.",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 94
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestAssembler#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 105
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 106
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestAssembler#assemble().",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 124
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 markdown/assemble_report().",
+"file": "pulse-app/src/incidents_router.rs",
+"line": 14
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 markdown/assemble_report().",
+"file": "pulse-app/src/incidents_router.rs",
+"line": 475
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/build_assembler().",
+"file": "pulse-app/src/main.rs",
+"line": 1274
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 training_export/assemble_records().",
+"file": "pulse-app/src/storage_router.rs",
+"line": 21
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 training_export/assemble_records().",
+"file": "pulse-app/src/storage_router.rs",
+"line": 166
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 markdown/assemble_report().",
+"file": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+"line": 20
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 markdown/assemble_report().",
+"file": "pulse-app/tests/e2e_security_negative_canaries.rs",
+"line": 264
+},
+{
+"callee": "rust-analyzer cargo interpretation 0.1.0 markdown/assemble_report().",
+"file": "pulse-app/tests/e2e_security_negative_canaries.rs",
+"line": 296
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 26
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestAssembler#",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 26
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 27
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 122
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler]new().",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 124
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/Assembler#",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 124
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 138
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 139
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#workspace_canonical_path.",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 140
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#project_name.",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 141
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#vcs_type.",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 142
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#recent_commits.",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 143
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/DigestProjectContext#framework_signals.",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 144
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 build_session_b_assembler().",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 186
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 188
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 build_session_b_assembler().",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 246
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 248
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 build_session_b_assembler().",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 293
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 295
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 build_session_b_assembler().",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 387
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 digest/assembler/impl#[Assembler][DigestAssembler]assemble().",
+"file": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+"line": 395
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 training_export/assemble_records().",
+"file": "pulse-app/tests/unit_training_export.rs",
+"line": 5
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 training_export/assemble_records().",
+"file": "pulse-app/tests/unit_training_export.rs",
+"line": 143
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 training_export/assemble_records().",
+"file": "pulse-app/tests/unit_training_export.rs",
+"line": 181
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 training_export/assemble_records().",
+"file": "pulse-app/tests/unit_training_export.rs",
+"line": 240
+}
+],
+"db_state": "regenerated"
+}
+]

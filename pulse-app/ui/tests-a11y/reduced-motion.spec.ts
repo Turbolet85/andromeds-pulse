@@ -46,7 +46,7 @@ test.describe("SC 2.3.3 AAA prefers-reduced-motion", () => {
   });
 
   for (const surface of SURFACES) {
-    test(`${surface.key} — animations degrade к 0ms under reducedMotion=reduce`, async ({
+    test(`${surface.key} — animations degrade to 0ms under reducedMotion=reduce`, async ({
       page,
     }) => {
       await page.goto(surface.url);

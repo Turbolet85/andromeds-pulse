@@ -1,0 +1,2 @@
+registry v1.1 · c6c20a84
+design-system.md: n/a — it carries no keyed-contract section in the map

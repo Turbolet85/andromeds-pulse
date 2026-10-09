@@ -1,0 +1,82 @@
+[
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "1d16bdcd",
+"ts": "2026-10-07T15:55:08Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T15-09-41Z-implement",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2283→2284 · bytes 2324333→2325713 · term lf",
+"ts 2026-10-07T15:54:55Z · clock 2026-10-07T15:55:08Z · bound 2026-10-07T14:40:20Z (line 2283)",
+"ids 2026-10-07T15:54:55Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2283,
+"bytes": 2324333,
+"terminator": "LF",
+"bound": "2026-10-07T14:40:20Z"
+},
+"after": {
+"lines": 2284,
+"bytes": 2325713
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "1d16bdcd",
+"ts": "2026-10-07T15:56:19Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T15-09-41Z-implement",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 2284→2286 · bytes 2325713→2328239 · term lf",
+"ts 2026-10-07T15:56:04Z · clock 2026-10-07T15:56:19Z · bound 2026-10-07T15:54:55Z (line 2284)",
+"ids 2026-10-07T15:56:04Z-a … 2026-10-07T15:56:04Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2284,
+"bytes": 2325713,
+"terminator": "LF",
+"bound": "2026-10-07T15:54:55Z"
+},
+"after": {
+"lines": 2286,
+"bytes": 2328239
+}
+}
+]

@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "699f7ef0",
+"ts": "2026-10-06T23:25:01Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-06-l4-first-hypothesis-names-the-triggering-service",
+"--expect-prefix",
+"The L4 first hypothesis names the triggering service",
+"--record-file",
+".andromeda/runs/2026-10-06T23-23-09Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-23-09Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:178 - [2026-10-06-l4-first-hypothesis-names-the-triggering-service]",
+"record master-route.md:102 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-10-06-l4-first-hypothesis-names-the-triggering-service - working-route:178 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

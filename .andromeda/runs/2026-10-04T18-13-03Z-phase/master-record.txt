@@ -1,0 +1,1 @@
+2026-10-04-l4-interpretation-names-its-triggering-cue · pending · the L4 prompt frames corpus matches as past/other incidents and names the triggering cue; real-model measurement gated on a Linux llama.cpp CUDA binary · → andromeda-pulse-0.3.0/chunks/2026-10-04-l4-interpretation-names-its-triggering-cue/

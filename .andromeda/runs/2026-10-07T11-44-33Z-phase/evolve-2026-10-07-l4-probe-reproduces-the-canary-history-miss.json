@@ -1,0 +1,122 @@
+[
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "d8c8c8b2",
+"ts": "2026-10-07T11:54:27Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T11-44-33Z-phase",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 2264→2266 · bytes 2304556→2306468 · term lf",
+"ts 2026-10-07T11:54:15Z · clock 2026-10-07T11:54:27Z · bound 2026-10-07T11:08:22Z (line 2264)",
+"ids 2026-10-07T11:54:15Z-a … 2026-10-07T11:54:15Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2264,
+"bytes": 2304556,
+"terminator": "LF",
+"bound": "2026-10-07T11:08:22Z"
+},
+"after": {
+"lines": 2266,
+"bytes": 2306468
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "d8c8c8b2",
+"ts": "2026-10-07T12:03:52Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T11-44-33Z-phase",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 2266→2268 · bytes 2306468→2308397 · term lf",
+"ts 2026-10-07T12:03:30Z · clock 2026-10-07T12:03:52Z · bound 2026-10-07T11:54:15Z (line 2266)",
+"ids 2026-10-07T12:03:30Z-a … 2026-10-07T12:03:30Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2266,
+"bytes": 2306468,
+"terminator": "LF",
+"bound": "2026-10-07T11:54:15Z"
+},
+"after": {
+"lines": 2268,
+"bytes": 2308397
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "d8c8c8b2",
+"ts": "2026-10-07T12:15:15Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T11-44-33Z-phase",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 2268→2270 · bytes 2308397→2310833 · term lf",
+"ts 2026-10-07T12:14:53Z · clock 2026-10-07T12:15:15Z · bound 2026-10-07T12:03:30Z (line 2268)",
+"ids 2026-10-07T12:14:53Z-a … 2026-10-07T12:14:53Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2268,
+"bytes": 2308397,
+"terminator": "LF",
+"bound": "2026-10-07T12:03:30Z"
+},
+"after": {
+"lines": 2270,
+"bytes": 2310833
+}
+}
+]

@@ -2,7 +2,7 @@
 // `telemetry.frontend.record_frame_ms` resolver after a webview frame
 // completes. Per obs-plan §11 Frontend bridge: webview measures via
 // `performance.now()` + `device.queue.onSubmittedWorkDone()`, hands the
-// duration к the backend via TauRPC, backend emits `tracing::info!(target:
+// duration to the backend via TauRPC, backend emits `tracing::info!(target:
 // "metric.webgpu.frame_duration_ms", ...)` against the chunk #28 pre-staged
 // AllowList entry.
 //
@@ -44,7 +44,7 @@ export function clampDurationMs(value: number): number {
 // `webgpu-adapter.ts` into the bounded enum here. "unknown" never reaches the
 // backend (the smart enum on the Rust side rejects any non-allowlist value);
 // we surface "vulkan" as a defensive fallback so the resolver still records
-// the frame rather than silently dropping it. The fallback is documented в
+// the frame rather than silently dropping it. The fallback is documented in
 // the obs-plan §11 cardinality discipline as the trade-off vs adding a 4th
 // "unknown" enum value (which would explode label cardinality forever).
 export function normalizeWgpuBackend(input: string): WgpuBackendKind {
@@ -58,7 +58,7 @@ export function detectWebviewBackend(): WebviewBackendKind {
   // Per arch §Stack Visualization surface row: WebView2 (Windows) /
   // WKWebView (macOS) / GTKWebKit (Linux). Discriminator order matters —
   // Linux WebKit UAs contain BOTH "X11" and "WebKit" / "AppleWebKit", so the
-  // Linux branch must precede the generic WebKit branch к avoid Linux being
+  // Linux branch must precede the generic WebKit branch to avoid Linux being
   // misclassified as macOS.
   if (typeof navigator === "undefined") {
     return "webview2";
@@ -121,4 +121,76 @@ export async function recordFrameMs(input: FrameMetricInput): Promise<void> {
 // global Tauri state.
 export function __setProxyForTest(proxy: ReturnType<typeof createTauRPCProxy> | null): void {
   cachedClient = proxy;
+}
+
+// Delegated timing observables (P-025 / P-027 / P-045). Each bound ends at a
+// paint inside this webview, so the backend cannot observe it; obs-plan §1/§4
+// makes `telemetry.frontend.*` the only sanctioned route to the log. Same
+// posture as recordFrameMs: clamp client-side, never throw into a render path.
+
+export type HueSeverityTierKind = "none" | "curious" | "suggested" | "autonomous";
+
+export interface ConstellationHueLatencyInputJs {
+  duration_ms: number;
+  severity_tier: HueSeverityTierKind;
+}
+
+export interface ConstellationDiscoveryInputJs {
+  duration_ms: number;
+  discovered_count: number;
+}
+
+export interface FindingsCounterRefreshInputJs {
+  duration_ms: number;
+}
+
+const DISCOVERED_COUNT_MAX = 10_000;
+
+export function clampDiscoveredCount(value: number): number {
+  if (!Number.isFinite(value) || value < 0) {
+    return 0;
+  }
+  return Math.min(Math.floor(value), DISCOVERED_COUNT_MAX);
+}
+
+async function invokeTelemetry<T>(method: string, payload: T): Promise<void> {
+  try {
+    const proxyRoot = getClient() as unknown as {
+      telemetry?: {
+        frontend?: Record<string, ((input: T) => Promise<void>) | undefined>;
+      };
+    };
+    const resolver = proxyRoot.telemetry?.frontend?.[method];
+    if (typeof resolver !== "function") {
+      return;
+    }
+    await resolver(payload);
+  } catch {
+    // Never throw into a render/poll path — an absent emission surfaces to the
+    // obs gate as a missing metric stream, not as a broken surface.
+  }
+}
+
+export async function recordConstellationHueLatency(input: ConstellationHueLatencyInputJs): Promise<void> {
+  await invokeTelemetry("record_constellation_hue_latency", {
+    ...input,
+    duration_ms: clampDurationMs(input.duration_ms),
+  });
+}
+
+export async function recordConstellationDiscoveryLatency(
+  input: ConstellationDiscoveryInputJs,
+): Promise<void> {
+  await invokeTelemetry("record_constellation_discovery_latency", {
+    duration_ms: clampDurationMs(input.duration_ms),
+    discovered_count: clampDiscoveredCount(input.discovered_count),
+  });
+}
+
+export async function recordFindingsCounterRefresh(
+  input: FindingsCounterRefreshInputJs,
+): Promise<void> {
+  await invokeTelemetry("record_findings_counter_refresh", {
+    duration_ms: clampDurationMs(input.duration_ms),
+  });
 }

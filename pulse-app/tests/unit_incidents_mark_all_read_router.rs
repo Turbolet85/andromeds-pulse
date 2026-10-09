@@ -1,10 +1,10 @@
-//! Integration tests для `pulse-app/src/incidents_router.rs`
+//! Integration tests for `pulse-app/src/incidents_router.rs`
 //! `incidents.mark_all_read()` TauRPC procedure (chunk #87).
 //!
 //! Tests the resolver-level contract:
 //! - Empty workspace returns affected_count=0
 //! - Multi-incident bulk: mark_all_read transitions every unread Active /
-//!   Acknowledged incident в the workspace, returns affected_count=N
+//!   Acknowledged incident in the workspace, returns affected_count=N
 //! - Idempotent re-invocation returns 0 (all already read)
 //! - Serde round-trip of MarkAllReadPayload (specta::Type)
 //! - PII negative-canary grep on serialized payload

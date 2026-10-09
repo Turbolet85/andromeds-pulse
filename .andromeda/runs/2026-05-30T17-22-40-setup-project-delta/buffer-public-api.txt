@@ -1,0 +1,616 @@
+pub mod buffer
+pub mod buffer::appender
+pub mod buffer::broadcast
+pub struct buffer::broadcast::BroadcastSenders
+pub buffer::broadcast::BroadcastSenders::logs: tokio::sync::broadcast::Sender<bytes::bytes::Bytes>
+pub buffer::broadcast::BroadcastSenders::metrics: tokio::sync::broadcast::Sender<bytes::bytes::Bytes>
+pub buffer::broadcast::BroadcastSenders::spans: tokio::sync::broadcast::Sender<bytes::bytes::Bytes>
+impl core::clone::Clone for buffer::broadcast::BroadcastSenders
+pub fn buffer::broadcast::BroadcastSenders::clone(&self) -> buffer::broadcast::BroadcastSenders
+impl core::fmt::Debug for buffer::broadcast::BroadcastSenders
+pub fn buffer::broadcast::BroadcastSenders::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for buffer::broadcast::BroadcastSenders
+impl core::marker::Send for buffer::broadcast::BroadcastSenders
+impl core::marker::Sync for buffer::broadcast::BroadcastSenders
+impl core::marker::Unpin for buffer::broadcast::BroadcastSenders
+impl core::marker::UnsafeUnpin for buffer::broadcast::BroadcastSenders
+impl !core::panic::unwind_safe::RefUnwindSafe for buffer::broadcast::BroadcastSenders
+impl !core::panic::unwind_safe::UnwindSafe for buffer::broadcast::BroadcastSenders
+pub const buffer::broadcast::BROADCAST_CAPACITY: usize
+pub const buffer::broadcast::MAX_PAYLOAD_BYTES: usize
+pub const buffer::broadcast::STREAM_NAME_LOGS: &str
+pub const buffer::broadcast::STREAM_NAME_METRICS: &str
+pub const buffer::broadcast::STREAM_NAME_SPANS: &str
+pub fn buffer::broadcast::create() -> buffer::broadcast::BroadcastSenders
+pub fn buffer::broadcast::encode_logs(batch: &arrow_array::record_batch::RecordBatch) -> core::result::Result<bytes::bytes::Bytes, buffer::contract::Error>
+pub fn buffer::broadcast::encode_metrics(batch: &arrow_array::record_batch::RecordBatch) -> core::result::Result<bytes::bytes::Bytes, buffer::contract::Error>
+pub fn buffer::broadcast::encode_spans(batch: &arrow_array::record_batch::RecordBatch) -> core::result::Result<bytes::bytes::Bytes, buffer::contract::Error>
+pub mod buffer::consumer
+pub async fn buffer::consumer::run_consumer(receiver: ingest::channel::IngestReceiver, conn: alloc::sync::Arc<std::sync::poison::mutex::Mutex<duckdb::Connection>>, state: alloc::sync::Arc<buffer::state::BufferState>, broadcast_senders: alloc::sync::Arc<buffer::broadcast::BroadcastSenders>, span_observer: alloc::sync::Arc<dyn ingest::observer::SpanObserver>, fingerprint_observer: core::option::Option<alloc::sync::Arc<dyn buffer::fingerprint::FingerprintObserver>>, drain_miner: core::option::Option<alloc::sync::Arc<buffer::drain::DrainMiner>>)
+pub mod buffer::contract
+pub enum buffer::contract::Error
+pub buffer::contract::Error::Append
+pub buffer::contract::Error::Append::reason: alloc::string::String
+pub buffer::contract::Error::BroadcastEncode
+pub buffer::contract::Error::BroadcastEncode::reason: alloc::string::String
+pub buffer::contract::Error::BroadcastSizeCapExceeded
+pub buffer::contract::Error::BroadcastSizeCapExceeded::payload_bytes: usize
+pub buffer::contract::Error::ConnectionLost
+pub buffer::contract::Error::Drain
+pub buffer::contract::Error::Drain::reason: alloc::string::String
+pub buffer::contract::Error::Init
+pub buffer::contract::Error::Init::reason: alloc::string::String
+pub buffer::contract::Error::InvalidBatch
+pub buffer::contract::Error::InvalidBatch::kind: &'static str
+pub buffer::contract::Error::Retention
+pub buffer::contract::Error::Retention::reason: alloc::string::String
+pub buffer::contract::Error::SchemaCreate
+pub buffer::contract::Error::SchemaCreate::reason: alloc::string::String
+impl core::error::Error for buffer::contract::Error
+impl core::fmt::Debug for buffer::contract::Error
+pub fn buffer::contract::Error::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for buffer::contract::Error
+pub fn buffer::contract::Error::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for buffer::contract::Error
+impl core::marker::Send for buffer::contract::Error
+impl core::marker::Sync for buffer::contract::Error
+impl core::marker::Unpin for buffer::contract::Error
+impl core::marker::UnsafeUnpin for buffer::contract::Error
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::contract::Error
+impl core::panic::unwind_safe::UnwindSafe for buffer::contract::Error
+pub struct buffer::contract::BufferHeartbeat
+pub buffer::contract::BufferHeartbeat::drain_lru_evictions_since_tick: u64
+pub buffer::contract::BufferHeartbeat::drain_template_count: u64
+pub buffer::contract::BufferHeartbeat::eviction_count: u64
+pub buffer::contract::BufferHeartbeat::eviction_count_since_last_tick: u64
+pub buffer::contract::BufferHeartbeat::memory_bytes: u64
+pub buffer::contract::BufferHeartbeat::retention_window_active: bool
+pub buffer::contract::BufferHeartbeat::retention_window_seconds: u64
+pub buffer::contract::BufferHeartbeat::rows_ingested: u64
+impl core::clone::Clone for buffer::contract::BufferHeartbeat
+pub fn buffer::contract::BufferHeartbeat::clone(&self) -> buffer::contract::BufferHeartbeat
+impl core::default::Default for buffer::contract::BufferHeartbeat
+pub fn buffer::contract::BufferHeartbeat::default() -> buffer::contract::BufferHeartbeat
+impl core::fmt::Debug for buffer::contract::BufferHeartbeat
+pub fn buffer::contract::BufferHeartbeat::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for buffer::contract::BufferHeartbeat
+impl core::marker::Freeze for buffer::contract::BufferHeartbeat
+impl core::marker::Send for buffer::contract::BufferHeartbeat
+impl core::marker::Sync for buffer::contract::BufferHeartbeat
+impl core::marker::Unpin for buffer::contract::BufferHeartbeat
+impl core::marker::UnsafeUnpin for buffer::contract::BufferHeartbeat
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::contract::BufferHeartbeat
+impl core::panic::unwind_safe::UnwindSafe for buffer::contract::BufferHeartbeat
+pub fn buffer::contract::heartbeat_payload(state: &buffer::state::BufferState, retention_window_seconds: u64, eviction_count_since_last_tick: u64, drain_template_count: u64, drain_lru_evictions_since_tick: u64) -> buffer::contract::BufferHeartbeat
+pub mod buffer::drain
+pub enum buffer::drain::DriftIndicator
+pub buffer::drain::DriftIndicator::Healthy
+pub buffer::drain::DriftIndicator::OverGeneralized
+pub buffer::drain::DriftIndicator::UnderClustered
+impl core::clone::Clone for buffer::drain::DriftIndicator
+pub fn buffer::drain::DriftIndicator::clone(&self) -> buffer::drain::DriftIndicator
+impl core::cmp::Eq for buffer::drain::DriftIndicator
+impl core::cmp::PartialEq for buffer::drain::DriftIndicator
+pub fn buffer::drain::DriftIndicator::eq(&self, other: &buffer::drain::DriftIndicator) -> bool
+impl core::fmt::Debug for buffer::drain::DriftIndicator
+pub fn buffer::drain::DriftIndicator::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for buffer::drain::DriftIndicator
+impl core::marker::StructuralPartialEq for buffer::drain::DriftIndicator
+impl serde_core::ser::Serialize for buffer::drain::DriftIndicator
+pub fn buffer::drain::DriftIndicator::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for buffer::drain::DriftIndicator
+pub fn buffer::drain::DriftIndicator::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for buffer::drain::DriftIndicator
+impl core::marker::Send for buffer::drain::DriftIndicator
+impl core::marker::Sync for buffer::drain::DriftIndicator
+impl core::marker::Unpin for buffer::drain::DriftIndicator
+impl core::marker::UnsafeUnpin for buffer::drain::DriftIndicator
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::DriftIndicator
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::DriftIndicator
+pub struct buffer::drain::DrainConfig
+pub buffer::drain::DrainConfig::depth: u32
+pub buffer::drain::DrainConfig::masking_patterns: alloc::vec::Vec<buffer::drain::MaskPattern>
+pub buffer::drain::DrainConfig::max_clusters: usize
+pub buffer::drain::DrainConfig::similarity: f32
+impl buffer::drain::DrainConfig
+pub fn buffer::drain::DrainConfig::default_config() -> Self
+impl core::clone::Clone for buffer::drain::DrainConfig
+pub fn buffer::drain::DrainConfig::clone(&self) -> buffer::drain::DrainConfig
+impl core::default::Default for buffer::drain::DrainConfig
+pub fn buffer::drain::DrainConfig::default() -> Self
+impl core::fmt::Debug for buffer::drain::DrainConfig
+pub fn buffer::drain::DrainConfig::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for buffer::drain::DrainConfig
+impl core::marker::Send for buffer::drain::DrainConfig
+impl core::marker::Sync for buffer::drain::DrainConfig
+impl core::marker::Unpin for buffer::drain::DrainConfig
+impl core::marker::UnsafeUnpin for buffer::drain::DrainConfig
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::DrainConfig
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::DrainConfig
+pub struct buffer::drain::DrainMiner
+impl buffer::drain::DrainMiner
+pub fn buffer::drain::DrainMiner::assign(&self, log_body: &str) -> core::option::Option<buffer::drain::TemplateId>
+pub fn buffer::drain::DrainMiner::assign_at(&self, log_body: &str, ts_unix_nano: i64) -> core::option::Option<buffer::drain::TemplateId>
+pub fn buffer::drain::DrainMiner::drain_newly_created_templates(&self) -> alloc::vec::Vec<buffer::drain::TemplateRecord>
+pub fn buffer::drain::DrainMiner::load_from_persistence(&self) -> core::result::Result<bool, buffer::contract::Error>
+pub fn buffer::drain::DrainMiner::new(config: buffer::drain::DrainConfig, persistence: core::option::Option<alloc::sync::Arc<dyn buffer::drain::DrainPersistence>>) -> Self
+pub fn buffer::drain::DrainMiner::persist(&self) -> core::result::Result<bool, buffer::contract::Error>
+pub fn buffer::drain::DrainMiner::snapshot_state(&self) -> core::result::Result<buffer::drain::DrainState, buffer::contract::Error>
+pub fn buffer::drain::DrainMiner::take_lru_evictions_since_tick(&self) -> u64
+pub fn buffer::drain::DrainMiner::template_count(&self) -> u64
+pub fn buffer::drain::DrainMiner::template_distribution(&self, top_n: usize) -> alloc::vec::Vec<buffer::drain::TemplateDistEntry>
+impl !core::marker::Freeze for buffer::drain::DrainMiner
+impl core::marker::Send for buffer::drain::DrainMiner
+impl core::marker::Sync for buffer::drain::DrainMiner
+impl core::marker::Unpin for buffer::drain::DrainMiner
+impl core::marker::UnsafeUnpin for buffer::drain::DrainMiner
+impl !core::panic::unwind_safe::RefUnwindSafe for buffer::drain::DrainMiner
+impl !core::panic::unwind_safe::UnwindSafe for buffer::drain::DrainMiner
+pub struct buffer::drain::DrainState
+pub buffer::drain::DrainState::next_template_id: u64
+pub buffer::drain::DrainState::schema_version: u32
+pub buffer::drain::DrainState::templates: alloc::vec::Vec<buffer::drain::TemplateRecord>
+pub buffer::drain::DrainState::tree: buffer::drain::SerializableTree
+impl core::clone::Clone for buffer::drain::DrainState
+pub fn buffer::drain::DrainState::clone(&self) -> buffer::drain::DrainState
+impl core::fmt::Debug for buffer::drain::DrainState
+pub fn buffer::drain::DrainState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for buffer::drain::DrainState
+pub fn buffer::drain::DrainState::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for buffer::drain::DrainState
+pub fn buffer::drain::DrainState::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for buffer::drain::DrainState
+impl core::marker::Send for buffer::drain::DrainState
+impl core::marker::Sync for buffer::drain::DrainState
+impl core::marker::Unpin for buffer::drain::DrainState
+impl core::marker::UnsafeUnpin for buffer::drain::DrainState
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::DrainState
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::DrainState
+pub struct buffer::drain::MaskPattern
+pub buffer::drain::MaskPattern::category: &'static str
+pub buffer::drain::MaskPattern::regex: regex::regex::string::Regex
+pub buffer::drain::MaskPattern::replacement: &'static str
+impl core::clone::Clone for buffer::drain::MaskPattern
+pub fn buffer::drain::MaskPattern::clone(&self) -> buffer::drain::MaskPattern
+impl core::fmt::Debug for buffer::drain::MaskPattern
+pub fn buffer::drain::MaskPattern::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for buffer::drain::MaskPattern
+impl core::marker::Send for buffer::drain::MaskPattern
+impl core::marker::Sync for buffer::drain::MaskPattern
+impl core::marker::Unpin for buffer::drain::MaskPattern
+impl core::marker::UnsafeUnpin for buffer::drain::MaskPattern
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::MaskPattern
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::MaskPattern
+pub struct buffer::drain::SerializableNode
+pub buffer::drain::SerializableNode::children: std::collections::hash::map::HashMap<alloc::string::String, buffer::drain::SerializableNode>
+pub buffer::drain::SerializableNode::leaf_clusters: alloc::vec::Vec<buffer::drain::TemplateId>
+pub buffer::drain::SerializableNode::wildcard: core::option::Option<alloc::boxed::Box<buffer::drain::SerializableNode>>
+impl core::clone::Clone for buffer::drain::SerializableNode
+pub fn buffer::drain::SerializableNode::clone(&self) -> buffer::drain::SerializableNode
+impl core::default::Default for buffer::drain::SerializableNode
+pub fn buffer::drain::SerializableNode::default() -> buffer::drain::SerializableNode
+impl core::fmt::Debug for buffer::drain::SerializableNode
+pub fn buffer::drain::SerializableNode::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for buffer::drain::SerializableNode
+pub fn buffer::drain::SerializableNode::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for buffer::drain::SerializableNode
+pub fn buffer::drain::SerializableNode::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for buffer::drain::SerializableNode
+impl core::marker::Send for buffer::drain::SerializableNode
+impl core::marker::Sync for buffer::drain::SerializableNode
+impl core::marker::Unpin for buffer::drain::SerializableNode
+impl core::marker::UnsafeUnpin for buffer::drain::SerializableNode
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::SerializableNode
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::SerializableNode
+pub struct buffer::drain::SerializableTree
+pub buffer::drain::SerializableTree::length_buckets: std::collections::hash::map::HashMap<usize, buffer::drain::SerializableNode>
+impl core::clone::Clone for buffer::drain::SerializableTree
+pub fn buffer::drain::SerializableTree::clone(&self) -> buffer::drain::SerializableTree
+impl core::default::Default for buffer::drain::SerializableTree
+pub fn buffer::drain::SerializableTree::default() -> buffer::drain::SerializableTree
+impl core::fmt::Debug for buffer::drain::SerializableTree
+pub fn buffer::drain::SerializableTree::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for buffer::drain::SerializableTree
+pub fn buffer::drain::SerializableTree::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for buffer::drain::SerializableTree
+pub fn buffer::drain::SerializableTree::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for buffer::drain::SerializableTree
+impl core::marker::Send for buffer::drain::SerializableTree
+impl core::marker::Sync for buffer::drain::SerializableTree
+impl core::marker::Unpin for buffer::drain::SerializableTree
+impl core::marker::UnsafeUnpin for buffer::drain::SerializableTree
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::SerializableTree
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::SerializableTree
+pub struct buffer::drain::TemplateDistEntry
+pub buffer::drain::TemplateDistEntry::content: alloc::string::String
+pub buffer::drain::TemplateDistEntry::drift_indicator: buffer::drain::DriftIndicator
+pub buffer::drain::TemplateDistEntry::id: buffer::drain::TemplateId
+pub buffer::drain::TemplateDistEntry::occurrence_count: u64
+impl core::clone::Clone for buffer::drain::TemplateDistEntry
+pub fn buffer::drain::TemplateDistEntry::clone(&self) -> buffer::drain::TemplateDistEntry
+impl core::cmp::Eq for buffer::drain::TemplateDistEntry
+impl core::cmp::PartialEq for buffer::drain::TemplateDistEntry
+pub fn buffer::drain::TemplateDistEntry::eq(&self, other: &buffer::drain::TemplateDistEntry) -> bool
+impl core::fmt::Debug for buffer::drain::TemplateDistEntry
+pub fn buffer::drain::TemplateDistEntry::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for buffer::drain::TemplateDistEntry
+impl serde_core::ser::Serialize for buffer::drain::TemplateDistEntry
+pub fn buffer::drain::TemplateDistEntry::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for buffer::drain::TemplateDistEntry
+pub fn buffer::drain::TemplateDistEntry::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for buffer::drain::TemplateDistEntry
+impl core::marker::Send for buffer::drain::TemplateDistEntry
+impl core::marker::Sync for buffer::drain::TemplateDistEntry
+impl core::marker::Unpin for buffer::drain::TemplateDistEntry
+impl core::marker::UnsafeUnpin for buffer::drain::TemplateDistEntry
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::TemplateDistEntry
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::TemplateDistEntry
+pub struct buffer::drain::TemplateRecord
+pub buffer::drain::TemplateRecord::first_seen_unix_nano: i64
+pub buffer::drain::TemplateRecord::id: buffer::drain::TemplateId
+pub buffer::drain::TemplateRecord::last_seen_unix_nano: i64
+pub buffer::drain::TemplateRecord::occurrence_count: u64
+pub buffer::drain::TemplateRecord::tokens: alloc::vec::Vec<alloc::string::String>
+impl core::clone::Clone for buffer::drain::TemplateRecord
+pub fn buffer::drain::TemplateRecord::clone(&self) -> buffer::drain::TemplateRecord
+impl core::cmp::Eq for buffer::drain::TemplateRecord
+impl core::cmp::PartialEq for buffer::drain::TemplateRecord
+pub fn buffer::drain::TemplateRecord::eq(&self, other: &buffer::drain::TemplateRecord) -> bool
+impl core::fmt::Debug for buffer::drain::TemplateRecord
+pub fn buffer::drain::TemplateRecord::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for buffer::drain::TemplateRecord
+impl serde_core::ser::Serialize for buffer::drain::TemplateRecord
+pub fn buffer::drain::TemplateRecord::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for buffer::drain::TemplateRecord
+pub fn buffer::drain::TemplateRecord::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for buffer::drain::TemplateRecord
+impl core::marker::Send for buffer::drain::TemplateRecord
+impl core::marker::Sync for buffer::drain::TemplateRecord
+impl core::marker::Unpin for buffer::drain::TemplateRecord
+impl core::marker::UnsafeUnpin for buffer::drain::TemplateRecord
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::TemplateRecord
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::TemplateRecord
+pub const buffer::drain::DRAIN_STATE_SCHEMA_VERSION: u32
+pub const buffer::drain::NULL_TEMPLATE_ID: buffer::drain::TemplateId
+pub const buffer::drain::WILDCARD_TOKEN: &str
+pub trait buffer::drain::DrainPersistence: core::marker::Send + core::marker::Sync
+pub fn buffer::drain::DrainPersistence::load(&self) -> core::result::Result<core::option::Option<buffer::drain::DrainState>, buffer::contract::Error>
+pub fn buffer::drain::DrainPersistence::save(&self, state: &buffer::drain::DrainState) -> core::result::Result<(), buffer::contract::Error>
+pub type buffer::drain::TemplateId = u64
+pub mod buffer::fingerprint
+pub struct buffer::fingerprint::NoopFingerprintObserver
+impl buffer::fingerprint::FingerprintObserver for buffer::fingerprint::NoopFingerprintObserver
+pub fn buffer::fingerprint::NoopFingerprintObserver::on_fingerprint(&self, _fingerprint: buffer::fingerprint::ExceptionFingerprint, _service_name: &str, _ts_unix_nano: i64)
+impl core::clone::Clone for buffer::fingerprint::NoopFingerprintObserver
+pub fn buffer::fingerprint::NoopFingerprintObserver::clone(&self) -> buffer::fingerprint::NoopFingerprintObserver
+impl core::default::Default for buffer::fingerprint::NoopFingerprintObserver
+pub fn buffer::fingerprint::NoopFingerprintObserver::default() -> buffer::fingerprint::NoopFingerprintObserver
+impl core::fmt::Debug for buffer::fingerprint::NoopFingerprintObserver
+pub fn buffer::fingerprint::NoopFingerprintObserver::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for buffer::fingerprint::NoopFingerprintObserver
+impl core::marker::Freeze for buffer::fingerprint::NoopFingerprintObserver
+impl core::marker::Send for buffer::fingerprint::NoopFingerprintObserver
+impl core::marker::Sync for buffer::fingerprint::NoopFingerprintObserver
+impl core::marker::Unpin for buffer::fingerprint::NoopFingerprintObserver
+impl core::marker::UnsafeUnpin for buffer::fingerprint::NoopFingerprintObserver
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::fingerprint::NoopFingerprintObserver
+impl core::panic::unwind_safe::UnwindSafe for buffer::fingerprint::NoopFingerprintObserver
+pub trait buffer::fingerprint::FingerprintObserver: core::marker::Send + core::marker::Sync
+pub fn buffer::fingerprint::FingerprintObserver::on_fingerprint(&self, fingerprint: buffer::fingerprint::ExceptionFingerprint, service_name: &str, ts_unix_nano: i64)
+impl buffer::fingerprint::FingerprintObserver for buffer::fingerprint::NoopFingerprintObserver
+pub fn buffer::fingerprint::NoopFingerprintObserver::on_fingerprint(&self, _fingerprint: buffer::fingerprint::ExceptionFingerprint, _service_name: &str, _ts_unix_nano: i64)
+pub fn buffer::fingerprint::compute_exception_fingerprint(exception_type: core::option::Option<&str>, stacktrace: core::option::Option<&str>) -> core::option::Option<buffer::fingerprint::ExceptionFingerprint>
+pub fn buffer::fingerprint::fingerprint_to_hex_prefix(fingerprint: &buffer::fingerprint::ExceptionFingerprint) -> alloc::string::String
+pub type buffer::fingerprint::ExceptionFingerprint = [u8; 16]
+pub mod buffer::retention
+pub async fn buffer::retention::run_retention(conn: alloc::sync::Arc<std::sync::poison::mutex::Mutex<duckdb::Connection>>, state: alloc::sync::Arc<buffer::state::BufferState>, retention_seconds: u64)
+pub mod buffer::schema
+pub const buffer::schema::RESERVED_TABLES: [&str; 8]
+pub fn buffer::schema::create_schema(conn: &duckdb::Connection) -> core::result::Result<(), buffer::contract::Error>
+pub mod buffer::state
+pub struct buffer::state::BufferState
+impl buffer::state::BufferState
+pub fn buffer::state::BufferState::mark_retention_active(&self)
+pub fn buffer::state::BufferState::new() -> Self
+pub fn buffer::state::BufferState::record_eviction(&self, n: u64)
+pub fn buffer::state::BufferState::record_rows_appended(&self, n: u64)
+pub fn buffer::state::BufferState::set_memory_bytes(&self, n: u64)
+pub fn buffer::state::BufferState::snapshot(&self) -> buffer::state::BufferStateSnapshot
+impl core::default::Default for buffer::state::BufferState
+pub fn buffer::state::BufferState::default() -> buffer::state::BufferState
+impl core::fmt::Debug for buffer::state::BufferState
+pub fn buffer::state::BufferState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl !core::marker::Freeze for buffer::state::BufferState
+impl core::marker::Send for buffer::state::BufferState
+impl core::marker::Sync for buffer::state::BufferState
+impl core::marker::Unpin for buffer::state::BufferState
+impl core::marker::UnsafeUnpin for buffer::state::BufferState
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::state::BufferState
+impl core::panic::unwind_safe::UnwindSafe for buffer::state::BufferState
+pub struct buffer::state::BufferStateSnapshot
+pub buffer::state::BufferStateSnapshot::eviction_count: u64
+pub buffer::state::BufferStateSnapshot::memory_bytes: u64
+pub buffer::state::BufferStateSnapshot::retention_window_active: bool
+pub buffer::state::BufferStateSnapshot::rows_ingested: u64
+impl core::clone::Clone for buffer::state::BufferStateSnapshot
+pub fn buffer::state::BufferStateSnapshot::clone(&self) -> buffer::state::BufferStateSnapshot
+impl core::default::Default for buffer::state::BufferStateSnapshot
+pub fn buffer::state::BufferStateSnapshot::default() -> buffer::state::BufferStateSnapshot
+impl core::fmt::Debug for buffer::state::BufferStateSnapshot
+pub fn buffer::state::BufferStateSnapshot::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for buffer::state::BufferStateSnapshot
+impl core::marker::Freeze for buffer::state::BufferStateSnapshot
+impl core::marker::Send for buffer::state::BufferStateSnapshot
+impl core::marker::Sync for buffer::state::BufferStateSnapshot
+impl core::marker::Unpin for buffer::state::BufferStateSnapshot
+impl core::marker::UnsafeUnpin for buffer::state::BufferStateSnapshot
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::state::BufferStateSnapshot
+impl core::panic::unwind_safe::UnwindSafe for buffer::state::BufferStateSnapshot
+pub enum buffer::DriftIndicator
+pub buffer::DriftIndicator::Healthy
+pub buffer::DriftIndicator::OverGeneralized
+pub buffer::DriftIndicator::UnderClustered
+impl core::clone::Clone for buffer::drain::DriftIndicator
+pub fn buffer::drain::DriftIndicator::clone(&self) -> buffer::drain::DriftIndicator
+impl core::cmp::Eq for buffer::drain::DriftIndicator
+impl core::cmp::PartialEq for buffer::drain::DriftIndicator
+pub fn buffer::drain::DriftIndicator::eq(&self, other: &buffer::drain::DriftIndicator) -> bool
+impl core::fmt::Debug for buffer::drain::DriftIndicator
+pub fn buffer::drain::DriftIndicator::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for buffer::drain::DriftIndicator
+impl core::marker::StructuralPartialEq for buffer::drain::DriftIndicator
+impl serde_core::ser::Serialize for buffer::drain::DriftIndicator
+pub fn buffer::drain::DriftIndicator::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for buffer::drain::DriftIndicator
+pub fn buffer::drain::DriftIndicator::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for buffer::drain::DriftIndicator
+impl core::marker::Send for buffer::drain::DriftIndicator
+impl core::marker::Sync for buffer::drain::DriftIndicator
+impl core::marker::Unpin for buffer::drain::DriftIndicator
+impl core::marker::UnsafeUnpin for buffer::drain::DriftIndicator
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::DriftIndicator
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::DriftIndicator
+pub enum buffer::Error
+pub buffer::Error::Append
+pub buffer::Error::Append::reason: alloc::string::String
+pub buffer::Error::BroadcastEncode
+pub buffer::Error::BroadcastEncode::reason: alloc::string::String
+pub buffer::Error::BroadcastSizeCapExceeded
+pub buffer::Error::BroadcastSizeCapExceeded::payload_bytes: usize
+pub buffer::Error::ConnectionLost
+pub buffer::Error::Drain
+pub buffer::Error::Drain::reason: alloc::string::String
+pub buffer::Error::Init
+pub buffer::Error::Init::reason: alloc::string::String
+pub buffer::Error::InvalidBatch
+pub buffer::Error::InvalidBatch::kind: &'static str
+pub buffer::Error::Retention
+pub buffer::Error::Retention::reason: alloc::string::String
+pub buffer::Error::SchemaCreate
+pub buffer::Error::SchemaCreate::reason: alloc::string::String
+impl core::error::Error for buffer::contract::Error
+impl core::fmt::Debug for buffer::contract::Error
+pub fn buffer::contract::Error::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for buffer::contract::Error
+pub fn buffer::contract::Error::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for buffer::contract::Error
+impl core::marker::Send for buffer::contract::Error
+impl core::marker::Sync for buffer::contract::Error
+impl core::marker::Unpin for buffer::contract::Error
+impl core::marker::UnsafeUnpin for buffer::contract::Error
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::contract::Error
+impl core::panic::unwind_safe::UnwindSafe for buffer::contract::Error
+pub struct buffer::BroadcastSenders
+pub buffer::BroadcastSenders::logs: tokio::sync::broadcast::Sender<bytes::bytes::Bytes>
+pub buffer::BroadcastSenders::metrics: tokio::sync::broadcast::Sender<bytes::bytes::Bytes>
+pub buffer::BroadcastSenders::spans: tokio::sync::broadcast::Sender<bytes::bytes::Bytes>
+impl core::clone::Clone for buffer::broadcast::BroadcastSenders
+pub fn buffer::broadcast::BroadcastSenders::clone(&self) -> buffer::broadcast::BroadcastSenders
+impl core::fmt::Debug for buffer::broadcast::BroadcastSenders
+pub fn buffer::broadcast::BroadcastSenders::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for buffer::broadcast::BroadcastSenders
+impl core::marker::Send for buffer::broadcast::BroadcastSenders
+impl core::marker::Sync for buffer::broadcast::BroadcastSenders
+impl core::marker::Unpin for buffer::broadcast::BroadcastSenders
+impl core::marker::UnsafeUnpin for buffer::broadcast::BroadcastSenders
+impl !core::panic::unwind_safe::RefUnwindSafe for buffer::broadcast::BroadcastSenders
+impl !core::panic::unwind_safe::UnwindSafe for buffer::broadcast::BroadcastSenders
+pub struct buffer::BufferHeartbeat
+pub buffer::BufferHeartbeat::drain_lru_evictions_since_tick: u64
+pub buffer::BufferHeartbeat::drain_template_count: u64
+pub buffer::BufferHeartbeat::eviction_count: u64
+pub buffer::BufferHeartbeat::eviction_count_since_last_tick: u64
+pub buffer::BufferHeartbeat::memory_bytes: u64
+pub buffer::BufferHeartbeat::retention_window_active: bool
+pub buffer::BufferHeartbeat::retention_window_seconds: u64
+pub buffer::BufferHeartbeat::rows_ingested: u64
+impl core::clone::Clone for buffer::contract::BufferHeartbeat
+pub fn buffer::contract::BufferHeartbeat::clone(&self) -> buffer::contract::BufferHeartbeat
+impl core::default::Default for buffer::contract::BufferHeartbeat
+pub fn buffer::contract::BufferHeartbeat::default() -> buffer::contract::BufferHeartbeat
+impl core::fmt::Debug for buffer::contract::BufferHeartbeat
+pub fn buffer::contract::BufferHeartbeat::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for buffer::contract::BufferHeartbeat
+impl core::marker::Freeze for buffer::contract::BufferHeartbeat
+impl core::marker::Send for buffer::contract::BufferHeartbeat
+impl core::marker::Sync for buffer::contract::BufferHeartbeat
+impl core::marker::Unpin for buffer::contract::BufferHeartbeat
+impl core::marker::UnsafeUnpin for buffer::contract::BufferHeartbeat
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::contract::BufferHeartbeat
+impl core::panic::unwind_safe::UnwindSafe for buffer::contract::BufferHeartbeat
+pub struct buffer::BufferState
+impl buffer::state::BufferState
+pub fn buffer::state::BufferState::mark_retention_active(&self)
+pub fn buffer::state::BufferState::new() -> Self
+pub fn buffer::state::BufferState::record_eviction(&self, n: u64)
+pub fn buffer::state::BufferState::record_rows_appended(&self, n: u64)
+pub fn buffer::state::BufferState::set_memory_bytes(&self, n: u64)
+pub fn buffer::state::BufferState::snapshot(&self) -> buffer::state::BufferStateSnapshot
+impl core::default::Default for buffer::state::BufferState
+pub fn buffer::state::BufferState::default() -> buffer::state::BufferState
+impl core::fmt::Debug for buffer::state::BufferState
+pub fn buffer::state::BufferState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl !core::marker::Freeze for buffer::state::BufferState
+impl core::marker::Send for buffer::state::BufferState
+impl core::marker::Sync for buffer::state::BufferState
+impl core::marker::Unpin for buffer::state::BufferState
+impl core::marker::UnsafeUnpin for buffer::state::BufferState
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::state::BufferState
+impl core::panic::unwind_safe::UnwindSafe for buffer::state::BufferState
+pub struct buffer::BufferStateSnapshot
+pub buffer::BufferStateSnapshot::eviction_count: u64
+pub buffer::BufferStateSnapshot::memory_bytes: u64
+pub buffer::BufferStateSnapshot::retention_window_active: bool
+pub buffer::BufferStateSnapshot::rows_ingested: u64
+impl core::clone::Clone for buffer::state::BufferStateSnapshot
+pub fn buffer::state::BufferStateSnapshot::clone(&self) -> buffer::state::BufferStateSnapshot
+impl core::default::Default for buffer::state::BufferStateSnapshot
+pub fn buffer::state::BufferStateSnapshot::default() -> buffer::state::BufferStateSnapshot
+impl core::fmt::Debug for buffer::state::BufferStateSnapshot
+pub fn buffer::state::BufferStateSnapshot::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for buffer::state::BufferStateSnapshot
+impl core::marker::Freeze for buffer::state::BufferStateSnapshot
+impl core::marker::Send for buffer::state::BufferStateSnapshot
+impl core::marker::Sync for buffer::state::BufferStateSnapshot
+impl core::marker::Unpin for buffer::state::BufferStateSnapshot
+impl core::marker::UnsafeUnpin for buffer::state::BufferStateSnapshot
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::state::BufferStateSnapshot
+impl core::panic::unwind_safe::UnwindSafe for buffer::state::BufferStateSnapshot
+pub struct buffer::DrainConfig
+pub buffer::DrainConfig::depth: u32
+pub buffer::DrainConfig::masking_patterns: alloc::vec::Vec<buffer::drain::MaskPattern>
+pub buffer::DrainConfig::max_clusters: usize
+pub buffer::DrainConfig::similarity: f32
+impl buffer::drain::DrainConfig
+pub fn buffer::drain::DrainConfig::default_config() -> Self
+impl core::clone::Clone for buffer::drain::DrainConfig
+pub fn buffer::drain::DrainConfig::clone(&self) -> buffer::drain::DrainConfig
+impl core::default::Default for buffer::drain::DrainConfig
+pub fn buffer::drain::DrainConfig::default() -> Self
+impl core::fmt::Debug for buffer::drain::DrainConfig
+pub fn buffer::drain::DrainConfig::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for buffer::drain::DrainConfig
+impl core::marker::Send for buffer::drain::DrainConfig
+impl core::marker::Sync for buffer::drain::DrainConfig
+impl core::marker::Unpin for buffer::drain::DrainConfig
+impl core::marker::UnsafeUnpin for buffer::drain::DrainConfig
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::DrainConfig
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::DrainConfig
+pub struct buffer::DrainMiner
+impl buffer::drain::DrainMiner
+pub fn buffer::drain::DrainMiner::assign(&self, log_body: &str) -> core::option::Option<buffer::drain::TemplateId>
+pub fn buffer::drain::DrainMiner::assign_at(&self, log_body: &str, ts_unix_nano: i64) -> core::option::Option<buffer::drain::TemplateId>
+pub fn buffer::drain::DrainMiner::drain_newly_created_templates(&self) -> alloc::vec::Vec<buffer::drain::TemplateRecord>
+pub fn buffer::drain::DrainMiner::load_from_persistence(&self) -> core::result::Result<bool, buffer::contract::Error>
+pub fn buffer::drain::DrainMiner::new(config: buffer::drain::DrainConfig, persistence: core::option::Option<alloc::sync::Arc<dyn buffer::drain::DrainPersistence>>) -> Self
+pub fn buffer::drain::DrainMiner::persist(&self) -> core::result::Result<bool, buffer::contract::Error>
+pub fn buffer::drain::DrainMiner::snapshot_state(&self) -> core::result::Result<buffer::drain::DrainState, buffer::contract::Error>
+pub fn buffer::drain::DrainMiner::take_lru_evictions_since_tick(&self) -> u64
+pub fn buffer::drain::DrainMiner::template_count(&self) -> u64
+pub fn buffer::drain::DrainMiner::template_distribution(&self, top_n: usize) -> alloc::vec::Vec<buffer::drain::TemplateDistEntry>
+impl !core::marker::Freeze for buffer::drain::DrainMiner
+impl core::marker::Send for buffer::drain::DrainMiner
+impl core::marker::Sync for buffer::drain::DrainMiner
+impl core::marker::Unpin for buffer::drain::DrainMiner
+impl core::marker::UnsafeUnpin for buffer::drain::DrainMiner
+impl !core::panic::unwind_safe::RefUnwindSafe for buffer::drain::DrainMiner
+impl !core::panic::unwind_safe::UnwindSafe for buffer::drain::DrainMiner
+pub struct buffer::DrainState
+pub buffer::DrainState::next_template_id: u64
+pub buffer::DrainState::schema_version: u32
+pub buffer::DrainState::templates: alloc::vec::Vec<buffer::drain::TemplateRecord>
+pub buffer::DrainState::tree: buffer::drain::SerializableTree
+impl core::clone::Clone for buffer::drain::DrainState
+pub fn buffer::drain::DrainState::clone(&self) -> buffer::drain::DrainState
+impl core::fmt::Debug for buffer::drain::DrainState
+pub fn buffer::drain::DrainState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for buffer::drain::DrainState
+pub fn buffer::drain::DrainState::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for buffer::drain::DrainState
+pub fn buffer::drain::DrainState::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for buffer::drain::DrainState
+impl core::marker::Send for buffer::drain::DrainState
+impl core::marker::Sync for buffer::drain::DrainState
+impl core::marker::Unpin for buffer::drain::DrainState
+impl core::marker::UnsafeUnpin for buffer::drain::DrainState
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::DrainState
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::DrainState
+pub struct buffer::MaskPattern
+pub buffer::MaskPattern::category: &'static str
+pub buffer::MaskPattern::regex: regex::regex::string::Regex
+pub buffer::MaskPattern::replacement: &'static str
+impl core::clone::Clone for buffer::drain::MaskPattern
+pub fn buffer::drain::MaskPattern::clone(&self) -> buffer::drain::MaskPattern
+impl core::fmt::Debug for buffer::drain::MaskPattern
+pub fn buffer::drain::MaskPattern::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for buffer::drain::MaskPattern
+impl core::marker::Send for buffer::drain::MaskPattern
+impl core::marker::Sync for buffer::drain::MaskPattern
+impl core::marker::Unpin for buffer::drain::MaskPattern
+impl core::marker::UnsafeUnpin for buffer::drain::MaskPattern
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::MaskPattern
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::MaskPattern
+pub struct buffer::TemplateDistEntry
+pub buffer::TemplateDistEntry::content: alloc::string::String
+pub buffer::TemplateDistEntry::drift_indicator: buffer::drain::DriftIndicator
+pub buffer::TemplateDistEntry::id: buffer::drain::TemplateId
+pub buffer::TemplateDistEntry::occurrence_count: u64
+impl core::clone::Clone for buffer::drain::TemplateDistEntry
+pub fn buffer::drain::TemplateDistEntry::clone(&self) -> buffer::drain::TemplateDistEntry
+impl core::cmp::Eq for buffer::drain::TemplateDistEntry
+impl core::cmp::PartialEq for buffer::drain::TemplateDistEntry
+pub fn buffer::drain::TemplateDistEntry::eq(&self, other: &buffer::drain::TemplateDistEntry) -> bool
+impl core::fmt::Debug for buffer::drain::TemplateDistEntry
+pub fn buffer::drain::TemplateDistEntry::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for buffer::drain::TemplateDistEntry
+impl serde_core::ser::Serialize for buffer::drain::TemplateDistEntry
+pub fn buffer::drain::TemplateDistEntry::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for buffer::drain::TemplateDistEntry
+pub fn buffer::drain::TemplateDistEntry::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for buffer::drain::TemplateDistEntry
+impl core::marker::Send for buffer::drain::TemplateDistEntry
+impl core::marker::Sync for buffer::drain::TemplateDistEntry
+impl core::marker::Unpin for buffer::drain::TemplateDistEntry
+impl core::marker::UnsafeUnpin for buffer::drain::TemplateDistEntry
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::TemplateDistEntry
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::TemplateDistEntry
+pub struct buffer::TemplateRecord
+pub buffer::TemplateRecord::first_seen_unix_nano: i64
+pub buffer::TemplateRecord::id: buffer::drain::TemplateId
+pub buffer::TemplateRecord::last_seen_unix_nano: i64
+pub buffer::TemplateRecord::occurrence_count: u64
+pub buffer::TemplateRecord::tokens: alloc::vec::Vec<alloc::string::String>
+impl core::clone::Clone for buffer::drain::TemplateRecord
+pub fn buffer::drain::TemplateRecord::clone(&self) -> buffer::drain::TemplateRecord
+impl core::cmp::Eq for buffer::drain::TemplateRecord
+impl core::cmp::PartialEq for buffer::drain::TemplateRecord
+pub fn buffer::drain::TemplateRecord::eq(&self, other: &buffer::drain::TemplateRecord) -> bool
+impl core::fmt::Debug for buffer::drain::TemplateRecord
+pub fn buffer::drain::TemplateRecord::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for buffer::drain::TemplateRecord
+impl serde_core::ser::Serialize for buffer::drain::TemplateRecord
+pub fn buffer::drain::TemplateRecord::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for buffer::drain::TemplateRecord
+pub fn buffer::drain::TemplateRecord::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for buffer::drain::TemplateRecord
+impl core::marker::Send for buffer::drain::TemplateRecord
+impl core::marker::Sync for buffer::drain::TemplateRecord
+impl core::marker::Unpin for buffer::drain::TemplateRecord
+impl core::marker::UnsafeUnpin for buffer::drain::TemplateRecord
+impl core::panic::unwind_safe::RefUnwindSafe for buffer::drain::TemplateRecord
+impl core::panic::unwind_safe::UnwindSafe for buffer::drain::TemplateRecord
+pub const buffer::BROADCAST_CAPACITY: usize
+pub const buffer::MAX_PAYLOAD_BYTES: usize
+pub const buffer::STREAM_NAME_LOGS: &str
+pub const buffer::STREAM_NAME_METRICS: &str
+pub const buffer::STREAM_NAME_SPANS: &str
+pub trait buffer::DrainPersistence: core::marker::Send + core::marker::Sync
+pub fn buffer::DrainPersistence::load(&self) -> core::result::Result<core::option::Option<buffer::drain::DrainState>, buffer::contract::Error>
+pub fn buffer::DrainPersistence::save(&self, state: &buffer::drain::DrainState) -> core::result::Result<(), buffer::contract::Error>
+pub fn buffer::create_schema(conn: &duckdb::Connection) -> core::result::Result<(), buffer::contract::Error>
+pub fn buffer::encode_logs(batch: &arrow_array::record_batch::RecordBatch) -> core::result::Result<bytes::bytes::Bytes, buffer::contract::Error>
+pub fn buffer::encode_metrics(batch: &arrow_array::record_batch::RecordBatch) -> core::result::Result<bytes::bytes::Bytes, buffer::contract::Error>
+pub fn buffer::encode_spans(batch: &arrow_array::record_batch::RecordBatch) -> core::result::Result<bytes::bytes::Bytes, buffer::contract::Error>
+pub async fn buffer::run_consumer(receiver: ingest::channel::IngestReceiver, conn: alloc::sync::Arc<std::sync::poison::mutex::Mutex<duckdb::Connection>>, state: alloc::sync::Arc<buffer::state::BufferState>, broadcast_senders: alloc::sync::Arc<buffer::broadcast::BroadcastSenders>, span_observer: alloc::sync::Arc<dyn ingest::observer::SpanObserver>, fingerprint_observer: core::option::Option<alloc::sync::Arc<dyn buffer::fingerprint::FingerprintObserver>>, drain_miner: core::option::Option<alloc::sync::Arc<buffer::drain::DrainMiner>>)
+pub async fn buffer::run_retention(conn: alloc::sync::Arc<std::sync::poison::mutex::Mutex<duckdb::Connection>>, state: alloc::sync::Arc<buffer::state::BufferState>, retention_seconds: u64)
+pub type buffer::TemplateId = u64

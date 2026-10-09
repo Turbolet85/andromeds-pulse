@@ -1,0 +1,3 @@
+splice v1.0 · 5afc7864
+append architecture-amendments.md:+7 at line 541 · lines 540→547 · bytes 74622→75630 · term lf
+last line now: **Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/

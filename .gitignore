@@ -1,8 +1,15 @@
 # --- Andromeda planning artifacts ---
 # Track plans (architecture, 6 specialist plans, route, project.yaml, state.yaml,
 # context/ living artifacts) — they are the source of truth for the CLAUDE.md ecosystem.
-# Exclude only the audit-trail run directories (ephemeral; large; per-pipeline-invocation).
-.andromeda/runs/
+# The audit-trail run directories are tracked too (operator decision 2026-08-14):
+# they hold the forensic record — fan-out proposals, amendment and decision records —
+# that the per-chunk folders do not carry.
+# Code-graph DB cache (v3 — derived from rust-analyzer SCIP; rebuilt from code, never committed).
+.andromeda/cache/
+# Python bytecode from the code-graph pipeline (scripts/code-graph.py).
+scripts/__pycache__/
+# Python bytecode at any depth — the pipeline's python also runs in run dirs and chunk evidence.
+__pycache__/
 
 # --- Rust ---
 # Build output
@@ -39,6 +46,11 @@ coverage/
 .parcel-cache/
 .turbo/
 .vite/
+# Stray repo-root taurpc/Specta bindings export — the canonical webview is
+# pulse-app/ui/ (tauri frontendDist resolves under pulse-app); some export
+# invocation writes bindings to a repo-root-relative ui/src/bindings/ under a
+# repo-root CWD. Anchored (/ui/) so it never matches pulse-app/ui/.
+/ui/
 
 # Frontend env files
 .env
@@ -110,3 +122,11 @@ AI-Model/
 
 # chunk #99 a11y regression-detector run artifact (embeds absolute user paths; regenerated per run)
 pulse-app/ui/tests-a11y/regression-set.json
+
+# Local scratch spikes (isolated own-[workspace] crates; keep out of the code-graph dirty check)
+experiments/
+
+# --- Future-version incubator (untracked planning material; not part of the current version) ---
+# 0.4.0 research/positioning docs; kept local + untracked until promoted into a version
+# (operator decision at the 2026-07-05-legible-labeled-constellation wrap — keep out of the 0.3.0 chunk commits).
+andromeda-pulse-0.4.0-incubator/

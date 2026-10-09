@@ -1,0 +1,160 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "01b568a2",
+"ts": "2026-10-09T08:16:38Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"baseline 18a872d0 (head — no operator pre-CI commit for no-marker)",
+"sketch-folder · new 0 · standing 2 · leaf 1 · curation 0 · base 0 · control design-system.md:14 (prose)",
+"sketch-gathers · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control design-system.md:14 (prose)",
+"progl4-entry · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:30 (prose)",
+"still-until · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:30 (prose)",
+"progl4-title · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"ps1-run-owed · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:145 (prose)",
+"owned-by-carry · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:145 (p…",
+"owner-pinned · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control obs-plan.md:464 (prose)",
+"unredacted-title · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control obs-plan.md:464 (prose)",
+"own-route-entry · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control registries/contracts/test-plan/per-chunk-…",
+"prepush-title · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:145 (prose)",
+"ps1-half · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · control test-plan.md:145 (prose)",
+".andromeda/design-system.md:14 sketch-folder standing edited @c1142/2143 …4.0-incubator/signature-orb/` was removed on …",
+".andromeda/layout-templates.md:100 sketch-folder standing edited …-0.4.0-incubator/signature-orb/` was removed on 2026-…",
+".claude/docs/design-summary.md:15 sketch-folder leaf …ulse-0.4.0-incubator/signature-orb/`. The spec below is the defer…",
+".claude/docs/design-summary.md:15 sketch-gathers leaf ….md` (target 0.4.0); design direction gathers in `andromeda-puls…",
+".claude/docs/services/interpretation.md:27 progl4-entry leaf … routed until the programmatic-L4 route entry — without a…",
+".claude/docs/stack.md:27 progl4-entry leaf … still routed until the programmatic-L4 route entry — without a GPU, L4 ana…",
+".claude/docs/services/interpretation.md:27 still-until leaf …eration on it) and still routed until the programmatic-L4 …",
+".claude/docs/stack.md:27 still-until leaf …er generation on it) and still routed until the programmatic-L4 route entry …",
+".andromeda/architecture.md:72 progl4-title standing edited mixed ×2 @c1533,1814/7457 …a GPU, L4 analysis is programmati…",
+".claude/rules/observability.md:99 ps1-run-owed leaf @c2157/2169 …nux dev host since 2026-10-06, so only the run is owed.",
+".claude/docs/obs-summary.md:82 ps1-run-owed leaf …sh` 7.6.6 is on the dev host since 2026-10-06; only the run is owed) |",
+".claude/rules/observability.md:75 owner-pinned leaf …at model before; its owner is pinned on the working route (obs-pla…",
+".andromeda/obs-plan.md:464 unredacted-title new … entry, \"L4 generation records render unredacted\" (pinned on the worki…",
+".claude/rules/verification-harness.md:95 own-route-entry leaf …; the native port is its own route entry) — not a CI ste…",
+".claude/docs/tests-summary.md:89 own-route-entry leaf … and the native port is its own route entry); not a CI step: it …",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:32 prepush-title standing edited @c689/2523 …run…",
+".andromeda/test-plan.md:145 ps1-half standing edited … 1 ms budget). The `.ps1` half has never run. `pwsh` 7.6.6 is on …",
+".andromeda/obs-plan.md:548 ps1-half standing edited …a 1 ms budget. The `.ps1` half has not run; `pwsh` 7.6.6 is on the…",
+".claude/rules/observability.md:99 ps1-half leaf @c2061/2169 …gemma model. The `.ps1` half has not run yet — `pwsh` 7.6.…",
+".claude/docs/obs-summary.md:82 ps1-half leaf …pped gemma model; the `.ps1` half has not run (`pwsh` 7.6.6 is on the dev…",
+"sketch-folder · new 0 · standing 2 · leaf 1 · curation 0 · base 0 · control design-system.md:14 (prose)",
+"sketch-gathers · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control design-system.md:14 (prose)",
+"progl4-entry · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:30 (prose)",
+"still-until · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:30 (prose)",
+"progl4-title · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"ps1-run-owed · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:145 (prose)",
+"owned-by-carry · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:145 (p…",
+"owner-pinned · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control obs-plan.md:464 (prose)",
+"unredacted-title · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control obs-plan.md:464 (prose)",
+"own-route-entry · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control registries/contracts/test-plan/per-chunk-…",
+"prepush-title · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:145 (prose)",
+"ps1-half · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · control test-plan.md:145 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "18a872d0e4496b292f8bc10472da835bec0406c4",
+"how": "head — no operator pre-CI commit for no-marker",
+"counts": {
+"sketch-folder": {
+"new": 0,
+"standing": 2,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"sketch-gathers": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"progl4-entry": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"still-until": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"progl4-title": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ps1-run-owed": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"owned-by-carry": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"owner-pinned": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"unredacted-title": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"own-route-entry": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"prepush-title": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ps1-half": {
+"new": 0,
+"standing": 2,
+"leaf": 2,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

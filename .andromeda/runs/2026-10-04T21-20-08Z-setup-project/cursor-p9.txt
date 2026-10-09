@@ -1,0 +1,15 @@
+route v1.6 · b87a9ed0
+version andromeda-pulse-0.3.0 · dir present · master master-route.md
+version dir andromeda-pulse-0.3.0/ — at --root, beside .andromeda/, never inside it
+records 74 · complete 74 · pending 0 · gated 0
+done 2026-10-04-l4-interpretation-names-its-triggering-cue
+next working-route.md:164 · L4 framing measured on the real model · markerless 3 of 77 entries
+BLOCKED-ON at an annotation position · working-route.md:164 · BLOCKED-ON: a Linux llama.cpp CUDA binary — none on this hos… (537 chars) — take-up or skip is the letter's, not the tool's
+half-promote 0 of 74 stamped lines vs 74 master records (anchored `{marker} · `, whole file)
+UNPARSED: working-route.md:52 — separator-boundary token outside the letters' introducer shape: 'PREMISE CORRECTED 2026…
+UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'TWO LAYERS, ONE QUESTI…
+UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'WHY IT PRECEDES P-075/…
+UNPARSED: working-route.md:60 — separator-boundary token outside the letters' introducer shape: 'MEASURED, not inferred…
+INDETERMINATE: working-route.md:100 — after ONE space — freight or prose, no structural split: 'GPU:'
+UNPARSED: working-route.md:116 — entry line carrying `↓` inside it; read as an ENTRY
+… +1 more abstentions — `route.py markerless` prints them whole

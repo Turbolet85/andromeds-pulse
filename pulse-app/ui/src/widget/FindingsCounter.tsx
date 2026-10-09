@@ -1,11 +1,14 @@
-// Compact circular counter button trigger для the Findings dropdown
+// Compact circular counter button trigger for the Findings dropdown
 // (chunk #87). Hidden when count is zero per project-doc §86
 // contemplative-discipline + design-system §Anti-Patterns. Severity-
 // colored background per priorityTier (Autonomous = accent burgundy,
 // Suggested = primary earth blue, Curious = text-secondary); non-color
 // supplement IS the numeric digit + accessible name (severity word).
-// Per a11y plan §4 Disclosure pattern: aria-expanded + aria-controls +
-// aria-haspopup; native <button> for SC 4.1.2 / 2.1.1 / 2.4.7 / 2.5.8.
+// Per a11y plan §4 Disclosure pattern: aria-expanded + aria-haspopup on a
+// native <button> for SC 4.1.2 / 2.1.1 / 2.4.7 / 2.5.8. The disclosed panel
+// now lives in a SEPARATE `findings` window (2026-07-10), so aria-controls is
+// dropped — it cannot reference a cross-document id (a dangling ref would fail
+// axe aria-valid-attr-value); aria-expanded tracks the window's open state.
 
 import type { CSSProperties, RefObject } from "react";
 import type { PriorityTier } from "../bindings/index";
@@ -61,8 +64,7 @@ export function FindingsCounter({
       onClick={onOpen}
       aria-label={counterAriaLabel(count, severity)}
       aria-expanded={isOpen}
-      aria-controls={FINDINGS_DROPDOWN_PANEL_ID}
-      aria-haspopup="true"
+      aria-haspopup="dialog"
       data-testid="findings-counter"
       data-severity={severity ?? "none"}
       data-count={count}

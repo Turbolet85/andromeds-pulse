@@ -1,0 +1,35 @@
+# tests extract
+
+## Relevance
+Relevant — modifies core triage digest logic (queue/coalescing) + pulse-app runtime integration; requires unit + integration test layers per Standard tier.
+
+## Constraints
+1. Standard tier (per test-plan §1 Scope Summary) → 75% line coverage minimum, 70% branch, 85% function (§10 Quality Gates)
+2. Agent-driven discipline (§2 Test Strategy) → deterministic exit signals, self-bootstrapping fixtures, no human-in-loop verification
+3. Unit + integration test pyramid required (§2 Test Strategy) → comprehensive unit (coalescing logic, queue data structures); integration (full path from hard-signals through digest_runtime drain to L4)
+4. Rust framework: libtest + `cargo-nextest` 0.9.x (§4 Unit Test Strategy)
+5. Integration testing with in-memory DuckDB (no mocking), `rstest` 0.26.1 fixtures (§5 Integration Test Strategy, §7 Test Data & Fixtures)
+6. Standard gate baseline unconditional (per test-plan amendment 2026-05-10 §3 Per-chunk gate discipline): `cargo fmt --check`, `cargo clippy --workspace --all-targets --all-features -- -D warnings`, `cargo nextest run --workspace --profile ci`, `cargo xtask capability-drift`
+
+## Patterns to follow
+1. Co-located `#[cfg(test)] mod tests { … }` in triage crate (queue.rs, assembler.rs, contract.rs) and pulse-app (digest_runtime.rs) per §4 Unit Test Strategy
+2. Fixture builders via `rstest` with `#[fixture]` for synthetic hard-signals and Digest objects; builder factories (e.g., `MockDigest::builder()`) per §4 Unit Test Strategy
+3. Self-bootstrapping test data: all fixtures generated at runtime via builders, no pre-baked data per §7 Test Data & Fixtures
+4. Integration acceptance test: spawn digest_runtime, drive ≥100 identical-fingerprint hard-signals through queue → coalescing → elastic drain → L4, assert exactly one coalesced incident (per chunk scope acceptance anchor)
+
+## Anti-patterns to avoid
+1. NEVER test private crate internals (test public module boundaries, e.g., `push_tier1` public contract, not internal state mutations) per §11 Unit anti-pattern
+2. NEVER skip test cleanup between integration tests (creates order-dependent failures; each test isolation via fresh DuckDB + tempdir) per §11 Integration anti-pattern
+3. NEVER use pre-baked test data or SQL snapshots — all digest/hard-signal fixtures built at test runtime per §11 Test Data anti-pattern
+
+## Contract bindings
+(none) — the chunk's observability (aggregate counters to existing `pipeline.l3.*` family) is self-contained; no new cross-domain test contracts.
+
+## Acceptance criteria contributions
+1. "(tests) `cargo nextest run -p triage` passes for new unit tests on queue coalescing and elastic dequeue logic."
+2. "(tests) Integration test: drive ≥100 identical-fingerprint hard-signals through digest_runtime, verify exactly ONE coalesced incident with zero dropped-by-cap loss."
+3. "(tests) Coverage: new-code line coverage ≥ 75% (Standard tier per test-plan §10)."
+4. "(tests) Fixtures use `rstest` builder factories (§7), no raw object literals for test Digests."
+
+## Relevant amendment history
+**2026-05-10 — chunk plans MUST include standard gate baseline (test-plan amendment 2026-05-10):** Every `/andromeda-phase` chunk plan must list `cargo fmt --check` + `cargo clippy --workspace --all-targets --all-features -- -D warnings` + `cargo nextest run --workspace --profile ci` + `cargo xtask capability-drift` unconditionally in the Test Commands section. Webview gates (`npm run lint` / `typecheck` / `test` for pulse-app/ui) only when pulse-app/ui files are touched (this chunk does not touch webview, so npm gates excluded). **Why**: Phase 2 learning (chunks #36–#37) showed gate-coverage drift accumulates silently; pre-existing failures surfaced only when a later chunk included the missing gate. This chunk MUST include all 4 standard Rust gates to catch any pre-existing issues in triage or pulse-app before this chunk's changes.

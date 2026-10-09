@@ -10,7 +10,9 @@ use crate::baseline::{
     Q1RedRow, Q2OperationRow, Q3FingerprintRow, Q4InteractionRow, Q5CardinalityRow, Q6LogRow,
     Q7CriticalPathRow, SqlAggregationError,
 };
-use crate::cadence::broadcast::{CadenceEvent, CadenceEventBroadcast};
+use crate::cadence::broadcast::{
+    CadenceEvent, CadenceEventBroadcast, DigestTrigger, DigestTriggerBroadcast,
+};
 use crate::cadence::config::CadenceConfig;
 use crate::cadence::{
     TARGET_CADENCE_CONFIG_RELOAD_APPLIED, TARGET_CADENCE_TICK, TARGET_CADENCE_TRIGGER,
@@ -89,7 +91,7 @@ type SqlFuture<'a, T> = Pin<Box<dyn Future<Output = Result<T, SqlAggregationErro
 
 /// L1a SQL query runner contract. Concrete impl lives at the binary
 /// boundary (`pulse-app/src/cadence_runner.rs::CadenceSqlRunner`)
-/// delegating к chunk #79 `crates/triage/src/baseline/sql.rs` Q1-Q7
+/// delegating to chunk #79 `crates/triage/src/baseline/sql.rs` Q1-Q7
 /// async public API. Tests use an in-module stub mock impl.
 pub trait SqlQueryRunner: Send + Sync {
     fn run_q1<'a>(&'a self, window: Duration) -> SqlFuture<'a, Vec<Q1RedRow>>;
@@ -101,7 +103,7 @@ pub trait SqlQueryRunner: Send + Sync {
     fn run_q7<'a>(&'a self, window: Duration) -> SqlFuture<'a, Vec<Q7CriticalPathRow>>;
 }
 
-/// Per-cycle counter struct surfaced from `run_one_coordinator_cycle` для
+/// Per-cycle counter struct surfaced from `run_one_coordinator_cycle` for
 /// test assertions + heartbeat tick fields.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct CoordinatorCycleStats {
@@ -113,7 +115,7 @@ pub struct CoordinatorCycleStats {
 }
 
 /// Coordinator orchestrating cadence-driven L1a + L3 + L4 invocations.
-/// Composed at the binary boundary с `Arc<dyn SqlQueryRunner>` +
+/// Composed at the binary boundary with `Arc<dyn SqlQueryRunner>` +
 /// `Arc<CadenceEventBroadcast>` + `Arc<AttentionCueBroadcast>` (subscribed
 /// for Tier-1 Autonomous cues) + `Arc<CadenceTriggerChannel>` (subscribed
 /// for Tier-2 Suggested cues per chunk #62 routing) + `Arc<dyn
@@ -130,11 +132,11 @@ impl CadenceCoordinator {
 }
 
 /// Synchronous wrapper for deterministic test-target invocation. Async
-/// because the SQL runner methods are async — но callers may pass an
-/// explicit `now_nanos` к sidestep wall-clock dependence.
+/// because the SQL runner methods are async — but callers may pass an
+/// explicit `now_nanos` to sidestep wall-clock dependence.
 ///
 /// Tier-2 skip path: if `mode == Tier2 && hw.current_profile() ==
-/// CpuPrimary`, returns immediately с `tier2_skipped_cpu_primary = true`
+/// CpuPrimary`, returns immediately with `tier2_skipped_cpu_primary = true`
 /// and ZERO queries executed (per pulse-distillation-architecture v3
 /// §Tier 2 hardware-conditional availability).
 pub async fn run_one_coordinator_cycle(
@@ -230,7 +232,7 @@ pub async fn run_one_coordinator_cycle(
 
 /// Per-tier SQL-window k-value lookup. Tier-1/Tier-2 use the baseline
 /// 60s window for short-horizon detection; Tier-3 uses the same baseline
-/// window; Reflection uses а 30-minute window for cumulative pattern
+/// window; Reflection uses a 30-minute window for cumulative pattern
 /// detection per dist-arch v3 §Background reflection cadence.
 fn cycle_window_for(mode: CadenceMode) -> Duration {
     match mode {
@@ -267,9 +269,11 @@ fn priority_tier_label(tier: PriorityTier) -> &'static str {
 ///   → Tier-1 immediate path
 /// - `cadence_handle.subscribe()` (Suggested cues per chunk #62) →
 ///   Tier-2 immediate path (skipped on cpu-primary profile)
+#[allow(clippy::too_many_arguments)]
 pub async fn start_cadence_coordinator(
     sql_runner: Arc<dyn SqlQueryRunner>,
     broadcast_handle: Arc<CadenceEventBroadcast>,
+    digest_trigger: Arc<DigestTriggerBroadcast>,
     cue_broadcast: Arc<AttentionCueBroadcast>,
     cadence_handle: Arc<CadenceTriggerChannel>,
     hw_profile: Arc<dyn HardwareProfileSource>,
@@ -329,26 +333,42 @@ pub async fn start_cadence_coordinator(
                 }
             }
             _ = tier3_interval.tick() => {
+                let now = current_unix_nanos();
                 let stats = run_one_coordinator_cycle(
                     CadenceMode::Tier3,
                     &sql_runner,
                     &broadcast_handle,
                     &hw_profile,
-                    current_unix_nanos(),
+                    now,
                     None,
                 ).await;
+                if stats.digest_emitted {
+                    let _ = digest_trigger.sender().send(DigestTrigger {
+                        mode: CadenceMode::Tier3,
+                        executed_at_unix_nano: now,
+                        triggering_cue: None,
+                    });
+                }
                 cumulative_cycles += 1;
                 cumulative_queries += stats.queries_executed as u64;
             }
             _ = reflection_interval.tick() => {
+                let now = current_unix_nanos();
                 let stats = run_one_coordinator_cycle(
                     CadenceMode::Reflection,
                     &sql_runner,
                     &broadcast_handle,
                     &hw_profile,
-                    current_unix_nanos(),
+                    now,
                     None,
                 ).await;
+                if stats.digest_emitted {
+                    let _ = digest_trigger.sender().send(DigestTrigger {
+                        mode: CadenceMode::Reflection,
+                        executed_at_unix_nano: now,
+                        triggering_cue: None,
+                    });
+                }
                 cumulative_cycles += 1;
                 cumulative_queries += stats.queries_executed as u64;
             }
@@ -357,6 +377,11 @@ pub async fn start_cadence_coordinator(
                     target: TARGET_CADENCE_TICK,
                     tier = "tier3",
                     mode = "tier3",
+                    // The cycle rate was counted but discarded, so the only way
+                    // to read it was to count per-trigger `cadence.trigger`
+                    // records out of the log — a 131 MB read at the volume that
+                    // makes the question worth asking.
+                    cycles_executed = cumulative_cycles,
                     queries_executed = cumulative_queries,
                     queries_succeeded = cumulative_queries,
                     next_due_ms = (current.baseline_seconds as u64) * 1_000,
@@ -368,20 +393,32 @@ pub async fn start_cadence_coordinator(
             recv = cue_rx.recv() => {
                 match recv {
                     Ok(cue) if matches!(cue.priority_tier, PriorityTier::Autonomous) => {
+                        let now = current_unix_nanos();
                         let stats = run_one_coordinator_cycle(
                             CadenceMode::Tier1,
                             &sql_runner,
                             &broadcast_handle,
                             &hw_profile,
-                            current_unix_nanos(),
+                            now,
                             Some(&cue),
                         ).await;
+                        if stats.digest_emitted {
+                            let _ = digest_trigger.sender().send(DigestTrigger {
+                                mode: CadenceMode::Tier1,
+                                executed_at_unix_nano: now,
+                                triggering_cue: Some(cue.clone()),
+                            });
+                        }
                         cumulative_cycles += 1;
                         cumulative_queries += stats.queries_executed as u64;
                     }
                     Ok(_) => {
-                        // Non-Autonomous cues (Suggested / Curious) flow through
-                        // their dedicated channels — ignored here.
+                        // Non-Autonomous cues are ignored here. BaselineState-
+                        // derived Suggested cues reach cadence via `emit_cue`'s
+                        // forward to CadenceTriggerChannel; storm-derived ones do
+                        // NOT — `observe_and_dispatch_storm` never forwards, so a
+                        // Suggested storm is dropped outright (measured
+                        // 2026-08-15; the seam's behavior, not this arm's).
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {
                         cue_rx = cue_broadcast.subscribe();
@@ -398,14 +435,22 @@ pub async fn start_cadence_coordinator(
                                 HardwareProfile::CpuPrimary
                             )
                         {
+                            let now = current_unix_nanos();
                             let stats = run_one_coordinator_cycle(
                                 CadenceMode::Tier2,
                                 &sql_runner,
                                 &broadcast_handle,
                                 &hw_profile,
-                                current_unix_nanos(),
+                                now,
                                 Some(&cue),
                             ).await;
+                            if stats.digest_emitted {
+                                let _ = digest_trigger.sender().send(DigestTrigger {
+                                    mode: CadenceMode::Tier2,
+                                    executed_at_unix_nano: now,
+                                    triggering_cue: Some(cue.clone()),
+                                });
+                            }
                             cumulative_cycles += 1;
                             cumulative_queries += stats.queries_executed as u64;
                         }
@@ -417,7 +462,6 @@ pub async fn start_cadence_coordinator(
                 }
             }
         }
-        let _ = cumulative_cycles; // suppress unused-warning on stub variant
     }
 }
 
@@ -538,10 +582,11 @@ mod tests {
             scope_id: Some("svc-a".to_string()),
             magnitude: 4.0,
             absolute_value: 0.04,
-            persistence_seconds: 30,
+            persistence: 30,
             confidence: 0.85,
             priority_tier: priority,
             suppression_bypassed: false,
+            fingerprint: None,
         }
     }
 
@@ -732,6 +777,7 @@ mod tests {
         let handle = tokio::spawn(start_cadence_coordinator(
             runner,
             broadcast,
+            Arc::new(DigestTriggerBroadcast::new()),
             cue_broadcast,
             cadence_handle,
             profile,
@@ -750,6 +796,8 @@ mod tests {
         let (counting, runner) = arc_runner();
         let broadcast = Arc::new(CadenceEventBroadcast::new());
         let mut event_rx = broadcast.subscribe();
+        let digest_trigger = Arc::new(DigestTriggerBroadcast::new());
+        let mut trigger_rx = digest_trigger.subscribe();
         let cue_broadcast = Arc::new(AttentionCueBroadcast::new());
         let cadence_handle = Arc::new(CadenceTriggerChannel::new());
         let profile = arc_profile(HardwareProfile::Unknown);
@@ -758,6 +806,7 @@ mod tests {
         let handle = tokio::spawn(start_cadence_coordinator(
             runner,
             Arc::clone(&broadcast),
+            Arc::clone(&digest_trigger),
             Arc::clone(&cue_broadcast),
             cadence_handle,
             profile,
@@ -787,12 +836,120 @@ mod tests {
                 break;
             }
         }
+
+        // P-074 fix: the Tier-1 trigger carries the full cue — incl. scope_id —
+        // to the digest assembler, off the PII-free L6 cadence-events topic.
+        let mut trigger_cue_scope = None;
+        for _ in 0..20 {
+            while let Ok(trigger) = trigger_rx.try_recv() {
+                if trigger.mode == CadenceMode::Tier1 {
+                    trigger_cue_scope = trigger.triggering_cue.and_then(|c| c.scope_id);
+                    break;
+                }
+            }
+            if trigger_cue_scope.is_some() {
+                break;
+            }
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+
         handle.abort();
         let _ = handle.await;
         assert!(received_tier1, "expected Tier-1 event after Autonomous cue");
         assert!(
             counting.invoked("q1"),
             "Tier-1 cycle should have invoked q1"
+        );
+        assert_eq!(
+            trigger_cue_scope.as_deref(),
+            Some("svc-a"),
+            "Tier-1 DigestTrigger must convey the cue's scope_id to the assembler"
+        );
+    }
+
+    /// The Tier-1 arm is Autonomous-ONLY, and that is what makes a short storm
+    /// produce no incident: the retry-storm detector emits `Suggested` at
+    /// `DEFAULT_SUGGESTED_THRESHOLD` occurrences and only escalates to
+    /// `Autonomous` at `DEFAULT_AUTONOMOUS_THRESHOLD`, so a burst that stops in
+    /// between is dropped here by design rather than by defect. Measured at
+    /// chunk `2026-08-15-tier-1-incident-path-investigation`, whose premise
+    /// check found a 6-occurrence external canary sitting in exactly that band.
+    ///
+    /// The Autonomous send at the end is a POSITIVE CONTROL, not decoration: it
+    /// proves the coordinator was alive and subscribed for the whole negative
+    /// window, so the no-Tier-1 assertion cannot pass vacuously.
+    #[tokio::test]
+    async fn start_cadence_coordinator_ignores_suggested_cue_on_the_attention_broadcast() {
+        let (counting, runner) = arc_runner();
+        let broadcast = Arc::new(CadenceEventBroadcast::new());
+        let mut event_rx = broadcast.subscribe();
+        let digest_trigger = Arc::new(DigestTriggerBroadcast::new());
+        let cue_broadcast = Arc::new(AttentionCueBroadcast::new());
+        let cadence_handle = Arc::new(CadenceTriggerChannel::new());
+        let profile = arc_profile(HardwareProfile::Unknown);
+        let config = Arc::new(CadenceConfig::default());
+
+        let handle = tokio::spawn(start_cadence_coordinator(
+            runner,
+            Arc::clone(&broadcast),
+            Arc::clone(&digest_trigger),
+            Arc::clone(&cue_broadcast),
+            cadence_handle,
+            profile,
+            config,
+            watch::channel(CadenceConfig::default()).1,
+        ));
+        tokio::time::sleep(Duration::from_millis(20)).await;
+
+        cue_broadcast
+            .sender()
+            .send(sample_cue(PriorityTier::Suggested))
+            .expect("send suggested cue ok");
+
+        let mut tier1_after_suggested = false;
+        for _ in 0..30 {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+            while let Ok(event) = event_rx.try_recv() {
+                if event.mode == CadenceMode::Tier1 {
+                    tier1_after_suggested = true;
+                }
+            }
+        }
+        let q1_after_suggested = counting.invoked("q1");
+
+        cue_broadcast
+            .sender()
+            .send(sample_cue(PriorityTier::Autonomous))
+            .expect("send autonomous cue ok");
+
+        let mut tier1_after_autonomous = false;
+        for _ in 0..50 {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+            while let Ok(event) = event_rx.try_recv() {
+                if event.mode == CadenceMode::Tier1 {
+                    tier1_after_autonomous = true;
+                }
+            }
+            if tier1_after_autonomous {
+                break;
+            }
+        }
+
+        handle.abort();
+        let _ = handle.await;
+
+        assert!(
+            !tier1_after_suggested,
+            "a Suggested cue on the attention-cue broadcast must NOT run a Tier-1 cycle"
+        );
+        assert!(
+            !q1_after_suggested,
+            "a Suggested cue must not reach the L1a query layer via Tier-1"
+        );
+        assert!(
+            tier1_after_autonomous,
+            "positive control: an Autonomous cue on the same channel MUST run Tier-1 — \
+             without this the negative assertions above could pass on a dead coordinator"
         );
     }
 
@@ -809,6 +966,7 @@ mod tests {
         let handle = tokio::spawn(start_cadence_coordinator(
             runner,
             Arc::clone(&broadcast),
+            Arc::new(DigestTriggerBroadcast::new()),
             cue_broadcast,
             Arc::clone(&cadence_handle),
             profile,
@@ -855,6 +1013,7 @@ mod tests {
         let handle = tokio::spawn(start_cadence_coordinator(
             runner,
             Arc::clone(&broadcast),
+            Arc::new(DigestTriggerBroadcast::new()),
             cue_broadcast,
             Arc::clone(&cadence_handle),
             profile,
@@ -931,6 +1090,7 @@ mod tests {
         let handle = tokio::spawn(start_cadence_coordinator(
             runner,
             Arc::clone(&broadcast),
+            Arc::new(DigestTriggerBroadcast::new()),
             Arc::clone(&cue_broadcast),
             cadence_handle,
             profile,

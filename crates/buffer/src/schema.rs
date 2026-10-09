@@ -3,18 +3,16 @@ use duckdb::Connection;
 use crate::contract::Error;
 
 // Reserved table list per arch §Occupied Resources §DuckDB reserved tables.
-// Chunk #20 baseline locked 7 tables; chunk #69 Phase B adds `log_templates`
-// (8th table) for Drain L1c log-template-mining surface. Arch §Occupied
-// Resources update via /andromeda-evolve --allow-arch-registry lands at
-// Session 6 wrap per chunk #69 Phase B plan.md Step 32.
-pub const RESERVED_TABLES: [&str; 8] = [
+// `span_links` / `resources` / `instrumentation_scopes` were dropped at
+// 2026-08-30 (operator disposition): declared since chunk #20 but written by
+// nothing — `append_record_batch_to_table` is the only DuckDB write path and
+// fires for exactly the five tables below — so their DDL and retention
+// sweeps were dead schema reading as live surface.
+pub const RESERVED_TABLES: [&str; 5] = [
     "spans",
     "span_events",
-    "span_links",
     "metrics_points",
     "log_records",
-    "resources",
-    "instrumentation_scopes",
     "log_templates",
 ];
 
@@ -55,17 +53,6 @@ CREATE TABLE IF NOT EXISTS span_events (
 );";
 
 #[allow(dead_code)]
-const CREATE_SPAN_LINKS: &str = "\
-CREATE TABLE IF NOT EXISTS span_links (
-    trace_id BLOB NOT NULL,
-    span_id BLOB NOT NULL,
-    link_index INTEGER NOT NULL,
-    ts TIMESTAMPTZ NOT NULL,
-    ts_unix_nano BIGINT NOT NULL,
-    PRIMARY KEY (trace_id, span_id, link_index)
-);";
-
-#[allow(dead_code)]
 const CREATE_METRICS_POINTS: &str = "\
 CREATE TABLE IF NOT EXISTS metrics_points (
     metric_name VARCHAR NOT NULL,
@@ -74,7 +61,9 @@ CREATE TABLE IF NOT EXISTS metrics_points (
     resource_hash BLOB NOT NULL,
     value DOUBLE NOT NULL DEFAULT 0.0,
     data_point_kind INTEGER NOT NULL DEFAULT 0,
-    PRIMARY KEY (metric_name, ts_unix_nano, resource_hash)
+    seq BIGINT NOT NULL,
+    labels VARCHAR NOT NULL DEFAULT '',
+    PRIMARY KEY (metric_name, ts_unix_nano, resource_hash, seq)
 );";
 
 #[allow(dead_code)]
@@ -89,27 +78,8 @@ CREATE TABLE IF NOT EXISTS log_records (
     trace_id BLOB NOT NULL DEFAULT X'',
     span_id BLOB NOT NULL DEFAULT X'',
     template_id BIGINT,
-    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
-);";
-
-#[allow(dead_code)]
-const CREATE_RESOURCES: &str = "\
-CREATE TABLE IF NOT EXISTS resources (
-    resource_hash BLOB NOT NULL,
-    ts TIMESTAMPTZ NOT NULL,
-    ts_unix_nano BIGINT NOT NULL,
-    PRIMARY KEY (resource_hash)
-);";
-
-#[allow(dead_code)]
-const CREATE_INSTRUMENTATION_SCOPES: &str = "\
-CREATE TABLE IF NOT EXISTS instrumentation_scopes (
-    resource_hash BLOB NOT NULL,
-    scope_name VARCHAR NOT NULL,
-    scope_version VARCHAR NOT NULL,
-    ts TIMESTAMPTZ NOT NULL,
-    ts_unix_nano BIGINT NOT NULL,
-    PRIMARY KEY (resource_hash, scope_name, scope_version)
+    seq BIGINT NOT NULL,
+    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number, seq)
 );";
 
 // Chunk #69 Phase B — Drain log-template-mining surface. Per-cluster metadata
@@ -155,14 +125,6 @@ const SCHEMA_DDL: &str = concat!(
     fingerprint BLOB,
     PRIMARY KEY (trace_id, span_id, event_index)
 );",
-    "CREATE TABLE IF NOT EXISTS span_links (
-    trace_id BLOB NOT NULL,
-    span_id BLOB NOT NULL,
-    link_index INTEGER NOT NULL,
-    ts TIMESTAMPTZ NOT NULL,
-    ts_unix_nano BIGINT NOT NULL,
-    PRIMARY KEY (trace_id, span_id, link_index)
-);",
     "CREATE TABLE IF NOT EXISTS metrics_points (
     metric_name VARCHAR NOT NULL,
     ts TIMESTAMPTZ NOT NULL,
@@ -170,7 +132,9 @@ const SCHEMA_DDL: &str = concat!(
     resource_hash BLOB NOT NULL,
     value DOUBLE NOT NULL DEFAULT 0.0,
     data_point_kind INTEGER NOT NULL DEFAULT 0,
-    PRIMARY KEY (metric_name, ts_unix_nano, resource_hash)
+    seq BIGINT NOT NULL,
+    labels VARCHAR NOT NULL DEFAULT '',
+    PRIMARY KEY (metric_name, ts_unix_nano, resource_hash, seq)
 );",
     "CREATE TABLE IF NOT EXISTS log_records (
     ts TIMESTAMPTZ NOT NULL,
@@ -182,21 +146,8 @@ const SCHEMA_DDL: &str = concat!(
     trace_id BLOB NOT NULL DEFAULT X'',
     span_id BLOB NOT NULL DEFAULT X'',
     template_id BIGINT,
-    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
-);",
-    "CREATE TABLE IF NOT EXISTS resources (
-    resource_hash BLOB NOT NULL,
-    ts TIMESTAMPTZ NOT NULL,
-    ts_unix_nano BIGINT NOT NULL,
-    PRIMARY KEY (resource_hash)
-);",
-    "CREATE TABLE IF NOT EXISTS instrumentation_scopes (
-    resource_hash BLOB NOT NULL,
-    scope_name VARCHAR NOT NULL,
-    scope_version VARCHAR NOT NULL,
-    ts TIMESTAMPTZ NOT NULL,
-    ts_unix_nano BIGINT NOT NULL,
-    PRIMARY KEY (resource_hash, scope_name, scope_version)
+    seq BIGINT NOT NULL,
+    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number, seq)
 );",
     "CREATE TABLE IF NOT EXISTS log_templates (
     template_id BIGINT NOT NULL,
@@ -267,7 +218,11 @@ mod tests {
 
         let expected: BTreeSet<String> = RESERVED_TABLES.iter().map(|s| s.to_string()).collect();
         assert_eq!(names, expected);
-        assert_eq!(names.len(), 8, "chunk #69 added log_templates as 8th table");
+        assert_eq!(
+            names.len(),
+            5,
+            "the three producer-less tables were dropped 2026-08-30"
+        );
     }
 
     // log_templates excluded — it uses `first_seen_unix_nano` / `last_seen_unix_nano`
@@ -277,11 +232,8 @@ mod tests {
     #[rstest]
     #[case("spans")]
     #[case("span_events")]
-    #[case("span_links")]
     #[case("metrics_points")]
     #[case("log_records")]
-    #[case("resources")]
-    #[case("instrumentation_scopes")]
     fn each_reserved_table_has_ts_and_ts_unix_nano_columns(#[case] table: &str) {
         let conn = open_in_memory();
         create_schema(&conn).expect("schema create must succeed");
@@ -310,12 +262,11 @@ mod tests {
     #[test]
     fn spans_primary_key_is_composite_trace_id_span_id() {
         // Verify composite PK by introspecting schema metadata via DuckDB's
-        // information_schema.table_constraints + key_column_usage. Runtime PK
-        // check via duplicate-INSERT path was observed to hang in
-        // libduckdb-sys 1.10502 on this build — schema introspection is the
-        // contract assertion, not behavioral PK enforcement. Behavioral
-        // enforcement is exercised at the appender path (chunk #22+ when
-        // queries land).
+        // information_schema.table_constraints + key_column_usage — the
+        // CONTRACT assertion. Behavioral PK enforcement is exercised at the
+        // appender path (a plain duplicate INSERT returns a Constraint
+        // Error, and at duckdb >= 1.10505 a violating Appender::flush()
+        // returns Err — measured 2026-08-28).
         let conn = open_in_memory();
         create_schema(&conn).expect("schema create must succeed");
 
@@ -350,6 +301,84 @@ mod tests {
         );
     }
 
+    // The contract half of the log-record identity fix; the behavioural half
+    // is appender::tests::append_logs_batch_same_tick_same_severity_keeps_both_records.
+    // An OTLP LogRecord has no spec-defined unique id, so `seq` carries the
+    // identity its OTLP-native columns cannot.
+    #[test]
+    fn log_records_primary_key_includes_seq_ordinal() {
+        let conn = open_in_memory();
+        create_schema(&conn).expect("schema create must succeed");
+
+        let mut stmt = conn
+            .prepare(
+                "SELECT column_name, ordinal_position FROM information_schema.key_column_usage \
+                 WHERE table_schema = 'main' AND table_name = 'log_records' \
+                 ORDER BY ordinal_position",
+            )
+            .expect("prepare must succeed");
+        let rows: Vec<(String, i64)> = stmt
+            .query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+            })
+            .expect("query_map must succeed")
+            .map(|r| r.expect("row must read"))
+            .collect();
+
+        assert_eq!(
+            rows.len(),
+            4,
+            "log_records primary key must have exactly 4 columns; got {rows:?}"
+        );
+        let names: Vec<&str> = rows.iter().map(|(n, _)| n.as_str()).collect();
+        for expected in ["ts_unix_nano", "resource_hash", "severity_number", "seq"] {
+            assert!(
+                names.contains(&expected),
+                "{expected} must be part of log_records primary key; got {names:?}"
+            );
+        }
+    }
+
+    // Schema-introspection for the same reason as the two above (the
+    // duplicate-INSERT probe hangs on this build); the behavioural pair is
+    // appender::tests::append_metrics_batch_*_keeps_both_points. `metrics_points`
+    // stores no attributes column, so two points of one metric differing only by
+    // label set are identical on every OTLP-native column — `seq` carries the
+    // identity they cannot.
+    #[test]
+    fn metrics_points_primary_key_includes_seq_ordinal() {
+        let conn = open_in_memory();
+        create_schema(&conn).expect("schema create must succeed");
+
+        let mut stmt = conn
+            .prepare(
+                "SELECT column_name, ordinal_position FROM information_schema.key_column_usage \
+                 WHERE table_schema = 'main' AND table_name = 'metrics_points' \
+                 ORDER BY ordinal_position",
+            )
+            .expect("prepare must succeed");
+        let rows: Vec<(String, i64)> = stmt
+            .query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+            })
+            .expect("query_map must succeed")
+            .map(|r| r.expect("row must read"))
+            .collect();
+
+        assert_eq!(
+            rows.len(),
+            4,
+            "metrics_points primary key must have exactly 4 columns; got {rows:?}"
+        );
+        let names: Vec<&str> = rows.iter().map(|(n, _)| n.as_str()).collect();
+        for expected in ["metric_name", "ts_unix_nano", "resource_hash", "seq"] {
+            assert!(
+                names.contains(&expected),
+                "{expected} must be part of metrics_points primary key; got {names:?}"
+            );
+        }
+    }
+
     #[test]
     fn ts_unix_nano_round_trips_full_u64_precision() {
         let conn = open_in_memory();
@@ -378,19 +407,15 @@ mod tests {
 
     #[test]
     fn ddl_constants_match_concatenated_schema() {
-        // Spot-check that all 8 named DDL constants together cover the same
+        // Spot-check that the named DDL constants together cover the same
         // ground as SCHEMA_DDL — guards against accidental DDL drift if
-        // someone edits one but forgets the other. Chunk #69 Phase B extended
-        // from 7 → 8 with the addition of CREATE_LOG_TEMPLATES.
+        // someone edits one but forgets the other.
         let union = format!(
-            "{}{}{}{}{}{}{}{}",
+            "{}{}{}{}{}",
             CREATE_SPANS,
             CREATE_SPAN_EVENTS,
-            CREATE_SPAN_LINKS,
             CREATE_METRICS_POINTS,
             CREATE_LOG_RECORDS,
-            CREATE_RESOURCES,
-            CREATE_INSTRUMENTATION_SCOPES,
             CREATE_LOG_TEMPLATES,
         );
         assert_eq!(SCHEMA_DDL, union);

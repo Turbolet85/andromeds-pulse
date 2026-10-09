@@ -1,0 +1,65 @@
+[[pattern]]
+id = 'wasm46'
+regex = '46\.0\.3|requirement `"46"`'
+
+[[pattern]]
+id = 'span-arrival'
+regex = 'span.arrival'
+ignore_case = true
+
+[[pattern]]
+id = 'hue-leaf'
+fixed = 'hue_update_ms'
+
+[[pattern]]
+id = 'pid-mtime'
+regex = 'pid ?file (plus|\+) (the )?log|\.pid` file plus the log|pidfile \+ the log'
+ignore_case = true
+
+[[pattern]]
+id = 'ciyml12'
+fixed = 'ci.yml:12'
+
+[[pattern]]
+id = 'wf-dataenv'
+regex = 'workflow-level `?ANDROMEDA_PULSE_DATA_DIR'
+
+[[pattern]]
+id = 'audit-noload'
+regex = 'cannot (load|LOAD) the RustSec|duplicate advisory ID|RUSTSEC-2026-0244'
+
+[[pattern]]
+id = 'audit-cadence'
+regex = 'every 3rd wrap|pin #22|standing deferral'
+ignore_case = true
+
+[[pattern]]
+id = 'ggr8'
+regex = 'GHSA-ggr8|deepmerge-ts'
+
+[[pattern]]
+id = 'vitest3'
+regex = 'vitest`? 3'
+ignore_case = true
+
+[[pattern]]
+id = 'perf-ci'
+regex = 'perf.budget|asserted in CI'
+ignore_case = true
+
+[[pattern]]
+id = 'cov-scope'
+regex = 'whole-workspace coverage|85 ?% function|coverage-linux'
+ignore_case = true
+
+[[pattern]]
+id = 'runs-in-ci'
+fixed = 'runs in CI today'
+
+[[pattern]]
+id = 'hs-healthy'
+fixed = 'running-healthy'
+
+[[pattern]]
+id = 'harness-status'
+fixed = 'harness:status'

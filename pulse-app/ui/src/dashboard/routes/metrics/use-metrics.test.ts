@@ -14,6 +14,7 @@ const sampleRow: MetricRow = {
   resource_hash: "deadbeef",
   value: 42,
   data_point_kind: 0,
+  labels: "http.route=/alpha",
 };
 
 describe("useMetrics", () => {

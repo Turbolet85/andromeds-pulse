@@ -1,0 +1,6 @@
+
+## 2026-10-02-incident-events-readable-through-mcp — the ninth tool lands with its cross-process content legs
+**Section:** §1 Pending coverage triggers → `mcp-incident-read-back-cross-process-coverage` · §6 Scenario P3 → Current residual
+**Change:** the trigger row is NARROWED again: `retrieve_incident_events` (a fifth incident tool) shipped with two committed cross-process content legs — `crates/mcp-server/tests/incident_events_subprocess.rs` (real sidecar over seeded rows; response content + stderr and file-sink canary absence) and `pulse-app/tests/e2e_p3_mcp_incident_events_content.rs` (`--features mcp-server`; the REAL producer into the real sidecar; four-kind vocabulary, `created` first) — both clean-skipping without an OS credential store and both run on the Linux dev host. The row's "one of the 2 mcp-gated tests" count is retired (count-free now). The row stays OPEN and the §6 residual stays exactly `retrieve_telemetry_slice` / `retrieve_report` / `query_incident_list`.
+**Why:** a new incident tool must not join the in-process-only residual; the real-producer leg is what caught the `created` vocabulary defect the seeded leg could not.
+**Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/

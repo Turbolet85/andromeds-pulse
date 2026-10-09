@@ -81,3 +81,35 @@
     --duration-investigation-collapse: 0ms;
   }
 }
+
+/* Canvas is never a saveable/draggable browser image (intent F5); the JS
+   dragstart handler is the functional guard, this is defense-in-depth. */
+canvas {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* Bounded internal-scroll region for the Traces table (P-082): custom
+   scrollbar per design-system §Anti-Patterns Per-Surface Bans — never the
+   default web scrollbar. Dark inset track + Earth Blue thumb, tokens only. */
+.traces-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-inset);
+}
+.traces-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+.traces-scroll::-webkit-scrollbar-track {
+  background: var(--color-inset);
+}
+.traces-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
+}
+
+/* The trace row is the table body's single tab stop (roving tabindex), so it
+   needs the shared focus ring; an inline style cannot express :focus-visible. */
+.trace-row:focus-visible {
+  outline: 3px solid var(--border-focus);
+  outline-offset: -3px;
+}

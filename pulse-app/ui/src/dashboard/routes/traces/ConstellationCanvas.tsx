@@ -8,11 +8,14 @@
 // machinery (three-surface coherence per layout-templates.md §IA notes).
 //
 // The <canvas> is opaque to screen readers (a11y-plan §1), so the wrapper
-// <section> carries a complete-sentence accessible name (count + per-state
-// breakdown + active-findings count) — the not-color-alone (SC 1.4.1) text
-// equivalent for the color/brightness dots.
+// <section> is the landmark: a STABLE accessible name plus an aria-describedby
+// pointing at the live state summary (count + per-state breakdown +
+// active-findings count) — the not-color-alone (SC 1.4.1) text equivalent for
+// the color/brightness dots. The summary is a description, not the name,
+// because a landmark whose name changes with the data churns the screen-reader
+// landmark list on every poll.
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { createFrameLoop } from "../../../canvas/frame-loop";
 import { Fallback } from "../../../canvas/Fallback";
 import {
@@ -26,6 +29,9 @@ import { useReducedMotion } from "../../../hooks/use-reduced-motion";
 import { createConstellationPipeline } from "../../../widget/constellation-pipeline";
 import {
   constellationSummary,
+  dotLabelPosition,
+  resolveLabelPositions,
+  severityToken,
   visibleDots,
   type ConstellationDot,
 } from "../../../widget/constellation-types";
@@ -46,6 +52,20 @@ const UNIFORM_BUFFER_USAGE = 0x40 | 0x08;
 const DOT_RADIUS_NORM = 0.14;
 // Gentle shared breathing period (ms); within the design-system quiet band.
 const BREATHING_PERIOD_MS = 3500;
+const SUMMARY_ID = "constellation-summary";
+// No visually-hidden utility exists in this codebase; the summary must stay in
+// the accessibility tree while the canvas carries the visual signal.
+const VISUALLY_HIDDEN: CSSProperties = {
+  position: "absolute",
+  width: "1px",
+  height: "1px",
+  margin: "-1px",
+  padding: 0,
+  overflow: "hidden",
+  clipPath: "inset(50%)",
+  whiteSpace: "nowrap",
+  border: 0,
+};
 
 function readDesignToken(name: string, fallback: string): string {
   if (typeof document === "undefined") return fallback;
@@ -59,8 +79,12 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
   const [pipelineFailed, setPipelineFailed] = useState(false);
   const reducedMotion = useReducedMotion() ?? false;
 
-  const dots = useMemo(() => visibleDots(items), [items]);
-  const summary = useMemo(() => constellationSummary(items), [items]);
+  const nowUnixNano = Date.now() * 1_000_000;
+  const dots = useMemo(() => visibleDots(items, nowUnixNano), [items, nowUnixNano]);
+  const summary = useMemo(
+    () => constellationSummary(items, nowUnixNano),
+    [items, nowUnixNano],
+  );
   const dotsRef = useRef<readonly ConstellationDot[]>(dots);
 
   useEffect(() => {
@@ -214,9 +238,17 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
   const showFallback =
     (adapter !== null && adapter.kind === "unavailable") || pipelineFailed;
 
+  const labelPositions = new Map(
+    resolveLabelPositions(dots).map((p) => [p.service, p] as const),
+  );
+
   return (
     <section
-      aria-label={summary}
+      // A landmark's accessible name must be STABLE — a name that changed with
+      // the data reshuffled the screen-reader landmark list on every poll. The
+      // live state summary moves to a description instead (a11y-plan §7).
+      aria-label="Telemetry traces chart"
+      aria-describedby={SUMMARY_ID}
       data-testid="constellation-canvas"
       data-service-count={dots.length}
       style={{
@@ -230,6 +262,9 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
         boxSizing: "border-box",
       }}
     >
+      <p id={SUMMARY_ID} style={VISUALLY_HIDDEN} data-testid="constellation-summary">
+        {summary}
+      </p>
       {showFallback ? (
         <Fallback />
       ) : (
@@ -242,6 +277,57 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
             display: "block",
           }}
         />
+      )}
+      {dots.length > 0 && (
+        <div
+          data-testid="constellation-labels"
+          style={{ position: "absolute", inset: "var(--spacing-md)", pointerEvents: "none" }}
+        >
+          {dots.map((dot) => {
+            const { leftPct, topPct } = labelPositions.get(dot.service) ?? dotLabelPosition(dot);
+            return (
+              <div
+                key={dot.service}
+                style={{
+                  position: "absolute",
+                  left: `${leftPct}%`,
+                  // Anchor the chip BELOW the dot (the dot's soft glow is ~0.14
+                  // clip-norm ≈ 7% of the container height), so the opaque chip
+                  // never sits on top of and hides its own dot.
+                  top: `calc(${topPct}% + 12%)`,
+                  transform: "translate(-50%, 0)",
+                  display: "flex",
+                  gap: "var(--spacing-xs)",
+                  alignItems: "baseline",
+                  padding: "var(--spacing-micro) var(--spacing-xs)",
+                  background: "var(--color-inset)",
+                  border: "1px solid rgba(74, 144, 226, 0.3)",
+                  borderRadius: "var(--radius-sm)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-code)",
+                    fontSize: "12px",
+                    color: "var(--color-text-primary)",
+                  }}
+                >
+                  {dot.service}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "11px",
+                    color: "var(--color-text-secondary)",
+                  }}
+                >
+                  {severityToken(dot.priorityTier)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       )}
     </section>
   );

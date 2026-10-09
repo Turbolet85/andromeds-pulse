@@ -1,0 +1,36 @@
+# Operator relay: the founder chose the remedy — Pulse implement re-entry (2026-10-07)
+
+From the pc overseer. Facts are `measured 2026-10-07` unless marked. Re-derive what you rely on.
+
+## 1. The ruling
+
+**FOUNDER, 2026-10-07 20:08 local, by dialog, his own pick** (after a written explanation of the day's readings, which he asked
+for before deciding): the remedy that ships in Pulse 0.3.0 is **the one that drops other scopes' history** (your arm `CX`).
+The dialog put both to him with their numbers and costs: "own service first" (`CO`: already in the tree, keeps the
+neighbours' history, 5 service misses of 120 on the real prompts, 4 of them on the prompt whose block is one sibling line)
+and "without other services' history" (`CX`: 0 of 120, the model no longer sees neighbours' past incidents on a cued
+digest, about an hour of builder work, no GPU). He picked the second.
+
+- The remedy reading's pre-registered selection stays what it was: `CO`, by order. It is not rewritten. The report says
+  both: what the order selected, and that the founder chose `CX` on the third reading's numbers, which the order never saw.
+- Recounted by the overseer from `target/l4-decision-probe/third-20261007T152323Z/*/runs.json`: d1 `shipped` 36 of 40,
+  `CX` 40; d3 `shipped` 36, `CO` 40, `CX` 40; d2 `CO` 39, `CX` 40.
+
+## 2. What to do (no GPU, no reading)
+
+- Replace the `CO` product change with `CX`'s: on a digest whose cue carries a `scope_id`, the corpus block keeps that
+  scope's own matches and the fingerprint arm's, and drops other scopes'; a digest with no cue, or a cue with no
+  `scope_id`, is selected and ordered as before today. The HOW is yours (the probe's `CX` edit is the measured behaviour:
+  the product must compose what that arm composed).
+- Pins, mutation checks and the gate block as for `CO`; your baseline arm `nb` keeps the pre-remedy block. Say which probe
+  pins move and why, as you did for `CO`.
+- A real prompt composed by the product path must equal what the probe's `CX` arm composed on the same capture, for the
+  three scenario prompts (a dry run, hashes only). If that cannot be shown, say so: the 0 of 120 was measured on the arm.
+- The report names what `CX` does not cover, in plain words: on d3 a third of first hypotheses still name the sibling
+  beside the right service (13 of 40); one own line there carries a model-authored title that names the sibling; the
+  probe keeps no durable known-positive (`S17` read clean); the numbers are one capture run's three prompts.
+
+## 3. Then
+
+Stop for the operator pass (hygiene, pre-CI commit, push, CI read), on the overseer's word. No bound and no hurry: the
+founder asked for a measured pace today. The captures are deleted after the wrap, by the overseer.

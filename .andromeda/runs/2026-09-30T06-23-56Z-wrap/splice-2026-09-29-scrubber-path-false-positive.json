@@ -1,0 +1,121 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T06:34:05Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/security-plan-entry.md",
+"--lines",
+"14",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap",
+"--marker",
+"2026-09-29-scrubber-path-false-positive"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+14 at line 407 · lines 406→420 · bytes 74321→76528 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T06-23-56Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 406,
+"bytes": 74321,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 420,
+"bytes": 76528
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T06:34:06Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/test-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap",
+"--marker",
+"2026-09-29-scrubber-path-false-positive"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+6 at line 449 · lines 448→454 · bytes 76272→77182 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T06-23-56Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 448,
+"bytes": 76272,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 454,
+"bytes": 77182
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T06:37:56Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/route-insert.md",
+"--after-line",
+"141",
+"--lines",
+"4",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap",
+"--marker",
+"2026-09-29-scrubber-path-false-positive"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append working-route.md:+4 at line 142 · lines 142→146 · bytes 23519→25166 · term lf",
+"last line now: Conductor return — the external P-075 assert round runs and the version's last"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 142,
+"bytes": 23519,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 146,
+"bytes": 25166
+}
+}
+]

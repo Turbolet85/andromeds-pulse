@@ -1,0 +1,6 @@
+
+## 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings — the muted-diagnostic backlog re-opened: interpretation.constrained.generate
+**Section:** §8 PII Scrubbing & Compliance → the muted-diagnostic backlog bullet · its closing paragraph after the L4 path-guard leaves
+**Change:** Was "ZERO targets remain muted" and "No owner remains"; now the count went to zero at 2026-08-30 and ONE recurrence is OPEN. `interpretation.constrained.generate`, the success arm of `LlamaCliInference::generate_constrained`, emits `raw_output_bytes` and `extracted_bytes`, but its exact leaf carries neither, so both render `"<redacted>"`. This is the incomplete-exact-leaf shape, and the repair is "complete the leaf". Measured: 7 records and 14 redacted fields in the GREEN real-model leg, 0 records in the RED leg. The emit site was unchanged and had never fired with that model before. Its owner is pinned on the working route. The closing paragraph now scopes the sweep guards to the leaves they name, with this recurrence on a leaf outside them.
+**Why:** A pre-existing defect the chunk's first successful generations exposed, not one it introduced. The overseer (founder-delegated) directed it carried honestly and its fix placed at this wrap's route-resolve.
+**Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/

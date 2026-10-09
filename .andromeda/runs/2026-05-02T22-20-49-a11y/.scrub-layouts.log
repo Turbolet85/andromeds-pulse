@@ -1,0 +1,1 @@
+line:18 pattern:percent-disclosure original:"focused inputs display border color-primary with 20% opacity focus ring" rewritten:"focused inputs display --border-focus token (focus ring opacity and composition defined in design)"

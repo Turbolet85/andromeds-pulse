@@ -1,0 +1,98 @@
+[
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "44404041",
+"ts": "2026-10-04T21:06:49Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/architecture.md",
+"--out",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap/architecture-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap",
+"--marker",
+"2026-10-04-l4-interpretation-names-its-triggering-cue"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §Infrastructure Patterns in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "44404041",
+"ts": "2026-10-04T21:06:49Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/test-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap/test-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap",
+"--marker",
+"2026-10-04-l4-interpretation-names-its-triggering-cue"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Test Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "44404041",
+"ts": "2026-10-04T21:06:50Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/obs-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap/obs-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap",
+"--marker",
+"2026-10-04-l4-interpretation-names-its-triggering-cue"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Observability Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "44404041",
+"ts": "2026-10-04T21:06:50Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/a11y-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap/a11y-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-03-56Z-wrap",
+"--marker",
+"2026-10-04-l4-interpretation-names-its-triggering-cue"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. A11y Assertion Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+}
+]

@@ -1,0 +1,168 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T09:52:14Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap/architecture-entry.md",
+"--lines",
+"11",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+11 at line 702 · lines 701→712 · bytes 102842→105446 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T09-41-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 701,
+"bytes": 102842,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 712,
+"bytes": 105446
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T09:52:14Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap/architecture-entry-2.md",
+"--lines",
+"6",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 713 · lines 712→718 · bytes 105446→106666 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T09-41-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 712,
+"bytes": 105446,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 718,
+"bytes": 106666
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T09:52:14Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap/test-plan-entry.md",
+"--lines",
+"7",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+7 at line 607 · lines 606→613 · bytes 103279→104477 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-05T09-41-57Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 606,
+"bytes": 103279,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 613,
+"bytes": 104477
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-05T09:54:35Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap/route-insert.txt",
+"--lines",
+"6",
+"--after-line",
+"171",
+"--expect-last-prefix",
+"   ↓",
+"--run-dir",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append working-route.md:+6 at line 172 · lines 172→178 · bytes 27031→31648 · term lf",
+"last line now: pre-push:linux runs natively on Linux — the local Linux pre-push check runs on"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 172,
+"bytes": 27031,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 178,
+"bytes": 31648
+}
+}
+]

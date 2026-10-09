@@ -1,0 +1,137 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "43eb863f",
+"ts": "2026-10-06T23:13:44Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline b1fcba57 (pre-CI parent — the oldest of 1 pre-CI commit(s), fc4ebdfe)",
+"reread-0929 · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:222 (…",
+"four-exc · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)",
+"brace-exp · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)",
+"ip-address · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)",
+"five-adv · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:222 (pro…",
+"never-inst · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:494 (prose)",
+"nm-never · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)",
+"no-npm-ci · new 0 · standing 4 · leaf 2 · curation 1 · base 0 · control architecture.md:249 (prose)",
+"state-arm · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:249 (prose)",
+"extract-zip · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)",
+".andromeda/security-plan.md:222 four-exc standing edited @c2446/4053 …tions` with the same four exceptions and `unexcep…",
+".andromeda/security-plan.md:222 brace-exp new @c3094/4053 …h-false-positive` (brace-expansion and ip-address). Exceptio…",
+".andromeda/security-plan.md:222 ip-address new @c3114/4053 …race-expansion and ip-address). Exceptions are pruned-not-k…",
+".andromeda/security-plan.md:222 nm-never standing edited @c719/4053 …le+registry, so node_modules is never needed. Exit…",
+".andromeda/architecture.md:249 no-npm-ci standing @c845/15413 …dency-class data (no `npm ci`, no node_modules; `npm aud…",
+".andromeda/security-plan.md:222 no-npm-ci standing edited @c521/4053 … — deliberately NO `npm ci`: the license walk is …",
+".andromeda/security-plan.md:259 no-npm-ci standing …HA-pinned setup-node, no `npm ci`) reading `pulse-app/ui/package-lo…",
+".andromeda/test-plan.md:494 no-npm-ci standing edited …te step itself needs NO `npm ci` (the license walk and `npm audi…",
+".claude/rules/security.md:183 no-npm-ci curation … across environments, no `npm ci` needed, and it covers platform-cond…",
+".claude/rules/security.md:78 no-npm-ci leaf …enylist; lockfile-only, no `npm ci`; exit 0 green · 1 findings/policy red …",
+".claude/rules/verification-harness.md:87 no-npm-ci leaf …cense+class source, no `npm ci`; exit 0 green · 1 findings/pol…",
+".andromeda/architecture.md:249 state-arm standing @c379/15413 … arms (`clean` / `green-with-dispositions` / `findings-r…",
+".andromeda/security-plan.md:222 state-arm standing edited ×2 @c1484,2412/4053 …e`): exit 0 `green-with-dispositions` — …",
+".andromeda/security-plan.md:222 extract-zip standing edited @c1575/4053 …exceptions are extract-zip, and neither has a …",
+".andromeda/a11y-plan.md:39 extract-zip standing …ered by the npm-policy extract-zip exception) | **NVDA** (Windows) / *…",
+"reread-0929 · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:222 (…",
+"four-exc · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)",
+"brace-exp · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)",
+"ip-address · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)",
+"five-adv · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:222 (pro…",
+"never-inst · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:494 (prose)",
+"nm-never · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)",
+"no-npm-ci · new 0 · standing 4 · leaf 2 · curation 1 · base 0 · control architecture.md:249 (prose)",
+"state-arm · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:249 (prose)",
+"extract-zip · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "b1fcba57c1c8cfebf562bcb32002dac6351702e7",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), fc4ebdfe",
+"counts": {
+"reread-0929": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"four-exc": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"brace-exp": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ip-address": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"five-adv": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"never-inst": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"nm-never": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"no-npm-ci": {
+"new": 0,
+"standing": 4,
+"leaf": 2,
+"curation": 1,
+"base": 0
+},
+"state-arm": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"extract-zip": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

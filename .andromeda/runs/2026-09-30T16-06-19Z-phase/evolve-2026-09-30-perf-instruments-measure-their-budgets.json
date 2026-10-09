@@ -1,0 +1,202 @@
+[
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-09-30T16:07:39Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-09-30T16-06-19Z-phase",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 1590→1591 · bytes 1715514→1716710 · term lf",
+"ts 2026-09-30T16:07:31Z · clock 2026-09-30T16:07:39Z · bound 2026-09-30T16:05:10Z (line 1590)",
+"ids 2026-09-30T16:07:31Z-a"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\friction-log.ndjson"
+],
+"before": {
+"lines": 1590,
+"bytes": 1715514,
+"terminator": "LF",
+"bound": "2026-09-30T16:05:10Z"
+},
+"after": {
+"lines": 1591,
+"bytes": 1716710
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-09-30T16:16:12Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"3",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-09-30T16-06-19Z-phase",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 3 record(s) · friction-log.ndjson lines 1591→1594 · bytes 1716710→1719806 · term lf",
+"ts 2026-09-30T16:15:54Z · clock 2026-09-30T16:16:12Z · bound 2026-09-30T16:07:31Z (line 1591)",
+"ids 2026-09-30T16:15:54Z-a … 2026-09-30T16:15:54Z-c (3)"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\friction-log.ndjson"
+],
+"before": {
+"lines": 1591,
+"bytes": 1716710,
+"terminator": "LF",
+"bound": "2026-09-30T16:07:31Z"
+},
+"after": {
+"lines": 1594,
+"bytes": 1719806
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-09-30T16:20:31Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-09-30T16-06-19Z-phase",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 1594→1596 · bytes 1719806→1721736 · term lf",
+"ts 2026-09-30T16:20:16Z · clock 2026-09-30T16:20:31Z · bound 2026-09-30T16:15:54Z (line 1594)",
+"ids 2026-09-30T16:20:16Z-a … 2026-09-30T16:20:16Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\friction-log.ndjson"
+],
+"before": {
+"lines": 1594,
+"bytes": 1719806,
+"terminator": "LF",
+"bound": "2026-09-30T16:15:54Z"
+},
+"after": {
+"lines": 1596,
+"bytes": 1721736
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-09-30T16:33:02Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-09-30T16-06-19Z-phase",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 1596→1597 · bytes 1721736→1722976 · term lf",
+"ts 2026-09-30T16:32:52Z · clock 2026-09-30T16:33:02Z · bound 2026-09-30T16:20:16Z (line 1596)",
+"ids 2026-09-30T16:32:52Z-a"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\friction-log.ndjson"
+],
+"before": {
+"lines": 1596,
+"bytes": 1721736,
+"terminator": "LF",
+"bound": "2026-09-30T16:20:16Z"
+},
+"after": {
+"lines": 1597,
+"bytes": 1722976
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-09-30T16:37:32Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-09-30T16-06-19Z-phase",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 1597→1599 · bytes 1722976→1724959 · term lf",
+"ts 2026-09-30T16:37:19Z · clock 2026-09-30T16:37:31Z · bound 2026-09-30T16:32:52Z (line 1597)",
+"ids 2026-09-30T16:37:19Z-a … 2026-09-30T16:37:19Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\friction-log.ndjson"
+],
+"before": {
+"lines": 1597,
+"bytes": 1722976,
+"terminator": "LF",
+"bound": "2026-09-30T16:32:52Z"
+},
+"after": {
+"lines": 1599,
+"bytes": 1724959
+}
+}
+]

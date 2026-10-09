@@ -1,0 +1,137 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "699f7ef0",
+"ts": "2026-10-06T23:19:58Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-06-npm-supply-chain-gate-is-green-again",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:101 - 2026-10-06-npm-supply-chain-gate-is-green-again pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "699f7ef0",
+"ts": "2026-10-06T23:19:58Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-06-npm-supply-chain-gate-is-green-again",
+"--date",
+"2026-10-06",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :176 strip CONTEXT: 561ch \"CONTEXT: OVERSEER DIRECTION 2026-10-06 (\"",
+"pin :176 strip CONTEXT: 1125ch \"CONTEXT: measured 2026-10-06 ~22:00Z at \"",
+"pin :176 strip CONTEXT: 708ch \"CONTEXT: `git diff 5f77859 ce5857b` over\"",
+"pin next markerless :178 holds CONTEXT:×4",
+"176 · 2026-10-06-npm-supply-chain-gate-is-green-again · strip 3 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 176,
+"marker": "2026-10-06-npm-supply-chain-gate-is-green-again",
+"blocks": 3,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "699f7ef0",
+"ts": "2026-10-06T23:20:03Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-06-npm-supply-chain-gate-is-green-again",
+"--date",
+"2026-10-06",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :176 strip CONTEXT: 561ch \"CONTEXT: OVERSEER DIRECTION 2026-10-06 (\"",
+"pin :176 strip CONTEXT: 1125ch \"CONTEXT: measured 2026-10-06 ~22:00Z at \"",
+"pin :176 strip CONTEXT: 708ch \"CONTEXT: `git diff 5f77859 ce5857b` over\"",
+"pin next markerless :178 holds CONTEXT:×4",
+"176 · 2026-10-06-npm-supply-chain-gate-is-green-again · strip 3 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/route-archive.md",
+"./andromeda-pulse-0.3.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 176,
+"marker": "2026-10-06-npm-supply-chain-gate-is-green-again",
+"blocks": 3,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

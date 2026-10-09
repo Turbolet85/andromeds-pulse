@@ -36,14 +36,14 @@ _**Agent-driven invariant:** every WCAG criterion described in this plan MUST ha
 
 | Surface | Automated Tool Reach | Manual Verification (supplemental) | ARIA Roles Inventory | Service Identity Tagging | Notes |
 |---------|---------------------|--------------------------------|---------------------|------------------------|-------|
-| **desktop-webview (web-spa)** | **axe-core** (`@axe-core/playwright` 4.11.x for E2E + `axe-core` 4.11.x standalone for rendered DOM) + **Lighthouse** 12.x a11y category (Chrome DevTools / `lighthouse` CLI) + **pa11y** 9.x / **pa11y-ci** 4.x for parallel rule matrix | **NVDA** (Windows) / **VoiceOver** (macOS) / **Orca** (Linux) — supplemental to automated assertions, never sole | **Landmark roles:** `main` / `navigation` / `contentinfo` (layout templates); **Interactive roles:** `button` / `tab` / `dialog` / `alert` / `status` (modal patterns); **Live regions:** `aria-live="polite"` for toasts, `aria-live="assertive"` for error focus shifts | `service.name`: `"com.andromeda.pulse"` (compile-time constant, Tauri bundle identifier); `deployment.environment`: `"production"` | Tauri webview a11y tree exposed via DevTools Protocol; full axe-core reach for React 19 rendered DOM. Canvas (`<canvas>` + WebGPU) has no built-in ARIA; semantics enforced via label elements and ARIA attributes on wrapper/control elements. |
+| **desktop-webview (web-spa)** | **axe-core** (`@axe-core/playwright` 4.11.x for E2E + `axe-core` 4.11.x standalone for rendered DOM) + **Lighthouse** 13.x a11y category (Chrome DevTools / `lighthouse` CLI) + **pa11y** 10.x / **pa11y-ci** 4.x for parallel rule matrix (pa11y 9→10 + lighthouse 12→13 landed at chunk `2026-08-30-npm-advisory-coverage` per the operator P4 ruling — advisory fixes crossing these pinned majors upgrade + re-baseline in-chunk; the full chain ran green with ZERO new violation tuples, so the baseline held; pa11y-ci 4.1.1 remains latest and internally nests pa11y 9, covered by the npm-policy extract-zip exception) | **NVDA** (Windows) / **VoiceOver** (macOS) / **Orca** (Linux) — supplemental to automated assertions, never sole | **Landmark roles:** `main` / `navigation` / `contentinfo` (layout templates); **Interactive roles:** `button` / `tab` / `dialog` / `alert` / `status` (modal patterns); **Live regions:** `aria-live="polite"` for toasts, `aria-live="assertive"` for error focus shifts | `service.name`: `"com.andromeda.pulse"` (compile-time constant, Tauri bundle identifier); `deployment.environment`: `"production"` | Tauri webview a11y tree exposed via DevTools Protocol; full axe-core reach for React 19 rendered DOM. Canvas (`<canvas>` + WebGPU) has no built-in ARIA; semantics enforced via label elements and ARIA attributes on wrapper/control elements. |
 | **desktop-native (tray-icon menu)** | **axe-core via DevTools Protocol** (`@axe-core/playwright` / `@axe-core/puppeteer` against webview when available); **fallback: OS-native a11y APIs** (Windows UIA / macOS NSAccessibility / Linux ATK — no automated tool reach for native menu internals) | **VoiceOver** (macOS) / **NVDA** (Windows) / **Orca** (Linux) — manual SR pass required for menu navigation and item selection; OS keyboard discipline (arrow keys / Return) verified manually | **Interactive roles:** `menu` / `menuitem` (tray action menu); **State roles:** button state via native menu item attributes | `service.name`: `"com.andromeda.pulse"` | OS-native tray surfaces (NotifyIcon / NSStatusItem / AppIndicator) expose limited a11y tree to automated tools; manual keyboard + screen reader testing required. No axe-core reach for tray menu internals. |
 | **OS notification (toast)** | No automated tool reach (OS-level API) | **VoiceOver** (macOS) / **NVDA** (Windows) / **Orca** (Linux) / **TalkBack** (if web-accessible fallback provided) — manual verification of notification readability and timing | No ARIA; OS notification content exposed via native a11y APIs (`NSAccessibilityNotificationKey` / UIA notification event) | `service.name`: `"com.andromeda.pulse"` | Content authored in code ("Snapshot ready ({N} tokens). Paste in {AI tool} to investigate.") must be screen-reader readable; OS-level a11y handled by Tauri / system framework. |
 
 **A11y assertion harness specification:** [VERBATIM from a11y-scope Section 3]
 
 ### A11y Testing Tool Pick
-- **Primary tool (desktop-webview):** **@axe-core/playwright** 4.11.x for E2E + **Lighthouse** 12.x CLI for CI gate + **pa11y** 9.x for parallel rule matrix
+- **Primary tool (desktop-webview):** **@axe-core/playwright** 4.11.x for E2E + **Lighthouse** 13.x CLI for CI gate + **pa11y** 10.x for parallel rule matrix (majors moved at `2026-08-30-npm-advisory-coverage`)
 - **Secondary tool (desktop-native / OS surfaces):** No automated tool reach for tray menu / native file picker / OS notifications. Manual screen reader testing supplemental. Focus management + keyboard discipline verified via Playwright against webview surface.
 
 ### WCAG Criteria Mapping
@@ -65,7 +65,7 @@ _**Agent-driven invariant:** every WCAG criterion described in this plan MUST ha
 - **SC 1.2.2 Captions / SC 1.2.3 Audio Description / SC 1.4.2 Audio Control** — no synchronized video, no audio component; not applicable
 - **SC 1.4.4 Resize Text / SC 1.4.5 Images of Text** — semantic HTML buttons / form inputs only (no text-as-image); browser zoom accommodates resizing
 - **SC 1.4.10 Reflow** — desktop-only Tauri app; viewport stable; no responsive mobile reflow requirement
-- **SC 1.4.13 Content on Hover or Focus** — app does not use hover-hidden tooltip patterns; focus testing covered in P5/P7
+- **SC 1.4.13 Content on Hover or Focus** — no interactive hover/focus-revealed content requiring dismissal; the header connection-dot tooltip is a decorative `aria-hidden` summary on a non-interactive `role="img"` element (SC 1.4.13 N/A — recorded so audits do not re-flag); focus testing covered in P5/P7
 - **SC 2.2.1 Timing Adjustable / SC 2.2.2 Pause, Stop, Hide** — no time-dependent content; WebGPU animations respect prefers-reduced-motion (SC 2.3.3 AAA covers)
 - **SC 2.4.4 Link Purpose** — verified via SC 4.1.2 name-role-value across critical paths (link text clarity rolled into Section 11 Anti-patterns)
 - **SC 3.1.1 Language of Page** — single-language English; `lang="en"` on root element; no multi-language requirement
@@ -221,13 +221,15 @@ cargo xtask test:a11y
 
 | Path | Surfaces Involved | Required ARIA Roles | Required Focus Order | Required WCAG SC Coverage per Tier | Source |
 |------|------------------|---------------------|---------------------|----------------------------------|--------|
-| **P1: Receive OTLP telemetry (gRPC), visualize in WebGPU dashboard** | desktop-webview (full-dashboard-traces layout); backend OTLP receivers are not-assertable and omitted | `main` / `region[aria-label="Telemetry traces chart"]` / `button` (interaction controls on canvas) / `table` (trace list below chart) | Initial focus: first trace table; Tab navigates table cells; Enter/arrow keys drill into trace detail | SC 1.3.1 Info and Relationships (canvas region semantics) / SC 2.1.1 Keyboard (Tab through chart controls + table) / SC 2.4.3 Focus Order (visual left-to-right table) / SC 1.4.3 Contrast (Minimum) (trace value colors) / SC 4.1.2 Name, Role, Value (canvas label + table structure) | Tests excerpt Critical Path P1 + Creator Brief must-work "Glance-readable from 2 meters" |
+| **P1: Receive OTLP telemetry (gRPC), visualize in WebGPU dashboard** | desktop-webview (full-dashboard-traces layout); backend OTLP receivers are not-assertable and omitted | `main` / `button` / `table` / `region[aria-label="Telemetry traces chart"]` all ship (measured 2026-08-23-a11y-verification). **The prior NOT-SHIPPED claim was itself measurement-disproved and is retired:** the `table` role was NEVER absent — `pulse-app/ui/src/dashboard/routes/traces/TraceTable.tsx:115` renders a native `<table>` (`thead`/`tbody`/`th scope="col"`/`aria-sort`; its inline style sets only `borderCollapse`, no `display:` override, so the implicit ARIA role is intact) — and the region was MIS-LOCATED: §7 assigns it to the WebGPU canvas wrapper, a SIBLING component, while every site looked for it inside `TraceTable.tsx`. `ConstellationCanvas.tsx:229` had already wrapped the canvas in a named `<section>` (= `role="region"`); this chunk gave it the stable literal name plus an `aria-describedby` visually-hidden aggregate summary. Selectors may now bind accessible-name-first per the measured-per-surface convention; the headful leg's re-pointing is DISCHARGED (`2026-08-23-headful-leg-extension`) — the leg binds `region[aria-label="Telemetry traces chart"]`, the native `table` element and `.trace-row`, retaining only `data-testid="trace-table-empty"` (a plain `<td>` message cell shipping no accessible anchor) | Initial focus: main content region. **Row-level traversal is the shipped, asserted contract** — each `<tr>` is a single tab stop via roving `tabindex`, Up/Down/Home/End move row focus, Enter activates the focused row's Investigate, Esc exits to the toolbar (see §5). 2-D cell traversal is deliberately NOT the contract for this read-only 4-column table | SC 1.3.1 Info and Relationships (canvas region semantics) / SC 2.1.1 Keyboard (Tab through chart controls + table) / SC 2.4.3 Focus Order (visual left-to-right table) / SC 1.4.3 Contrast (Minimum) (trace value colors) / SC 4.1.2 Name, Role, Value (canvas label + table structure) | Tests excerpt Critical Path P1 + Creator Brief must-work "Glance-readable from 2 meters" |
 | **P2: Generate token-efficient curated snapshot (not raw dump)** | desktop-webview (full-dashboard-traces layout + investigation-modal); backend snapshot service is not-assertable and omitted | `main` / `dialog[aria-label="Investigation Snapshot"]` / `button` (Generate button → aria-busy during generation) / `slider[aria-label="Token budget"]` (token budget control) / `radiogroup` (preset selector) / `status[aria-live="polite"]` (progress message) | Initial focus: Generate button or modal title; Tab through budget slider / preset / Generate button; after submission, focus moves to progress message (aria-live polite non-blocking) | SC 2.1.1 Keyboard (Tab through modal controls) / SC 2.4.3 Focus Order (budget slider → preset → Generate button sequence) / SC 3.3.1 Error Identification (token budget exceeded message) / SC 3.3.2 Labels or Instructions (budget input label + hint) / SC 4.1.2 Name, Role, Value (button purpose + slider min/max) / SC 4.1.3 Status Messages (progress aria-live) | Tests excerpt Critical Path P2 + Creator Brief "Generates token-efficient curated snapshot" + Design excerpt async status pattern |
 | **P3: MCP server toggle in settings → notification on state change** | desktop-webview (settings-modal layout) + os-notification surface (assertable via OS a11y APIs); MCP server backend is not-assertable and omitted | `dialog[aria-label="Settings"]` / `switch[aria-checked]` (MCP toggle) / OS notification: title + body (accessible via OS a11y API) | Settings toggle: Tab to MCP switch, Space toggles state, focus stays on switch; OS notification fires asynchronously (does not steal focus) | SC 2.1.1 Keyboard (Tab/Space on switch) / SC 2.4.3 Focus Order (focus remains on switch during state change) / SC 4.1.2 Name, Role, Value (switch role + checked state) / SC 4.1.3 Status Messages (OS notification carries success/failure) | Tests excerpt Critical Path P3 + Creator Brief "MCP server toggle" setting + Obs excerpt Service Identity (mcp-server sidecar identity) |
-| **P4: Real-time push of spans/metrics/logs via Tauri IPC Channel** | desktop-webview (full-dashboard-traces / metrics / logs layouts); IPC channel itself is not-assertable and omitted | `region[aria-live="polite"]` (live trace list) / `status` (throughput / error-rate counter) / `table` (incremental row additions); `aria-busy=false` once the channel is ready | Live updates do NOT steal focus from current keyboard target; user-initiated row select via arrow keys / Enter follows focus order rules | SC 2.1.1 Keyboard (current focus preserved through live updates) / SC 2.4.3 Focus Order (focus stable across re-renders) / SC 4.1.2 Name, Role, Value (table rows + status counter role/state) / SC 4.1.3 Status Messages (aria-live announces incremental events without interrupting) / SC 1.4.3 Contrast (live counter colors) | Tests excerpt Critical Path P6 + Creator Brief "Live infographics — real-time visualizations" |
-| **P5: Widget compact mode ↔ dashboard expansion ↔ tray icon visibility toggle** | desktop-webview (compact-widget layout) + desktop-native (tray-icon menu); webview IPC plumbing is not-assertable and omitted | `main` (webview) / `button[aria-label="Expand to dashboard"]` (expand button in widget) / `button[aria-label="Minimize to tray"]` (Esc or button) / tray menu item: `menuitem` (toggle visibility) | Compact-widget: Esc minimizes to tray; focus returns to tray icon on widget restoration via Tauri IPC. Tray menu: arrow keys navigate items (open/hide/quit). Full dashboard: Tab navigates sidebar tabs + main content. On expand, focus moves to first tab in full dashboard. On collapse, focus returns to compact widget. | SC 2.1.1 Keyboard (Esc escape path from widget; arrow keys in tray menu) / SC 2.1.2 No Keyboard Trap (Esc works from any modal) / SC 2.4.3 Focus Order (Tab sequence within each layout) / SC 2.4.7 Focus Visible (focus ring on widget buttons + tray selection indicator) / SC 4.1.2 Name, Role, Value (window/tray role indicators) | Tests excerpt Critical Path P5 + Layout Templates focus management anchors (compact-widget Esc, tray-menu arrow keys) + Creator Brief "Click to expand" |
+| **P4: Real-time push of spans/metrics/logs via Tauri IPC Channel** | desktop-webview (full-dashboard-traces / metrics / logs layouts); IPC channel itself is not-assertable and omitted | `region[aria-live="polite"]` (live trace list) / `status` (throughput / error-rate counter) / `table` (incremental row additions — **SHIPPED; the prior NOT-SHIPPED note was measurement-disproved in step with P1**, so row-addition assertions bind to the native table/row semantics rather than the `trace-row` `data-testid`); `aria-busy=false` once the channel is ready | Live updates do NOT steal focus from current keyboard target; user-initiated row select via arrow keys / Enter follows focus order rules. **The re-poll preserves the focused row** (roving `tabindex` state is clamped, never reset — P-081's verified acceptance) | SC 2.1.1 Keyboard (current focus preserved through live updates) / SC 2.4.3 Focus Order (focus stable across re-renders) / SC 4.1.2 Name, Role, Value (table rows + status counter role/state) / SC 4.1.3 Status Messages (aria-live announces incremental events without interrupting) / SC 1.4.3 Contrast (live counter colors) | Tests excerpt Critical Path P6 + Creator Brief "Live infographics — real-time visualizations" |
+| **P5: Widget compact mode ↔ dashboard expansion ↔ tray icon visibility toggle** | desktop-webview (compact-widget layout) + desktop-native (tray-icon menu); webview IPC plumbing is not-assertable and omitted | `main` (webview) / `button[aria-label="Toggle dashboard"]` (dashboard-toggle button in widget — opens the dashboard if hidden / hides it if visible; the widget always stays) / `button[aria-label="Minimize"]` / `button[aria-label="Close to tray"]` (the titlebar ✕ that hides the widget to the tray; Esc also triggers it) / tray menu item: `menuitem` (toggle visibility) | Compact-widget: Esc minimizes to tray; focus returns to tray icon on widget restoration via Tauri IPC. Tray menu: arrow keys navigate items (open/hide/quit). Full dashboard: Tab navigates sidebar tabs + main content. On opening the dashboard, focus moves to it; the compact widget stays visible (the toggle never hides the widget). The same toggle is also bound to Cmd/Ctrl+Shift+P in both windows. | SC 2.1.1 Keyboard (Esc escape path from widget; arrow keys in tray menu) / SC 2.1.2 No Keyboard Trap (Esc works from any modal) / SC 2.4.3 Focus Order (Tab sequence within each layout) / SC 2.4.7 Focus Visible (focus ring on widget buttons + tray selection indicator) / SC 4.1.2 Name, Role, Value (window/tray role indicators) | Tests excerpt Critical Path P5 + Layout Templates focus management anchors (compact-widget Esc, tray-menu arrow keys) + Creator Brief "Click to expand" |
 | **P6: Snapshot generation completion → notification + "Investigate" button activation** | desktop-webview (full-dashboard layout + investigation-modal) + os-notification surface | `main` / `dialog[aria-label="Investigation Snapshot"]` / `button` (Generate button → aria-busy during generation) / `status[aria-live="assertive"]` (completion message in modal) / OS notification: title + body (accessible via OS a11y API) | Focus during snapshot generation: stays in modal (aria-busy=true on Generate button). On completion: modal updates with result token count (aria-live="assertive" announces completion). OS notification emitted (async, may not trap focus). | SC 2.1.1 Keyboard (Tab through modal during/after generation) / SC 2.4.3 Focus Order (focus remains in modal during async operation) / SC 4.1.2 Name, Role, Value (button busy state) / SC 4.1.3 Status Messages (aria-live polite/assertive on completion) | Creator Brief "Notification — Snapshot ready ({N} tokens)" + Design excerpt async status pattern (aria-busy, aria-live) |
 | **P7: Settings modal form submission (theme, widget position, retention, MCP toggle, snapshot preset)** | desktop-webview (settings-modal layout) | `dialog[aria-label="Settings"]` / `form` / `label` (for each input) / `button` (Save / Cancel primary/secondary) / `radiogroup` (theme / widget position) / `switch` (MCP toggle) | Initial focus: first form control (theme selector) or modal title. Tab: theme radio → widget position radio → retention input → MCP toggle switch → snapshot preset → Save button → Cancel button. Esc closes modal. Form invalid: focus moves to first invalid input with aria-invalid=true; error message aria-describedby linked to input. | SC 2.1.1 Keyboard (Tab through all controls; Esc to close) / SC 2.1.2 No Keyboard Trap (Esc works from any focused input) / SC 2.4.3 Focus Order (visual top-to-bottom form sequence) / SC 2.4.7 Focus Visible (focus ring on each input per `--border-focus` token) / SC 3.3.1 Error Identification (error message per invalid field) / SC 3.3.2 Labels or Instructions (label element or aria-label for each input) / SC 4.1.2 Name, Role, Value (input role + state + required status) | Layout Templates focus management anchors (settings-modal Tab cycle) + Creator Brief "Settings flows..." + Design excerpt form error/validation pattern |
+
+**Surface set extension (v0.2.0, chunk #99; extended since):** the must-be-accessible set grew from P1–P7 to **P1–P12** — **p8 findings dropdown**, **p9 diagnostic report modal**, **p10 diagnostics view**, **p11 constellation semantics**, **p12 export preview** — and then to **P1–P14**: **p13 empty states** (2026-07-08-self-explaining-empty-states) and **p14 Investigate result/error/progress states** (2026-08-23-a11y-verification). Each surface carries its own axe spec (the set is now `p1`–`p14`) plus the `keyboard-focus/widget-and-modals.spec.ts` focus spec; the p5 + reduced-motion specs were updated to the redesigned widget. The universal minimums (SC 2.1.1 / SC 2.4.3 / SC 4.1.2) and the §10 SLO coverage apply across **P1–P14** (the P1–P7 rows above are the original set; p8–p14 follow the same role/focus/SC discipline).
 
 **A11y triggers:**
 
@@ -251,7 +253,7 @@ cargo xtask test:a11y
 | Perceivable | Color contrast / non-text content / text alternatives | axe-core + Lighthouse color-contrast rule (default); colorjs.io token-binding assertions for all foreground/background pairs |
 | Operable | Keyboard navigation / focus management / target size | Playwright Tab/Shift+Tab/Escape/Arrow key navigation harness; tabbable 6.4.x focus order ground-truth; axe-core target-size rule (enabled for WCAG 2.2 AA mapping) |
 | Understandable | Form labels / error messages / readable language | React Aria Components / Headless UI (semantically correct form elements with aria-label / aria-describedby); eslint-plugin-jsx-a11y 6.10.x compile-time lint gate |
-| Robust | ARIA conformance / semantic HTML / parsing | axe-core 4.11.x default rules + pa11y 9.x parallel matrix; eslint-plugin-jsx-a11y strict mode rejects ARIA-on-non-semantic patterns |
+| Robust | ARIA conformance / semantic HTML / parsing | axe-core 4.11.x default rules + pa11y 10.x parallel matrix; eslint-plugin-jsx-a11y strict mode rejects ARIA-on-non-semantic patterns |
 | Agent-driven | Machine-verifiable paths for every WCAG SC | axe-core JSON + Lighthouse JSON + pa11y JSON + Playwright test JSON + colorjs.io numeric assertion + GitHub Actions CI artifact upload (no manual-only verification) |
 
 **Agent-runnable invariants (apply across all WCAG SCs):**
@@ -273,120 +275,7 @@ cargo xtask test:a11y
 
 This section specifies the SPECIFIC contract for how a11y assertions run from CI / dev / and emit machine-parseable violation JSON.
 
-### A11y testing tool pick
-
-- **Primary tool per surface:** **@axe-core/playwright** 4.11.x for desktop-webview E2E + **Lighthouse** 12.x CLI for CI gate + **pa11y** 9.x for parallel rule matrix
-- **Configuration:** 
-  - axe-core: `runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] }` for Standard tier baseline
-  - axe-core: add `'wcag22aa'` to include WCAG 2.2 AA target-size rule (SC 2.5.8)
-  - Lighthouse 12.x: built-in a11y category includes focus-visible + prefers-reduced-motion audits (SC 2.4.7 + SC 2.3.3 AAA trigger coverage)
-  - pa11y 9.x: `--runner axe` for full axe ruleset coverage parallel to standalone axe-core
-  - eslint-plugin-jsx-a11y 6.10.x: extend `'plugin:jsx-a11y/recommended'` in ESLint config (compile-time gate for ARIA on non-semantic HTML + missing labels)
-
-### WCAG criteria mapping
-
-- **Tier coverage:** Standard tier → WCAG 2.1 AA full (~50 SCs)
-- **Compliance trigger override:** No Section 508 / EAA / EN 301 549 mandate in security plan (Minimal tier); Creator Brief rigor signals (WCAG color discipline, reduced-motion respect) justify Standard AA without escalation to Comprehensive.
-- **Motion-sensitive trigger escalation:** ADD SC 2.3.3 Animation from Interactions (AAA) to Standard AA mapping. Lighthouse a11y audit (v12+) includes prefers-reduced-motion check; custom Playwright `page.emulateMedia({ reducedMotion: 'reduce' })` assertion validates reduced-motion override disables non-essential motion.
-
-### Structured violation JSON schema
-
-Binding contract from upstream-context Section 6 Obs Plan Excerpt. Required fields per a11y-scope Section 3:
-- `timestamp` (RFC 3339)
-- `level` ("ERROR" for WCAG violations)
-- `target` ("a11y::assertion")
-- `message` (human-readable violation summary)
-- `fields`: { `wcag_criterion`, `violation_type`, `severity`, `surface`, `selector`, `remediation`, `tool`, `tool_result_id` }
-
-**Extensions (optional):**
-- `token_name` — design token binding (e.g., "--color-text-primary")
-- `measured_value` / `required_value` — numeric comparison (contrast ratio)
-- `affected_component` — React component or layout type
-
-### Focus management test harness
-
-- **Driver:** **Playwright** 1.49.x with **@axe-core/playwright** 4.11.x + **tabbable** 6.4.x focus order ground-truth computation
-- **Pattern:** 
-  - Scripted Tab / Shift+Tab traversal covering all interactive elements per layout
-  - Focus trap entry / exit verification: Esc closes modal; focus restores to triggering element
-  - Focus restoration on modal close: trigger button receives focus
-  - Focus order assertion: `tabbable(container)` computes expected sequence; `page.keyboard.press('Tab')` actual sequence; assert match
-  - **Contract binding:** reuses tests' E2E driver per upstream-context Section 5 Test Harness (5-command discipline: `boot`, `run`, `status`, `cleanup`, `logs`)
-
-### Keyboard test harness
-
-**Sequences per ARIA pattern:**
-- **Button:** Enter / Space invokes default action
-- **Link:** Enter activates
-- **Dialog:** Escape closes; Tab cycles within trap
-- **Tabs:** Arrow keys navigate (Left/Right); Home / End jump
-- **Combobox:** Down opens listbox; Arrow navigates options; Enter selects; Escape closes
-- **Menu:** Arrow navigates (Up/Down); Enter activates; Escape closes
-- **Switch:** Space toggles state
-- **Slider:** Arrow keys adjust value; Home / End set min/max
-
-**Tooling:** **Playwright** 1.49.x `page.keyboard.press()` / `page.keyboard.type()` per surface. No Cypress (commercial) dependency; stick to Playwright reusing tests' E2E session.
-
-### Screen reader test pattern
-
-**Per-surface test spec:** NVDA 2025.3 Windows / VoiceOver macOS 15.3+ / Orca 48.x Linux
-
-**Manual pass spec format:** structured per-screen text + expected SR output (announces form labels / heading hierarchy / landmark roles / state changes via aria-live). Emitted as `a11y-sr-results.jsonl` with `{path, sr_announcement_expected, sr_announcement_actual, status}` records aligned to obs Section 6 schema.
-
-**Supplemental to automated:** SR pass spec NEVER sole verification; axe-core / pa11y / Lighthouse cover SC 4.1.2 Name/Role/Value programmatically; SR pass verifies runtime announcement quality per trigger.
-
-### Contrast verification harness
-
-- **Source-of-truth tokens:** Verbatim from upstream-context Section 3 A11y-Relevant Design Tokens:
-  - `--color-text-primary / --color-base` → 4.5:1 (SC 1.4.3 AA)
-  - `--color-text-secondary / --color-base` → 3:1 (SC 1.4.3 AA large text)
-  - `--color-text-tertiary / --color-base` → 3:1 (SC 1.4.3 AA large text only)
-  - `--color-primary / --color-base` → focus indicator; ≥ 3:1 non-text (SC 1.4.11)
-  - `--color-feedback-success / --color-inset` → 4.5:1 for text (SC 1.4.3) or 3:1 for non-text (SC 1.4.11)
-  - `--color-accent / --color-base` → error state; 4.5:1 for text (SC 1.4.3) or 3:1 for non-text (SC 1.4.11)
-  - `--border-focus` → focus ring; ≥ 3:1 contrast against background (SC 1.4.11)
-
-- **Verification tool:** 
-  - **axe-core color-contrast rule** (default, covers SC 1.4.3 / 1.4.6 / 1.4.11)
-  - **colorjs.io** 0.6.x custom token-based checker reading design tokens directly via `window.getComputedStyle().getPropertyValue('--color-token-name')` + `Color.contrast(fg, bg, 'WCAG21')` algorithm
-  - Emits machine-readable PASS/FAIL per token pair with WCAG SC reference
-
-- **WCAG SC mapping:** SC 1.4.3 Contrast Minimum (AA: 4.5:1 normal text / 3:1 large text) + SC 1.4.6 Contrast Enhanced (AAA: 7:1 / 4.5:1 — not required Standard tier) + SC 1.4.11 Non-text Contrast (AA: 3:1 for UI components and graphical objects)
-
-### CI integration
-
-- **Pipeline integration:** GitHub Actions (upstream-context Section 1). A11y assertions run in same `ci.yml` pipeline as tests E2E per upstream-context Section 5 Test Harness Contract binding. Specifically: tests' `npm test` (or equivalent E2E command) invokes Playwright test harness which runs axe-core assertions inline; OR separate `npm run test:a11y` command reuses tests' build / start / status / cleanup harness.
-
-- **Command:** 
-  ```bash
-  npm run test:a11y
-  ```
-  Invokes Playwright E2E suite with `@axe-core/playwright` assertions + focus/keyboard test harness + contrast verification harness; emits JSON artifacts to `~/.andromeda-pulse/logs/`.
-
-- **Artifact:** Structured violation JSON (per surface per WCAG SC); uploaded as CI artifact via GitHub Actions `actions/upload-artifact@v4` step.
-- **Per-PR regression detection:** Download base-branch `a11y-violations-summary.json` via `actions/download-artifact@v4` (name `a11y-violations-base`); compare current PR violations vs baseline using a `jq`-style filter on `{surface, wcag_criterion, selector, severity}` tuples; fail PR if the current set contains any tuple NOT present in baseline (regression = new violation on the same surface / selector / WCAG SC). Tooling: GitHub Actions step running `jq` (or `node` with the same filter) emits a `regression-set.json` artifact for audit alongside the per-run results.
-
-- **CI gate:** PR cannot merge if:
-  - axe-core reports WCAG SC violation (critical / serious severity) on desktop-webview
-  - Lighthouse a11y category score < 90
-  - Keyboard focus order test fails
-  - Contrast verification detects token mismatch (actual ratio < required ratio)
-
-### Bootstrap phases (derive for route / setup-project)
-
-The downstream skills derive the following bootstrap phases from the contract above:
-
-- **a11y-tooling-install:** `npm install --save-dev @axe-core/playwright@4.11.x lighthouse@12.x pa11y@9.x pa11y-ci@4.x` + configure axe with `runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] }` for Standard tier WCAG 2.1 AA + WCAG 2.2 AA target-size support (SC 2.5.8)
-- **focus-management-library-install:** `npm install focus-trap-react@12.x tabbable@6.4.x` (focus-trap-react for modals; tabbable for focus order ground-truth)
-- **aria-component-library-install:** `npm install react-aria-components@1.17.x @headlessui/react@2.2.x` (semantic HTML + ARIA; recommend React Aria for 32 components; Headless UI for Tailwind v4 integration)
-- **contrast-verification-harness-setup:** `npm install --save-dev colorjs.io@0.6.x` + scaffold Playwright test reading design tokens via `getComputedStyle` + colorjs.io contrast() algorithm
-- **screen-reader-test-spec-setup:** scaffold per-surface SR test spec files (a11y-sr-nvda.md / a11y-sr-voiceover.md / a11y-sr-orca.md) per Screen reader test pattern; structured JSON output per manual pass
-- **a11y-linting-install:** `npm install --save-dev eslint-plugin-jsx-a11y@6.10.x` + extend ESLint config with `'plugin:jsx-a11y/recommended'` (compile-time gate)
-- **motion-tokens-respect-install:** `npm install motion@12.x` + wire `useReducedMotion` hook from `motion/react` into canvas frame loop and animation triggers; apply Tailwind v4 `motion-reduce:` variants to CSS transitions
-- **a11y-ci-gate-wire:** integrate `npm run test:a11y` into GitHub Actions `ci.yml` (reuse existing `run` step with E2E driver)
-- **violation-json-emission-wire:** emit structured violation JSON per a11y-scope Section 3 schema; upload as CI artifact
-
----
+Contracts: .andromeda/registries/a11y-plan-contracts.toml — ask registry.py contracts; read one contracts/a11y-plan/{key}.md; never whole.
 
 ## 4. ARIA Patterns & Roles
 
@@ -422,15 +311,19 @@ The downstream skills derive the following bootstrap phases from the contract ab
 
 **Focus order per layout:**
 
-- **compact-widget:** Focus order: title / expand button / minimize button (Esc also minimizes). No skip-to-main (single focused region). On Esc: minimizes to tray; focus returns to tray icon on restoration.
+- **compact-widget:** Focus order: title / expand button / `Minimize` button / `Close to tray` (✕) button. The ✕ — not a "minimize to tray" control, which the product does not have — is the affordance that hides the widget to the tray (Esc also triggers it). No skip-to-main (single focused region). On Esc: minimizes to tray; focus returns to tray icon on restoration.
 
-- **full-dashboard-traces / full-dashboard-metrics / full-dashboard-logs:** Focus order: skip-to-main link (first focusable) → sidebar tabs (Tab cycles through tab list) → main content region (traces table / metrics cards / log entries). Arrow keys navigate within tabs (Left/Right select tab). Within table: Tab navigates cells; arrow keys drill into rows/columns per custom implementation.
+- **full-dashboard-traces / full-dashboard-metrics / full-dashboard-logs:** Focus order: skip-to-main link (first focusable) → sidebar tabs (Tab cycles through tab list) → main content region (traces list / metrics cards / log entries). Arrow keys navigate within tabs (Left/Right select tab). **Within the trace list: ROW-level traversal is the shipped contract** (2026-08-23-a11y-verification) — the native `<table>` was always present (the earlier "presumes a `table` role the surface does not ship" premise was measurement-disproved; see the §1 P1 row). Each `<tr>` is the table body's single tab stop via roving `tabindex` (`0` active / `-1` rest, never `> 0`): Tab enters at the active row, Up/Down move between rows, Home/End jump to first/last, Enter activates that row's Investigate, Esc returns focus to the Errors-only toolbar. Focus is shown with the `--border-focus` ring via `:focus-visible`, and scroll-into-view stays inside the table's own scroll region. The in-row Investigate button is `tabIndex={-1}` so the row is the only tab stop (§11 grid-lite carve-out). 2-D cell traversal is deliberately NOT the contract — a read-only 4-column table with one action per row does not warrant a grid.
 
 - **settings-modal:** Focus order: modal title (announcement on open) → form controls in visual top-to-bottom order (theme radio group → widget position radio group → retention input → MCP toggle switch → snapshot preset combobox → Save button → Cancel button). Tab cycles in order. Esc closes modal; focus returns to "Settings" button.
 
 - **investigation-modal:** Focus order: modal title → close button (✕ glyph, top-right) → Generate button → token budget slider → snapshot preset radiogroup. Tab cycles. Esc closes; focus returns to "Investigate" button on dashboard.
 
 - **tray-menu:** Arrow keys navigate menuitem elements (up/down). Return / Space activates menuitem. Escape closes menu.
+
+- **findings-window (separate always-on-top disclosure window, chunk 2026-07-10):** opened from the compact-widget FindingsCounter badge (`aria-haspopup="dialog"`, no `aria-controls` — the panel is a separate document). Focus moves into the panel on open (first incident row); Tab cycles rows → "Mark all as read". Esc / window-blur / mark-all-read dismiss the window and restore focus **cross-window** to the FindingsCounter badge; row-select opens the report window (does not dismiss). SC 2.1.1 / 2.1.2 / 2.4.3 / 4.1.2; the live-badge 0→N announces once politely (SC 4.1.3).
+
+- **report-window (separate always-on-top Diagnostic Report window, chunk 2026-07-10):** `role="dialog"` (the `Report` in the `Modal` `fill` variant); focus trap within the window; Esc / ✕ closes the window and returns focus **cross-window** to the findings window.
 
 **Skip links:**
 - `skip-to-main` link as first focusable element on full-dashboard layouts (per WCAG SC 2.4.1 Bypass Blocks)
@@ -446,6 +339,7 @@ The downstream skills derive the following bootstrap phases from the contract ab
 - Modal close (settings, investigation) → focus to triggering button ("Settings" / "Investigate")
 - Tray icon click (minimize widget) → focus returns to compact-widget when re-expanded
 - Route change (SPA navigation) → focus to main heading or `<main>` landmark (per WCAG SC 2.4.3)
+- **Cross-window** (the separate `findings` / `report` Tauri windows, chunk 2026-07-10): focus restores ACROSS window boundaries via first-party Tauri events (`findings:dismissed` / `report:closed`), NOT `focus-trap-react` `returnFocusOnDeactivate` (which cannot cross separate windows) — findings-dismiss → the widget FindingsCounter badge; report-close → the findings window.
 
 **Per-surface keyboard shortcuts:** No additional shortcuts beyond standard patterns (Tab, Escape, Enter, Arrow, Space per component). Creator Brief does not request custom shortcuts.
 
@@ -527,7 +421,7 @@ The downstream skills derive the following bootstrap phases from the contract ab
 - `<nav>` for sidebar navigation (tabs list in full-dashboard)
 - `<header>` (or `role="banner"`) for page-level header (compact-widget title bar)
 - `<footer>` (or `role="contentinfo"`) for page footer (if present)
-- `<region aria-label="Telemetry traces chart">` for WebGPU canvas wrapper (canvas itself has no semantics; wrapper provides context)
+- `<section aria-label="Telemetry traces chart">` for the WebGPU canvas wrapper (canvas itself has no semantics; wrapper provides context) — **SHIPPED and in the landmark inventory** since 2026-08-23-a11y-verification at `ConstellationCanvas.tsx:229`. The name is a STABLE literal, deliberately not the live state summary: a landmark whose accessible name changes with the data churns the screen-reader rotor. The summary survives as the region's DESCRIPTION — a visually-hidden `<p data-testid="constellation-summary">` wired via `aria-describedby`, carrying lifecycle counts + a findings tally only (aggregate-only: no service name reaches the accessible tree). `role="status"` on that element is deliberately omitted (a ~1s poll plus the dashboard's existing live region would stack announcements) — a reversible choice, not an oversight. Note the earlier "NOT SHIPPED" claim was measurement-disproved twice over: a named `<section>` already wrapped the canvas, and the claim had been checked against `TraceTable.tsx`, a sibling component this landmark never lived in
 - Per WCAG SC 1.3.1 Info and Relationships
 
 ### Form labels
@@ -550,9 +444,9 @@ The downstream skills derive the following bootstrap phases from the contract ab
 
 ## 8. Cognitive Accessibility
 
-(N/A — no cognitive-accessibility trigger in a11y-scope Section 5; creator brief targets "developers staring at telemetry for hours" (professional users, no explicit cognitive disability accommodation); no internationalization signals; security tier = Minimal.)
+N/A — no cognitive-accessibility trigger (professional developer users; no internationalization signals; security tier Minimal). No dedicated accommodations beyond the baseline disciplines below.
 
-**Phase 1 baseline disciplines applied regardless of trigger (cost-free wins):**
+**Baseline disciplines applied regardless of trigger (cost-free wins):**
 - Error messages provide recovery suggestion (per WCAG SC 3.3.3) — form validation errors include actionable remediation guidance
 - Form labels clearly associated (per WCAG SC 3.3.2) — native semantic `<label>` association or `aria-labelledby`; required across critical paths P2 / P7
 - Plain language commitment: settings form labels, help text, error messages use simple terminology ("Save", "Cancel", "Invalid field" — not technical jargon)
@@ -569,12 +463,12 @@ The downstream skills derive the following bootstrap phases from the contract ab
 |-------|-----------|----------|----------|
 | Lint | eslint-plugin-jsx-a11y 6.10.x | structured stderr (violations in ESLint JSON format) | GitHub Actions annotations (PR check); CI fail if critical violations |
 | Unit | (no UI unit tests for a11y; a11y is integration-level) | n/a | n/a |
-| E2E | @axe-core/playwright 4.11.x + Lighthouse 12.x + pa11y 9.x | `a11y-axe-core-results.jsonl`, `a11y-lighthouse-results.json`, `a11y-pa11y-results.json`, `a11y-keyboard-focus-results.jsonl`, `a11y-violations-summary.json` | uploaded artifact; PR comment with new violations vs base branch |
+| E2E | @axe-core/playwright 4.11.x + Lighthouse 13.x + pa11y 10.x | `a11y-axe-core-results.jsonl`, `a11y-lighthouse-results.json`, `a11y-pa11y-results.json`, `a11y-keyboard-focus-results.jsonl`, `a11y-violations-summary.json` | uploaded artifact; PR comment with new violations vs base branch |
 | Aggregation | custom aggregator script (Node.js jq-style) | `a11y-violations-summary.json` (per surface + per WCAG SC pass/fail history) | uploaded artifact; Decisions Log entry if regression |
 
 **Pipeline integration:**
 
-A11y CI runs in same `ci.yml` pipeline as tests E2E per upstream-context Section 5 Test Harness Contract binding. Specifically:
+A11y CI runs in same `ci.yml` pipeline as tests E2E per upstream-context Section 5 Test Harness Contract binding, as its own `a11y` matrix job since chunk 2026-09-29-ci-wall-time-and-round-trips (the harness contract it shares with tests is unchanged). Specifically:
 - Tests' `npm test` (or `cargo nextest run`) invokes Playwright E2E driver which runs axe-core assertions inline via `@axe-core/playwright` AxeBuilder
 - Separate `npm run test:a11y` command invokes Playwright test suite with a11y-specific tests (focus order, keyboard, contrast, screen reader per-surface specs)
 - Reuses tests' `boot` / `run` / `status` / `cleanup` / `logs` harness (5-command discipline per binding contract)
@@ -634,7 +528,7 @@ A11y violation JSON emissions tag with same resource attributes as obs traces fo
 - NEVER create keyboard traps (modal without Escape close OR focus cycling without exit) — focus-trap-react v12 enforces `escapeDeactivates: true` by default
 - NEVER omit focus styles (`:focus { outline: none }` without replacement is WCAG SC 2.4.7 violation) — always display `--border-focus` token outline on `:focus-visible` elements
 - NEVER set `tabindex > 0` (creates non-natural focus order) — use natural DOM order per tabbable 6.4.x ground-truth
-- NEVER nest focusable elements inside other focusable elements (e.g., button inside button)
+- NEVER nest focusable TAB STOPS inside other tab stops (e.g., button inside button). **Grid-lite carve-out (2026-08-23-a11y-verification):** a roving-`tabindex` container MAY hold an action control at `tabIndex={-1}` — the container is then the single tab stop and Enter on it activates the control. This is the ARIA APG grid pattern and it REDUCES tab stops (the trace table went from one row + N Investigate buttons to one row); the ban targets two reachable stops nested in each other, not a container that owns its children's focus
 
 ### Visual
 
@@ -682,23 +576,4 @@ A11y violation JSON emissions tag with same resource attributes as obs traces fo
 
 ## 12. A11y Decisions Log
 
-**2026-05-02** — Initial a11y plan generated by `/andromeda-a11y`
-- **Tier:** Standard (1) — justified by: 2 primary UI surfaces (desktop-webview + desktop-native tray), 8 assertable entities, 7 must-be-accessible flows (P1–P7), tests tier = Standard, obs tier = Standard. No regulated-compliance triggers (security tier = Minimal). Creator brief explicit rigor signals (WCAG color discipline, reduced-motion respect, typography legibility, motion-as-data principle) warrant Standard WCAG 2.1 AA with motion-sensitive AAA escalation (SC 2.3.3).
-- **Key decisions:**
-  - **A11y testing tool:** @axe-core/playwright 4.11.x + Lighthouse 12.x + pa11y 9.x — chosen because: axe-core covers ~50 WCAG 2.1 AA SCs via tagged rules; @axe-core/playwright piggybacks on Playwright E2E driver (reuses tests' 5-command harness per binding contract); Lighthouse 12 adds prefers-reduced-motion audit (SC 2.3.3 AAA trigger) + focus-visible check (SC 2.4.7); pa11y 9 provides parallel rule matrix for coverage validation. All three emit JSON aligned to obs Section 6 schema per binding contract.
-  - **Focus management library:** focus-trap-react 12.x (React 19 compatible) + tabbable 6.4.x (focus order ground-truth) — chosen because: focus-trap-react is production-stable, handles modal entry/exit/escape-close/focus-restore per WCAG SC 2.1.2 / SC 2.4.3 requirements; tabbable computes expected Tab order for assertion; both are framework-agnostic libraries with machine-verifiable JSON output via Playwright assertions. Pair with Playwright `page.keyboard.press('Tab')` scripting per focus management test harness contract.
-  - **ARIA component library:** React Aria Components 1.17.x (Adobe, 32 components) OR Headless UI 2.2.x (Tailwind Labs, smaller set) — chosen because: semantic HTML first + ARIA second principle; React Aria covers required patterns (Dialog, RadioGroup, Slider, Switch, ComboBox, Menu, Tabs, Form inputs) per critical paths P2–P7; Headless UI is lighter if project heavy on Tailwind v4 utilities. Do NOT mix both. Recommend React Aria for comprehensive component library; Headless UI for Tailwind-tight projects.
-  - **Motion / reduced-motion handling:** Tailwind CSS v4 `motion-reduce:` / `motion-safe:` variants + motion/react 12.x `useReducedMotion` hook — chosen because: Tailwind v4 first-class CSS support (apply `motion-reduce:duration-0 motion-reduce:transition-none` to animated elements); useReducedMotion hook programmatically disables JS-driven motion (WebGPU canvas frame loop, skeleton animation) under prefers-reduced-motion preference. Both feed into Playwright `page.emulateMedia({ reducedMotion: 'reduce' })` test that validates SC 2.3.3 AAA trigger coverage.
-  - **Contrast verification:** axe-core color-contrast rule (default) + colorjs.io 0.6.x custom token-based checker — chosen because: axe-core detects computed contrast violations programmatically; colorjs.io implements WCAG 2.1 contrast algorithm and reads design tokens verbatim (--color-text-primary, --color-accent, etc.) via getComputedStyle() for token-binding assertions. Emits machine-readable PASS/FAIL per token pair per design's visual-discrimination trigger.
-- **Open questions:** None deferred; all phase-3 synthesis sections populated with stack-specific tools + binding contracts.
-
-(End of initial entry; subsequent manual additions or re-runs will append below in `YYYY-MM-DD — {title}` format per template instruction.)
-
-**2026-06-10** — Chunk #99 tag gate: v0.2.0 full re-audit + harness repair + surface extension + baseline re-established
-
-- **Trigger:** chunk #99 phase #96 (the v0.2.0 tag gate) via `cargo xtask test:a11y` (axe-core/playwright + Lighthouse + pa11y chain) — declared specialist-plan touch (plan.md step 8), applied at implement time per spec-drift-protocol Path A.
-- **Change:** (1) **Harness repair** — the entire Playwright a11y suite had been silently dead since session 64 due to four infrastructure bugs masking all route-level audits: a stale `../helpers/mock-tauri` import at the tests-a11y root; the IPC mock matching `plugin:taurpc|<path>` while taurpc 0.7 actually invokes `TauRPC__<router.path>`; the window-label global the mock set was never read (production reads `__TAURI_INTERNALS__.metadata.currentWebview.label`); and `/#/route` fixture URLs that never routed because TanStack Router uses browser history. Repaired via `helpers/mock-tauri.ts` rewrite (regex `/^TauRPC__([\w.]+)$/`, metadata-shaped window label, `plugin:event|listen` handler), `helpers/v02-fixtures.ts` (incident/connection/service/report/export/diagnostics payloads), `helpers/static-server.mjs` (http-server with `-P` SPA fallback), `pa11y/run-pa11y.mjs` (server lifecycle for pa11y-ci), and real route paths (incl. `/diagnostics`) in the pa11y/Lighthouse configs. (2) **Surface extension to v0.2.0** — axe specs extended p1–p7 → p1–p12 (NEW: p8 findings dropdown, p9 diagnostic report modal, p10 diagnostics view, p11 constellation semantics, p12 export preview) + NEW `keyboard-focus/widget-and-modals.spec.ts`; p5 + reduced-motion specs updated to the redesigned (post-chunk-#89/#90/#91) widget. (3) **Remediation (~10 violations fixed in-chunk):** SC 2.5.8 target-size (WindowControls min 24px), SC 1.4.3/1.4.11 contrast (tertiary text → secondary in TraceTable / LogTable / LogFilter / TemplateDistribution / SettingsModalForm / ExportForTraining; severity text → `text-primary` + severity-colored borders in report-types.ts/ReportRenderer), svg-img-alt (SnapshotsRoute decorative icon), aria-valid-attr-value (TabNav dangling `aria-controls` — now emitted only when the tab is active AND its route is current, via `activeIsCurrentRoute`), SkipToMain focus-toggled clip pattern. (4) **SC 1.4.13 applicability re-evaluation:** the header connection-dot tooltip is a non-interactive `role="img"` summary with an `aria-hidden` decorative tooltip — SC 1.4.13 (content on hover/focus) does not apply to it; recorded so future audits don't re-flag. (5) **Baseline re-established:** `baselines/a11y-violations-summary.json` regenerated 2026-06-09 from a clean full-chain pass — 6 informational lighthouse-score tuples, 0 violation tuples; this is the v0.2.0 regression baseline.
-- **Brand / domain impact:** Restores the §9 CI-integration contract (the violation-JSON regression gate now guards real audits again) and extends machine-verifiable WCAG 2.1 AA + SC 2.3.3 AAA evidence to every v0.2.0 surface. No tooling-stack changes (axe/Lighthouse/pa11y retained); one devDep added (`http-server` for the SPA-fallback static server).
-- **Usage scope refinement:** Future v0.2.0+ surface chunks add an axe spec per new route/modal in the same chunk (the p8–p12 specs are the template); fixture payloads belong in `helpers/v02-fixtures.ts`; any new TauRPC procedure consumed by a fixture mocks via the `TauRPC__` command shape. Playwright suite health is verifiable cheaply via `npx playwright test --list` (the session-64 rot was a list-time import failure).
-- **Cross-references:** test-plan §12 + obs-plan §12 entries dated 2026-06-10 (sibling amendment `2026-06-10T00-35-00-adopt-four-load-profiles`); design-system tokens (text-secondary/text-primary contrast pairs); `docs/v0_2_0/pulse-v0_2_0-route.md` §97 Phase 13 (chunk source); chunk #99 implement report (full remediation file list).
-- **Authority:** a11y-plan §10 hard gates + §11 machine-verifiable-evidence invariant (tier=Standard) win over the stale v0.1.0 surface enumeration + dead-harness state. Amendment record: `.andromeda/runs/2026-06-10T00-36-00-spec-amendment-a11y-v020-reaudit-rebaseline/amendment.md`.
+Amendment history (decisions, re-audits, harness repairs, re-baselines) is recorded append-only in the sibling sidecar **`a11y-plan-amendments.md`**. This body holds current truth only; current-truth substance from past amendments has been folded into the sections above.

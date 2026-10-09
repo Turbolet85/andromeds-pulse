@@ -1,0 +1,189 @@
+{
+ "total_zero_ref": 2949,
+ "post_symbol_test_filter": 1125,
+ "zero_ref_candidates": 162,
+ "filter": "zero-ref via refs view; excluded: instr(symbol,'tests/')>0 OR instr(file,'tests/')>0 (dual filter — symbol-only missed integration-test-target fns, measured 1125 vs 162)",
+ "fp_classes": [
+  "entry points (main/build.rs)",
+  "runtime-invoked surfaces (TauRPC procedures, MCP tools — dispatched via one invoke handler)",
+  "trait-impl methods reached by dispatch",
+  "derive/attr-invoked fns (serde defaults)",
+  "deliberate anchors (_force_serde_imports_used)"
+ ],
+ "top": [
+  {
+   "symbol": "pulse-app::streams/StreamsApi#subscribe_spans().",
+   "file": "pulse-app/src/streams.rs"
+  },
+  {
+   "symbol": "pulse-app::observability/impl#[`JsonFieldVisitor<'_>`][Visit]record_u64().",
+   "file": "pulse-app/src/observability.rs"
+  },
+  {
+   "symbol": "pulse-app::observability/impl#[`JsonFieldVisitor<'_>`][Visit]record_f64().",
+   "file": "pulse-app/src/observability.rs"
+  },
+  {
+   "symbol": "pulse-app::llamacli_inference/impl#[LlamaCliInference]configured_model_path().",
+   "file": "pulse-app/src/llamacli_inference.rs"
+  },
+  {
+   "symbol": "pulse-app::incidents_router/impl#[IncidentsApiImpl][IncidentsApi]get_report().",
+   "file": "pulse-app/src/incidents_router.rs"
+  },
+  {
+   "symbol": "pulse-app::corpus_retrieval/impl#[CorpusBackedIncidentSource][CorpusIncidentSource]load_candidates().",
+   "file": "pulse-app/src/corpus_retrieval.rs"
+  },
+  {
+   "symbol": "pulse-app::cadence_runner/impl#[CadenceSqlRunner][SqlQueryRunner]run_q2().",
+   "file": "pulse-app/src/cadence_runner.rs"
+  },
+  {
+   "symbol": "ui-bridge::health/runtime/IntrospectionApi#health().",
+   "file": "crates/ui-bridge/src/health.rs"
+  },
+  {
+   "symbol": "mcp-server::tools/default_token_budget().",
+   "file": "crates/mcp-server/src/tools.rs"
+  },
+  {
+   "symbol": "triage::incident/persistence/_force_serde_imports_used().",
+   "file": "crates/triage/src/incident/persistence.rs"
+  },
+  {
+   "symbol": "corpus::contract/impl#[Corpus][CorpusWriter]save_digest().",
+   "file": "crates/corpus/src/contract.rs"
+  },
+  {
+   "symbol": "xtask::bundle_format/impl#[BundleFormat][FromStr]from_str().",
+   "file": "xtask/src/bundle_format.rs"
+  },
+  {
+   "symbol": "pulse-app::streams/StreamsApi#subscribe_logs().",
+   "file": "pulse-app/src/streams.rs"
+  },
+  {
+   "symbol": "pulse-app::model_router/ModelApi#current_profile().",
+   "file": "pulse-app/src/model_router.rs"
+  },
+  {
+   "symbol": "pulse-app::incidents_router/IncidentsApi#mark_resolved().",
+   "file": "pulse-app/src/incidents_router.rs"
+  },
+  {
+   "symbol": "pulse-app::incident_persistence/impl#[CorpusIncidentPersistence][IncidentPersistence]mark_read().",
+   "file": "pulse-app/src/incident_persistence.rs"
+  },
+  {
+   "symbol": "pulse-app::config_router/impl#[ConfigApiImpl][ConfigApi]reload().",
+   "file": "pulse-app/src/config_router.rs"
+  },
+  {
+   "symbol": "pulse-app::cadence_runner/impl#[CadenceSqlRunner][SqlQueryRunner]run_q7().",
+   "file": "pulse-app/src/cadence_runner.rs"
+  },
+  {
+   "symbol": "config-watcher::watcher/impl#[ConfigWatchHandle]status_snapshot().",
+   "file": "crates/config-watcher/src/watcher.rs"
+  },
+  {
+   "symbol": "mcp-server::tools/default_time_window().",
+   "file": "crates/mcp-server/src/tools.rs"
+  },
+  {
+   "symbol": "pulse-app::observability/impl#[`JsonFieldVisitor<'_>`][Visit]record_debug().",
+   "file": "pulse-app/src/observability.rs"
+  },
+  {
+   "symbol": "pulse-app::llamacli_inference/impl#[LlamaCliInference]binary_kind().",
+   "file": "pulse-app/src/llamacli_inference.rs"
+  },
+  {
+   "symbol": "pulse-app::diagnostics_router/MetricHistoryPoint#snapshot_unix_nano.",
+   "file": "pulse-app/src/diagnostics_router.rs"
+  },
+  {
+   "symbol": "pulse-app::diagnostics_router/DiagnosticsApi#template_distribution().",
+   "file": "pulse-app/src/diagnostics_router.rs"
+  },
+  {
+   "symbol": "ingest::main().",
+   "file": "crates/ingest/build.rs"
+  },
+  {
+   "symbol": "ingest::main().",
+   "file": "crates/ingest/examples/load_profiles.rs"
+  },
+  {
+   "symbol": "ingest::main().",
+   "file": "crates/ingest/examples/inject_scrub_canaries.rs"
+  },
+  {
+   "symbol": "ingest::main().",
+   "file": "crates/ingest/examples/inject_demo.rs"
+  },
+  {
+   "symbol": "ingest::main().",
+   "file": "crates/ingest/examples/inject_colliding_metrics.rs"
+  },
+  {
+   "symbol": "ingest::main().",
+   "file": "crates/ingest/examples/inject_colliding_logs.rs"
+  },
+  {
+   "symbol": "snapshot::contract/FormatError#AnchorEncodingFailed#",
+   "file": "crates/snapshot/src/contract.rs"
+  },
+  {
+   "symbol": "triage::digest/DigestError#TokenBudgetExceeded#limit.",
+   "file": "crates/triage/src/digest/mod.rs"
+  },
+  {
+   "symbol": "triage::digest/queue/impl#[LwwQueue]active_incident_depth_for().",
+   "file": "crates/triage/src/digest/queue.rs"
+  },
+  {
+   "symbol": "triage::cue/emitter/impl#[CueLatch][Default]default().",
+   "file": "crates/triage/src/cue/emitter.rs"
+  },
+  {
+   "symbol": "ingest::grpc/impl#[MetricsServiceImpl][MetricsService]export().",
+   "file": "crates/ingest/src/grpc.rs"
+  },
+  {
+   "symbol": "ingest::connection/STREAM_NAME_CONNECTION_STATE.",
+   "file": "crates/ingest/src/connection.rs"
+  },
+  {
+   "symbol": "ingest::connection/impl#[ConnectionBroadcast][Default]default().",
+   "file": "crates/ingest/src/connection.rs"
+  },
+  {
+   "symbol": "pulse-app::streams/impl#[StreamsApiImpl][StreamsApi]subscribe_spans().",
+   "file": "pulse-app/src/streams.rs"
+  },
+  {
+   "symbol": "pulse-app::services_router/ServicesApi#list_with_states().",
+   "file": "pulse-app/src/services_router.rs"
+  },
+  {
+   "symbol": "pulse-app::plugins_router/PluginsApi#list().",
+   "file": "pulse-app/src/plugins_router.rs"
+  }
+ ],
+ "unused_deps": [
+  "corpus: chrono",
+  "corpus: security",
+  "curation: thiserror",
+  "ingest: bytes",
+  "ingest: tonic-prost",
+  "ingest: tower",
+  "security: thiserror",
+  "security: tracing",
+  "snapshot: chrono",
+  "ui-bridge: tauri",
+  "viz: tracing-error",
+  "xtask: ui-bridge"
+ ]
+}

@@ -1,0 +1,33 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T06:45:36Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-45-17Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 6 of 66 entries · freight blocks 7 · rows are an INDEX, not the text",
+"136 · CONTEXT: · 390 chars · CONTEXT: founder 2026-09-29 verbatim «надо будет добавить лицензии апачи мит»; `LICENSE-MI…",
+"138 · CONTEXT: · 346 chars · CONTEXT: measured at 2026-09-29-p-025-hue-shift-observable-made-gradable — first rise 9986…",
+"140 · CONTEXT: · 377 chars · CONTEXT: measured at 2026-09-29-p-025-hue-shift-observable-made-gradable — CI's `ci-gates`…",
+"140 · CARRY: · 534 chars · CARRY: the CI `release` job (macOS/Windows) restores the `lint-test-{os}` rust cache read-on…",
+"140 · CARRY: · 264 chars · CARRY: mirror `agent-run.sh`'s boot end-status recorder in `scripts/agent-run.ps1` — the wai…",
+"142 · CONTEXT: · 524 chars · CONTEXT: founder 2026-09-30 verbatim «да маскировать фрагмент» (overseer relay `pc-oversee…",
+"144 · CONTEXT: · 773 chars · CONTEXT: founder 2026-09-30 (asked, answered) «Чинить в Pulse 0.3.0» (same relay §2); meas…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

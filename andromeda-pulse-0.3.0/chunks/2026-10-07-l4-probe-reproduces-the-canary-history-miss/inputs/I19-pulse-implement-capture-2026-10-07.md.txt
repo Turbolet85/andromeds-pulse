@@ -1,0 +1,63 @@
+# Operator relay: the capture has landed — Pulse implement re-entry at Step 11 (2026-10-07)
+
+From the pc overseer. Facts are `measured 2026-10-07` unless marked `hypothesis:`. Re-derive what you rely on.
+
+## 1. The capture run
+
+- Conductor ran it 12:28:21Z-12:54:21Z against `f70be92`'s binaries behind the operator's pass-through; three drives, one
+  fresh data dir, nothing re-fired (Conductor chunk
+  `conductor-0.3.0/chunks/2026-10-07-a-capture-run-records-the-prompt-the-model-received-in-each-drive/evidence/`, uncommitted
+  at this writing, the operator pass follows).
+- **No drive missed.** All three graded `Identified` by Conductor's rule, d3 at the 6-row position included. So the position
+  missed in 2 of 3 live drives across three runs (fourth and fifth series: miss; capture run: pass). It is a rate, not a
+  certainty, and three samples do not size it.
+- 41 invocation directories exist under `~/dev/projects/additional/pc-overseer/l4-capture/capture-20261007/`; 37 fall
+  inside the three brackets (Conductor's count of prompt assemblies), the rest are Pulse's own once-a-minute generations.
+
+## 2. Which directory is which (tied by time and size only; the overseer read no prompt text)
+
+Conductor's ledger gives each scenario's prompt-assembly instant and `token_count`; the pass-through's `started-utc` follows
+each by 7 ms, and `prompt.txt`'s byte size equals the logged count in all three:
+
+| drive | assembly (UTC) · count | directory under `capture-20261007/` | `prompt.txt` bytes | corpus candidates | Conductor's grade |
+|---|---|---|---|---|---|
+| d1 | 12:33:04.207Z · 7616 | `20261007T123304.212607066.88021` | 7616 | 1 | `Identified` |
+| d2 | 12:42:39.781Z · 7854 | `20261007T124239.786338234.251033` | 7854 | 3 | `Identified` |
+| d3 | 12:51:56.985Z · 8059 | `20261007T125156.990720047.348846` | 8059 | 6 | `Identified` |
+
+## 3. The overseer's decision on the replay (a technical fork; the plan left it to the overseer when d3 does not miss)
+
+- **Replay all three scenario prompts with `shipped`, 20 generations each** (60 generations). d3 is the candidate (the
+  position that missed twice), d1 the control, d2 is read because of section 4. Your threshold stands per prompt: 2 or more
+  service misses of 20 reproduces.
+- Pre-register it honestly in `evidence/preregistration-replay.md`: no captured drive missed, so this reading asks whether
+  the real prompt of the missing POSITION misses at a rate a single live drive can hide. REPRODUCED on d3 (or d2) gives
+  the known-positive and the chunk proceeds as planned, with that prompt in the `miss` role. All three clean at n = 20 is
+  the second finding: stop and report; the overseer then decides between a larger n on d3 and another capture run.
+- The label `miss` in your loader is then a role, not a fact about the drive; say so where the evidence names it.
+
+## 4. An observation from Conductor's scrubbed capture (model output, committed evidence there, not capture text)
+
+d2's first hypothesis reads: "retry_storm scope_id=conductor is actively occurring in conductor-canary." Conductor's rule
+grades it `Identified`: `conductor` stands as a whole word (in `scope_id=conductor`) and a retry token is present. The
+statement still places the storm in the sibling. So the sentence shipped at `f70be92` can be satisfied by QUOTING the scope
+while attributing elsewhere, and the service bar does not see it.
+
+- Do not change the bar or Conductor's rule: both are pre-registered.
+- Record a second count beside the bar in both readings, as an observation that selects nothing: first hypotheses that
+  name the sibling as the place of the signal (your wording of the detector; at minimum, statements that contain
+  `conductor-canary`). A remedy that clears the bar and leaves that count high has not fixed what the founder asked for,
+  and the report must be able to say so.
+
+## 5. Reading the captured prompts
+
+You may read them in your own tool calls: that is what the founder's 13:13 word grants ("the builder reads the digest
+itself"). What stays barred is persistence and quotation: no capture text in a committed file, a report, a card, a relay
+or an evidence file; derived facts and your own synthetic wording only. Your capture-text check before the pre-CI commit
+is the guard. The captures are deleted when this chunk closes.
+
+## 6. The GPU
+
+Open now; Conductor's sitting ended 12:54:21Z and nothing of it remains (its census: 0 processes, 0 listeners). Ask the
+overseer for the go before each reading as before. The overseer's bound for today: a reading ends by 19:00 local and no
+go is asked after 18:25 local; what does not fit waits for the next daytime go.

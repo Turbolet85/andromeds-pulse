@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T06:47:12Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-09-30-dual-license",
+"--expect-prefix",
+"Dual license",
+"--record-file",
+".andromeda/runs/2026-09-30T06-45-17Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-45-17Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:136 - [2026-09-30-dual-license]",
+"record master-route.md:81 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-09-30-dual-license - working-route:136 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\working-route.md",
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+}
+]

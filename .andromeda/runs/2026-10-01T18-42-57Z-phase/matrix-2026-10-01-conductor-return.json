@@ -1,0 +1,112 @@
+[
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-01T19:09:20Z",
+"argv": [
+"coverage",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-42-57Z-phase",
+"--marker",
+"2026-10-01-conductor-return"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"verified 21/22 · deferred 0 · planned 1 · implemented 0 · unclaimed 1",
+"unclaimed: P-075",
+"claimed-unfinished: none",
+"done-test: NO — 1 not verified|deferred · unclaimed 1",
+"chunks referenced: 19 distinct",
+"UNPARSED: P-072 — legacy notes placement (verification.notes); top-level notes is the convention"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-01T19:09:44Z",
+"argv": [
+"claim",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--id",
+"P-075",
+"--chunk",
+"2026-10-01-conductor-return",
+"--acceptance-file",
+".andromeda/runs/2026-10-01T18-42-57Z-phase/acceptance-P-075.md",
+"--note-file",
+".andromeda/runs/2026-10-01T18-42-57Z-phase/note-P-075.md",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-42-57Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claim P-075 → chunk 2026-10-01-conductor-return (was null; status planned kept)",
+"acceptance: Conductor drives a deterministic incident and reads it back via MCP, a… (155 chars)",
+"         → Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINI… (1397 chars)",
+"notes: +1646 chars (total 11389)",
+"wrote andromeda-pulse-0.3.0\\verification-matrix.json · 1 entry changed",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0\\verification-matrix.json"
+],
+"before": {
+"id": "P-075",
+"chunk": null,
+"status": "planned",
+"method": "dynamic-external",
+"ref": "null",
+"acceptance": "Conductor drives a deterministic incident and reads it back via MCP, asserting e2e content-fidelity plus P-025 <=2s / P-… (155 chars)",
+"notes_chars": 9741
+},
+"after": {
+"id": "P-075",
+"chunk": "2026-10-01-conductor-return",
+"status": "planned",
+"method": "dynamic-external",
+"ref": "null",
+"acceptance": "Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set on the app child, a fresh data dir) again… (1397 chars)",
+"notes_chars": 11389
+}
+},
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-01T19:09:45Z",
+"argv": [
+"audit",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-01-conductor-return",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-01-conductor-return/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-42-57Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed by 2026-10-01-conductor-return: 1 · ## Acceptance Criteria: line 306, 41 lines",
+"P-075: cited in ## Acceptance Criteria (line 331)",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

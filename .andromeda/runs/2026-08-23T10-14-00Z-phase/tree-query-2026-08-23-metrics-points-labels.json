@@ -1,0 +1,60 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%push_metric_row%' OR callee LIKE '%collect_metric_points%' OR callee LIKE '%build_metrics_record_batch%' ORDER BY file, line;",
+"rows": 10,
+"result": [
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/build_metrics_record_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 160
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_metrics_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 593
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/collect_metric_points().",
+"file": "crates/buffer/src/appender.rs",
+"line": 680
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/collect_metric_points().",
+"file": "crates/buffer/src/appender.rs",
+"line": 697
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/collect_metric_points().",
+"file": "crates/buffer/src/appender.rs",
+"line": 714
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/collect_metric_points().",
+"file": "crates/buffer/src/appender.rs",
+"line": 731
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/collect_metric_points().",
+"file": "crates/buffer/src/appender.rs",
+"line": 748
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/tests/redaction_counter_folds_once_per_batch_across_all_four_builders().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1229
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/",
+"file": "crates/buffer/src/consumer.rs",
+"line": 11
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/dispatch_batch().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 131
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

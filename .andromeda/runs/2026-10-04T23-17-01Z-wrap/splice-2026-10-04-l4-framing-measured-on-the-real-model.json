@@ -1,0 +1,84 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-04T23:22:55Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap/architecture-entry.md",
+"--lines",
+"12",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap",
+"--marker",
+"2026-10-04-l4-framing-measured-on-the-real-model"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+12 at line 679 · lines 678→690 · bytes 98564→100491 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T23-17-01Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 678,
+"bytes": 98564,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 690,
+"bytes": 100491
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "eaf523a6",
+"ts": "2026-10-04T23:25:06Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap/remedy-entry.txt",
+"--lines",
+"2",
+"--after-line",
+"167",
+"--expect-last-prefix",
+"   ↓",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap",
+"--marker",
+"2026-10-04-l4-framing-measured-on-the-real-model"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append working-route.md:+2 at line 168 · lines 168→170 · bytes 26696→28608 · term lf",
+"last line now: pre-push:linux runs natively on Linux — the local Linux pre-push check runs on"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 168,
+"bytes": 26696,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 170,
+"bytes": 28608
+}
+}
+]

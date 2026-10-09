@@ -1,0 +1,167 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-29T15:50:10Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-09-29-p-025-hue-shift-observable-made-gradable",
+"--date",
+"2026-09-29",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--dry-run"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "2026-09-29-p-025-hue-shift-observable-made-gradable: its record is 'pending' -- compact runs AFTER the flip",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-29T15:50:16Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-09-29-p-025-hue-shift-observable-made-gradable",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--desc-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/master-desc.txt"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:78 - 2026-09-29-p-025-hue-shift-observable-made-gradable pending -> complete - desc REWRITTEN from --desc-file"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-29T15:50:16Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-09-29-p-025-hue-shift-observable-made-gradable",
+"--date",
+"2026-09-29",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--dry-run"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :130 strip CONTEXT: 160ch \"CONTEXT: first step is U05's reflow from\"",
+"pin :130 strip CONTEXT: 763ch \"CONTEXT: Conductor's contract `D:/dev/pr\"",
+"pin :130 strip PREREQ: 396ch \"PREREQ: close rust gate deferral (deferr\"",
+"pin :130 strip PREREQ: 1006ch \"PREREQ: re-check `cargo audit` (standing\"",
+"pin next markerless :132 holds CONTEXT:×4 · CARRY:×1 · WATCH:×1",
+"130 · 2026-09-29-p-025-hue-shift-observable-made-gradable · strip 4 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 130,
+"marker": "2026-09-29-p-025-hue-shift-observable-made-gradable",
+"blocks": 4,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-29T15:50:23Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-09-29-p-025-hue-shift-observable-made-gradable",
+"--date",
+"2026-09-29",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :130 strip CONTEXT: 160ch \"CONTEXT: first step is U05's reflow from\"",
+"pin :130 strip CONTEXT: 763ch \"CONTEXT: Conductor's contract `D:/dev/pr\"",
+"pin :130 strip PREREQ: 396ch \"PREREQ: close rust gate deferral (deferr\"",
+"pin :130 strip PREREQ: 1006ch \"PREREQ: re-check `cargo audit` (standing\"",
+"pin next markerless :132 holds CONTEXT:×4 · CARRY:×1 · WATCH:×1",
+"130 · 2026-09-29-p-025-hue-shift-observable-made-gradable · strip 4 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\route-archive.md",
+".\\andromeda-pulse-0.3.0\\working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 130,
+"marker": "2026-09-29-p-025-hue-shift-observable-made-gradable",
+"blocks": 4,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

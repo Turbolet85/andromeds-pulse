@@ -15,6 +15,7 @@
 //! Useful for tests + degraded-environment validation.
 
 use std::num::NonZeroUsize;
+use std::path::Path;
 
 use tracing::{info, warn};
 use triage::contract::{HardwareProfile, HardwareProfileSource};
@@ -27,7 +28,7 @@ pub const ENV_HARDWARE_PROFILE_OVERRIDE: &str = "ANDROMEDA_PULSE_HARDWARE_PROFIL
 /// Default core-count threshold separating cpu-primary from cpu-fallback.
 /// Per pulse-distillation-architecture.md L4 §Hardware Profile Matrix:
 /// systems with ≥4 cores can run primary-tier CPU inference within latency
-/// budget; fewer cores route к fallback-tier (smaller models, less
+/// budget; fewer cores route to fallback-tier (smaller models, less
 /// constrained output).
 pub const CPU_PRIMARY_CORE_THRESHOLD: usize = 4;
 
@@ -42,7 +43,7 @@ pub struct HardwareProfileDetector {
 impl HardwareProfileDetector {
     /// Constructs the detector by probing host hardware. Reads env var
     /// override first (so tests + degraded-environment validation can
-    /// force а specific profile); falls back to real detection.
+    /// force a specific profile); falls back to real detection.
     pub fn new() -> Self {
         let profile = match std::env::var(ENV_HARDWARE_PROFILE_OVERRIDE) {
             Ok(raw) => match parse_profile_override(&raw) {
@@ -59,7 +60,7 @@ impl HardwareProfileDetector {
                     warn!(
                         target: "interpretation.hardware.detect",
                         override_source = "env",
-                        "invalid ANDROMEDA_PULSE_HARDWARE_PROFILE value; falling back к real detection"
+                        "invalid ANDROMEDA_PULSE_HARDWARE_PROFILE value; falling back to real detection"
                     );
                     detect_real()
                 }
@@ -70,7 +71,7 @@ impl HardwareProfileDetector {
         Self { profile }
     }
 
-    /// Constructs а detector с the supplied profile, bypassing detection
+    /// Constructs a detector with the supplied profile, bypassing detection
     /// entirely. Test-only constructor (mirrors `FixedProfile` test fixture
     /// at `crates/triage/src/cadence/coordinator.rs`).
     #[cfg(any(test, feature = "test-utils"))]
@@ -98,7 +99,7 @@ impl HardwareProfileSource for HardwareProfileDetector {
 /// - `CpuPrimary`: no GPU + cores ≥ [`CPU_PRIMARY_CORE_THRESHOLD`]
 /// - `CpuFallback`: no GPU + cores < [`CPU_PRIMARY_CORE_THRESHOLD`]
 /// - `GpuFallback`: NOT detected by real probe in this chunk (VRAM
-///   detection deferred к chunk #83+); only reachable via env var override
+///   detection deferred to chunk #83+); only reachable via env var override
 fn detect_real() -> HardwareProfile {
     let gpu_available = detect_gpu_present();
     let core_count = available_cpu_cores();
@@ -123,7 +124,7 @@ fn detect_real() -> HardwareProfile {
     profile
 }
 
-/// Cross-platform GPU presence probe. Returns `true` if а GPU-accelerated
+/// Cross-platform GPU presence probe. Returns `true` if a GPU-accelerated
 /// inference backend is likely available; `false` otherwise.
 ///
 /// Per security extract anti-pattern "NEVER hardcode model paths or URLs":
@@ -132,30 +133,25 @@ fn detect_gpu_present() -> bool {
     #[cfg(target_os = "macos")]
     {
         // macOS: assume Metal available (every Mac since 2012 supports Metal;
-        // Apple Silicon Macs have unified memory architecture suitable для
+        // Apple Silicon Macs have unified memory architecture suitable for
         // LLM inference). Refinement (Metal feature-set verification)
-        // deferred к chunk #83+.
+        // deferred to chunk #83+.
         true
     }
 
     #[cfg(target_os = "linux")]
     {
-        // Linux: check for libcuda.so existence in standard library paths.
-        // Common locations: /usr/lib/x86_64-linux-gnu/libcuda.so,
-        // /usr/local/cuda/lib64/libcuda.so. Heuristic — false negatives OK
-        // (will reclassify к cpu-primary which is safe default).
-        [
-            "/usr/lib/x86_64-linux-gnu/libcuda.so",
-            "/usr/local/cuda/lib64/libcuda.so",
-        ]
-        .iter()
-        .any(|p| std::path::Path::new(p).exists())
+        // Linux: check for the CUDA driver library (libcuda.so or its soname
+        // libcuda.so.1) under /usr/lib/x86_64-linux-gnu, /usr/local/cuda/lib64,
+        // /usr/lib or /usr/lib64. Heuristic - false negatives OK (will
+        // reclassify to cpu-primary which is safe default).
+        cuda_driver_present_under(Path::new("/"))
     }
 
     #[cfg(target_os = "windows")]
     {
         // Windows: check for nvcuda.dll in System32 (CUDA Runtime DLL).
-        // Heuristic — false negatives OK; reclassifies к cpu-primary which
+        // Heuristic — false negatives OK; reclassifies to cpu-primary which
         // is safe default.
         std::path::Path::new(r"C:\Windows\System32\nvcuda.dll").exists()
     }
@@ -164,6 +160,32 @@ fn detect_gpu_present() -> bool {
     {
         false
     }
+}
+
+/// Root-relative library directories the Linux CUDA probe checks: Debian /
+/// Ubuntu multiarch, the CUDA toolkit, and the Arch / Fedora flat layouts.
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+const CUDA_PROBE_DIRS: &[&str] = &[
+    "usr/lib/x86_64-linux-gnu",
+    "usr/local/cuda/lib64",
+    "usr/lib",
+    "usr/lib64",
+];
+
+/// Driver library file names the Linux CUDA probe checks in each directory:
+/// the unversioned dev symlink and the driver's runtime soname.
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+const CUDA_PROBE_NAMES: &[&str] = &["libcuda.so", "libcuda.so.1"];
+
+/// Returns `true` when any `root/dir/name` candidate exists (symlinks are
+/// followed, so a dangling link reads absent).
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+fn cuda_driver_present_under(root: &Path) -> bool {
+    CUDA_PROBE_DIRS.iter().any(|dir| {
+        CUDA_PROBE_NAMES
+            .iter()
+            .any(|name| root.join(dir).join(name).exists())
+    })
 }
 
 /// Returns available CPU core count via `std::thread::available_parallelism()`.
@@ -175,7 +197,7 @@ fn available_cpu_cores() -> usize {
         .unwrap_or(1)
 }
 
-/// Parses а user-supplied profile string into а bounded `HardwareProfile`.
+/// Parses a user-supplied profile string into a bounded `HardwareProfile`.
 /// Accepts both snake_case + kebab-case variants for the four known
 /// profiles. Returns `None` on unrecognized input.
 fn parse_profile_override(raw: &str) -> Option<HardwareProfile> {
@@ -279,5 +301,82 @@ mod tests {
     #[test]
     fn available_cpu_cores_returns_nonzero() {
         assert!(available_cpu_cores() >= 1);
+    }
+
+    fn touch(root: &Path, rel: &str) {
+        let path = root.join(rel);
+        std::fs::create_dir_all(path.parent().expect("parent")).expect("mkdir");
+        std::fs::write(&path, b"").expect("write");
+    }
+
+    #[rstest::rstest]
+    #[case::multiarch_so("usr/lib/x86_64-linux-gnu", "libcuda.so")]
+    #[case::multiarch_soname("usr/lib/x86_64-linux-gnu", "libcuda.so.1")]
+    #[case::toolkit_so("usr/local/cuda/lib64", "libcuda.so")]
+    #[case::toolkit_soname("usr/local/cuda/lib64", "libcuda.so.1")]
+    #[case::usr_lib_so("usr/lib", "libcuda.so")]
+    #[case::usr_lib_soname("usr/lib", "libcuda.so.1")]
+    #[case::usr_lib64_so("usr/lib64", "libcuda.so")]
+    #[case::usr_lib64_soname("usr/lib64", "libcuda.so.1")]
+    fn cuda_probe_reads_present_for_each_candidate(#[case] dir: &str, #[case] name: &str) {
+        let root = tempfile::TempDir::new().expect("tempdir");
+        touch(root.path(), &format!("{dir}/{name}"));
+        assert!(cuda_driver_present_under(root.path()));
+    }
+
+    #[test]
+    fn cuda_probe_reads_absent_on_an_empty_root() {
+        let root = tempfile::TempDir::new().expect("tempdir");
+        assert!(!cuda_driver_present_under(root.path()));
+    }
+
+    #[test]
+    fn cuda_probe_reads_absent_for_unprobed_names_and_dirs() {
+        let root = tempfile::TempDir::new().expect("tempdir");
+        for rel in [
+            "usr/lib/libcudart.so",
+            "usr/lib/libcuda.so.2",
+            "opt/cuda/libcuda.so",
+        ] {
+            touch(root.path(), rel);
+        }
+        assert!(!cuda_driver_present_under(root.path()));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn cuda_probe_follows_the_arch_symlink_chain() {
+        use std::os::unix::fs::symlink;
+        let root = tempfile::TempDir::new().expect("tempdir");
+        touch(root.path(), "usr/lib/libcuda.so.610.57.04");
+        let lib = root.path().join("usr/lib");
+        symlink("libcuda.so.610.57.04", lib.join("libcuda.so.1")).expect("symlink soname");
+        symlink("libcuda.so.1", lib.join("libcuda.so")).expect("symlink so");
+        assert!(cuda_driver_present_under(root.path()));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn cuda_probe_reads_absent_for_a_dangling_symlink() {
+        use std::os::unix::fs::symlink;
+        let root = tempfile::TempDir::new().expect("tempdir");
+        let lib = root.path().join("usr/lib");
+        std::fs::create_dir_all(&lib).expect("mkdir");
+        symlink("libcuda.so.1", lib.join("libcuda.so")).expect("symlink");
+        assert!(!cuda_driver_present_under(root.path()));
+    }
+
+    #[test]
+    fn cuda_probe_candidate_set_is_exactly_dirs_by_names() {
+        assert_eq!(
+            CUDA_PROBE_DIRS,
+            &[
+                "usr/lib/x86_64-linux-gnu",
+                "usr/local/cuda/lib64",
+                "usr/lib",
+                "usr/lib64",
+            ]
+        );
+        assert_eq!(CUDA_PROBE_NAMES, &["libcuda.so", "libcuda.so.1"]);
     }
 }

@@ -1,9 +1,9 @@
 //! Retry storm detector — chunk #66.
 //!
 //! L2 distillation layer per pulse v0.2.0 plan Phase 2 line 240. Tracks
-//! per-exception-fingerprint occurrences in а 60-second rolling window;
-//! when occurrences within а 30-second detection sub-window cross
-//! configured thresholds, emits а `CueKind::RetryStorm` attention cue
+//! per-exception-fingerprint occurrences in a 60-second rolling window;
+//! when occurrences within a 30-second detection sub-window cross
+//! configured thresholds, emits a `CueKind::RetryStorm` attention cue
 //! through the existing chunk #62 `pulse://stream/attention-cues`
 //! broadcast channel.
 //!
@@ -12,7 +12,7 @@
 //!
 //! Per arch §Cross-cutting Patterns Module dependency direction, this
 //! module receives opaque `[u8; 16]` fingerprint bytes from the buffer
-//! crate via the `FingerprintObserver` trait declared в
+//! crate via the `FingerprintObserver` trait declared in
 //! `crates/buffer/src/fingerprint.rs`; no hash compute happens here.
 //! Cross-crate wiring lives at the `pulse-app` binary boundary
 //! (`pulse-app/src/storm_observer.rs::StormObserverAdapter`).
@@ -20,12 +20,12 @@
 //! ## Threshold + dedup semantics (per chunk #66 plan)
 //!
 //! - `count >= autonomous_threshold` (default 10) within the detection
-//!   sub-window → emit `RetryStorm` cue с `priority_tier: Autonomous`,
+//!   sub-window → emit `RetryStorm` cue with `priority_tier: Autonomous`,
 //!   ONE-SHOT per fingerprint until detection window resets via timestamp
 //!   pruning. Escalation FROM Suggested TO Autonomous emits one cue at
 //!   the threshold crossing.
 //! - `count >= suggested_threshold` (default 5) within the detection
-//!   sub-window → emit `RetryStorm` cue с `priority_tier: Suggested`,
+//!   sub-window → emit `RetryStorm` cue with `priority_tier: Suggested`,
 //!   ONE-SHOT per fingerprint until detection window resets.
 //! - Otherwise → no cue.
 //! - Per-tier dedup avoids log-spam under sustained high-rate storms.
@@ -49,7 +49,9 @@ use serde::{Deserialize, Serialize};
 use tracing::info;
 
 use super::persistence::StormStateSnapshot;
-use crate::contract::{AttentionCue, AttentionCueBroadcast, CueKind, CueScope, PriorityTier};
+use crate::contract::{
+    AttentionCue, AttentionCueBroadcast, CueKind, CueScope, PriorityTier, hex_lower,
+};
 
 use super::{
     TARGET_METRIC_FINGERPRINT_EVICTED_COUNT, TARGET_METRIC_FINGERPRINTS_TRACKED,
@@ -57,22 +59,22 @@ use super::{
     TARGET_PATTERN_STORM_TICK,
 };
 
-/// Default rolling-window для fingerprint occurrence retention. Timestamps
+/// Default rolling-window for fingerprint occurrence retention. Timestamps
 /// older than this are pruned on every `record_occurrence` AND every
 /// heartbeat tick.
 pub const DEFAULT_STORM_WINDOW_SECONDS: u64 = 60;
 
 /// Default detection sub-window: occurrences counted within this many
 /// seconds before `now_nanos` are the trigger population. Smaller than the
-/// retention window so storm detection responds к recent activity even when
+/// retention window so storm detection responds to recent activity even when
 /// older occurrences linger in the rolling state.
 pub const DEFAULT_DETECTION_SUB_WINDOW_SECONDS: u64 = 30;
 
-/// Default threshold для `Suggested` cue emission: 5 occurrences within
+/// Default threshold for `Suggested` cue emission: 5 occurrences within
 /// detection sub-window. One-shot per fingerprint until window resets.
 pub const DEFAULT_SUGGESTED_THRESHOLD: u64 = 5;
 
-/// Default threshold для `Autonomous` cue emission: 10 occurrences within
+/// Default threshold for `Autonomous` cue emission: 10 occurrences within
 /// detection sub-window. Escalates from a prior `Suggested` emit OR fires
 /// fresh if no prior emit; one-shot per fingerprint until window resets.
 pub const DEFAULT_AUTONOMOUS_THRESHOLD: u64 = 10;
@@ -86,13 +88,13 @@ pub const DEFAULT_AUTONOMOUS_THRESHOLD: u64 = 10;
 pub struct FingerprintState {
     /// `service.name` from first observation. Subsequent observations do
     /// NOT re-key by service; cross-service propagation of the same
-    /// fingerprint contributes к one storm cue attributed к first-observed.
+    /// fingerprint contributes to one storm cue attributed to first-observed.
     pub(crate) service: String,
     /// Occurrence timestamps within the rolling window (nanoseconds).
     /// Pruned during `record_occurrence` and `run_one_storm_cycle`.
     pub(crate) timestamps_nanos: Vec<i64>,
     /// `(emit_ts_nanos, tier)` of the most recent cue emission for this
-    /// fingerprint; `None` if no cue has fired в the current window OR
+    /// fingerprint; `None` if no cue has fired in the current window OR
     /// if the window has fully expired since the last emit.
     pub(crate) last_emitted: Option<(i64, PriorityTier)>,
 }
@@ -197,9 +199,9 @@ pub struct StormCycleStats {
     pub window_seconds: u64,
 }
 
-/// Record a fingerprint occurrence; return `Some(AttentionCue)` if а
-/// threshold crossing fires а new cue, else `None`. Idempotent с respect
-/// к dedup state (see module-level threshold + dedup semantics).
+/// Record a fingerprint occurrence; return `Some(AttentionCue)` if a
+/// threshold crossing fires a new cue, else `None`. Idempotent with respect
+/// to dedup state (see module-level threshold + dedup semantics).
 ///
 /// Empty `service` is dropped per chunk #61 service identity discipline
 /// (mirror `RestartDetector::observe_span`).
@@ -260,8 +262,8 @@ pub fn record_occurrence(
             PriorityTier::Autonomous,
             now_nanos,
             &state_ref.timestamps_nanos,
-            detector.suggested_threshold,
-            detector.autonomous_threshold,
+            detector,
+            &fingerprint,
         );
         state_ref.last_emitted = Some((now_nanos, PriorityTier::Autonomous));
         return Some(cue);
@@ -280,8 +282,8 @@ pub fn record_occurrence(
             PriorityTier::Suggested,
             now_nanos,
             &state_ref.timestamps_nanos,
-            detector.suggested_threshold,
-            detector.autonomous_threshold,
+            detector,
+            &fingerprint,
         );
         state_ref.last_emitted = Some((now_nanos, PriorityTier::Suggested));
         return Some(cue);
@@ -296,13 +298,15 @@ fn synthesize_cue(
     tier: PriorityTier,
     now_nanos: i64,
     timestamps: &[i64],
-    suggested_threshold: u64,
-    autonomous_threshold: u64,
+    detector: &RetryStormDetector,
+    fingerprint: &[u8; 16],
 ) -> AttentionCue {
+    let suggested_threshold = detector.suggested_threshold;
+    let autonomous_threshold = detector.autonomous_threshold;
     let magnitude = count as f64 / (suggested_threshold.max(1) as f64);
     let absolute_value = count as f64;
     let confidence = (count as f64 / (autonomous_threshold.max(1) as f64)).min(1.0);
-    let persistence_seconds = timestamps
+    let persistence = timestamps
         .first()
         .map(|oldest| (now_nanos.saturating_sub(*oldest) / 1_000_000_000).max(0) as u64)
         .unwrap_or(0);
@@ -312,10 +316,14 @@ fn synthesize_cue(
         scope_id: Some(service.to_string()),
         magnitude,
         absolute_value,
-        persistence_seconds,
+        persistence,
         confidence,
         priority_tier: tier,
         suppression_bypassed: false,
+        // FULL-width hex, not `fingerprint_to_hex_prefix` (4 bytes): the
+        // corpus-retrieval arm compares against `hex_lower` of all 16 Q3
+        // bytes, so a prefix here could never match.
+        fingerprint: Some(hex_lower(fingerprint)),
     }
 }
 
@@ -364,8 +372,8 @@ pub fn observe_and_dispatch_storm(
 }
 
 /// Run one heartbeat cycle: prune expired fingerprints, emit observability
-/// events с the current snapshot. Returns the snapshot for test inspection.
-/// Pure synchronous + idempotent at а given `now_nanos`; safe к call from
+/// events with the current snapshot. Returns the snapshot for test inspection.
+/// Pure synchronous + idempotent at a given `now_nanos`; safe to call from
 /// `tokio::time::interval` tick loop or directly from tests.
 pub fn run_one_storm_cycle(detector: &RetryStormDetector, now_nanos: i64) -> StormCycleStats {
     let window_nanos = (detector.window_seconds as i64).saturating_mul(1_000_000_000);
@@ -481,6 +489,46 @@ mod tests {
         assert_eq!(DEFAULT_DETECTION_SUB_WINDOW_SECONDS, 30);
         assert_eq!(DEFAULT_SUGGESTED_THRESHOLD, 5);
         assert_eq!(DEFAULT_AUTONOMOUS_THRESHOLD, 10);
+    }
+
+    /// Emit one cue by crossing the suggested threshold, returning it.
+    fn emit_cue_with_fingerprint(fp: [u8; 16]) -> AttentionCue {
+        let d = fresh_detector();
+        let mut cue = None;
+        for i in 0..DEFAULT_SUGGESTED_THRESHOLD {
+            cue = record_occurrence(&d, fp, "svc", (1_000 + i as i64) * NANOS_PER_SEC);
+        }
+        cue.expect("suggested threshold must emit a cue")
+    }
+
+    #[test]
+    fn synthesized_cue_carries_full_width_hex_fingerprint_not_the_tracing_prefix() {
+        let cue = emit_cue_with_fingerprint(FP_A);
+        let fp = cue.fingerprint.expect("storm cue must carry a fingerprint");
+
+        // Width is the load-bearing assertion. The adjacent, correctly-named
+        // `fingerprint_to_hex_prefix` yields 8 chars; the corpus-retrieval arm
+        // compares against `hex_lower` of all 16 bytes, so a prefix could never
+        // match and a shape-only "is it hex?" check would pass either way.
+        assert_eq!(fp.len(), 32, "must encode all 16 bytes, got {fp}");
+        assert_eq!(fp, hex_lower(&FP_A));
+        assert_ne!(
+            fp,
+            fingerprint_to_hex_prefix(&FP_A),
+            "the 4-byte tracing prefix must never be used as the cue fingerprint"
+        );
+        assert!(
+            fp.chars()
+                .all(|c| c.is_ascii_hexdigit() && !c.is_uppercase())
+        );
+    }
+
+    #[test]
+    fn distinct_fingerprints_yield_distinct_cue_fingerprints() {
+        let a = emit_cue_with_fingerprint(FP_A).fingerprint;
+        let b = emit_cue_with_fingerprint(FP_B).fingerprint;
+        assert!(a.is_some() && b.is_some());
+        assert_ne!(a, b, "distinct faults must stay distinguishable");
     }
 
     #[test]

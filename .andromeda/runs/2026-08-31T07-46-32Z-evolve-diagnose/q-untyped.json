@@ -1,0 +1,1232 @@
+{
+ "epoch4": [
+  {
+   "chunk": null,
+   "ts": "2026-08-14T20:19:47Z",
+   "id": null,
+   "what": "half-promote check emitted a false positive listing all 18 markers as half-promoted: the master-route extraction grep used a malformed bracket range ([0-9-a-z]) that errored Invalid range end, yielding 0 master records so comm reported every working marker as missing; caught from the grep error text and re-derived correctly (18/18 match, no half-promote)",
+   "impact": {
+    "retries": 1,
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "master-route",
+    "working-route"
+   ],
+   "evidence": null,
+   "skill": "new-session",
+   "step": "orientation"
+  },
+  {
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "ts": "2026-08-15T00:10:24Z",
+   "id": null,
+   "what": "cargo xtask capability-drift reported 3 missing mcp.* procedures purely because the default-features workspace nextest had overwritten pulse-app/ui/src/bindings/index.ts to the no-mcp shape; the documented regen (nextest -p pulse-app --features mcp-server --bin pulse-app -E emit_taurpc_bindings) restored it and drift went clean. Known, documented, and recurring across many sessions — a standing per-session tax rather than a one-off",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    "pulse-app/ui/src/bindings/index.ts"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "ts": "2026-08-15T11:26:28Z",
+   "id": null,
+   "what": "the trajectory-halt option preview I drew sketched the existing tail order wrongly — it showed the frozen workspace-key-alignment line ABOVE Baseline-family, when in the file Baseline-family precedes it (a promoted chunk freezes in place, it does not migrate up to the other frozen entries). The operator chose on the label and description, which were accurate, so the outcome is right; but a preview that misstates current file order could have led to a choice the operator did not intend. Previews of file-order decisions should be generated from the file, not hand-drawn",
+   "impact": {},
+   "artifacts": [
+    "andromeda-pulse-0.3.0/working-route.md"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "ts": "2026-08-15T11:31:13Z",
+   "id": null,
+   "what": "the operators directive 4 ordering proved load-bearing on the first wrap that applied it: the P7 light gate ran cargo nextest run --workspace (default features), which rewrote pulse-app/ui/src/bindings/index.ts to the no-mcp shape AFTER /implements regen; re-running the regen as the last cargo op and gating on the STAGED copy (git show :path) caught it by construction rather than by luck. Without that ordering this wrap would have committed no-mcp bindings with a red capability-drift, exactly the b08e10a near-miss",
+   "impact": {},
+   "artifacts": [
+    "pulse-app/ui/src/bindings/index.ts"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "gates"
+  },
+  {
+   "chunk": "2026-08-15-corpus-key-persistence",
+   "ts": "2026-08-15T11:46:29Z",
+   "id": null,
+   "what": "promotion.md's fold instruction enumerates exactly three annotation forms (PREREQ:/CARRY:/BLOCKED-ON:), but the taken-up entry carried a 'FIRST STEP:' annotation — a fourth form wrap's route-resolve actually writes. Folded it anyway (operator directive 4 required it); the documented vocabulary is narrower than the vocabulary in use.",
+   "impact": {
+    "iterations": 0
+   },
+   "artifacts": [
+    "andromeda-phase/references/promotion.md",
+    "andromeda-pulse-0.3.0/working-route.md"
+   ],
+   "evidence": null,
+   "skill": "phase",
+   "step": "take-up"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-08-15T18:06:17Z",
+   "id": null,
+   "what": "Parsed verification-matrix.json before reading its contract; two schema guesses failed (top-level 'entries' key, then top-level 'status') before the documented shape capabilities[].verification.status was applied. The contract file is a named reference of this step but the body reads it at the coverage sub-step, after the parse is natural to attempt.",
+   "impact": {
+    "retries": 2
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/verification-matrix.json",
+    "references/verification-matrix-contract.md"
+   ],
+   "evidence": null,
+   "skill": "new-session",
+   "step": "orientation"
+  },
+  {
+   "chunk": "2026-08-15-tier-1-incident-path-investigation",
+   "ts": "2026-08-15T18:45:46Z",
+   "id": null,
+   "what": "The fact that decisively upgraded research's arithmetic hypothesis lived in a repo phase cannot read. Research derived the fit from Pulse's side only (6 measured fingerprints vs DEFAULT_AUTONOMOUS_THRESHOLD 10) and could not tell whether that 6 was a fixed constant or an incidental property of one run; the operator supplied CANARY_STORM_COUNT=6 as a named Conductor-side constant at the approval gate, converting the fit into a specific named cross-project mismatch with a Conductor-side fix. No artifact reachable from this project contained it. Research hedged correctly (arithmetic fit, not a verdict) so no claim failed, but a cross-repo chunk's decisive constant being unreadable by every phase input is a structural input limit worth counting.",
+   "impact": {
+    "dialogue_rounds": 1
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/chunks/2026-08-15-tier-1-incident-path-investigation/research.md",
+    "andromeda-pulse-0.3.0/chunks/2026-08-15-tier-1-incident-path-investigation/plan.md"
+   ],
+   "evidence": null,
+   "skill": "phase",
+   "step": "validate"
+  },
+  {
+   "chunk": "2026-08-15-tier-1-incident-path-investigation",
+   "ts": "2026-08-15T19:09:39Z",
+   "id": null,
+   "what": "The plan enumerated an obs target's allowlist fields from the obs-plan backlog text rather than from the emit site, and the emit site had one more: triage.incident.persist emits duration_ms alongside incident_count and persist_kind. Allowlisting only the two named fields would have left the target PARTLY redacted - the same defect the step exists to close, in miniature. Caught by reading the emit site before writing the leaf; corrected in-scope (same target, same leaf) and pinned by an assertion in the guard test. Cost no iterations because it was caught pre-write, but a straight transcription of the plan would have shipped a half-fix that every gate would have passed.",
+   "impact": {},
+   "artifacts": [
+    "crates/triage/src/incident/persistence.rs",
+    "pulse-app/src/observability.rs",
+    "pulse-app/tests/unit_observability_allowlist_incident_diagnostics.rs"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": "2026-08-15-tier-1-incident-path-investigation",
+   "ts": "2026-08-15T20:40:33Z",
+   "id": null,
+   "what": "A doc-agent proposal was accurate in substance but overclaimed a UNIVERSAL from a single measurement: it asked test-plan section 3 to state that pulse-app tests must 'never' be run with -p. The measurement only showed that one -p selection failed against artifacts a --workspace build produced. Applying verbatim would have put the spec master in direct contradiction with a preserve-verbatim curation entry (rules/testing.md 2026-05-31 session-153) documenting 'cargo test --test X -p pulse-app' as the WORKING single-binary path for that same rlib family — a contradiction the cascade could not have repaired, since it may not edit Session Additions. Caught by validation check 4 (absence/universality needs evidence) and applied narrowed as 'match the scope of the run to the scope of the build'. The fan-out has no view of the curation homes, so only main can catch this class.",
+   "impact": {},
+   "artifacts": [
+    ".andromeda/test-plan.md",
+    ".claude/rules/testing.md",
+    ".andromeda/runs/2026-08-15T19-20-00Z-wrap/.raw-fanout-test-plan.md"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "reconcile"
+  },
+  {
+   "chunk": "2026-08-15-tier-1-incident-path-investigation",
+   "ts": "2026-08-15T20:44:21Z",
+   "id": null,
+   "what": "The route TRAJECTORY decision (create a new markerless entry) was forced one phase EARLY, at P2 reconcile rather than at P5 route-resolve, because an obs-plan section 8 amendment had to NAME the route entry that owns the five still-muted targets — and that entry did not exist yet. The amendment flow's routine-APPLY-AS-MEASURED rule requires naming an owner, so the spec body could not be written until the route question was answered. Cost nothing extra (one dialogue round either way, and P5 then ran with the trajectory already approved), but it inverts the documented phase order: P5 owns route trajectory, yet P2 can be blocked on one. Worth noting for any future amendment rule that requires an owner-name.",
+   "impact": {
+    "dialogue_rounds": 1
+   },
+   "artifacts": [
+    ".andromeda/obs-plan.md",
+    "andromeda-pulse-0.3.0/working-route.md",
+    ".andromeda/playbook.md"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-08-16T16:15:34Z",
+   "id": null,
+   "what": "The operator adaptation request pinned the FIRST tail slot explicitly (\"no other tail changes - Baseline-family reachability stays first\") while the same request created a new entry that itself needed a slot; slots 2..8 were left undetermined, so placement required a third dialogue round. Reads as a complete ordering constraint but constrains only slot 1",
+   "impact": {
+    "dialogue_rounds": 1
+   },
+   "artifacts": [
+    "working-route.md"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "ts": "2026-08-16T16:50:31Z",
+   "id": null,
+   "what": "An INTRA-extract tension surfaced at synthesis that no aggregate check could catch (P2 checks A/B/C look across extracts, not within one): the arch extract bans in-process test-mode bypasses and back-doors to force the warm state, while the same extract cites ANDROMEDA_PULSE_L4_DETERMINISTIC as the precedent for a default-off env gate landed for external verification. The chosen mechanism sits between them. Reconciled explicitly in the plan Goal plus Constraints - an env-resolved PARAMETER is config, not a bypass, since the gate still runs and only its bound changes",
+   "impact": {},
+   "artifacts": [
+    "arch.md",
+    "plan.md"
+   ],
+   "evidence": null,
+   "skill": "phase",
+   "step": "plan"
+  },
+  {
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "ts": "2026-08-16T18:49:39Z",
+   "id": null,
+   "what": "The allowlist guard test was first written into pulse-app/src/observability.rs mod tests, where [lib] test = false means it compiles, passes clippy, and NEVER RUNS - a guard that cannot fail. Caught only by verifying each new test name actually appeared as PASS in the nextest output rather than trusting the total count. Relocated to pulse-app/tests/unit_observability_allowlist_bootstrap_window.rs where all 3 now execute. The convention is documented in the header of the sibling guard file, and 132 in-src #[test] fns in observability.rs remain dead the same way",
+   "impact": {
+    "iterations": 1
+   },
+   "artifacts": [
+    "pulse-app/src/observability.rs",
+    "pulse-app/tests/unit_observability_allowlist_bootstrap_window.rs"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "ts": "2026-08-16T19:07:07Z",
+   "id": null,
+   "what": "An operator-named curation candidate (verify each asserted test NAME appears as PASS) was REJECTED by Filter 1 as duplicate - the discipline is already curated THREE times in rules/testing.md: line 25 (a probe placed in pulse-app/src cannot fail and is not a guard), line 185 (verify via cargo nextest list grep test-name, else MOVE it), line 226 (clippy still compiles them). The signal worth keeping is not the candidate but the violation: the rule existed, was precise, named the exact file class, and I still wrote this chunks guard into the dead src-level module - caught only by checking the nextest output for the test names. Curation COVERAGE and curation EFFICACY are different things, and a rule restated three times still did not fire at write time",
+   "impact": {},
+   "artifacts": [
+    "rules/testing.md",
+    "pulse-app/src/observability.rs"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "curation"
+  },
+  {
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "ts": "2026-08-16T19:10:19Z",
+   "id": null,
+   "what": "FIRST live exercise of the ratified re-run-interval machinery codified at the 2026-08-16 0-pending wrap, and it held: this wrap is session 26, the probe fires at 28, so the chunk report recorded the exact form \"probe skipped per ratified interval (next: 28)\" with the basis re-verified and the cargo deny advisories overlap re-observed, and the re-pin carries the same record forward. Worth noting as a POSITIVE outcome rather than friction - the interval did not silently swallow a gate, which was the failure mode the age-trigger ratification existed to prevent. The one mechanical wrinkle: the pin sat on the entry this chunk froze, so it re-pinned forward WITHOUT being removed from the frozen line, since route-resolve may not edit frozen entries - the frozen copy is now historical record",
+   "impact": {},
+   "artifacts": [
+    "working-route.md",
+    "report.md"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": "2026-08-16-fault-identity-semantics-decided",
+   "ts": "2026-08-17T16:39:44Z",
+   "id": null,
+   "what": "The permission layer denied a single compound Bash call that combined rm -rf of a scratch dir, mkdir, and a background GUI-app launch. No listed friction type covers a policy denial (tooling.host-shell is about shell semantics/quoting/encoding, not permissions). Resolved by splitting into granular calls and choosing a fresh uniquely-named directory so the destructive op was unnecessary. Cost one denied call plus one extra call.",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [],
+   "evidence": "denied compound command combining rm -rf + mkdir + background pulse-app.exe launch",
+   "skill": "implement",
+   "step": "smoke"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-08-17T19:19:12Z",
+   "id": null,
+   "what": "two references disagree by construction: the new-session body derives the evolve nudge from whether friction-log.ndjson carries records for a frozen epoch, while evolve-system.md states the file is append-only and must never be read or loaded; resolved by reading aggregate epoch counts only",
+   "impact": {
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "references/evolve/evolve-system.md",
+    "andromeda-new-session skill body",
+    "andromeda/friction-log.ndjson"
+   ],
+   "evidence": null,
+   "skill": "new-session",
+   "step": "orientation"
+  },
+  {
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "ts": "2026-08-17T19:36:30Z",
+   "id": null,
+   "what": "the arch distiller's return arrived wrapped in a harness notice that its output matched an instruction-shaped pattern (settings-json) and that control tags were neutralized; the extract body itself was clean and its only settings reference was a factual mention of the PYTHONUTF8 relay being mirrored in a settings env block, so the notice cost no retry but required reading the body specifically to rule out injected directives",
+   "impact": {
+    "extra_reads": 0
+   },
+   "artifacts": [
+    ".andromeda/runs/2026-08-17T19-22-45Z-phase/arch.md"
+   ],
+   "evidence": null,
+   "skill": "phase",
+   "step": "distill"
+  },
+  {
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "ts": "2026-08-17T20:35:21Z",
+   "id": null,
+   "what": "the mutation check surfaced a vacuity in one of the new pins written this chunk: canned_evidence_refs_survive_the_scrubber_unredacted iterates the evidence_refs vector, so with the fixture neutralized to an empty array its loop body never executes and it passes vacuously. It is a content guard rather than a presence guard and the value pin next to it does discriminate, so the coverage is sound in combination, but the scrubber pin alone would not catch a regression to empty",
+   "impact": {},
+   "artifacts": [
+    "pulse-app/tests/unit_deterministic_inference.rs"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "ts": "2026-08-17T20:35:21Z",
+   "id": null,
+   "what": "the mutation check also answered the protocol's which-pre-existing-tests-are-insensitive question with a concrete finding: all four pre-existing MCP incident-tool tests stayed green under the neutralized fixture because they build their own resolved_incident_with_l4 literal, so none of them had ever exercised the deterministic surface the chunk repairs — the vacuous read-back it fixed was genuinely unguarded, not merely weakly guarded",
+   "impact": {},
+   "artifacts": [
+    "pulse-app/tests/e2e_p3_mcp_incident_tools.rs"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "ts": "2026-08-17T20:42:28Z",
+   "id": null,
+   "what": "the live sidecar query_incident_list returned total 0 and read as a workspace-key or decryption failure until probed: the corpus held exactly 2 rows whose workspace string matched the published key byte-for-byte, both already status resolved because the ~120s auto-resolve window had elapsed 130.6s after creation, with no corpus.read.undecryptable and no keychain fallback anywhere. An active-only list tool queried shortly after a bounded storm therefore reports zero for a fully healthy path, which is the same ambiguous-zero shape earlier chunks spent real time misreading",
+   "impact": {
+    "extra_reads": 2
+   },
+   "artifacts": [
+    "crates/mcp-server/src/tools.rs"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "smoke"
+  },
+  {
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "ts": "2026-08-17T21:02:00Z",
+   "id": null,
+   "what": "the standing cargo-audit pin has now migrated across five consecutive working-route entries because the rule says it rides the CURRENT entry and every wrap freezes that entry — so each wrap must locate the pin on a frozen line and re-author it onto the next markerless one, and the compact form is re-verified by hand each time rather than moving with the pin mechanically",
+   "impact": {
+    "extra_reads": 2
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/working-route.md"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "ts": "2026-08-21T14:44:14Z",
+   "id": "2026-08-21T14:44:14Z-b",
+   "what": "Editing a few string values in a hand-formatted JSON file by parse-mutate-json.dumps re-serializes the WHOLE file and destroys its authored layout: docs/v0_2_0/capability-verification-matrix.json keeps one compact line per capability, so a 3-notes edit produced a 1068-line diff that would have buried the semantic change in review. Detected only by reading the diffstat at wrap; fixed by replaying the edit as targeted string replacement over HEAD text, verified semantically identical by parse-compare (3 lines final).",
+   "impact": {
+    "extra_reads": 2
+   },
+   "artifacts": [
+    "docs/v0_2_0/capability-verification-matrix.json"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "report"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-08-22T15:11:19Z",
+   "id": "2026-08-22T15:11:19Z-c",
+   "what": "verification-matrix key layout was inferred by probing rather than read from the contract first; near-miss for contract.schema-assumed but that type requires the guess to return a plausible wrong value, whereas this probe errored safely (printed top-level keys) and cost one re-run",
+   "impact": {
+    "extra_reads": 1,
+    "retries": 1
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/verification-matrix.json",
+    "verification-matrix-contract.md"
+   ],
+   "evidence": null,
+   "skill": "new-session",
+   "step": "orientation"
+  },
+  {
+   "chunk": "2026-08-22-pii-scrubber-recall",
+   "ts": "2026-08-22T15:46:31Z",
+   "id": "2026-08-22T15:46:31Z-b",
+   "what": "the chunk directive (and the scope written from it) framed the design tension as 'over-redaction in telemetry destroys the diagnostic value the corpus exists for', while the module being changed declares the opposite preference in its own header — scrubber.rs:55-58 'recall over precision — false positives are acceptable (over-redaction); false negatives leak secrets'; the plan had to reconcile a directive-level framing against the source's stated posture, and both happened to converge on the anchored-prefix answer so no rework followed",
+   "impact": {
+    "iterations": 0
+   },
+   "artifacts": [
+    "crates/security/src/scrubber.rs",
+    "andromeda-pulse-0.3.0/chunks/2026-08-22-pii-scrubber-recall/scope.md"
+   ],
+   "evidence": null,
+   "skill": "phase",
+   "step": "plan"
+  },
+  {
+   "chunk": "2026-08-22-pii-scrubber-recall",
+   "ts": "2026-08-22T18:42:30Z",
+   "id": "2026-08-22T18:42:30Z-h",
+   "what": "the flip-compaction backfill fired for the first time on this project's idiom and matched 14 of 28 complete-backed frozen lines; the 14 non-matches split into 12 already in core form (their trailing '(P-0NN · intent FNN)' is a citation, not freight — the rule's middot-safety clause covers exactly this) and 2 long lines carrying continuous descriptive prose with no separator and no introducer, which were left in place and named rather than guessed at",
+   "impact": {},
+   "artifacts": [
+    "andromeda-pulse-0.3.0/working-route.md",
+    "andromeda-pulse-0.3.0/route-archive.md"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "gates"
+  },
+  {
+   "chunk": "2026-08-22-log-records-identity",
+   "ts": "2026-08-22T20:42:55Z",
+   "id": "2026-08-22T20:42:55Z-b",
+   "what": "the two findings that most changed the plan were reached by unsignalled repo-wide greps, not by any extract signal or scope pointer: a grep for CREATE TABLE IF NOT EXISTS log_records found FOUR DDL sites where the operator directive and scope both described two, and a grep for constraint/duplicate found crates/buffer/src/schema.rs:311-318 recording that a duplicate-INSERT PK probe was observed to HANG on this build and that behavioural PK enforcement was therefore never verified. Without the second, a plan would plausibly have prescribed the duplicate-INSERT measurement that wedges, against a zero-flakiness no-retry test discipline",
+   "impact": {
+    "extra_reads": 3
+   },
+   "artifacts": [
+    "crates/buffer/src/schema.rs",
+    "crates/viz/src/query.rs",
+    "crates/triage/src/baseline/sql.rs"
+   ],
+   "evidence": "research.md §Findings not anticipated by scope, directive, or any extract",
+   "skill": "phase",
+   "step": "research"
+  },
+  {
+   "chunk": "2026-08-22-log-records-identity",
+   "ts": "2026-08-22T20:48:00Z",
+   "id": "2026-08-22T20:48:00Z-b",
+   "what": "a formally valid extract, applied literally, pointed at a defective design: the arch extract named span_events.event_index / span_links.link_index as the in-repo pattern to follow for an ordinal discriminator, and scope had already narrowed the fork to that shape. Composing the operator question surfaced that event_index is safe only because its key carries trace_id plus span_id, a unique parent that scopes the ordinal - log_records has no unique parent, so a per-batch ordinal leaves cross-batch same-nanosecond records colliding. The extract was not wrong; it framed itself as a lean rather than a determination. What caught the gap was reasoning about WHY the precedent holds, which no input supplied. Cost 0 redo cycles because it surfaced before any plan text was written, but a literal reading would have shipped a half-fix",
+   "impact": {
+    "iterations": 1
+   },
+   "artifacts": [
+    ".andromeda/runs/2026-08-22T19-55-00Z-phase/arch.md",
+    "andromeda-pulse-0.3.0/chunks/2026-08-22-log-records-identity/scope.md"
+   ],
+   "evidence": "plan.md section Constraints & rejected approaches, first bullet",
+   "skill": "phase",
+   "step": "plan"
+  },
+  {
+   "chunk": "2026-08-22-log-records-identity",
+   "ts": "2026-08-22T22:00:08Z",
+   "id": "2026-08-22T22:00:08Z-c",
+   "what": "the PREVIOUS chunk's wrap commit (70344d5) shipped bindings.ts in the no-mcp shape, so cargo xtask capability-drift was RED at HEAD before this chunk began, while that chunk's handoff recorded capability-drift clean. Verified: git show HEAD of the file has 0 mcp entries and the worktree was byte-identical to it, so this chunk's own workspace nextest did not cause it. This is the exact failure the project's own rules predict in two places (rules/security.md 2026-06-12 says verify the STAGED copy because a later default-features cargo op invalidates the worktree silently, and rules/testing.md 2026-08-15 says the wrap's light gate is itself such an op and always runs AFTER the regen) - so the rule exists, is documented twice, and was still not applied. Suggests the check needs to be mechanical at commit time rather than a discipline the wrap author must remember",
+   "impact": {
+    "iterations": 1
+   },
+   "artifacts": [
+    "pulse-app/ui/src/bindings/index.ts",
+    ".claude/session-handoff.md"
+   ],
+   "evidence": "git log -3 on the file; HEAD 70344d5 grep -c mcp = 0",
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": "2026-08-22-log-records-identity",
+   "ts": "2026-08-22T22:49:38Z",
+   "id": "2026-08-22T22:49:38Z-c",
+   "what": "the staged-bindings ordering rule codified earlier in THIS wrap fired on the very wrap that minted it, and caught a live clobber: after the light gate's nextest --workspace, the worktree bindings had 0 mcp entries; the regen restored it to 1 and the staged-copy assertion then passed. Had the commit been taken straight after the light gate - the natural order, and what produced the defect in 70344d5 - this wrap would have shipped the identical fifth-occurrence defect it had just spent an escalation round diagnosing. Recorded because it is direct evidence for the operator's ruling that a check the wrap RUNS beats a discipline the wrap author must REMEMBER: the four prose rules did not prevent occurrence five, and the ordering check caught occurrence six within minutes of existing",
+   "impact": {},
+   "artifacts": [
+    "pulse-app/ui/src/bindings/index.ts",
+    ".andromeda/playbook.md"
+   ],
+   "evidence": "worktree mcp count 1 -> 0 after the light gate, 1 after regen; staged assertion PASS; capability-drift clean",
+   "skill": "wrap-session",
+   "step": "gates"
+  },
+  {
+   "chunk": "2026-08-23-ingestion-scrub-coverage",
+   "ts": "2026-08-23T07:38:47Z",
+   "id": "2026-08-23T07:38:47Z-b",
+   "what": "the light-gate contract names ONE class of Test Command that may be re-verified from recorded artifacts instead of literally re-run — an operator-gated live leg against a down external process — and is silent on deterministic gates whose inputs provably did not change since they ran green earlier in the SAME session. The supply-chain trio fell in that silence: re-running cargo deny and cargo audit could not have differed (zero dependency delta, recorded in the report) and cargo audit had just discharged its ratified interval point, so a literal re-run would have been a second probe at the same point. The treatment was recorded rather than silently skipped, per the never-silent rule, but the contract gives no name for it, so each wrap re-derives whether such a gate must re-run",
+   "impact": {},
+   "artifacts": [
+    "andromeda-pulse-0.3.0/chunks/2026-08-23-ingestion-scrub-coverage/plan.md"
+   ],
+   "evidence": "andromeda-pulse-0.3.0/chunks/2026-08-23-ingestion-scrub-coverage/report.md",
+   "skill": "wrap-session",
+   "step": "gates"
+  },
+  {
+   "chunk": "2026-08-23-metrics-points-identity",
+   "ts": "2026-08-23T08:30:26Z",
+   "id": "2026-08-23T08:30:26Z-b",
+   "what": "The scope-ambiguity dialogue cost a full extra tool round-trip: AskUserQuestion rejected the first call with InputValidationError because three options carried preview:null. The two questions in one round differed in mode — the first wanted per-option previews, the second did not — and the validator requires preview to be a string when the key is present, so the not-wanted case must OMIT the key rather than pass null. Resent identically except with preview strings authored for the second question too.",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    "AskUserQuestion"
+   ],
+   "evidence": "InputValidationError naming questions[1].options[0..2].preview expected string, provided null",
+   "skill": "phase",
+   "step": "plan"
+  },
+  {
+   "chunk": "2026-08-23-metrics-points-identity",
+   "ts": "2026-08-23T09:02:47Z",
+   "id": "2026-08-23T09:02:47Z-c",
+   "what": "The TauRPC bindings clobber recurred a SEVENTH time. As at the previous chunk, this one touched NO TauRPC at all - running the plan-mandated workspace nextest is itself what rewrote pulse-app/ui/src/bindings/index.ts to the no-mcp shape (git diff showed -22 lines vs HEAD). Two consecutive chunks now share that trigger, so the defect is not scoped to TauRPC-touching work. HEAD stayed correct; only the worktree was affected. Recovered by re-running the mcp-server-feature regen as the last cargo-adjacent step, then verifying no diff vs HEAD before capability-drift.",
+   "impact": {
+    "extra_reads": 1,
+    "retries": 1
+   },
+   "artifacts": [
+    "pulse-app/ui/src/bindings/index.ts"
+   ],
+   "evidence": "grep -c '\"mcp\":' returned 0 after the workspace suite and 1 after regen; capability-drift clean (0 missing, 0 extra) once ordering was respected",
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": "2026-08-23-metrics-points-labels",
+   "ts": "2026-08-23T10:18:36Z",
+   "id": "2026-08-23T10:18:36Z-b",
+   "what": "the no-external-witness premise could only be checked by reading a SECOND repository (../conductor at its own HEAD), because the claim is about what a sibling project does NOT emit. An absence claim about an external witness has no in-repo artifact that can carry it, so promotion had to reach outside the project boundary to keep the verify-at-HEAD discipline; the first sweep also swept build artifacts under target/ and needed one reformulation before the crate listing answered it cleanly",
+   "impact": {
+    "extra_reads": 2,
+    "reformulations": 1
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/chunks/2026-08-23-metrics-points-labels/scope.md"
+   ],
+   "evidence": "conductor HEAD fb8a8a5: conductor-emit/src has no metrics module; grep across all 9 conductor crates for the metrics symbols returns zero files",
+   "skill": "phase",
+   "step": "take-up"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-08-23T11:58:06Z",
+   "id": "2026-08-23T11:58:06Z-b",
+   "what": "A route annotation carrying a forward-looking session-counted claim cannot migrate verbatim across the very wrap that satisfies it: the audit pin read 'the NEXT wrap is point 37 and fires the probe in FULL form', and this wrap IS session 37 and fired it. Moving the pin byte-for-byte as 'untouched' would have left it self-contradictory at rest, so the status line was re-authored to 25/28/31/34/37 + next point 40 while the basis, signature and origin stayed unchanged.",
+   "impact": {
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "working-route.md"
+   ],
+   "evidence": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/audit-probe.txt",
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-08-23T11:58:06Z",
+   "id": "2026-08-23T11:58:06Z-c",
+   "what": "Route entries have grown long enough that the Edit-tool write path is the binding constraint on reordering them: the first markerless entry is 9975 chars on ONE line (13 CARRYs + a PREREQ + a NOTE), so any edit whose old_string must span it costs a full verbatim transcription. Reordering stayed safe only because the OTHER entry was short (974 chars) and could be moved instead; two adjacent long entries would have no such escape.",
+   "impact": {
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "working-route.md"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": "2026-08-23-webview-self-verify",
+   "ts": "2026-08-23T12:40:47Z",
+   "id": "2026-08-23T12:40:47Z-b",
+   "what": "A conflict surfaced at synthesis that P2 aggregate check C structurally cannot catch, because it is not a binding contradiction between two extracts but a spec clause contradicting the chunk premise itself: test-plan.md:148 bans no-Playwright-headful-mode among the agent-runnable invariants and :497 calls the headful tauri-driver suite not-agent-driven, while the working entry CONTEXT records an operator ruling of 2026-08-22 making agent-driven GUI verification the default. The tests distiller did flag the adverse clause for driver shape b, so the pipeline surfaced it correctly; what has no owner is the general case — check C reciprocity compares extract to extract and nothing compares a spec clause against the entry intent the chunk is built on. Resolved by recording it as an Expected amendment owed whichever shape lands; cost no rework",
+   "impact": {},
+   "artifacts": [
+    ".andromeda/test-plan.md",
+    "andromeda-pulse-0.3.0/chunks/2026-08-23-webview-self-verify/plan.md"
+   ],
+   "evidence": "plan.md §Implementation notes → Expected amendments (wrap), second bullet",
+   "skill": "phase",
+   "step": "plan"
+  },
+  {
+   "chunk": "2026-08-23-webview-self-verify",
+   "ts": "2026-08-23T13:21:15Z",
+   "id": "2026-08-23T13:21:15Z-b",
+   "what": "A harness that spawns the app under test inherits ITS working directory down the whole process chain, and Tauri dev-mode codegen writes relative to that directory — so choosing a convenient CWD for the driver silently produced repo pollution. The node driver was given current_dir = pulse-app/ui so module resolution would feel natural (it did not need it: createRequire(import.meta.url) resolves from the script path), tauri-driver spawned pulse-app.exe as its child, and TauRPC Router::into_handler triggered export_types which emitted a full bindings file at pulse-app/ui/ui/src/bindings/index.ts. Nothing failed and no gate caught it — capability-drift reads the REAL bindings path and stayed clean, so the stray tree was visible only as an untracked directory in git status. Had CWD been one level up it would instead have CLOBBERED the real bindings with the default-features shape, which is the documented recurring hazard rather than a new one",
+   "impact": {
+    "iterations": 1
+   },
+   "artifacts": [
+    "xtask/src/webview_drive.rs",
+    "pulse-app/ui/src/bindings/index.ts"
+   ],
+   "evidence": "stray tree removed and non-recurrence confirmed by a further GREEN arm run after pointing CWD at the per-run temp data dir",
+   "skill": "implement",
+   "step": "smoke"
+  },
+  {
+   "chunk": "2026-08-23-webview-self-verify",
+   "ts": "2026-08-23T14:07:12Z",
+   "id": "2026-08-23T14:07:12Z-b",
+   "what": "The light gate INCIDENTALLY surfaced a pre-existing defect that no gate owns: running cargo xtask self-verify created a stray root-level ui/src/bindings/index.ts. The cause is the same one this chunk fixed in its own driver — xtask::self_verify::launch_pulse spawns the app with no current_dir, so it inherits the workspace root and TauRPC dev-mode export_types writes bindings relative to CWD. It has been happening on every self-verify run and was papered over by .gitignore line 51 (/ui/) rather than fixed, so it is invisible in git status and no gate reads it. Notable that self_verify.rs:254 DOES set current_dir for the a11y leg, so the omission is specific to the launch site. Harmless only because of where the path lands — one directory level different and it would CLOBBER the real bindings, the standing hazard that four separate rules already describe. Cleaned the stray, and carried the fix onto the Diagnostics un-muting + harness-truth sweep entry, since wrap writes no code.",
+   "impact": {},
+   "artifacts": [
+    "xtask/src/self_verify.rs",
+    ".gitignore",
+    "andromeda-pulse-0.3.0/working-route.md"
+   ],
+   "evidence": "ls -d ui after the self-verify gate run; git check-ignore -v ui returned .gitignore:51",
+   "skill": "wrap-session",
+   "step": "gates"
+  },
+  {
+   "chunk": "2026-08-23-a11y-verification",
+   "ts": "2026-08-23T22:35:33Z",
+   "id": "2026-08-23T22:35:33Z-c",
+   "what": "The a11y detector duplicate-occurrence sweep under-ran by one site: it proposed 6 sites for the retired spec-set count and NOT-SHIPPED wording, but section 3 Adding-a-surface standing rule also restated the p8-p12 count, and only the orchestrator post-apply residue grep caught it. Same shape as the 2026-08-22 playbook entry where a detector duplicate sweep was correct but scoped to its own doc while the orchestrator cross-master grep found the real residue: the sweep is instructed to grep its doc for every OTHER occurrence of the retired wording, and a count restated in a DIFFERENT phrasing (p8-p12 inside a standing rule, versus P1-P12 in a heading) evades a literal-wording grep. Cheap defence, already applied: after each apply, re-grep the amended doc for the retired shape rather than the retired string.",
+   "impact": {
+    "extra_reads": 1
+   },
+   "artifacts": [
+    ".andromeda/a11y-plan.md"
+   ],
+   "evidence": ".andromeda/runs/2026-08-23T22-15-00Z-wrap/fanout-results.md",
+   "skill": "wrap-session",
+   "step": "reconcile"
+  },
+  {
+   "chunk": "2026-08-23-a11y-verification",
+   "ts": "2026-08-23T22:41:08Z",
+   "id": "2026-08-23T22:41:08Z-b",
+   "what": "The cargo audit standing-deferral re-pin could NOT take the ratified compact form: the probe-auto-satisfy signature holds the basis AND the named overlap, and the overlap shifted from seven owned upgradeable advisory IDs to eight. Per the rule any overlap shift restores the FULL form, so pin #13 was written long even though the basis string itself reproduced byte-identical. Worth recording because the compaction tiers are designed to reduce re-writing over time and this is the first measured case where a pin RE-EXPANDED — the trigger was not decay of the basis but growth of the overlap set, which is a dimension the pin text had been carrying as a static count. The amendment this wrap made to security-plan and rules/security.md adds re-enumerate-at-each-probe guidance so the count is read rather than carried forward, which should keep future pins on the compact path unless the set genuinely moves again.",
+   "impact": {},
+   "artifacts": [
+    "andromeda-pulse-0.3.0/working-route.md",
+    ".andromeda/security-plan.md"
+   ],
+   "evidence": "andromeda-pulse-0.3.0/chunks/2026-08-23-a11y-verification/report.md",
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": "2026-08-23-headful-leg-extension",
+   "ts": "2026-08-24T17:10:56Z",
+   "id": "2026-08-24T17:10:56Z-c",
+   "what": "A terminal-rendering trap nearly inverted a diagnosis: JSON.stringify of wdio Key.Shift/Key.Escape printed as empty strings because private-use-area codepoints render invisibly, reading as broken key constants; a codepoint-level probe showed the values were real (e008/e00c) and the keys hypothesis was retracted before any code changed.",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    "webview-drive.mjs"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-08-25T16:08:20Z",
+   "id": "2026-08-25T16:08:20Z-b",
+   "what": "An anchored Edit that removed a trailing annotation ending at a line terminus also consumed the following line break, merging the next separator line onto the edited line; the structural invariant check (separator count 39 vs the original 40) caught it and a second Edit restored the break.",
+   "impact": {
+    "retries": 1,
+    "extra_reads": 2
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/working-route.md"
+   ],
+   "evidence": "wrap run dir 2026-08-25; frozen-set byte-identity + separator-count check post-repair",
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": "2026-08-25-demo-injector-formalized-api-surface-retire",
+   "ts": "2026-08-25T16:33:57Z",
+   "id": "2026-08-25T16:33:57Z-c",
+   "what": "the only record of a PRIOR paused attempt at this chunk's headline deliverable (a real-model chain proof) lives in AI-Model/RESUME-NOTE.md — a gitignored, non-Andromeda side-quest note outside every artifact the pipeline reads. It carried decisive scope input (working launch recipe, ~208 tok/s measured, the two open hypotheses for why incident→red-dot never confirmed) AND a stale blocker claim (an 8 MiB tokenizer cap silently truncating a 9.08 MB file) that chunk #100 had since fixed to a 32 MiB cap with a hard error. Five of its claims had to be re-verified individually because nothing links the note to the route entry that inherited its work.",
+   "impact": {
+    "extra_reads": 2
+   },
+   "artifacts": [
+    "AI-Model/RESUME-NOTE.md",
+    "crates/triage/build.rs"
+   ],
+   "evidence": "build.rs TOKENIZER_MAX_BYTES = 32*1024*1024 + the refuse-truncation guard at :124",
+   "skill": "phase",
+   "step": "take-up"
+  },
+  {
+   "chunk": "2026-08-25-demo-injector-formalized-api-surface-retire",
+   "ts": "2026-08-25T16:51:42Z",
+   "id": "2026-08-25T16:51:42Z-b",
+   "what": "an extract and a skill contract disagreed on WHO applies a spec-master correction, a pair P2 aggregate check C cannot see (it compares extracts to extracts). The tests extract routed the two .andromeda/test-plan.md fixes as implement-time amendments recorded through the sidecar; plan-template.md forbids listing any of the seven spec masters under Files to modify and routes them to wrap amendment flow via an Expected-amendments note. Caught only because the template was re-read at synthesis — research.md had already listed test-plan.md as a touchpoint, so both plan.md and research.md needed correcting.",
+   "impact": {
+    "iterations": 1
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/chunks/2026-08-25-demo-injector-formalized-api-surface-retire/research.md",
+    "andromeda-pulse-0.3.0/chunks/2026-08-25-demo-injector-formalized-api-surface-retire/plan.md"
+   ],
+   "evidence": "plan-template.md Discipline: Spec masters are NEVER touchpoints",
+   "skill": "phase",
+   "step": "plan"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-08-26T07:47:22Z",
+   "id": "2026-08-26T07:47:22Z-b",
+   "what": "The version-dir confirmation glob was aimed at .andromeda/andromeda-pulse-* though the skill body names the PROJECT ROOT; the probe returned empty (and exit 2), costing one re-probe at the correct location before andromeda-pulse-0.3.0/ was confirmed. The documented exclusion rule then worked as written — the sibling andromeda-pulse-0.4.0-incubator/ did not outrank the clean X.Y.Z dir.",
+   "impact": {
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "working-route",
+    "master-route"
+   ],
+   "evidence": null,
+   "skill": "new-session",
+   "step": "orientation"
+  },
+  {
+   "chunk": "2026-08-26-ingest-consumer-stall-under-sustained-load",
+   "ts": "2026-08-26T08:04:11Z",
+   "id": "2026-08-26T08:04:11Z-c",
+   "what": "The graph query output was piped through tail -40, which clipped the head of a 33-row result — the exact trap the cookbook names (never conclude from a tail-truncated result; the trace rows field is the authority). Caught before any conclusion was drawn and recovered by reading rows + result from tree-query-*.json, at the cost of one extra read. Same zero-is-healthy/clipped-view family as the handoff deferred learning recurrence-despite-learning.",
+   "impact": {
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "cookbook"
+   ],
+   "evidence": ".andromeda/runs/2026-08-26T07-48-30Z-phase/tree-query-2026-08-26-ingest-consumer-stall-under-sustained-load.json",
+   "skill": "phase",
+   "step": "research"
+  },
+  {
+   "chunk": "2026-08-26-cadence-runaway-blocking-pool",
+   "ts": "2026-08-26T12:02:58Z",
+   "id": "2026-08-26T12:02:58Z-b",
+   "what": "the planned smoke command could not exercise the feature it was written to verify: a constant sustained error rate makes short/long EWMA converge so the spike ratio falls under the 3.0 gate and no cue re-fires, and the silence family needs a service to reach Ready which the 3600s default bootstrap window prevents inside any smoke-length run. Both levers had to be found by reading the evaluator and the env-var contract before the smoke could produce a non-vacuous verdict",
+   "impact": {
+    "extra_reads": 2
+   },
+   "artifacts": [
+    "plan.md",
+    "crates/triage/src/cue/evaluate.rs",
+    "crates/triage/src/cue/thresholds.rs"
+   ],
+   "evidence": "phase A ticks show cues_emitted 0 / cues_latched 0 under sustained load; only phase B (producer stopped, bootstrap 60s) moved cues_latched to 887",
+   "skill": "implement",
+   "step": "smoke"
+  },
+  {
+   "chunk": "2026-08-26-cadence-runaway-blocking-pool",
+   "ts": "2026-08-26T13:23:41Z",
+   "id": "2026-08-26T13:23:41Z-b",
+   "what": "the freeze-contract self-check read as a BREACH for one cycle: git diff showed a deleted line starting Cadence runaway with no [marker] prefix, which is exactly the signature of touching a frozen line. It was /andromeda-phase promotion stamp — the markerless-to-prefixed rewrite was already uncommitted in the tree at Setup, so the diff against HEAD spans two skills changes, not just this wrap. A wrap diffing working-route against HEAD cannot attribute an edit to itself without separating the promotion delta first",
+   "impact": {
+    "extra_reads": 2
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/working-route.md"
+   ],
+   "evidence": "the added-lines side carried the prefixed twin, and grep found 0 markerless lines starting with that title while the prefixed line stood at :94",
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": "2026-08-26-l4-runtime-security-residuals",
+   "ts": "2026-08-26T13:45:02Z",
+   "id": "2026-08-26T13:45:02Z-b",
+   "what": "the Edit tool's read-before-edit precondition forced two Read-tool calls over content already read via bash sed in the same step, and both targets are single lines of roughly 2000 words (working-route entry line 96; master-route record line 60), so the duplicate reads were large; no retry, but the Write/Edit mandate for document payloads and the read-before-edit precondition compound on route files whose entries are paragraph-length single lines",
+   "impact": {
+    "extra_reads": 2,
+    "retries": 0
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/working-route.md",
+    ".andromeda/master-route.md"
+   ],
+   "evidence": null,
+   "skill": "phase",
+   "step": "take-up"
+  },
+  {
+   "chunk": "2026-08-26-l4-runtime-security-residuals",
+   "ts": "2026-08-26T13:52:58Z",
+   "id": "2026-08-26T13:52:58Z-c",
+   "what": "phase SKILL.md Setup step 5 names the code-graph DB as .andromeda/cache/tree.db, but this project's real layout is per-plane at .andromeda/cache/{plane}/tree.db (rust + ts both built); the flat path does not exist, while CLAUDE.md's pointer table states the per-plane form correctly. Discovered by probing during the fan-out wait rather than at Setup. Compounding it, a first query guessed table name 'symbols' instead of reading the cookbook CLAUDE.md names - DuckDB rejected it loudly with a did-you-mean rather than returning a plausible wrong value, so the schema is 'symbol'/'refs'/'calls'/'contains'/'crate_edges'/'calls_m' per scripts/code-graph-cookbook.md. Whether references/codebase-research.md states the path correctly is unread at this checkpoint",
+   "impact": {
+    "retries": 1,
+    "extra_reads": 2
+   },
+   "artifacts": [
+    "scripts/code-graph-cookbook.md",
+    ".andromeda/cache/rust/tree.db"
+   ],
+   "evidence": "_duckdb.CatalogException: Table with name symbols does not exist! Did you mean \"symbol\"?",
+   "skill": "phase",
+   "step": "distill"
+  },
+  {
+   "chunk": "2026-08-26-l4-runtime-security-residuals",
+   "ts": "2026-08-26T17:06:55Z",
+   "id": "2026-08-26T17:06:55Z-b",
+   "what": "an append-to-end-of-file Edit failed because the chosen anchor matched three times: the test file ends with a match arm whose closing lines ('other => panic!(...)' + two braces) repeat across three tests, so the natural tail anchor is not unique. The retry needed a longer anchor AND a full re-send of the ~250-line new_string payload, since Edit takes both halves together - the cost of an ambiguous anchor scales with the size of the insertion, not the size of the anchor",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    "pulse-app/tests/unit_llamacli_inference.rs"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "code"
+  },
+  {
+   "chunk": "2026-08-26-l4-runtime-security-residuals",
+   "ts": "2026-08-26T17:15:29Z",
+   "id": "2026-08-26T17:15:29Z-c",
+   "what": "the bindings.ts clobber recurred: the default-features workspace nextest rewrote pulse-app/ui/src/bindings/index.ts to the no-mcp shape, so capability-drift reported 3 missing mcp procedures despite this chunk adding no TauRPC procedure at all. Resolved by the documented mcp-server-feature regen with the --bin pulse-app narrowing. Recorded purely as a frequency data point - the defect is already owned by the working-route entry 'Staged-bindings assertion' and needed no diagnosis here, only the known recovery",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    "pulse-app/ui/src/bindings/index.ts"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": "2026-08-26-l4-runtime-security-residuals",
+   "ts": "2026-08-26T17:19:28Z",
+   "id": "2026-08-26T17:19:28Z-b",
+   "what": "the chunk plan's smoke command named ./target/release/andromeda-pulse, a path that exists on no host: arch section Occupied Resources records 'Binary name: andromeda-pulse.exe (Windows)' but that is the BUNDLED artifact name the Tauri bundler produces, while Cargo's [[bin]] name = pulse-app means every cargo build emits target/{profile}/pulse-app.exe. Authoring a dev-build invocation from the arch registry's distribution name therefore yields a command that cannot run, and the failure mode is a file-not-found at smoke time rather than anything the plan gates could catch",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/chunks/2026-08-26-l4-runtime-security-residuals/plan.md",
+    "pulse-app/Cargo.toml"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "smoke"
+  },
+  {
+   "chunk": "2026-08-26-l4-runtime-security-residuals",
+   "ts": "2026-08-26T19:01:04Z",
+   "id": "2026-08-26T19:01:04Z-b",
+   "what": "one body Edit no-opped because the anchor was truncated identically into BOTH halves of the call (old_string == new_string), so the tool refused with 'No changes to make'. Loud and self-correcting - the retry with the full sentence landed - but it is the mirror of the earlier ambiguous-anchor failure this session: both come from choosing an anchor by eyeballing a truncated `cut -c1-N` view of the target line rather than reading the line whole first",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    ".andromeda/security-plan.md"
+   ],
+   "evidence": null,
+   "skill": "wrap-session",
+   "step": "reconcile"
+  },
+  {
+   "chunk": "2026-08-26-interpretation-brief-completeness",
+   "ts": "2026-08-26T19:51:01Z",
+   "id": "2026-08-26T19:51:01Z-b",
+   "what": "The cross-process decrypt probe crashed on first attempt: the sidecar exited at boot because ANDROMEDA_PULSE_MCP_ENABLED was unset — the documented MCP double-gate applies to the sidecar binary itself, not only the app-side spawn; 1 retry after reading feature_gate.rs.",
+   "impact": {
+    "retries": 1,
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "crates/mcp-server/src/feature_gate.rs",
+    "scratchpad/mcp_decrypt_probe.py"
+   ],
+   "evidence": "probe stderr: OSError broken pipe at initialize; second run INIT ok",
+   "skill": "phase",
+   "step": "research"
+  },
+  {
+   "chunk": "2026-08-27-incident-persist-vs-resolve-write-race",
+   "ts": "2026-08-27T23:16:27Z",
+   "id": "2026-08-27T23:16:27Z-b",
+   "what": "Plan step 5 OVER-estimated its edit surface rather than underdetermining it. It directed threading the new outcome through six named call sites so a decline stops reaching triage.incident.persist.error; five of the six (incident_observer:73, incidents_router:238/309, inference_runtime:638/825) already use `if let Err(err) = ...`, which binds only the Err arm — so an Ok(DeclinedStale) never reached the error target and those sites needed ZERO edits. The step intent was satisfied by the pre-existing code shape. Only the MCP site needed real work, because it returned {resolved:true} unconditionally.",
+   "impact": {},
+   "artifacts": [
+    "andromeda-pulse-0.3.0/chunks/2026-08-27-incident-persist-vs-resolve-write-race/plan.md"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "code"
+  },
+  {
+   "chunk": "2026-08-27-incident-persist-vs-resolve-write-race",
+   "ts": "2026-08-27T23:28:44Z",
+   "id": "2026-08-27T23:28:44Z-b",
+   "what": "The plans ## Test Commands block is not self-sufficient on this repo: cargo nextest run --workspace regenerates pulse-app/ui/src/bindings/index.ts to the no-mcp shape, so running the listed gates in the listed order ends with capability-drift RED. Measured this run — the mcp key count went 1 -> 0 after nextest and back to 1 after the regen. The regen step IS in the plan, but under Implementation notes, so only a reader who treats the whole plan as the gate procedure passes. Cost 0 iterations because the note was read.",
+   "impact": {},
+   "artifacts": [
+    "andromeda-pulse-0.3.0/chunks/2026-08-27-incident-persist-vs-resolve-write-race/plan.md",
+    "pulse-app/ui/src/bindings/index.ts"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": "2026-08-28-ingest-consumer-initiating-freeze",
+   "ts": "2026-08-28T17:46:14Z",
+   "id": "2026-08-28T17:46:14Z-b",
+   "what": "Plan step 4 (add a scenario-shaped CueLatch unit pin: N services emitting service_went_silent every tick with injected now_nanos, asserting admissions bounded by the refractory rather than proportional to ticks) was ALREADY SATISFIED at HEAD by cue_latch_bounds_the_measured_wedge_shape (crates/triage/src/cue/emitter.rs:1429), landed by the predecessor chunk. The step was not ambiguous - it was pre-satisfied, so writing it as specified would have produced a duplicate. Reconciled per the 2026-06-01 plan-says-ADD-but-it-already-EXISTS class: reused the existing pin and added only the genuinely-new part, a multi-window extension (the existing pin spans exactly ONE 60s refractory window; the scenarios gap spans three, and nothing pinned the admission RATE across several windows). Cost one read to detect; P4 did not check whether the pin existed before specifying it.",
+   "impact": {
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "crates/triage/src/cue/emitter.rs",
+    "plan.md"
+   ],
+   "evidence": "crates/triage/src/cue/emitter.rs:1429 (pre-existing) and :1452 (added)",
+   "skill": "implement",
+   "step": "code"
+  },
+  {
+   "chunk": "2026-08-28-ingest-consumer-initiating-freeze",
+   "ts": "2026-08-28T18:30:14Z",
+   "id": "2026-08-28T18:30:14Z-b",
+   "what": "The Spec-claims-disproved-by-measurement bullet carried FOUR entries this chunk, and for all four the correct disposition was the report entry itself rather than an amendment (one working-route intent premise, one master-route record phrasing, one of the chunks own plan outcomes, one relayed coordinate). The bullets own definition frames it as what still needs disposition, so each entry had to carry an explicit inline Disposition line to avoid reading as unresolved. This is the second recorded occurrence of the shape the 2026-08-26 operator ruling documented; the remedy it prescribes (say so inline) works, but the recurrence suggests the bullets definition may be worth widening to name record-is-the-disposition as a first-class outcome.",
+   "impact": {},
+   "artifacts": [
+    "report.md",
+    "references/report-template.md"
+   ],
+   "evidence": "andromeda-pulse-0.3.0/chunks/2026-08-28-ingest-consumer-initiating-freeze/report.md",
+   "skill": "wrap-session",
+   "step": "report"
+  },
+  {
+   "chunk": "2026-08-28-ingest-consumer-block-under-gap-resume",
+   "ts": "2026-08-28T20:33:29Z",
+   "id": "2026-08-28T20:33:29Z-b",
+   "what": "A stray non-ASCII character (a CJK digit) was emitted into the report body mid-sentence and had to be corrected by a follow-up edit. Caught on re-read of the written file, not by any gate — no wrap gate reads report prose for character-set validity, and the repo has an ASCII discipline only for argv-transported prompt templates.",
+   "impact": {
+    "iterations": 1
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/chunks/2026-08-28-ingest-consumer-block-under-gap-resume/report.md"
+   ],
+   "evidence": "report.md Coverage-of-new-surfaces bullet",
+   "skill": "wrap-session",
+   "step": "report"
+  },
+  {
+   "chunk": "2026-08-28-ingest-consumer-block-under-gap-resume",
+   "ts": "2026-08-28T20:47:51Z",
+   "id": "2026-08-28T20:47:51Z-b",
+   "what": "The between-point pin requires re-verifying basis + overlap, and the chunk report had already ASSERTED the overlap result (8 distinct ids, identical to the prior enumeration) from the implement-phase gate run, where only bans/licenses/sources had actually been executed — cargo deny check advisories was not run this session until P5 forced it. Running it confirmed the asserted value exactly, so nothing downstream was wrong; the friction is that a report claim outran its measurement by one phase.",
+   "impact": {
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/chunks/2026-08-28-ingest-consumer-block-under-gap-resume/report.md"
+   ],
+   "evidence": "P5 re-verification: 8 distinct RUSTSEC ids 0189/0190/0194/0195/0204/0222/0253/0258; cargo audit basis reproduced byte-identical",
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-08-28T21:17:46Z",
+   "id": "2026-08-28T21:17:46Z-b",
+   "what": "The working-route markerless-tail scan was authored as a grep bracket expression; \\s is not a whitespace shorthand inside a POSIX bracket expression, so indented separator lines matched and the first tail read was all separators and zero entries — the failure direction was a plausible non-empty wrong answer, not an error",
+   "impact": {
+    "reformulations": 1
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/working-route.md"
+   ],
+   "evidence": "orientation pass; corrected by a python entry-grammar filter returning 47 frozen / 9 markerless, reconciling exactly with the 47 master complete records",
+   "skill": "new-session",
+   "step": "orientation"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-08-29T11:34:18Z",
+   "id": "2026-08-29T11:34:18Z-b",
+   "what": "The two-path CLAUDE.md pre-flight probe (ls -la CLAUDE.md .claude/CLAUDE.md) exits 2 when only one candidate is present — which is the designed PASS case — aborting the && chain and suppressing the state.yaml and references reads batched behind it. Setup step 1 carries an explicit || true guard for the same abort-on-designed-absence shape on git rev-list @{u}; step 2 has no equivalent",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    "health-inputs",
+    "state"
+   ],
+   "evidence": "new-session Setup steps 2-3, session 55 orientation",
+   "skill": "new-session",
+   "step": "orientation"
+  },
+  {
+   "chunk": "2026-08-29-app-registry-reconciliation",
+   "ts": "2026-08-29T11:38:54Z",
+   "id": "2026-08-29T11:38:54Z-b",
+   "what": "Anchoring an Edit on a long span copied from Read output failed against a ~4000-char master-route record; the promotion contract itself executed correctly (mint, folder, stamp, master-last), so the cost was one retry plus one od -c byte probe to rule out an encoding mismatch before re-anchoring short",
+   "impact": {
+    "retries": 1,
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "master-route"
+   ],
+   "evidence": "phase P1 promotion, master-route.md line 68 append",
+   "skill": "phase",
+   "step": "take-up"
+  },
+  {
+   "chunk": "2026-08-29-app-registry-reconciliation",
+   "ts": "2026-08-29T11:52:21Z",
+   "id": "2026-08-29T11:52:21Z-b",
+   "what": "The calls view returned a WRONG caller, not merely a stale one: the mark_resolved call at pulse-app/src/incidents_router.rs:300 was attributed to caller IncidentsApiImpl::list_active(), whose body spans lines 212-231, while the enclosing fn is async fn mark_resolved declared at 296 (reported line was also off by one). db_state was fresh, so this is not staleness. Caught only because the site was read anyway; a caller set enumerated from the graph alone would have named the wrong enclosing function, which is exactly what the caller-threading discipline in codebase-research.md asks the graph for",
+   "impact": {
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "tree-db",
+    "research"
+   ],
+   "evidence": ".andromeda/runs/2026-08-29T11-35-47Z-phase/tree-query-2026-08-29-app-registry-reconciliation.json (rust plane, rows 11, db_state fresh)",
+   "skill": "phase",
+   "step": "research"
+  },
+  {
+   "chunk": "2026-08-29-app-registry-reconciliation",
+   "ts": "2026-08-29T13:43:50Z",
+   "id": "2026-08-29T13:43:50Z-d",
+   "what": "A one-word accessor typo in the new leg produced a confident FALSE claim about the PRODUCT. query_incident_list returns items[].incident_id, not items[].id; reading .get(\"id\") yielded None and the leg printed INCONCLUSIVE — the storm did not form, while the corpus held 2 rows with status=active and the app log showed 3 incident.created. Caught only by calling the sidecar by hand and reading its real response; the INCONCLUSIVE text was then reworded to stop asserting a cause it cannot distinguish",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    "xtask/src/external_resolve.rs"
+   ],
+   "evidence": "/tmp/leg-green3.txt vs the direct sidecar call showing result.items[].incident_id",
+   "skill": "implement",
+   "step": "smoke"
+  },
+  {
+   "chunk": "2026-08-29-app-registry-reconciliation",
+   "ts": "2026-08-29T13:43:50Z",
+   "id": "2026-08-29T13:43:50Z-e",
+   "what": "The mutation check disproved one of the legs own verdict halves. Neutralizing reconciliation left item_count going 2 to 0 in BOTH arms — the finite storms auto-resolve fires 120s after last re-emission and the 170s window covers it — so a verdict keyed on the drop would have passed in both worlds. Only reconciled_count (1 vs 0) and declined_count (0 vs 2) discriminate. The verdict was re-keyed onto those and the measured pair pinned as a unit test",
+   "impact": {
+    "iterations": 1
+   },
+   "artifacts": [
+    "xtask/src/external_resolve.rs"
+   ],
+   "evidence": "RED /tmp/leg-red.txt reconciled 0 declined 2; GREEN /tmp/leg-green5.txt reconciled 1 declined 0; both item_count 2 to 0",
+   "skill": "implement",
+   "step": "smoke"
+  },
+  {
+   "chunk": "2026-08-29-app-registry-reconciliation",
+   "ts": "2026-08-29T16:08:07Z",
+   "id": "2026-08-29T16:08:07Z-c",
+   "what": "Filter 1 produced a RECURRENCE, not a duplicate: the inject_demo --sustained structural-incapability finding matched the 2026-08-22 extension in rules/testing.md, which already records that class AND its remedy (read the code that decides the condition; name the lever). The corpus entry did not prevent the recurrence — it bit again on a NEW leg in this chunk, costing one 240s run. Logged as recurrence-despite-learning to the handoff rather than dropped silently",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    "rules/testing.md"
+   ],
+   "evidence": "leg run 2: INCONCLUSIVE, sidecar listed no active incident within 240s under --sustained",
+   "skill": "wrap-session",
+   "step": "curation"
+  },
+  {
+   "chunk": "2026-08-29-app-registry-reconciliation",
+   "ts": "2026-08-29T16:10:02Z",
+   "id": "2026-08-29T16:10:02Z-b",
+   "what": "One carry had a non-obvious owner and took an extra read to place: the pulse://stream/incidents producers-but-no-consumer finding is not a diagnostic MUTING issue (that entry's headline class) but a registered-surface-with-no-consumer issue. Reading the entry's full SCOPE showed it already owns the same shape under other names — the bare-name log-reader family and the agent-run status truthfulness item are both declared-thing-does-not-do-what-the-declaration-implies — so it is the right owner rather than a new entry, which would have been a trajectory HALT.",
+   "impact": {
+    "extra_reads": 1
+   },
+   "artifacts": [
+    "working-route"
+   ],
+   "evidence": "working-route L120 SCOPE, read before pinning",
+   "skill": "wrap-session",
+   "step": "route-resolve"
+  },
+  {
+   "chunk": "2026-08-29-app-registry-reconciliation",
+   "ts": "2026-08-29T16:17:59Z",
+   "id": "2026-08-29T16:17:59Z-b",
+   "what": "The light gate's own nextest --workspace clobbered pulse-app/ui/src/bindings/index.ts back to the no-mcp shape (staged check read 0 before regen, 1 after), exactly as the 2026-08-22 routine-ORDERING playbook rule predicts. The ordering held: regen ran after the last regenerating op and capability-drift ran last, and the assertion was made against the STAGED copy via git show, not the worktree. Recorded as a confirmation that the interim rule is still load-bearing while the mechanical xtask assertion it names remains unlanded.",
+   "impact": {},
+   "artifacts": [
+    "pulse-app/ui/src/bindings/index.ts",
+    "playbook"
+   ],
+   "evidence": "staged check: git show :pulse-app/ui/src/bindings/index.ts | grep -c mcp -> 1",
+   "skill": "wrap-session",
+   "step": "gates"
+  },
+  {
+   "chunk": "2026-08-29-halo-state-pulse-signature-deferred",
+   "ts": "2026-08-29T20:54:44Z",
+   "id": "2026-08-29T20:54:44Z-b",
+   "what": "the entire amendment set (2 masters, 14 body edits) entered via validation check 5 — the orchestrator-raised Expected-amendments floor — with all 7 detectors returning proposals:[] because a status-change on an EXISTING documented surface binds to no detector invariant; the same uncovered class the D-security-logging and D-obs-defect-narrative rationale comments both name, now measured a third time on a design/layouts subject",
+   "impact": {
+    "extra_reads": 0
+   },
+   "artifacts": [
+    ".andromeda/drift-base.md"
+   ],
+   "evidence": ".andromeda/runs/2026-08-29T20-41-44Z-wrap/fanout-results.md",
+   "skill": "wrap-session",
+   "step": "reconcile"
+  },
+  {
+   "chunk": "2026-08-29-advisory-backlog",
+   "ts": "2026-08-29T22:45:50Z",
+   "id": "2026-08-29T22:45:50Z-b",
+   "what": "first log read probed the bare agent-latest.jsonl name and found nothing; the file was the ROTATED agent-latest.jsonl.2026-08-29 - the exact bare-name trap test-plan s3 logs rule documents (never a bare name, resolve the rotated family); one retry via the family glob",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    "scratchpad/smoke-224436/logs"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "smoke"
+  },
+  {
+   "chunk": "2026-08-30-acl-rejection-logging",
+   "ts": "2026-08-30T15:10:41Z",
+   "id": "2026-08-30T15:10:41Z-b",
+   "what": "a frontend procedure added in the same chunk as its first caller is INVISIBLE to the runtime until the regenerated bindings are BUNDLED — the dist's ARGS_MAP, not the backend, decides method existence; the fire-and-forget reporter made the miss silent (0 records, no error), distinguishable only by the wire assert",
+   "impact": {
+    "iterations": 1,
+    "retries": 1
+   },
+   "artifacts": [
+    "pulse-app/ui/src/bindings/index.ts",
+    "pulse-app/ui/dist"
+   ],
+   "evidence": "revoked-arm run 1: rejection_records=0; run 2 after regen->dist->release: rejection_records=1",
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": "2026-08-30-agent-harness-teardown-truth",
+   "ts": "2026-08-30T21:00:52Z",
+   "id": "2026-08-30T21:00:52Z-b",
+   "what": "first testing.md fingerprint-facet grep (-A6 context) overflowed the 34KB tool-result cap into a persisted file; recovered with one narrower -o pattern re-grep",
+   "impact": {
+    "retries": 1
+   },
+   "artifacts": [
+    ".claude/rules/testing.md"
+   ],
+   "evidence": null,
+   "skill": "phase",
+   "step": "research"
+  }
+ ],
+ "epoch3_count": 6,
+ "epoch3": [
+  {
+   "chunk": "2026-07-05-anomaly-surfacing",
+   "ts": "2026-07-05T11:16:58Z",
+   "id": null,
+   "what": "Intent F8 mechanism 'Traces sorts by latency ascending' is falsified by crates/viz/src/query.rs (ORDER BY ts_unix_nano DESC, no default error-hoist); OBSERVED outcome 'erroring service buried off-screen, not first' still holds. Premise-correction noted in plan; fix unaffected.",
+   "impact": {},
+   "artifacts": [
+    "crates/viz/src/query.rs",
+    "andromeda-pulse-0.3.0/intent.md"
+   ],
+   "evidence": null,
+   "skill": "phase",
+   "step": "research"
+  },
+  {
+   "chunk": "2026-07-05-anomaly-surfacing",
+   "ts": "2026-07-05T12:20:00Z",
+   "id": null,
+   "what": "Pre-existing React setState-in-render warning in TraceTable.tsx handleSort (announce() inside the setSortState updater) surfaced on the existing aria-sort test. New handler handleToggleErrorsOnly written WITHOUT the anti-pattern (announce before setState); handleSort left unchanged (out of chunk intent, refactoring tested cycle logic risks regression). Future-cleanup candidate.",
+   "impact": {},
+   "artifacts": [
+    "pulse-app/ui/src/dashboard/routes/traces/TraceTable.tsx"
+   ],
+   "evidence": null,
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": "2026-07-05-legible-labeled-constellation",
+   "ts": "2026-07-05T18:25:57Z",
+   "id": null,
+   "what": "layout-templates extract describes the compact widget as a single aggregated badge, but shipped code (chunks #90/#91) replaced it with a per-service constellation - a spec-vs-code drift; plan conclusion (widget stays label-free) holds either way so 0 rework",
+   "impact": {},
+   "artifacts": [
+    "layout-templates.md",
+    "pulse-app/ui/src/widget/ConstellationCanvas.tsx"
+   ],
+   "evidence": null,
+   "skill": "phase",
+   "step": "plan"
+  },
+  {
+   "chunk": "2026-07-05-constellation-severity-live-wiring",
+   "ts": "2026-07-05T23:04:20Z",
+   "id": null,
+   "what": "capability-drift exited 1 with 3 missing mcp.start/status/stop (0 extra) — the known default-features bindings.ts regen transient (mcp.* dropped when nextest regenerates index.ts), NOT this chunk drift (added 0 TauRPC procedures); wrap regenerates via mcp-server-feature emit_taurpc_bindings as its last pre-commit step. Recurs on every implement running a default-features nextest.",
+   "impact": {},
+   "artifacts": [],
+   "evidence": null,
+   "skill": "implement",
+   "step": "fix-loop"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-07-07T16:18:18Z",
+   "id": null,
+   "what": "working-route.md + verification-matrix.json live at repo-root ./andromeda-pulse-0.3.0/ (v3 migration layout), not under .andromeda/; the version-dir assumption cost a failed glob + a repo-wide find to locate",
+   "impact": {
+    "extra_reads": 2
+   },
+   "artifacts": [
+    "working-route.md",
+    "verification-matrix.json",
+    "master-route.md"
+   ],
+   "evidence": null,
+   "skill": "new-session",
+   "step": "orientation"
+  },
+  {
+   "chunk": null,
+   "ts": "2026-07-10T13:15:15Z",
+   "id": null,
+   "what": "v3 version dir is at project root (./andromeda-pulse-0.3.0) while .andromeda/ holds specialist plans; orientation first location probe assumed a .andromeda/andromeda-pulse-* subdir and found nothing, needing a second find to locate working-route.md + verification-matrix.json (branch chore/migrate-pulse-to-v3)",
+   "impact": {
+    "extra_reads": 2
+   },
+   "artifacts": [
+    "andromeda-pulse-0.3.0/working-route.md",
+    "andromeda-pulse-0.3.0/verification-matrix.json"
+   ],
+   "evidence": null,
+   "skill": "new-session",
+   "step": "orientation"
+  }
+ ]
+}

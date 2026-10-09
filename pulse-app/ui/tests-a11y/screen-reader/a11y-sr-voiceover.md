@@ -255,7 +255,7 @@ Boot app in compact widget mode (default startup). VoiceOver pass:
      close / minimize / zoom buttons announced individually
   2. Custom titlebar drag region — decorative, not focusable
   3. Settings gear button → "Settings, button"
-  4. Expand button → "Expand to dashboard, button"
+  4. Dashboard-toggle button → "Toggle dashboard, button"
   5. Minimize button → "Minimize to tray, button"
 - Activating Minimize (Space or VO+Space): widget minimizes to tray;
   focus returns to the tray icon (verified separately via the

@@ -1,0 +1,36 @@
+# security extract
+
+## Relevance
+relevant — the chunk's whole subject is the npm arm of the dependency-security CI gate (security-plan §Dependency Security → CI integration → npm channel).
+
+## Constraints
+- security-plan §Dependency Security → CI integration (build-fail roster) requires the build to fail on `cargo xtask check:npm-supply-chain` exit 1 (unexcepted advisory, license outside the per-class allowlist, denylisted package name) AND on exit 2 (cannot-evaluate). The chunk's "green" therefore means exit 0 on all three arms, never a relaxed gate; a registry-unreachable run is its own infra arm and is never read as a findings pass.
+- security-plan §Dependency Security → CI integration (advisory dispositions, last sentence of the `cargo audit` bullet, and the npm-channel bullet's precedent) requires that a finding with a stated safe upgrade is never excepted — it is fixed at its source. An exception is admissible only for a finding with no fixed release anywhere. Whether `seroval` (two GHSAs) and `source-map-js` (one GHSA) have a fixed release that each dependent's range admits is research's question; the plan does not answer it.
+- security-plan §Dependency Security → npm channel requires every advisory exception in `pulse-app/ui/npm-policy.json` to be GHSA-scoped with mandatory provenance (ghsa / package / reason / owner / closing_condition; a blank field is rejected by the parser). Three findings on two packages are three separately scoped dispositions, not one per package.
+- security-plan §Dependency Security → npm channel requires exceptions to be pruned-not-kept: an exception whose closing condition fires is removed in the same change. This binds the two standing `extract-zip` exceptions if the chunk's lockfile movement fires either condition; whether it does is research's question.
+- security-plan §Dependency Security → npm channel (blast radius, corrected 2026-08-30) requires the runtime / dev class split to be honoured: the runtime arm is bundled by Vite into the shipped webview, so an advisory there reaches end users. The scope marks `seroval` / `seroval-plugins` as runtime-class and `source-map-js` as dev-class on an [inferred] reading; the class of each holder path is research's to re-derive from the lockfile's `dev` flags, and it decides how an exception (if any) may be reasoned.
+- security-plan §Dependency Security → npm channel requires the license walk and the ban arm to read the committed lockfile alone (no `npm ci`). A lockfile change can move a `license` field or a class flag, so the license and denylist arms are re-evaluated on the changed lockfile, not only the advisory arm.
+- security-plan §Dependency Security (Critical CVE response SLA) sets a 72h window from public disclosure to merged fix for a Critical advisory. `seroval` GHSA-p6vx-979v-rg4c is reported critical; its publication date and whether it reaches the shipped bundle are research's questions (the scope carries the publication dates as unread).
+
+## Patterns to follow
+- In-range lockfile bump as the first-choice close: security-plan §Dependency Security → npm channel records the brace-expansion / ip-address precedent — each finding had a fixed release, no exception was taken, the lockfile entries moved and `package.json` stayed untouched.
+- No-fixed-release exception shape: the same bullet records the `extract-zip` pair as the model for an admissible exception (vulnerable range covers every release, npm's remedy is a downgrade and is rejected, the chain and its class are named).
+- Prune on the firing condition: the same bullet's deepmerge-ts and `parse-cache-control` precedents (removed the session their closing condition fired).
+- The gate's exit contract as the verdict vocabulary: 0 green / `green-with-dispositions` · 1 findings or policy red · 2 cannot-evaluate, per security-plan §Dependency Security → npm channel and §Bootstrap phases `dep-security-ci-gate`.
+- The plan is silent on a `package.json` `overrides` entry as a disposition path and on the CI Node/npm major matching the lockfile-writing host; the scope cites `.claude/rules/security.md` Session Additions for both. Neither is a security-plan mandate, so research and P4 take them from the rule file, not from this extract.
+
+## Anti-patterns to avoid
+- Excepting a finding that has a forward fix, or writing an exception without its provenance fields and closing condition (security-plan §Dependency Security → CI integration; → npm channel).
+- Applying npm's downgrade-shaped remedy to turn the gate green — the plan records that remedy as rejected for the `extract-zip` pair (security-plan §Dependency Security → npm channel).
+- Touching the workflow in a way that breaks the SHA-pinning convention or adds `npm ci` to the `supply-chain` job: third-party Actions are pinned by 40-char SHA and the npm step is a plain `run:` after SHA-pinned setup-node (security-plan §Security Anti-Patterns → Secrets; §Bootstrap phases `dep-security-ci-gate`). Applies only if the chunk edits `ci.yml` at all (e.g. a Node major change).
+
+## Contract bindings
+- security ↔ tests/CI: the gate is one step of `ci.yml`'s `supply-chain` job (security-plan §Bootstrap phases `dep-security-ci-gate`); the chunk's closing evidence is that job's verdict on the chunk's own commit, which the tests domain owns as the CI read. The steps after the npm step did not run on the red commits (scope §CI read), so their verdict on the chunk's commit is first evidence, not a re-confirmation.
+- security ↔ design/frontend: a moved runtime-class package (`@tanstack/react-router` chain) ships in the webview bundle, so the UI typecheck / lint / unit / build gates the scope lists are the behavioural check on the security change.
+- security-plan drift owed at wrap: §Dependency Security → npm channel carries a dated "Current state" record (exception count, the named exceptions, the last re-read). Whatever disposition this chunk lands changes that record, so an amendment through the sanctioned writer is owed; the body is not edited during the phase loop (plan header).
+
+## Acceptance criteria contributions
+- `cargo xtask check:npm-supply-chain` exits 0 on the chunk's lockfile + policy, locally and in the `supply-chain` CI job on the chunk's commit; an exit 2 is recorded as cannot-evaluate, never as green (per security-plan §Dependency Security → CI integration, build-fail roster; → npm channel exit contract).
+- Each of the three GHSAs ends with exactly one recorded disposition: closed at its source (the patched version resolved on every holder path in `package-lock.json`), or an exception that research measured to have no fixed release; no GHSA with a fixed release reachable by its dependents appears in `npm-policy.json` (per security-plan §Dependency Security → CI integration, advisory dispositions; → npm channel).
+- Every advisory exception present in `npm-policy.json` after the change carries non-blank ghsa / package / reason / owner / closing_condition, and no exception remains whose closing condition the change fired (per security-plan §Dependency Security → npm channel).
+- The license and denylist arms of the same gate read green on the changed lockfile, with each moved package's runtime / dev class re-read from the lockfile (per security-plan §Dependency Security → npm channel, per-class allowlists and blast radius).

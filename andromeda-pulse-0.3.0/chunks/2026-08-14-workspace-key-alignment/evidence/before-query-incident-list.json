@@ -1,0 +1,50 @@
+{
+  "capture": "before-fix",
+  "chunk": "2026-08-14-workspace-key-alignment",
+  "captured_at_utc": "2026-08-14T23:34Z",
+  "binaries": {
+    "pulse_app": "target/debug/pulse-app.exe built from clean HEAD b08e10a (pre-fix)",
+    "sidecar": "target/debug/andromeda-pulse-mcp.exe rebuilt at clean HEAD b08e10a with --features mcp-server (pre-fix)"
+  },
+  "conditions": {
+    "data_dir": "<scratchpad>/wka-capture (one dir shared by app and sidecar)",
+    "app_cwd": "the andromeda-pulse repo root",
+    "l4_mode": "ANDROMEDA_PULSE_L4_DETERMINISTIC=true (P-073 canned output, no model)",
+    "seed": "cargo run -p ingest --example inject_demo — retry storm, ~4600 spans / ~960 exception events"
+  },
+
+  "independent_corpus_read": {
+    "method": "direct read-only sqlite3 query of {data_dir}/corpus/corpus.db — does not go through the sidecar",
+    "incidents_total_rows": 2,
+    "active_rows": 2,
+    "stamped_workspace_key_shape": "\\\\?\\<detected-project-root>",
+    "stamped_workspace_key_basename": "andromeda-pulse",
+    "note": "the app stamps the DETECTED PROJECT ROOT, Windows verbatim-prefixed — not the data dir"
+  },
+
+  "sidecar_query_incident_list": {
+    "method": "line-delimited JSON-RPC 2.0 over stdio; initialize then tools/call",
+    "gates": "compile-time --features mcp-server AND runtime ANDROMEDA_PULSE_MCP_ENABLED=true (both required)",
+    "exit_code": 0,
+    "total": 0,
+    "items_returned": 0,
+    "filter_key_shape": "<data_dir>",
+    "filter_key_basename": "wka-capture"
+  },
+
+  "verdict": {
+    "keys_equal": false,
+    "incidents_in_corpus": 2,
+    "incidents_visible_to_sidecar": 0,
+    "statement": "Against one data dir holding 2 active incidents, the pre-fix sidecar returns total: 0. The two numbers together rule out the alternative explanation that no incidents were created. F10 was previously DERIVED from code reading only; this is the observation."
+  },
+
+  "hygiene": {
+    "response_bodies_recorded": false,
+    "raw_otlp_attribute_values_recorded": false,
+    "full_paths_recorded": false,
+    "non_jsonrpc_stdout_lines_from_sidecar": 0,
+    "app_error_lines": 0,
+    "app_panics": 0
+  }
+}

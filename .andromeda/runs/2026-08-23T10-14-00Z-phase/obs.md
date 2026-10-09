@@ -1,0 +1,44 @@
+# obs extract
+
+## Relevance
+Partial — the chunk is storage/ingest work, but it lands a new scrubbed, client-controlled cell on the `metrics_points` write boundary, which is squarely inside the `redactions_applied` counter contract and the PII allowlist posture.
+
+## Constraints
+- The `redactions_applied` counter's registered scope is exactly four named write boundaries (`spans.service_name`, `span_events.name`, `metrics_points.metric_name`, `log_records.severity_text`); a persisted label cell scrubbed at the metrics builder is a FIFTH cell, so obs-plan.md §5 requires the counter to cover it and the §5 scope wording to be re-stated at wrap (per obs-plan.md §5 Metric Coverage → Conceptual instrument types, `redactions_applied` row).
+- The persisted-cells-only counting rule is mandated as *structural*, not aspirational: each builder RETURNS its per-batch tally and `record_redactions` folds at that table's OWN post-append site in `consumer::dispatch_batch`, so a batch rejected at `flush()` contributes zero. Any label-scrub tally must ride that same return-and-fold path rather than folding inside the builder (per obs-plan.md §5, `redactions_applied` row). Whether the metrics builder already routes its tally that way after `2026-08-23-metrics-points-identity` is research's question.
+- `redactions_applied` is required to stay an aggregate count ONLY — never the matched value, its category, the attribute key it came from, or a `service_name` label. The chunk's open "label KEYS need a stated disposition" question therefore may not resolve toward emitting keys in telemetry (per obs-plan.md §8 PII Scrubbing → Default-deny posture, `buffer` whitelist).
+- Raw OTLP telemetry payloads are classified High / scrub-required, and the only permitted boundary shape for describing an attribute set is `attributes_count` + `service_name_tag` — never the attribute dict (per obs-plan.md §8 → Data classification rules, row 1).
+- Metric-event label fields must be bounded to enumerated values; OTLP data-point attributes are client-controlled and therefore may never become labels on a `metric.*` event (the §8 delegated-timing leaves state this explicitly for `service`) (per obs-plan.md §5 Metric label cardinality discipline).
+- The `buffer.tick` field set is restated at THREE sites — §1 Heartbeat ticks, §5 counter row, §8 `buffer` allowlist — so any change to the tick's fields requires all three to move together (per obs-plan.md §1 Heartbeat ticks, §5, §8).
+- The metrics append path sits inside must-trace P1, whose `duckdb.append` span is required to carry `duration_ms` + `rows_appended`; adding label carriage must not displace those or add per-row spans to the appender inner loop (per obs-plan.md §4 Scenario P1 and §11 Telemetry Strategy).
+
+## Patterns to follow
+- Return-and-fold: builder returns `(RecordBatch, tally)`, caller folds at the table's own post-append site — per-table granularity is load-bearing so one table's append failure cannot discard another's already-stored count (per obs-plan.md §5, `redactions_applied` row).
+- Tick-aggregated counter carried as a FIELD on the existing 15s `buffer.tick`, not as a new `metric.buffer.*` target; per-field/per-row emission is barred (per obs-plan.md §5 + §11 hot-path rule).
+- EXACT allowlist leaf per target enumerating EVERY field the emit site emits — `for_target`'s prefix fallback otherwise resolves to an unrelated field set (or, for `metric.*` targets, keeps `value` and silently redacts every label) (per obs-plan.md §8 Default-deny posture).
+- Allowlist/field-completeness guards must live under `pulse-app/tests/`, not in a src-level `mod tests` (dead under `[lib] test = false`) (per obs-plan.md §8, the `triage.baseline.bootstrap_window.override` and delegated-timing leaf notes).
+- Aggregate-per-batch (or per-query) diagnostic discipline for any new WARN — the `corpus.read.undecryptable` precedent is ONE aggregate per query, never per row (per obs-plan.md §6 Log levels mapping, `warn` row).
+
+## Anti-patterns to avoid
+- Never log raw OTLP attribute values — label keys and label values are Vector 1 data; only counts/tags may be emitted (per obs-plan.md §11 → Logs and §11 → Spans / Traces).
+- Never introduce unbounded label cardinality into `tracing` event fields (client-supplied label keys/values, per-trace-ID dimensions) (per obs-plan.md §11 → Metrics).
+- Never emit at `info` in the appender hot path or per data point / per label pair — spam costs throughput and the §5 counter row bars per-field emission (per obs-plan.md §11 → Telemetry Strategy and → Logs).
+
+## Contract bindings
+- **obs ↔ tests (harness contract):** the JSON log schema in §3/§6 is verbatim-binding FROM the tests harness contract — obs aligns to tests, not vice versa; any new field rides `fields` in that shape (per obs-plan.md §3 Log format JSON schema).
+- **obs ↔ tests (evidence surface):** `redactions_applied` exists to make P-047 scrubber recall gradeable from OUTSIDE the process rather than by reading stored rows back — the chunk's acceptance item 2 ("redaction is counted under the persisted-cells-only rule") is graded through this counter (per obs-plan.md §5).
+- **obs ↔ security:** §8 classifies the label values this chunk persists as High / scrub-required at the write boundary; scope.md notes security-plan §Anti-Patterns → Logging enumerates four scrubbed columns and obs §5 carries the parallel four-boundary scope claim, so a fifth cell obliges BOTH documents to widen or both go stale.
+- **obs ↔ CI:** §10 CI gates read `agent-latest.jsonl` post-run (heartbeat gap ≤45s across `buffer.tick`, `metric.buffer.memory_bytes` ≤ 512MB); a representation that grows row size is measured on that same gate, and check scripts must remain NEUTRAL-tolerant (per obs-plan.md §10 CI gates + Load-profile constraints).
+
+## Acceptance criteria contributions
+- A credential-shaped label value redacted at the metrics write boundary increments `redactions_applied` on `buffer.tick`, and a batch rejected at `flush()` contributes ZERO to that counter (per obs-plan.md §5 Metric Coverage → `redactions_applied` row).
+- No label key, label value, redaction category, or `service_name` label appears anywhere in `agent-latest.jsonl` for the label path — the counter and any new tick field are aggregate counts only (per obs-plan.md §8 PII Scrubbing → Default-deny posture, `buffer` whitelist).
+- No new per-data-point or per-label-pair emission is added to the appender path; label accounting folds once per batch and rides the existing 15s tick (per obs-plan.md §11 Obs Anti-Patterns → Telemetry Strategy / Metrics hot-path rules).
+- Under the retention window, `metric.buffer.memory_bytes` stays ≤ 512 MB with the chosen label representation in place, and `buffer.tick` shows no >45s gap during the verification run (per obs-plan.md §10 SLO Invariants & Telemetry Budgets).
+
+## Relevant amendment history
+- **2026-08-23-metrics-points-identity** (§5, `redactions_applied` row) — the immediately preceding chunk moved the fold from inside the builders to each table's post-append site in `consumer::dispatch_batch`, making persisted-cells-only structural; the pre-chunk counter-example (`redactions_applied: 2` with `rows_ingested: 0` on a rejected batch) is why this chunk's new scrub must join that path, not the builder-internal one. Verified single-site at that wrap: §1 and §8 assert only tick-membership and aggregate-only shape.
+- **2026-08-23-ingestion-scrub-coverage** (§5) — widened the counter's registered scope from the `scrub_otlp_field` log/exception paths to all four builders, adding `metrics_points.metric_name`; this is the scope sentence a new metrics label column would extend. It also introduced the persisted-cells-only rule (`extract_service_name`'s `Option<&mut u64>`, non-storing callers pass `None`) that makes a four-column canary read 4 and not 5.
+- **2026-08-22-pii-scrubber-recall** (§1 / §5 / §8) — registered the counter in the first place across all THREE restating sites, with the explicit note that a §8-only apply would have left §1 and §5 stale; established the aggregate-count-only qualifier (never the matched value, category, attribute key, or `service_name`) that governs the label-KEY disposition question this chunk defers to P3/P4.
+- **2026-08-21-delegated-timing-observables** (§5 / §8) — established that for `metric.*` targets the guard is per-target-own-leaf rather than no-bare-prefix, because `for_target`'s fallback keeps `value` and *silently redacts every label*; and that `service`, being an OTLP resource attribute, may never be a label. Directly on point if any label-dimensioned metric emission is contemplated.
+- **2026-08-14-fingerprint-feed-capture-repair** (§1 / §5 / §6 / §8) — the precedent for adding counters as `buffer.tick` FIELDS folded once per batch rather than as separate `metric.buffer.*` targets, and for explicit allowlist leaves defeating `for_target` prefix fallback.

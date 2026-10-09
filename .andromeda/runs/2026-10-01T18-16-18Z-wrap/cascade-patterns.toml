@@ -1,0 +1,16 @@
+[[pattern]]
+id = "stages5"
+regex = 'script-modes`[^·\n]{0,80}· `npm`'
+
+[[pattern]]
+id = "stagecount"
+regex = '5/5 stages|five stages|5 stages'
+ignore_case = true
+
+[[pattern]]
+id = "lineage"
+regex = 'v2\.2\b|v1\.1-fallback|v1\.1-reflection'
+
+[[pattern]]
+id = "prepush-list"
+regex = '`ci-gates` in order'

@@ -1,0 +1,80 @@
+[
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "84a1732c",
+"ts": "2026-10-06T22:07:05Z",
+"argv": [
+"conclusion",
+"--sha",
+"b1fcba57c1c8cfebf562bcb32002dac6351702e7",
+"--sha",
+"ce5857b422ff1a35d46f4bf66b6916755456d004",
+"--sha",
+"373b57603d9613571725cdbabd5cd71ed29f7c45",
+"--sha",
+"1124148ec9271353696d1cff2e803db97c6ba6ef",
+"--sha",
+"5f77859f8ebbb18fe01f6394a6f94bfc66b9ef34",
+"--run-dir",
+".andromeda/runs/2026-10-06T22-06-57Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"b1fcba57c1c8 verdict: in progress · checks 13/13 · runs ci#37538450527 queued/- secret-scan#37538450550 in_progress/-",
+"ce5857b422ff verdict: red · checks 13/13 · first-fail +180 s supply-chain (audit + deny + auditable) · runs secret-scan…",
+"373b57603d96 verdict: red · checks 13/13 · first-fail +191 s supply-chain (audit + deny + auditable) · runs ci#37536948…",
+"1124148ec927 verdict: red · checks 13/13 · first-fail +191 s supply-chain (audit + deny + auditable) · wall 1210 s · ru…",
+"5f77859f8ebb verdict: green · checks 13/13 · wall 1801 s · runs ci#37340298405 completed/success secret-scan#3734029844…"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "b1fcba57c1c8cfebf562bcb32002dac6351702e7",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+},
+{
+"sha": "ce5857b422ff1a35d46f4bf66b6916755456d004",
+"word": "red",
+"polls": [
+"red"
+]
+},
+{
+"sha": "373b57603d9613571725cdbabd5cd71ed29f7c45",
+"word": "red",
+"polls": [
+"red"
+]
+},
+{
+"sha": "1124148ec9271353696d1cff2e803db97c6ba6ef",
+"word": "red",
+"polls": [
+"red"
+]
+},
+{
+"sha": "5f77859f8ebbb18fe01f6394a6f94bfc66b9ef34",
+"word": "green",
+"polls": [
+"green"
+]
+}
+]
+}
+}
+]

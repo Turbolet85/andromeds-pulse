@@ -1,9 +1,9 @@
-//! Chunk #86 negative-canary PII test для the L4 parse-failure path.
+//! Chunk #86 negative-canary PII test for the L4 parse-failure path.
 //!
-//! Injects а stubbed `LlmInferenceRunner` returning а malformed JSON
-//! response containing а 32-char canary substring. Drives а single L4
+//! Injects a stubbed `LlmInferenceRunner` returning a malformed JSON
+//! response containing a 32-char canary substring. Drives a single L4
 //! inference invocation via `handle_digest_outcome`. Captures all tracing
-//! events с the chunk #44 CapturingSubscriber + FieldCollector pattern
+//! events with the chunk #44 CapturingSubscriber + FieldCollector pattern
 //! (per CLAUDE.md testing.md 2026-05-11 entry). Asserts the canary
 //! substring is ABSENT from every event's target + every field value
 //! (parse-failure event emission MUST NOT leak raw output bytes per
@@ -37,7 +37,7 @@ impl LlmInferenceRunner for CanaryMalformedRunner {
         _prompt: &'a str,
         _schema_json: &'a str,
     ) -> InferenceFuture<'a, String> {
-        // Malformed JSON с canary embedded; chunk #86 parse-failure path
+        // Malformed JSON with canary embedded; chunk #86 parse-failure path
         // MUST drop the canary at the boundary instead of logging it.
         let response = format!("{{\"not-valid-json\": \"{CANARY_SUBSTRING}-{CANARY_SUBSTRING}\"");
         Pin::from(Box::new(async move { Ok(response) }))
@@ -62,7 +62,7 @@ impl LlmInferenceRunner for CanarySchemaViolationRunner {
         _schema_json: &'a str,
     ) -> InferenceFuture<'a, String> {
         // Well-formed JSON but missing required fields → SchemaViolation;
-        // canary embedded в free-text field that MUST NOT be logged verbatim.
+        // canary embedded in free-text field that MUST NOT be logged verbatim.
         let response = format!("{{\"schema_version\": \"{CANARY_SUBSTRING}\"}}");
         Pin::from(Box::new(async move { Ok(response) }))
     }
@@ -173,10 +173,10 @@ async fn l4_parse_failure_path_does_not_leak_canary_to_tracing() {
     drop(_guard);
     let captured = events.lock().expect("lock").drain(..).collect::<Vec<_>>();
 
-    // Canary MUST NOT appear в any event's target OR field value across
+    // Canary MUST NOT appear in any event's target OR field value across
     // the entire parse-failure code path. Per CLAUDE.md security 2026-05-11
     // CapturingSubscriber + FieldCollector pattern (chunk #44 precedent for
-    // snapshot PII negative-canary, extended here к L4 parse-failure path).
+    // snapshot PII negative-canary, extended here to L4 parse-failure path).
     for ev in &captured {
         assert!(
             !ev.target.contains(CANARY_SUBSTRING),
@@ -213,7 +213,7 @@ async fn l4_schema_violation_path_does_not_leak_canary_to_tracing() {
     // The exact failure variant depends on how serde + the bounded post-
     // parse validator interpret the partial JSON. Either ParseFailure
     // (deserialize rejects missing required fields) OR SchemaViolation
-    // (deserialize succeeds + post-parse bounds check fails) is а valid
+    // (deserialize succeeds + post-parse bounds check fails) is a valid
     // chunk #86 failure path for the canary-redaction guarantee.
     assert!(
         matches!(

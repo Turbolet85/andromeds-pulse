@@ -1,0 +1,20 @@
+[
+  {
+    "id": "I1",
+    "kind": "relay",
+    "repo": null,
+    "path": "message: the overseer (founder-delegated), in the /andromeda-phase invocation, 2026-10-06",
+    "form": "copy",
+    "state": "message",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "d43fe790685186abbf2ee120b174b4f6799d8583637a33854d86ffe7011290a3",
+    "copy": "I1-relay-1.md.txt",
+    "link": false,
+    "read_at": "2026-10-06T22:07:40Z",
+    "step": "phase:P1",
+    "why": "phase directive: every step may run at night; prefer the fix at source, an exception only where no forward fix is measured, with its re-check trigger; measure the installed tree after the change"
+  }
+]

@@ -1,0 +1,6 @@
+
+## 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings — the probe's gb arm and --gbnf retired; replace-or-append pinned
+**Section:** §1 Pending coverage triggers → `l4-decision-probe-arg-parse-unit-coverage`
+**Change:** The row gains a "Changed at chunk 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings" clause: still 61 collected pins (2 retired, 2 added), `ARMS` 16 → 15. The shipped argv is the former `gb` argv (`--grammar-file`, a per-run `{out}/l4-output.gbnf` holding `L4_OUTPUT_GBNF`), so the `gb` arm and the `--gbnf FILE` flag are retired (`unknown arm gb` · `unknown flag --gbnf`). `gb_arm_swaps_exactly_the_schema_file_for_the_grammar_file` and `gbnf_flag_takes_a_path_and_is_unset_by_default` give way to `shipped_argv_carries_the_grammar_file_and_no_schema_file` and `sampling_replaces_the_production_pairs_rather_than_duplicating`; `compose_argv` applies every extra flag/value pair by replace-or-append; `pattern_arms_vary_the_argv_only` is re-pointed from `gb` to `nr`. Both new pins are mutation-checked. R2 and A5 vary only the prompt's embedded schema copy, and `--gbnf` leaves the STILL OWED list.
+**Why:** The product now ships the grammar argv, so a probe arm that varied it measures nothing.
+**Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/

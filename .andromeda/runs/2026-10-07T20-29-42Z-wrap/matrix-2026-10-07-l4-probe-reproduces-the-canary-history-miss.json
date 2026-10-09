@@ -1,0 +1,28 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "0eeb593c",
+"ts": "2026-10-07T20:57:10Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-07-l4-probe-reproduces-the-canary-history-miss)",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

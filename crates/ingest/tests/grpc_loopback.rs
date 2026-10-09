@@ -147,26 +147,26 @@ fn no_non_loopback_bind_literals_in_ingest_src() {
             let path = entry.path();
             if path.is_dir() {
                 walk(&path, hits);
-            } else if path.extension().and_then(|s| s.to_str()) == Some("rs") {
-                if let Ok(contents) = fs::read_to_string(&path) {
-                    for (lineno, line) in contents.lines().enumerate() {
-                        // skip line if it's commented (rough heuristic — strip everything after //)
-                        let code = line.split("//").next().unwrap_or("");
-                        for needle in [
-                            "0.0.0.0",
-                            "Ipv4Addr::UNSPECIFIED",
-                            "Ipv6Addr::UNSPECIFIED",
-                            "[::]",
-                            "([0, 0, 0, 0]",
-                        ] {
-                            if code.contains(needle) {
-                                hits.push(format!(
-                                    "{}:{}: {}",
-                                    path.display(),
-                                    lineno + 1,
-                                    line.trim()
-                                ));
-                            }
+            } else if path.extension().and_then(|s| s.to_str()) == Some("rs")
+                && let Ok(contents) = fs::read_to_string(&path)
+            {
+                for (lineno, line) in contents.lines().enumerate() {
+                    // skip line if it's commented (rough heuristic — strip everything after //)
+                    let code = line.split("//").next().unwrap_or("");
+                    for needle in [
+                        "0.0.0.0",
+                        "Ipv4Addr::UNSPECIFIED",
+                        "Ipv6Addr::UNSPECIFIED",
+                        "[::]",
+                        "([0, 0, 0, 0]",
+                    ] {
+                        if code.contains(needle) {
+                            hits.push(format!(
+                                "{}:{}: {}",
+                                path.display(),
+                                lineno + 1,
+                                line.trim()
+                            ));
                         }
                     }
                 }

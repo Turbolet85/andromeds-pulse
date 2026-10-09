@@ -2,7 +2,7 @@
 //! workspace) acknowledge cool-down per capability spec P-022 + P-023.
 //! Chunk #78.
 //!
-//! `IncidentRegistry` trait + `InMemoryIncidentRegistry` backed by а
+//! `IncidentRegistry` trait + `InMemoryIncidentRegistry` backed by a
 //! `DashMap<i64, Incident>` keyed on corpus rowid (Incident.id). Mirrors
 //! chunk #67 `InMemoryServiceRegistry` lock-free shard pattern.
 //!
@@ -22,7 +22,7 @@ use super::state_machine::{
     cooldown_expiry_unix_nano, is_valid_incident_transition, should_auto_resolve,
 };
 
-/// Trigger reason for а Resolved-state transition, carried on
+/// Trigger reason for a Resolved-state transition, carried on
 /// `IncidentLifecycleEvent` and surface logs. Distinguishes auto-resolution
 /// from explicit user resolve.
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
@@ -34,7 +34,7 @@ pub enum ResolutionTrigger {
 }
 
 /// Sanitized error envelope for incident registry operations. Distinct from
-/// `IncidentError` (persistence-side); registry errors are логические
+/// `IncidentError` (persistence-side); registry errors are logical
 /// (NotFound / InvalidTransition / CooldownActive). No corpus/io variants
 /// here.
 #[derive(Debug, Error, Clone, PartialEq, Eq)]
@@ -62,22 +62,28 @@ impl IncidentRegistryError {
 /// Debug` so callers can hold `Arc<dyn IncidentRegistry>` and thread it
 /// through TauRPC resolvers.
 pub trait IncidentRegistry: Send + Sync + Debug {
-    /// Insert а new incident (post-corpus-INSERT; caller already has the
+    /// Insert a new incident (post-corpus-INSERT; caller already has the
     /// assigned rowid in `incident.id`).
     fn insert(&self, incident: Incident);
 
     /// Lookup by corpus rowid.
     fn get(&self, id: i64) -> Option<Incident>;
 
-    /// Snapshot of all active (incl. acknowledged) incidents for а
+    /// Snapshot of all active (incl. acknowledged) incidents for a
     /// workspace. Used by `incidents.list_active()`.
     fn list_active(&self, workspace: &str) -> Vec<Incident>;
+
+    /// Snapshot of EVERY incident for a workspace, Resolved included.
+    /// Resolved rows stay in the registry for the process lifetime, so this
+    /// is the only view that still carries `resolved_at_unix_nano` — the
+    /// instant a service's maximum tier falls.
+    fn list_for_workspace(&self, workspace: &str) -> Vec<Incident>;
 
     /// Transition an Active incident to Acknowledged. Checks the
     /// (kind, scope, workspace) cool-down and returns `CooldownActive`
     /// if active. On success sets the incident's
     /// `acknowledged_at_unix_nano` and `updated_at_unix_nano` and records
-    /// а new cool-down expiry for the tuple. Returns the updated
+    /// a new cool-down expiry for the tuple. Returns the updated
     /// Incident snapshot.
     fn acknowledge(
         &self,
@@ -100,11 +106,11 @@ pub trait IncidentRegistry: Send + Sync + Debug {
     /// supports the column but chunk #87+ wires the UI trigger).
     fn mark_read(&self, id: i64, now_unix_nano: i64) -> Result<Incident, IncidentRegistryError>;
 
-    /// Bulk-mark all unread non-Resolved incidents in а workspace as read
+    /// Bulk-mark all unread non-Resolved incidents in a workspace as read
     /// (chunk #87 — Findings counter "Mark all as read" action; capability
     /// P-029 dropdown footer). Iterates the workspace's incidents and sets
     /// `read_at_unix_nano = Some(now)` + `updated_at_unix_nano = now` for
-    /// each Active/Acknowledged incident с `read_at_unix_nano.is_none()`.
+    /// each Active/Acknowledged incident with `read_at_unix_nano.is_none()`.
     /// Returns the Vec<i64> of incident ids that transitioned from unread
     /// → read so the caller can drive per-incident persistence updates +
     /// aggregate-only observability emission. Already-read incidents and
@@ -115,7 +121,7 @@ pub trait IncidentRegistry: Send + Sync + Debug {
         now_unix_nano: i64,
     ) -> Result<Vec<i64>, IncidentRegistryError>;
 
-    /// Bump `updated_at_unix_nano` when а re-emission observed for а live
+    /// Bump `updated_at_unix_nano` when a re-emission observed for a live
     /// incident (resets the 120s no-reemission auto-resolve timer).
     fn observe_reemission(&self, id: i64, now_unix_nano: i64) -> Result<(), IncidentRegistryError>;
 
@@ -124,15 +130,15 @@ pub trait IncidentRegistry: Send + Sync + Debug {
     /// `now_unix_nano` — caller injects deterministic time for tests.
     fn evaluate_auto_resolution(&self, now_unix_nano: i64, window_secs: u64) -> Vec<i64>;
 
-    /// Attach an L4-generated resolution summary к а Resolved incident
+    /// Attach an L4-generated resolution summary to a Resolved incident
     /// (chunk #86; capabilities P-022 + P-059). The caller (L4 inference
     /// subscriber) ensures the `summary_text` payload has already passed
     /// through `security::scrubber::scrub_attribute` per chunk #72
     /// uniform-coverage invariant — the registry side does NOT re-scrub.
     /// Updates `resolution_summary_text` + `updated_at_unix_nano`. Errors:
     /// `NotFound` (no such incident); `InvalidTransition` when target
-    /// incident is NOT already Resolved (chunk spec: attach к Resolved
-    /// only). Returns the updated incident snapshot. Does NOT emit а
+    /// incident is NOT already Resolved (chunk spec: attach to Resolved
+    /// only). Returns the updated incident snapshot. Does NOT emit a
     /// `pulse://stream/incidents` lifecycle event per chunk #86 silent-
     /// attachment Phase 6 resolution.
     fn attach_resolution_summary(
@@ -142,7 +148,25 @@ pub trait IncidentRegistry: Send + Sync + Debug {
         now_unix_nano: i64,
     ) -> Result<Incident, IncidentRegistryError>;
 
-    /// Total incident count в the registry (Active + Acknowledged + Resolved
+    /// Attach the latest cleanly-parsed L4 interpretation to a LIVE
+    /// (Active or Acknowledged) incident — the sibling of
+    /// [`IncidentRegistry::attach_resolution_summary`] for the
+    /// pre-resolution lifecycle, so a report renders the model's actual
+    /// content instead of a false-degraded notice. Same caller contract:
+    /// `summary_text` is already scrubbed (the registry does NOT re-scrub)
+    /// and no lifecycle event is emitted (silent attachment). Writes the
+    /// same `resolution_summary_text` field; a Resolved incident is
+    /// REJECTED with `InvalidTransition` so a late regular generation can
+    /// never clobber a resolution summary — the resolution-summary path
+    /// stays the final write. Errors: `NotFound` / `InvalidTransition`.
+    fn attach_interpretation_summary(
+        &self,
+        id: i64,
+        summary_text: String,
+        now_unix_nano: i64,
+    ) -> Result<Incident, IncidentRegistryError>;
+
+    /// Total incident count in the registry (Active + Acknowledged + Resolved
     /// — for diagnostics + tests).
     fn count(&self) -> usize;
 }
@@ -202,6 +226,14 @@ impl IncidentRegistry for InMemoryIncidentRegistry {
             .collect()
     }
 
+    fn list_for_workspace(&self, workspace: &str) -> Vec<Incident> {
+        self.incidents
+            .iter()
+            .filter(|entry| entry.workspace == workspace)
+            .map(|entry| entry.clone())
+            .collect()
+    }
+
     fn acknowledge(
         &self,
         id: i64,
@@ -216,12 +248,12 @@ impl IncidentRegistry for InMemoryIncidentRegistry {
             return Err(IncidentRegistryError::InvalidTransition);
         }
         let key = (entry.kind, entry.scope, entry.workspace.clone());
-        if let Some(expiry) = self.cooldowns.get(&key) {
-            if *expiry > now_unix_nano {
-                let remaining_nanos = *expiry - now_unix_nano;
-                let remaining_secs = (remaining_nanos / 1_000_000_000) as u64;
-                return Err(IncidentRegistryError::CooldownActive { remaining_secs });
-            }
+        if let Some(expiry) = self.cooldowns.get(&key)
+            && *expiry > now_unix_nano
+        {
+            let remaining_nanos = *expiry - now_unix_nano;
+            let remaining_secs = (remaining_nanos / 1_000_000_000) as u64;
+            return Err(IncidentRegistryError::CooldownActive { remaining_secs });
         }
         entry.status = IncidentStatus::Acknowledged;
         entry.acknowledged_at_unix_nano = Some(now_unix_nano);
@@ -325,6 +357,24 @@ impl IncidentRegistry for InMemoryIncidentRegistry {
         Ok(entry.clone())
     }
 
+    fn attach_interpretation_summary(
+        &self,
+        id: i64,
+        summary_text: String,
+        now_unix_nano: i64,
+    ) -> Result<Incident, IncidentRegistryError> {
+        let mut entry = self
+            .incidents
+            .get_mut(&id)
+            .ok_or(IncidentRegistryError::NotFound)?;
+        if entry.status == IncidentStatus::Resolved {
+            return Err(IncidentRegistryError::InvalidTransition);
+        }
+        entry.resolution_summary_text = Some(summary_text);
+        entry.updated_at_unix_nano = now_unix_nano;
+        Ok(entry.clone())
+    }
+
     fn count(&self) -> usize {
         self.incidents.len()
     }
@@ -380,6 +430,46 @@ mod tests {
         assert_eq!(r.count(), 0);
         assert!(r.list_active("ws-a").is_empty());
         assert!(r.get(42).is_none());
+    }
+
+    #[test]
+    fn list_for_workspace_returns_every_status_and_filters_by_workspace() {
+        let r = fresh_registry();
+        r.insert(sample_incident(
+            1,
+            "ws-a",
+            CueKind::ErrorRateSpike,
+            CueScope::Service,
+        ));
+        r.insert(sample_incident(
+            2,
+            "ws-a",
+            CueKind::LatencyRegression,
+            CueScope::Service,
+        ));
+        r.insert(sample_incident(
+            3,
+            "ws-a",
+            CueKind::RestartEvent,
+            CueScope::Service,
+        ));
+        r.insert(sample_incident(
+            4,
+            "ws-b",
+            CueKind::ErrorRateSpike,
+            CueScope::Service,
+        ));
+        r.acknowledge(2, 2_000_000_000, 0).expect("ack");
+        r.mark_resolved(3, 3_000_000_000, ResolutionTrigger::AutoResolve)
+            .expect("resolve");
+
+        let mut ids: Vec<i64> = r.list_for_workspace("ws-a").iter().map(|i| i.id).collect();
+        ids.sort_unstable();
+        assert_eq!(ids, vec![1, 2, 3]);
+        let resolved = r.get(3).expect("resolved row retained");
+        assert_eq!(resolved.resolved_at_unix_nano, Some(3_000_000_000));
+        assert_eq!(r.list_active("ws-a").len(), 2);
+        assert!(r.list_for_workspace("ws-c").is_empty());
     }
 
     #[test]
@@ -715,6 +805,66 @@ mod tests {
     fn attach_resolution_summary_returns_not_found_for_unknown_id() {
         let r = fresh_registry();
         let result = r.attach_resolution_summary(999, "summary".to_string(), 5_000_000_000);
+        assert!(matches!(result, Err(IncidentRegistryError::NotFound)));
+    }
+
+    #[test]
+    fn attach_interpretation_summary_writes_to_active_incident() {
+        let r = fresh_registry();
+        r.insert(sample_incident(
+            1,
+            "ws-a",
+            CueKind::ErrorRateSpike,
+            CueScope::Service,
+        ));
+        let now = 5_000_000_000_i64;
+        let text = "{\"timeline\":\"[redacted] live interpretation\"}".to_string();
+        let updated = r
+            .attach_interpretation_summary(1, text.clone(), now)
+            .expect("attach succeeds on Active");
+        assert_eq!(updated.resolution_summary_text, Some(text));
+        assert_eq!(updated.updated_at_unix_nano, now);
+        assert_eq!(updated.status, IncidentStatus::Active);
+    }
+
+    #[test]
+    fn attach_interpretation_summary_writes_to_acknowledged_incident() {
+        let r = fresh_registry();
+        let mut inc = sample_incident(1, "ws-a", CueKind::ErrorRateSpike, CueScope::Service);
+        inc.status = IncidentStatus::Acknowledged;
+        inc.acknowledged_at_unix_nano = Some(2_000_000_000);
+        r.insert(inc);
+        let updated = r
+            .attach_interpretation_summary(1, "text".to_string(), 5_000_000_000)
+            .expect("attach succeeds on Acknowledged");
+        assert!(updated.resolution_summary_text.is_some());
+    }
+
+    #[test]
+    fn attach_interpretation_summary_rejects_resolved_incident() {
+        // The resolution-summary path stays the FINAL write: a late regular
+        // generation must never clobber an attached resolution summary.
+        let r = fresh_registry();
+        let mut inc = sample_incident(1, "ws-a", CueKind::ErrorRateSpike, CueScope::Service);
+        inc.status = IncidentStatus::Resolved;
+        inc.resolved_at_unix_nano = Some(2_000_000_000);
+        inc.resolution_summary_text = Some("final resolution summary".to_string());
+        r.insert(inc);
+        let result = r.attach_interpretation_summary(1, "late".to_string(), 5_000_000_000);
+        assert!(matches!(
+            result,
+            Err(IncidentRegistryError::InvalidTransition)
+        ));
+        assert_eq!(
+            r.get(1).unwrap().resolution_summary_text,
+            Some("final resolution summary".to_string())
+        );
+    }
+
+    #[test]
+    fn attach_interpretation_summary_returns_not_found_for_unknown_id() {
+        let r = fresh_registry();
+        let result = r.attach_interpretation_summary(999, "text".to_string(), 5_000_000_000);
         assert!(matches!(result, Err(IncidentRegistryError::NotFound)));
     }
 

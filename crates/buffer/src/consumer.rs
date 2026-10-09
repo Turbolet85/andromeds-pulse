@@ -76,6 +76,7 @@ pub async fn run_consumer(
                 // Successful dispatch; row count already recorded into BufferState.
             }
             Ok(Err(e)) => {
+                state.record_append_rejection();
                 tracing::error!(
                     target: "duckdb.append",
                     reject_reason = %describe_error(&e),
@@ -83,6 +84,7 @@ pub async fn run_consumer(
                 );
             }
             Err(join_err) => {
+                state.record_append_rejection();
                 tracing::error!(
                     target: "duckdb.append",
                     reject_reason = if join_err.is_panic() { "panic" } else { "join_error" },
@@ -105,28 +107,36 @@ fn dispatch_batch(
 
     let (rows, sender, encoded) = match batch {
         Batch::Spans(s) => {
-            let Some(rb) = build_spans_record_batch(&s)? else {
+            let Some((rb, redactions)) = build_spans_record_batch(&s)? else {
                 return Ok(());
             };
             let encoded = encode_or_log(broadcast::encode_spans(&rb), STREAM_NAME_SPANS);
             let rows = append_table_traced(&guard, "spans", rb)?;
+            // Folded per table AFTER its own append: `redactions_applied`
+            // counts persisted cells only, and a span_events failure below
+            // must not discard the count for rows `spans` already stored.
+            state.record_redactions(redactions);
             // chunk #65: span_events append on same guard. Row count NOT added
             // to `rows` — BufferState::rows_ingested keeps per-batch-type
             // semantics ("1 Batch::Spans = 1 increment"); span_events surface
             // independently via the duckdb.append tracing event.
             // chunk #66: fingerprint_observer (when Some) receives per-row
             // exception fingerprints during the build pass for storm detection.
-            if let Some(events_rb) = build_span_events_record_batch(&s, fingerprint_observer)? {
+            if let Some((events_rb, events_redactions)) =
+                build_span_events_record_batch(&s, fingerprint_observer, state)?
+            {
                 append_table_traced(&guard, "span_events", events_rb)?;
+                state.record_redactions(events_redactions);
             }
             (rows, &senders.spans, encoded)
         }
         Batch::Metrics(m) => {
-            let Some(rb) = build_metrics_record_batch(&m)? else {
+            let Some((rb, redactions)) = build_metrics_record_batch(&m, state)? else {
                 return Ok(());
             };
             let encoded = encode_or_log(broadcast::encode_metrics(&rb), STREAM_NAME_METRICS);
             let rows = append_table_traced(&guard, "metrics_points", rb)?;
+            state.record_redactions(redactions);
             (rows, &senders.metrics, encoded)
         }
         Batch::Logs(l) => {
@@ -134,11 +144,12 @@ fn dispatch_batch(
             // template_id per log record between OTLP decode and DuckDB
             // append; populates the nullable log_records.template_id
             // column. When None, template_id stays NULL.
-            let Some(rb) = build_logs_record_batch(&l, drain_miner)? else {
+            let Some((rb, redactions)) = build_logs_record_batch(&l, drain_miner, state)? else {
                 return Ok(());
             };
             let encoded = encode_or_log(broadcast::encode_logs(&rb), STREAM_NAME_LOGS);
             let rows = append_table_traced(&guard, "log_records", rb)?;
+            state.record_redactions(redactions);
             // chunk #69 Phase B Session 7+ (Step 8): persist any
             // newly-created templates to the in-memory DuckDB
             // `log_templates` table via prepared statement on the SAME
@@ -228,7 +239,10 @@ fn observe_spans_for_baseline(batch: &[ResourceSpans], observer: &Arc<dyn SpanOb
         .map(|d| d.as_nanos() as i64)
         .unwrap_or(0);
     for rs in batch {
-        let service_name = extract_service_name(rs.resource.as_ref());
+        // `None`: the baseline tap is not a write path, so its redactions are
+        // not persisted-cell redactions. The value is still scrubbed, keeping
+        // this tap's service identity equal to the one stored in `spans`.
+        let service_name = extract_service_name(rs.resource.as_ref(), None);
         for ss in &rs.scope_spans {
             for span in &ss.spans {
                 if span.trace_id.is_empty() || span.span_id.is_empty() {
@@ -282,6 +296,59 @@ mod tests {
         let conn = Connection::open_in_memory().expect("open_in_memory");
         create_schema(&conn).expect("schema create");
         Arc::new(Mutex::new(conn))
+    }
+
+    // No schema: every append fails at `conn.appender(...)`, which is how the
+    // rejection half of the persisted-cells rule is exercised.
+    fn conn_without_schema() -> Arc<Mutex<Connection>> {
+        Arc::new(Mutex::new(
+            Connection::open_in_memory().expect("open_in_memory"),
+        ))
+    }
+
+    fn metrics_batch_with_credential_name() -> Batch {
+        use ingest::grpc::proto::opentelemetry::proto::common::v1::{
+            AnyValue, KeyValue, any_value,
+        };
+        use ingest::grpc::proto::opentelemetry::proto::metrics::v1::{
+            Gauge, Metric, NumberDataPoint, ResourceMetrics, ScopeMetrics, metric,
+            number_data_point,
+        };
+        use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
+
+        Batch::Metrics(vec![ResourceMetrics {
+            resource: Some(Resource {
+                attributes: vec![KeyValue {
+                    key: "service.name".into(),
+                    value: Some(AnyValue {
+                        value: Some(any_value::Value::StringValue("svc-fold".into())),
+                    }),
+                }],
+                dropped_attributes_count: 0,
+            }),
+            scope_metrics: vec![ScopeMetrics {
+                scope: None,
+                metrics: vec![Metric {
+                    // gitleaks:allow
+                    name: "sk_live_51NotARealKeyOnlyForPulseTests00".into(),
+                    description: String::new(),
+                    unit: String::new(),
+                    metadata: Vec::new(),
+                    data: Some(metric::Data::Gauge(Gauge {
+                        data_points: vec![NumberDataPoint {
+                            attributes: Vec::new(),
+                            start_time_unix_nano: 0,
+                            time_unix_nano: 1_700_000_000_000_000_000,
+                            exemplars: Vec::new(),
+                            flags: 0,
+                            value: Some(number_data_point::Value::AsInt(1)),
+                        }],
+                    })),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }])
     }
 
     fn span_batch(trace_id: u8, span_id: u8) -> Batch {
@@ -541,6 +608,81 @@ mod tests {
         assert_eq!(state.snapshot().rows_ingested, 1);
     }
 
+    // `redactions_applied` counts PERSISTED cells only. These two are a pair:
+    // the first proves the fold still happens on the success path, the second
+    // that a batch rejected at the append folds nothing. Neither alone
+    // discriminates — the first passes under a builder-side fold too.
+    #[tokio::test]
+    async fn dispatch_folds_redactions_after_a_successful_append() {
+        let conn = fresh_conn_with_schema();
+        let state = Arc::new(BufferState::new());
+        let senders = Arc::new(broadcast::create());
+
+        let (sender, receiver) = build_channel();
+        sender
+            .try_send(metrics_batch_with_credential_name())
+            .expect("send within capacity");
+
+        let handle = tokio::spawn(run_consumer(
+            receiver,
+            Arc::clone(&conn),
+            Arc::clone(&state),
+            Arc::clone(&senders),
+            noop_observer(),
+            None,
+            None,
+        ));
+        drop(sender);
+        handle.await.expect("consumer must complete cleanly");
+
+        let snap = state.snapshot();
+        assert_eq!(snap.rows_ingested, 1, "the point must have persisted");
+        assert_eq!(
+            snap.redactions_applied, 1,
+            "a persisted redacted cell must be counted"
+        );
+        // The conditional pair's positive half: a SUCCESSFUL dispatch folds
+        // zero rejections (only the reject-arm test can discriminate alone;
+        // together they pin "once per FAILED batch, never per batch").
+        assert_eq!(snap.append_rejections, 0);
+    }
+
+    #[tokio::test]
+    async fn dispatch_folds_no_redactions_when_the_append_is_rejected() {
+        let conn = conn_without_schema();
+        let state = Arc::new(BufferState::new());
+        let senders = Arc::new(broadcast::create());
+
+        let (sender, receiver) = build_channel();
+        sender
+            .try_send(metrics_batch_with_credential_name())
+            .expect("send within capacity");
+
+        let handle = tokio::spawn(run_consumer(
+            receiver,
+            Arc::clone(&conn),
+            Arc::clone(&state),
+            Arc::clone(&senders),
+            noop_observer(),
+            None,
+            None,
+        ));
+        drop(sender);
+        handle.await.expect("consumer must complete cleanly");
+
+        let snap = state.snapshot();
+        assert_eq!(snap.rows_ingested, 0, "nothing may have persisted");
+        assert_eq!(
+            snap.redactions_applied, 0,
+            "a rejected batch must not count cells it never stored"
+        );
+        assert_eq!(
+            snap.append_rejections, 1,
+            "one failed dispatch folds exactly one rejection — the count the \
+             ERROR record cannot supply"
+        );
+    }
+
     // chunk #66: end-to-end integration of the fingerprint observer hook
     // through the consumer's spawn_blocking dispatch. Verifies the observer
     // receives one callback per exception-bearing span event.
@@ -669,6 +811,15 @@ mod tests {
             )
             .expect("count");
         assert_eq!(with_fp, 1);
+
+        // The feed counters must survive the full consumer path — the appender
+        // records into the same BufferState the heartbeat later snapshots, so a
+        // regression in that threading would make the tick under-report a live
+        // feed as a dead one.
+        let snap = state.snapshot();
+        assert_eq!(snap.span_events_seen, 2);
+        assert_eq!(snap.fingerprints_computed, 1);
+        assert_eq!(snap.observer_invocations, 1);
     }
 
     #[test]
