@@ -1,0 +1,7 @@
+
+## 2026-10-09-supply-chain-job-same-on-push-and-pull-request — the CI boot job's log holds webview records on some runs
+**Section:** §1 Coverage triggers → `performance-budget: WebGPU canvas throughput` row · §1 Pending coverage triggers → `ipc-rejection-wire-coverage` row
+**Change:** Was: "since the boot job's log holds no webview record" (the frame arm's CI cause), and "no CI job can witness it, since the boot job stops the app before the webview issues any IPC". Now: on `ci#36765040464` the frame line read `no adapter record in this log`, that run's boot log holding no webview record; on a run whose boot log holds the adapter record it reads `no WebGPU adapter (no_navigator_gpu)` (`ci#37945548047`, `ci#37954318153`); four of seven boot-job logs of 2026-10-09 hold it. The dev-host `perf:frame-sample` leg is the wire's only dependable witness; the CI boot job is not one, its log holding webview-originated records on some runs only, by how long the app lives before `cleanup` stops it (0.57 s to 1.40 s).
+**Why:** Measured false as a rule while reading the boot smoke's application logs. The owed committed cross-boundary assertion for both telemetry procedures is unchanged: a witness that appears on four runs in seven is not coverage.
+**Kept:** The `perf-slo-check-arm-coverage` row's `ci#36765040464` reading is left: it is a dated reading of a named run and states no rule.
+**Ref:** .andromeda/runs/2026-10-09T17-46-44Z-wrap/

@@ -1,0 +1,319 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T17:49:39Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-wrap-supply-chain-push-and-pr-2026-10-09.md",
+"--kind",
+"relay",
+"--why",
+"the pc overseer wrap directive: the witness stands, the operator-ratified reading of the P-120 build-branch clause, entries 40-42 as the plan defect, the boot-smoke watch recurred and needs an owner, delete the merged hotfix branch, the two CARRY pins, the stops",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I5 · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-supply-chain-push-and-pr-2026-10-09.md",
+"cite: inputs#I5"
+],
+"stderr": null,
+"wrote": [
+"inputs/I5-pulse-wrap-supply-chain-push-and-pr-2026-10-09.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I5",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-wrap-supply-chain-push-and-pr-2026-10-09.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "4a449bf41cca909d8860b5596f359ea05afaf16589c9590bfa1594ceefe03f9c",
+"copy": "I5-pulse-wrap-supply-chain-push-and-pr-2026-10-09.md.txt",
+"link": false,
+"read_at": "2026-10-09T17:49:39Z",
+"step": "wrap",
+"why": "the pc overseer wrap directive: the witness stands, the operator-ratified reading of the P-120 build-branch clause, entries 40-42 as the plan defect, the boot-smoke watch recurred and needs an owner, delete the merged hotfix branch, the two CARRY pins, the stops"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T17:49:39Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--message-file",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/relay-1.md",
+"--origin",
+"the operator (pc overseer), the /andromeda-wrap-session invocation arguments, 2026-10-09",
+"--kind",
+"relay",
+"--why",
+"the wrap invocation directive: read the relay first, the witness on main is green, the watch recurred and needs an owner with its artifact log read before the card, stop at the route-resolve card and before the flip and the commit",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I6 · copy message · message: the operator (pc overseer), the /andromeda-wrap-session invocation arguments, 2026-10-09",
+"cite: inputs#I6"
+],
+"stderr": null,
+"wrote": [
+"inputs/I6-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I6",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (pc overseer), the /andromeda-wrap-session invocation arguments, 2026-10-09",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "a690a3e9f3b148b0d5d30690dcb5e534df7975694a7bec7b1c80d29bd640182d",
+"copy": "I6-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-09T17:49:39Z",
+"step": "wrap",
+"why": "the wrap invocation directive: read the relay first, the witness on main is green, the watch recurred and needs an owner with its artifact log read before the card, stop at the route-resolve card and before the flip and the commit"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T17:49:52Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-supply-chain-push-and-pr-2026-10-09.md",
+"I1 cited scope.md:7 · scope.md:44 · scope.md:67 · scope.md:91 · scope.md:129 · scope.md:137 · scope.md:138 · scope.md:151 · research.md:22 · research.md:130 · plan.md:28 · plan.md:537 · plan.md:567 · plan.md:591",
+"I2 n/a — a message has no live source · copy message · message: the operator (pc overseer), the /andromeda-phase invocation arguments, 2026-10-09",
+"I2 cited scope.md:91 · scope.md:137 · scope.md:139 · research.md:24 · plan.md:537 · plan.md:567",
+"I3 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-p5-review-main-now-2026-10-09.md",
+"I3 cited scope.md:16 · scope.md:38 · scope.md:45 · scope.md:86 · scope.md:125 · scope.md:135 · research.md:26 · research.md:77 · plan.md:10 · plan.md:30 · plan.md:335 (in fence) · plan.md:434 (in fence) · plan.md:537 · plan.md:540 · plan.md:542 · plan.md:569 · plan.md:572 · plan.md:574 · plan.md:583 · plan.md:637",
+"I4 n/a — a message has no live source · copy message · message: the operator (pc overseer), the P5 review answer in the session, 2026-10-09",
+"I4 cited scope.md:17 · scope.md:139 · research.md:29 · plan.md:10 · plan.md:538",
+"I5 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-supply-chain-push-and-pr-2026-10-09.md",
+"I5 UNCITED",
+"I6 n/a — a message has no live source · copy message · message: the operator (pc overseer), the /andromeda-wrap-session invocation arguments, 2026-10-09",
+"I6 UNCITED",
+"inputs: 6 entries — unchanged 3 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 3 · uncited 2 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 6,
+"counts": {
+"unchanged": 3,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 3
+},
+"uncited": 2,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T18:09:44Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--message-file",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/relay-2.md",
+"--origin",
+"the operator (pc overseer, founder-delegated), the route-resolve card answer in the session, 2026-10-09",
+"--kind",
+"relay",
+"--why",
+"the card word: mint the boot-smoke entry first in the tail with its CARRY freight, P-129 approved as written (provisional), the readiness clause kept as the contract with the measured gap and the new entry as owner, both carries consumed, Epoch 1 at 15 with no split, stop before the flip and the commit",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I7 · copy message · message: the operator (pc overseer, founder-delegated), the route-resolve card answer in the session, 2026-10-09",
+"cite: inputs#I7"
+],
+"stderr": null,
+"wrote": [
+"inputs/I7-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I7",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (pc overseer, founder-delegated), the route-resolve card answer in the session, 2026-10-09",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "160b0b1b608c7049e6cc6a73755fff6c2e9660fe79bf862a71909cb9c6ee5946",
+"copy": "I7-relay-2.md.txt",
+"link": false,
+"read_at": "2026-10-09T18:09:44Z",
+"step": "wrap",
+"why": "the card word: mint the boot-smoke entry first in the tail with its CARRY freight, P-129 approved as written (provisional), the readiness clause kept as the contract with the measured gap and the new entry as owner, both carries consumed, Epoch 1 at 15 with no split, stop before the flip and the commit"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T18:13:17Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-supply-chain-push-and-pr-2026-10-09.md",
+"I1 cited scope.md:7 · scope.md:44 · scope.md:67 · scope.md:91 · scope.md:129 · scope.md:137 · scope.md:138 · scope.md:151 · research.md:22 · research.md:130 · plan.md:28 · plan.md:537 · plan.md:567 · plan.md:591",
+"I2 n/a — a message has no live source · copy message · message: the operator (pc overseer), the /andromeda-phase invocation arguments, 2026-10-09",
+"I2 cited scope.md:91 · scope.md:137 · scope.md:139 · research.md:24 · plan.md:537 · plan.md:567",
+"I3 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-p5-review-main-now-2026-10-09.md",
+"I3 cited scope.md:16 · scope.md:38 · scope.md:45 · scope.md:86 · scope.md:125 · scope.md:135 · research.md:26 · research.md:77 · plan.md:10 · plan.md:30 · plan.md:335 (in fence) · plan.md:434 (in fence) · plan.md:537 · plan.md:540 · plan.md:542 · plan.md:569 · plan.md:572 · plan.md:574 · plan.md:583 · plan.md:637 · report.md:42 · report.md:49 · report.md:75",
+"I4 n/a — a message has no live source · copy message · message: the operator (pc overseer), the P5 review answer in the session, 2026-10-09",
+"I4 cited scope.md:17 · scope.md:139 · research.md:29 · plan.md:10 · plan.md:538",
+"I5 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-supply-chain-push-and-pr-2026-10-09.md",
+"I5 cited report.md:30 · report.md:39 · report.md:50 · report.md:76 · report.md:77 · report.md:90 · report.md:156",
+"I6 n/a — a message has no live source · copy message · message: the operator (pc overseer), the /andromeda-wrap-session invocation arguments, 2026-10-09",
+"I6 cited report.md:40 · report.md:156",
+"I7 n/a — a message has no live source · copy message · message: the operator (pc overseer, founder-delegated), the route-resolve card answer in the session, 2026-10-09",
+"I7 UNCITED",
+"inputs: 7 entries — unchanged 3 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 4 · uncited 1 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 7,
+"counts": {
+"unchanged": 3,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 4
+},
+"uncited": 1,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T18:13:32Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-supply-chain-push-and-pr-2026-10-09.md",
+"I1 cited scope.md:7 · scope.md:44 · scope.md:67 · scope.md:91 · scope.md:129 · scope.md:137 · scope.md:138 · scope.md:151 · research.md:22 · research.md:130 · plan.md:28 · plan.md:537 · plan.md:567 · plan.md:591",
+"I2 n/a — a message has no live source · copy message · message: the operator (pc overseer), the /andromeda-phase invocation arguments, 2026-10-09",
+"I2 cited scope.md:91 · scope.md:137 · scope.md:139 · research.md:24 · plan.md:537 · plan.md:567",
+"I3 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-p5-review-main-now-2026-10-09.md",
+"I3 cited scope.md:16 · scope.md:38 · scope.md:45 · scope.md:86 · scope.md:125 · scope.md:135 · research.md:26 · research.md:77 · plan.md:10 · plan.md:30 · plan.md:335 (in fence) · plan.md:434 (in fence) · plan.md:537 · plan.md:540 · plan.md:542 · plan.md:569 · plan.md:572 · plan.md:574 · plan.md:583 · plan.md:637 · report.md:43 · report.md:50 · report.md:76",
+"I4 n/a — a message has no live source · copy message · message: the operator (pc overseer), the P5 review answer in the session, 2026-10-09",
+"I4 cited scope.md:17 · scope.md:139 · research.md:29 · plan.md:10 · plan.md:538",
+"I5 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-supply-chain-push-and-pr-2026-10-09.md",
+"I5 cited report.md:30 · report.md:39 · report.md:51 · report.md:77 · report.md:78 · report.md:91 · report.md:157",
+"I6 n/a — a message has no live source · copy message · message: the operator (pc overseer), the /andromeda-wrap-session invocation arguments, 2026-10-09",
+"I6 cited report.md:40 · report.md:157",
+"I7 n/a — a message has no live source · copy message · message: the operator (pc overseer, founder-delegated), the route-resolve card answer in the session, 2026-10-09",
+"I7 cited report.md:41",
+"inputs: 7 entries — unchanged 3 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 4 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 7,
+"counts": {
+"unchanged": 3,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 4
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]

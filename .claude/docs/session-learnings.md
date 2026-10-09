@@ -1,6 +1,20 @@
 # Session Learnings
 
 
+## 2026-10-09 — A red CI read returns while the run is still open
+
+`ci.py conclusion --wait` returns at the first failed check, not when the run settles. A step read or a jobs listing
+taken right after a red verdict reads an unfinished run: the other jobs show no conclusion yet. Wait for the run to
+settle first (`gh run watch {id}` is a read), then take the step and jobs reads, and say in the record that the run
+had settled.
+
+Two readings of its output mislead. Its `runs:` line lists every workflow run on the commit, so the words
+`pull_request completed/success` can be the secret-scan run's while the `ci` run is still `in_progress`; an atom on
+those words holds over a red verdict. And on a pull-request event the run's own commit sha is the pull request's merge
+commit, not the branch tip the read named.
+
+---
+
 ## 2026-10-09 — A thing found standing gets an owner at route-resolve; a mention in the report is not one
 
 When research or a wrap finds a defect that predates the chunk and the chunk does not change it (a CI download with

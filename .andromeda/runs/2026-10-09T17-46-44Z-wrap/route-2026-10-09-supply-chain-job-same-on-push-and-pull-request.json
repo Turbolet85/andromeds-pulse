@@ -1,0 +1,147 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T18:13:17Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--date",
+"2026-10-09",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 3,
+"stdout": [],
+"stderr": "2026-10-09-supply-chain-job-same-on-push-and-pull-request: its record is 'pending' -- compact runs AFTER the flip",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T18:14:06Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"flip master-route.md:107 - 2026-10-09-supply-chain-job-same-on-push-and-pull-request pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T18:14:06Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--date",
+"2026-10-09",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :13 strip WATCH: 397ch 2/3 since 2026-10-09-0-pending-adaptation-wrap \"WATCH: boot smoke on ubuntu-22.04 ended \"",
+"pin :13 strip CARRY: 584ch \"CARRY: six Actions cache entries sit on \"",
+"pin :13 strip CARRY: 292ch \"CARRY: security-plan §Dependency Securit\"",
+"pin next markerless :15 holds CARRY:×2",
+"13 · 2026-10-09-supply-chain-job-same-on-push-and-pull-request · strip 3 block(s) · archive APPEND",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 13,
+"marker": "2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"blocks": 3,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T18:14:12Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--date",
+"2026-10-09",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :13 strip WATCH: 397ch 2/3 since 2026-10-09-0-pending-adaptation-wrap \"WATCH: boot smoke on ubuntu-22.04 ended \"",
+"pin :13 strip CARRY: 584ch \"CARRY: six Actions cache entries sit on \"",
+"pin :13 strip CARRY: 292ch \"CARRY: security-plan §Dependency Securit\"",
+"pin next markerless :15 holds CARRY:×2",
+"13 · 2026-10-09-supply-chain-job-same-on-push-and-pull-request · strip 3 block(s) · archive APPEND",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/route-archive.md",
+"./andromeda-pulse-0.4.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 13,
+"marker": "2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"blocks": 3,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+}
+]

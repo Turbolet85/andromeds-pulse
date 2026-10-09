@@ -41,7 +41,16 @@ one gate entry.
   exercise it.
 - That the repaired step is green on a push. That is the push run on `main` after the founder's merge.
 
-## From the operator pass (to be recorded there)
+## From the operator pass
 
-- The runner image name and its software-list link, from the `supply-chain` log of the push run on `main`
-  (the report-only `Image: ` / `Included Software: ` entry): not yet read.
+Read 2026-10-09T17:43:46Z from the `supply-chain` job log of the push run on `main` (`ci#37964887106` on `178ebac`,
+job `113936654152`):
+
+- `Image: ubuntu-22.04`, `Version: 20261004.315.1`, `Included Software:
+  https://github.com/actions/runner-images/blob/ubuntu22/20261004.315/images/ubuntu/Ubuntu2204-Readme.md`. The same
+  image version research.md read at P3, the one whose list names "Cargo audit 0.22.2".
+- On that runner the repaired step printed `Scanning Cargo.lock for vulnerabilities (916 crate dependencies)` and
+  `warning: 10 allowed warnings found`, and ended `success` in 5 s: the same reading as the local exit-0 row above.
+- These lines were read with `gh api --allow-escape-sequences …/logs`. The plan's report-only image entry (42)
+  printed nothing as written; `operator-pass.md` has the account.
+- Still not shown: the runner's `cargo audit` on a finding. The red control above stays local.
