@@ -1,84 +1,89 @@
 # Session Handoff
 
-**Last Updated:** 2026-10-09T08:20:29Z
-**Branch:** build/andromeda-pulse-0.4.0 · no upstream (created 2026-10-09 from origin/main `60ef43c`, nothing pushed) · the 0.3.0 branch chore/migrate-pulse-to-v3 is kept at `0e45d58`, 0 ahead of its origin
+**Last Updated:** 2026-10-09T10:10:05Z
+**Branch:** build/andromeda-pulse-0.4.0 · 0 ahead of origin/build/andromeda-pulse-0.4.0 as read at this wrap's Setup (HEAD `39edd11`)
 **Status:** clean
-**Last Commit:** 0-pending wrap — chore(route): operator-requested adaptation, 0.3.0 closed as it stands (after `18a872d`)
+**Last Commit:** 0-pending wrap — chore(route): operator-requested adaptation, the 0.4.0 route tuned (after `39edd11`)
 
 ## Position
-- **Done:** andromeda-pulse 0.3.0 is closed as it stands, on the founder's ruling of 2026-10-09 (his pick «Закрыть
-  как есть (Рекомендую)», relayed verbatim by the pc overseer). Master reads 83 of 83 complete, the matrix 22 of 22
-  verified, the working route 0 markerless and 0 gated: version-done by the letters, with no chunk of its own.
-- **Next:** `/andromeda-route` for the next version, when the founder says so. Its Phase A intake dispositions the 15
-  `open` lines of `.andromeda/residuals.md`.
-- **The founder's own hand, done after this wrap:** PR #39 (`chore/migrate-pulse-to-v3` into `main`) reads `MERGED`
-  on GitHub as measured 2026-10-09 (merge commit `60ef43c`, its tree identical to `0e45d58`; his ruling of 2026-10-07
-  12:14). The wrap did not merge it, mark it ready or rebase it, and made no tag, no release, no version bump.
+- **Done:** the 0.4.0 route (written 2026-10-09, commit `39edd11`) is tuned by this wrap on the founder's rulings and
+  the operator's word: 52 markerless entries in 8 epochs, 25 requirements P-083…P-107, all unclaimed. Master reads 83
+  of 83 complete, 0 pending, 0 gated.
+- **Next:** `/andromeda-phase` — promote and plan "Corpus encryption at rest retired" (Epoch 1, `working-route.md:11`).
+- **At that phase's P1, once:** its Setup 5a reads the CI verdict of every commit since the last master flip
+  (`f18c631`), the red push run on `60ef43c` among them. That red does not intersect the corpus chunk, so the phase
+  asks its one question. The answer is its owner: the `CARRY:` on "Windows and macOS CI legs retired; pre-push check
+  native on Linux" (Epoch 1), pinned by this wrap on the operator's word.
 
 ## Work done
-- The five markerless entries left the route: three retired unbuilt ("The Linux boot smoke is deterministic", "L4
-  generation records render unredacted", "Model observations without a cue surface quietly"), two carried to the
-  next version as residuals ("Without a GPU, L4 analysis is programmatic" as the report without a model;
-  "pre-push:linux runs natively on Linux" as the local pre-push check without WSL). Their text is copied whole in
-  `.andromeda/runs/2026-10-09T08-07-22Z-wrap/retired-entries.md`.
-- Eleven residual lines appended: the quiet-observations ruling, the two carried entries, the stale doc comment above
-  `select_corpus_matches`, and seven known limits of 0.3.0 (the boot smoke, the half-hour digest's rate, commits in
-  the digest, the MCP telemetry tools, what a span keeps, metrics and logs, model grading). The Halo residual's text
-  was corrected (its sketch folder is gone) and it stays `open`.
-- The dispositions, the authority behind each and every re-derived relay claim: that run dir's
-  `adaptation-record.md`.
+- Four capabilities added to the ledger and to `requirements.md`: P-104 the plugin host is gone, P-105 workspace
+  detection is gone, P-106 the training export is gone (the founder's ruling of 2026-10-09), P-107 the engine reaches a
+  node (the operator's, PROVISIONAL).
+- Four entries inserted: three removals in Epoch 2 before "Supply-chain gate re-based on the smaller graph", and
+  "Engine delivered to a node" in Epoch 3 before "Theme 1 checked by the external harness". Ten `CARRY:` blocks pinned
+  on nine entries; ten dated ledger notes.
+- The items, the authority behind each and every re-derived relay claim:
+  `.andromeda/runs/2026-10-09T09-59-54Z-wrap/adaptation-record.md`.
 
 ## Drift resolved
-- No report and no fan-out on this path. Five amendments recording facts this wrap produced or measured
-  (architecture, design-system, layout-templates, test-plan with one key file, obs-plan), each with its sidecar
-  entry; eight leaf passages re-derived; the sweep's rows are in that run dir's `cascade-dispositions.md`.
+- None: no report, no fan-out and no amendment on this path. The masters describe the tree as it is; each removal's
+  drift belongs to its chunk's wrap.
 
 ## Notes
+- **PROVISIONAL, awaiting the founder's own word** (the pc overseer brings them to him in a batch): P-107 and its
+  entry; who terminates the receiver's encrypted channel and where its key lives (P-087, P-088); the door encrypted in
+  transit and its admission lifecycle (P-093); the personal data of the real service, named with the service (P-101).
+  His word supersedes each by rule; nothing waits on it.
+- **The operator's word, not provisional:** for 0.4.0 one engine watches one product, incidents live in its one store
+  told apart by cue identity, nothing replaces the workspace key, and a sender token is not an incident key (P-105).
+- **`main` is red and stays red until a repaired tree is pushed to it:** run `37907730264` on `60ef43c`, the
+  supply-chain job's audit step is denied the check run it publishes. The same step passes on a pull-request event
+  while denied the same call, so a green pull-request run does not witness the repair. HEAD's pull-request run
+  `37914412856` was still in progress at this wrap (11 jobs settled, none failed).
+- **`requirements.md`'s header is behind:** it still reads "P-083…P-103" and "the three removals of Theme 0", and its
+  reader note says 0.3.0's P-079 workspace key stays. The adaptation path adds capability lines only; the supersession
+  of the note is a dated ledger note on P-083.
 - **Five master citations stand wrong, known and left on the operator's word:** `architecture.md:242` cites
   `agent-run.sh:22` and `agent-run.ps1:15` (the reads are at `:29` and `:24`), `architecture.md:243` cites
   `agent-run.sh:23` and `agent-run.ps1:16` (`:30` and `:25`), `test-plan.md:493` cites `xtask/src/main.rs:174`
-  (`:306`). The 0-pending path runs no citation sweep; the first sweep is the next chunk wrap's, and
-  `first-sweep-read.md` in this wrap's run dir holds the reading.
-- **`architecture-amendments.md` is past the whole-read bound** (121,849 B against 120,000 B): a history read goes
-  through its index. A consolidation would not shrink it (set 0, nothing prunable). `test-plan-amendments.md`
-  118,000 B, `security-plan-amendments.md` 112,285 B.
-- **The next dashboard will nudge an evolve diagnosis of Epoch 4** (complete now; only an epoch-to-date diagnosis
-  exists). It is the founder's to invoke.
-- **The Halo residual's disposition** (`dropped` is the pc overseer's expectation: the next version has no window)
-  belongs to the next version's route intake, on the founder's say-so.
+  (`:306`). The first citation sweep is the next chunk wrap's; `first-sweep-read.md` in
+  `.andromeda/runs/2026-10-09T08-07-22Z-wrap/` holds the reading.
+- **`architecture-amendments.md` is past the whole-read bound** (121,849 B against 120,000 B as read at the previous
+  wrap; not re-read here): a history read goes through its index.
+- **Evolve:** 0.3.0's Epoch 4 is complete and has only an epoch-to-date diagnosis (2026-08-31). The dashboard's nudge
+  rule is written for the active version's epochs, so it may not fire by itself now that 0.4.0 is active. The
+  diagnosis is the founder's to invoke.
 - **Boot smoke:** the artifact `logs-boot-Linux` (`11504892957`) expires 2026-10-21T19:04:35Z; nothing owns reading
-  it now.
-- **Outside the tree:** `andromeda-pulse-0.4.0-incubator/` (gitignored) holds four files; `signature-orb/` is gone.
-  The captures were deleted on 2026-10-08 (the operator's word). Conductor 0.3.0 is closed at `97dea7f` (the
-  operator's word; that sha is its HEAD).
-- **Host:** ports 4317/4318 are shared with conductor-builder: ask the operator before any run that binds them. A
-  failed job's log reads through `gh api --allow-escape-sequences repos/{owner}/{repo}/actions/jobs/{id}/logs`. The
-  cwd guard refuses a leading `cd` out of the project: use a `( cd DIR && … )` subshell. `grep` is ugrep here and
-  refuses a bounded-repeat window.
-- **Pre-existing tool verdicts (seen again):** `route.py` UNPARSED/INDETERMINATE on frozen lines 52–125;
-  `matrix.py` `UNPARSED: P-072 — legacy notes placement`.
+  it.
+- **Outside the tree:** `andromeda-pulse-0.4.0-incubator/` (gitignored). The draft pull request of this branch into
+  `main` stays a draft (the operator's word).
+- **Host:** ports 4317/4318 are shared with conductor-builder: ask the operator before any run that binds them. The
+  GitHub repository is spelled `Turbolet85/andromeds-pulse`: a `gh api repos/…` path takes that spelling (read it from
+  `gh repo view --json nameWithOwner`). A failed job's log reads through `gh api --allow-escape-sequences
+  repos/{owner}/{repo}/actions/jobs/{id}/logs`; it answers 404 while that job itself is still running. The cwd guard
+  refuses a leading `cd` out of the project: use a `( cd DIR && … )` subshell. `grep` is ugrep here and refuses a
+  bounded-repeat window.
+- **Pre-existing tool verdict (seen again):** `matrix.py` on the 0.3.0 ledger prints `UNPARSED: P-072 — legacy notes
+  placement`.
 - **Carried, not re-read this wrap** (the operator's word: it keeps riding the handoff): `test-plan-amendments.md`
-  carries one UNRESOLVED `Supersedes` (and `a11y-plan-amendments.md` one, as `sidecar.py summary` printed at this
-  wrap); upgrade items U09, U10, U36; CLAUDE.md's pointer-table rows cite `test-plan.md §3` / `§Infrastructure
-  Patterns` through each section's stub line; obs-plan §8 has no row for `interpretation.hardware.detect`; the
-  `contract.jointly-contradictory-instructions` evolve record; the `sidecar.py` Ref defect relayed to overseer1; the
-  `.gitattributes` re-checkout (the founder's hand); `digest.corpus.retrieve`'s `row_count_returned` counts
-  candidates, so no record carries the lines kept after the narrowing; what happens to a critical advisory disclosed
-  before the first release and still open at it (not ruled); `architecture.md:73` still calls Conductor's sixth
-  series "the first live reading" in the future sense.
+  and `a11y-plan-amendments.md` each carry one UNRESOLVED `Supersedes`; upgrade items U09, U10, U36 (`noted`);
+  CLAUDE.md's pointer-table rows cite `test-plan.md §3` / `§Infrastructure Patterns` through each section's stub line;
+  obs-plan §8 has no row for `interpretation.hardware.detect`; the `contract.jointly-contradictory-instructions`
+  evolve record; the `sidecar.py` Ref defect relayed to overseer1; the `.gitattributes` re-checkout (the founder's
+  hand); `digest.corpus.retrieve`'s `row_count_returned` counts candidates; what happens to a critical advisory
+  disclosed before the first release and still open at it (not ruled); `architecture.md:73` still calls Conductor's
+  sixth series "the first live reading" in the future sense.
 - **Last failed command:** none.
 
 ## Deferred learnings
-- **This wrap:** one candidate, rejected at the confidence filter and not written: a disposition that stands in the
-  option text the founder himself picked is his own word, not the relay's application.
+- **This wrap:** four candidates, none written. The audit step's pull-request-passes-while-push-fails reading scored
+  0.6 exactly and is carried by the route's `CARRY:`; the repository's spelling rides the host note above; the
+  ASCII-only ledger convention and the operator's choice of owner did not pass the filters.
 - **Still open from prior wraps:** `recurrence-despite-learning: host leaf Session Additions 2026-10-05` (the Bash
   guard refuses a leading `cd` out of the project); a job's log is readable while its run is in progress through
-  `gh api repos/{repo}/actions/jobs/{id}/logs`; the evidence path-scan sweep hazard; the selection-optimism reading;
-  the plan-authoring operator-pass CHECK; the `producer | grep -q` under pipefail CHECK; the scope guard omitting new
-  files; mutation applied?; run-dir hygiene trip; bindings clobber; a writer census at the wrong layer; targeted
-  nextest `timeout` sizing; the implement report-step CHECK; the bindings-regen PIPELINE half; macOS `SystemTime` µs
-  ticks; Windows `.ico` vs palette PNG; the deferral-destination generalization; `inject_demo --sustained` cannot
-  form an incident.
-
-## Session End Status
-Completed normally at 2026-10-09 11:12:07
+  `gh api repos/{repo}/actions/jobs/{id}/logs` (refined above: not while the job itself runs); the evidence path-scan
+  sweep hazard; the selection-optimism reading; the plan-authoring operator-pass CHECK; the `producer | grep -q` under
+  pipefail CHECK; the scope guard omitting new files; mutation applied?; run-dir hygiene trip; bindings clobber; a
+  writer census at the wrong layer; targeted nextest `timeout` sizing; the implement report-step CHECK; the
+  bindings-regen PIPELINE half; macOS `SystemTime` µs ticks; Windows `.ico` vs palette PNG; the
+  deferral-destination generalization; `inject_demo --sustained` cannot form an incident.

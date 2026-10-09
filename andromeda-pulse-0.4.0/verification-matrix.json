@@ -15,7 +15,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-10-09 — one line of the route's classification of the 0.3.0 capabilities this requirement retires (`requirements.md`, \"Notes for the reader\": \"P-079 (the constellation half goes; the single-sourced workspace key stays)\") is superseded by the founder's ruling of 2026-10-09 that workspace detection leaves in 0.4.0: the workspace-key half of 0.3.0's P-079 goes with P-105 and no longer stays. The line in `requirements.md` is not edited (the adaptation path adds capability lines only). word: the founder, 2026-10-09, relayed verbatim by the pc overseer; recorded at the 0-pending adaptation wrap, run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`."
     },
     {
       "id": "P-084",
@@ -67,7 +68,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-10-09 — PROVISIONAL widening, recorded at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`): the requirement also names who terminates the encrypted channel of the network receiver and where the channel's private key lives, never in a store the door reads. It is the route's deferred security Insert \"Channel key custody on the node\" (`.andromeda/runs/2026-10-09T09-17-27-route/merge-decisions.md:17`), a control no finding of the intent states, the operator's own. word: the operator, 2026-10-09 — PROVISIONAL until the founder's own word, which supersedes it. Carried on the entry \"Network OTLP receiver behind a token\"."
     },
     {
       "id": "P-088",
@@ -80,7 +82,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-10-09 — PROVISIONAL widening, recorded at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`): the private key of the receiver's encrypted channel is held like the token — never written to a log or a report. It follows the channel-key control recorded on P-087 the same day. word: the operator, 2026-10-09 (\"your one note on P-088 is what I meant\") — PROVISIONAL until the founder's own word, which supersedes it."
     },
     {
       "id": "P-089",
@@ -119,7 +122,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-10-09 — \"kept for days\" has its number, by the founder's ruling of 2026-10-09, by dialog (his pick, the 7-day option, verbatim in `.andromeda/runs/2026-10-09T09-59-54Z-wrap/adaptation-record.md`): raw telemetry is kept 7 days by default; the term is configurable; a ceiling on the store's size stands beside it, at which the oldest goes first. The size figure is not ruled: whether a week fits a cheap node's disk under a real stream is measured in the disk epoch (the entry \"Disk store measured under load\"). The acceptance text is not changed here; the claiming chunk's phase concretizes it with this number. word: the founder, 2026-10-09, relayed verbatim by the pc overseer."
     },
     {
       "id": "P-092",
@@ -145,7 +149,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-10-09 — PROVISIONAL widening, recorded at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`), two controls no finding of the intent states, the operator's own: (1) the door is encrypted in transit (the route's deferred security Rewrite of \"Door admission and bounds\", `.andromeda/runs/2026-10-09T09-17-27-route/merge-decisions.md:23`); (2) the door's admission has a lifecycle — how a party is admitted and how it is revoked — as the token has. With the channel-key control recorded on P-087 the same day, \"nothing else on the node\" covers that key too: it is not readable through the door. word: the operator, 2026-10-09 — PROVISIONAL until the founder's own word, which supersedes it. Carried on the entry \"Door admission and bounds\"."
     },
     {
       "id": "P-094",
@@ -249,7 +254,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-10-09 — PROVISIONAL, recorded at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`): when the founder names the real service he names, with it, the personal data its telemetry carries (the route's deferred security Rewrite of \"Real service watched for days\", `.andromeda/runs/2026-10-09T09-17-27-route/merge-decisions.md:25`). Until then the security master's \"Compliance triggers: None\" (`.andromeda/security-plan.md:105-107`) keeps its present basis and is not re-read by this note. word: the operator, 2026-10-09 — PROVISIONAL until the founder's own word, which supersedes it. Carried on the entry \"Real service watched for days\"."
     },
     {
       "id": "P-102",
@@ -276,6 +282,62 @@
         "status": "planned"
       },
       "chunk": null
+    },
+    {
+      "id": "P-104",
+      "title": "The plugin host is gone",
+      "requirement": "The engine has no plugin host: no crate hosts WebAssembly plugins, the workspace depends on no WebAssembly runtime, and the example plugins are gone from the tree; the critical path that drove the plugin lifecycle is recorded as retired with the surface, not as regressed.",
+      "observed_gap": "A plugin host crate built on a WebAssembly runtime (crates/plugins, the wasmtime dependency), three example plugins under plugins-examples/, and a critical path (P4) that drives the plugin lifecycle.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A build of the whole workspace on Linux succeeds with no WebAssembly runtime anywhere in its dependency graph; the tree contains no plugin host and no example plugin; the full remaining gate is green; the headless engine still detects everything it detected in 0.3.0; the plugin-lifecycle critical path reads as retired with the surface, not as regressed.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`) on the founder's ruling of 2026-10-09, by dialog: asked what else leaves Pulse in 0.4.0, he picked the WASM plugin host (his words verbatim in that run dir's `adaptation-record.md`). word: the founder, 2026-10-09, relayed verbatim by the pc overseer. Route entry: \"WASM plugin host retired\" (Epoch 2). Critical path P4 (test-plan §6, the plugin lifecycle) is named for retirement by the same ruling."
+    },
+    {
+      "id": "P-105",
+      "title": "Workspace detection is gone",
+      "requirement": "The engine detects no workspace and reads no project folder; one engine watches one product, its incidents live in its one store and are told apart by cue identity alone, and nothing takes the workspace key's place: in this version a sender's token is not an incident key; incidents are formed, kept, listed and resolved the same from wherever the engine is started; the critical path that drove workspace detection is recorded as retired with the surface, not as regressed.",
+      "observed_gap": "Incidents are stamped with, filtered by and cooled down per the workspace the detector resolves from the process's working directory (a project root, else the data dir), and the agent door's sidecar reads that same key from a file the app publishes; a critical path (P7) drives the detection.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A build of the whole workspace on Linux succeeds with no workspace detection anywhere in it; an engine started from any directory forms, keeps, lists and resolves the same incidents; a storm on one service still forms exactly one incident and a storm on a second service forms its own; the same storm sent under two different tokens forms one incident, not two; incidents formed before a restart are found after it; the full remaining gate is green; the workspace-detection critical path reads as retired with the surface, not as regressed.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`) on the founder's ruling of 2026-10-09, by dialog: asked what else leaves Pulse in 0.4.0, he picked workspace detection (his words verbatim in that run dir's `adaptation-record.md`). word: the founder, 2026-10-09, relayed verbatim by the pc overseer. What incidents are keyed by once the workspace is gone is the operator's word at this wrap's card, 2026-10-09: for 0.4.0 one engine watches one product, incidents live in its one store told apart by cue identity, nothing replaces the workspace key, and a sender token is not an incident key in this version. Measured at HEAD `39edd11` before the entry was written: the incident registry's cooldown key is `(kind, scope, workspace)` (`crates/triage/src/incident/registry.rs:206`, `:250`), boot resolves one key from the detector and filters, stamps and persists by it (`pulse-app/src/main.rs:762-821`), and the MCP sidecar reads the same key from a published file (`crates/mcp-server/src/bin/andromeda-pulse-mcp.rs:77-78`). Route entry: \"Workspace detection retired\" (Epoch 2). Critical path P7 (test-plan §6) is named for retirement by the same ruling."
+    },
+    {
+      "id": "P-106",
+      "title": "The training export is gone",
+      "requirement": "The engine has no export of its incidents for model training, and nothing it writes lands in the user's Downloads folder.",
+      "observed_gap": "A training export (pulse-app/src/training_export.rs, the storage.export_for_training route) writes the incident corpus as a file under ~/Downloads, one of three places the product writes outside its data dir.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The tree contains no training export and no command or route of the engine produces one; a run of the full remaining gate leaves nothing written under the user's Downloads folder; the security master lists the places the engine writes outside its data dir without it.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`) on the founder's ruling of 2026-10-09, by dialog: asked what else leaves Pulse in 0.4.0, he picked the training export (his words verbatim in that run dir's `adaptation-record.md`). word: the founder, 2026-10-09, relayed verbatim by the pc overseer. Route entry: \"Training export retired\" (Epoch 2)."
+    },
+    {
+      "id": "P-107",
+      "title": "The engine reaches a node",
+      "requirement": "The engine is delivered as one Linux binary with a documented way to run it as a service on a node; nothing else is needed to put it there, and the desktop bundles, the updater and their signing that went with the window have this in their place.",
+      "observed_gap": "The product is delivered as signed desktop bundles with an updater; the route retires them with the window and adds nothing in their place.",
+      "verification": {
+        "method": "manual",
+        "acceptance": "On a clean Linux node, following the documented steps with the one published binary and nothing else, the engine runs as a service, comes back by itself after the node restarts, and receives telemetry; the steps and the binary are what a release of this version publishes.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`). PROVISIONAL: a control no finding of the intent states, the operator's own (shown to the founder at the route's Phase 4, who chose to tune after), recorded on the operator's word until the founder's own word, which supersedes it. word: \"P-107 as a capability with its entry, as you wrote it; operator word, PROVISIONAL like the rest of C\" — the operator, 2026-10-09. Route entry: \"Engine delivered to a node\" (Epoch 3)."
     }
   ]
 }

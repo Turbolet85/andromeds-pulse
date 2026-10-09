@@ -16,9 +16,9 @@ Agent harness drives the headless engine — boot, run, status, cleanup and logs
    ↓
 Engine end-to-end gate reachable — CI boots the headless engine under a 1 GB cap, sends OTLP, reads a finding back; recorded green verdict (P-086, P-090)
    ↓
-End-to-end paths re-driven through the engine — detection scenarios run headless before any removal; each IPC-driven critical path re-driven or named for retirement (P-086)
+End-to-end paths re-driven through the engine — detection scenarios run headless before any removal; each IPC-driven critical path re-driven or named for retirement (P-086) · CARRY: critical paths P4 (plugin lifecycle) and P7 (workspace detection) are named for retirement, not re-driven — they leave with P-104 and P-105 (the founder's ruling 2026-10-09, relayed verbatim by the pc overseer)
    ↓
-Windows and macOS CI legs retired; pre-push check native on Linux — surviving stages run on the dev host with no second operating system (P-103)
+Windows and macOS CI legs retired; pre-push check native on Linux — surviving stages run on the dev host with no second operating system (P-103) · CARRY: repair the supply-chain job's red on a push to main — owner pinned here at the 2026-10-09 0-pending wrap (word: "a CARRY on the Foundation entry that already edits the workflow … so the repair lands in Epoch 1" — the operator, 2026-10-09). Measured 2026-10-09: run 37907730264 on 60ef43c (the push to main that the merge of PR #39 made), job 113745162405, 11 of 12 jobs green; the step "cargo audit (RustSec advisory DB)" (rustsec/audit-check v2.0.0, ci.yml:493-496) printed "No vulnerabilities were found", "Found 8 unmaintained, 2 unsound", then the error "Resource not accessible by integration" on creating a check run; the workflow grants contents: read alone (ci.yml:8-9). The same step on a pull_request event is denied the same call and passes: run 37904682919 on 0e45d58 printed "Unable to publish audit check!" over the same advisory database (commit 7eebec69) and the same 8 + 2 findings, 12 of 12 green — so the findings are not the cause, and a pull-request run of the same step, green either way, does not witness the repair; ci.yml runs on a push for main alone (ci.yml:3-6). Not measured: whether the step attempts the check run when it has no finding to report
    ↓
 Shared telemetry test data — spans, metric points and log records from one set of factories, with settable event time, service and attributes (P-089, P-094)
 
@@ -31,12 +31,18 @@ Incident worded from the engine's own facts — an incident forms from its cue a
    ↓
 Local model retired — inference runtime, grammar, hardware probe, deterministic stand-in, decision probe and latency grader leave; no gate needs a GPU (P-084)
    ↓
-Supply-chain gate re-based on the smaller graph — advisory, licence, ban and secret-scan gates stay; ignores and carve-outs for departed crates pruned (P-083, P-085)
+WASM plugin host retired — the plugin crate, its WebAssembly runtime dependency and the example plugins leave; critical path P4 retired with it (P-104)
+   ↓
+Training export retired — no export of incidents for model training; nothing the engine writes lands in the Downloads folder (P-106)
+   ↓
+Workspace detection retired — no project folder is read; incidents belong to the engine's one store, told apart by cue identity alone; critical path P7 retired (P-105) · CARRY: what incidents are keyed by once the workspace is gone — for 0.4.0 one engine watches one product, incidents live in its one store told apart by cue identity, nothing replaces the workspace key, and a sender token is not an incident key in this version (the operator's word, 2026-10-09). Measured at HEAD 39edd11: the registry's cooldown key is (kind, scope, workspace) (crates/triage/src/incident/registry.rs:206, :250); boot resolves one key from the detector and filters, stamps and persists by it (pulse-app/src/main.rs:762-821); the MCP sidecar reads the same key from a published file (crates/mcp-server/src/bin/andromeda-pulse-mcp.rs:77-78)
+   ↓
+Supply-chain gate re-based on the smaller graph — advisory, licence, ban and secret-scan gates stay; ignores and carve-outs for departed crates pruned (P-083, P-085) · CARRY: the departed set now includes the WebAssembly runtime and the supply-chain job's "Cranelift-only WASM backend assertion" step (P-104, the founder's ruling 2026-10-09, relayed verbatim by the pc overseer)
    ↓
 Detection parity after the removals — everything 0.3.0 detected is still detected: five cue families, one incident per storm, auto-resolve (P-086)
 
 ### Epoch 3 — The engine stands on its own node
-Network OTLP receiver behind a token — a service on another host sends over an encrypted channel; replaces the loopback-only boundary (P-087)
+Network OTLP receiver behind a token — a service on another host sends over an encrypted channel; replaces the loopback-only boundary (P-087) · CARRY: name who terminates the encrypted channel and where its private key lives — never in a store the door reads, never in a log or a report (P-087, P-088; PROVISIONAL — the operator's word 2026-10-09, until the founder's own; the route's deferred security Insert "Channel key custody on the node")
    ↓
 Receiver refusals and per-sender bounds — bad or missing token refused before body read; plaintext refused; no sender starves another; refusals logged as bounded counts (P-088)
    ↓
@@ -48,18 +54,20 @@ Recorded stream replays to the same result — a captured synthetic stream playe
    ↓
 Node size measured — the engine's process memory over a long run inside 1 GB; replaces the buffer's row-count memory estimate (P-090)
    ↓
+Engine delivered to a node — one Linux binary and a documented way to run it as a service; replaces the desktop bundles, updater and signing (P-107)
+   ↓
 Theme 1 checked by the external harness — telemetry from another host in, findings out; reading recorded, path pinned in engine gate (P-102)
 
 ### Epoch 4 — Memory on disk and a working door
-Telemetry store on disk — raw telemetry kept for days, owner-only, surviving restart, bounded under constant insert and delete; replaces the in-memory ring buffer (P-091, P-090)
+Telemetry store on disk — raw telemetry kept for days, owner-only, surviving restart, bounded under constant insert and delete; replaces the in-memory ring buffer (P-091, P-090) · CARRY: raw telemetry is kept 7 days by default; the term is configurable; a ceiling on the store's size stands beside it, at which the oldest goes first (P-091; the founder's ruling 2026-10-09, relayed verbatim by the pc overseer)
    ↓
 Learned state survives a restart — the baseline is kept; a gap while the engine was down is not read as the service's silence (P-091)
    ↓
-Disk store measured under load — size, drain progress, stall signal in the engine's log; load profiles and kill mid-write hold inside 1 GB (P-090, P-091)
+Disk store measured under load — size, drain progress, stall signal in the engine's log; load profiles and kill mid-write hold inside 1 GB (P-090, P-091) · CARRY: measure whether 7 days of raw telemetry fits the node's disk under the load profiles; the size ceiling's figure is set from this reading, not ruled (P-091, P-090; the founder's ruling 2026-10-09, relayed verbatim by the pc overseer)
    ↓
 The door inside the engine's process — agent tools read the store the engine holds; replaces the stdio sidecar, its empty database and test job (P-092)
    ↓
-Door admission and bounds — admitted parties only; store-only reads; answers bounded in size and time; the resolve write named and switchable (P-093)
+Door admission and bounds — admitted parties only; store-only reads; answers bounded in size and time; the resolve write named and switchable (P-093) · CARRY: the door is encrypted in transit (P-093; PROVISIONAL — the operator's word 2026-10-09, until the founder's own; the route's deferred security Rewrite of this entry) · CARRY: admission has a lifecycle — how a party is admitted and how it is revoked, as the token has (P-093; PROVISIONAL — the operator's word 2026-10-09, until the founder's own)
    ↓
 Door queries — telemetry filtered by service, time range, trace and text, with aggregates (P-092)
    ↓
@@ -105,7 +113,7 @@ Large model names the planted cause — given the report and the door, measured 
 Theme 5 checked by the external harness — a planted fault reaches panel, notification and report; reading recorded, path pinned in engine gate (P-102)
 
 ### Epoch 8 — Polish & ship
-Real service watched for days — one of the founder's services, named first; reports, silences and the engine's own log read against what happened (P-101)
+Real service watched for days — one of the founder's services, named first; reports, silences and the engine's own log read against what happened (P-101) · CARRY: the founder names the personal data the service's telemetry carries together with the service; until then the security master's "Compliance triggers: None" keeps its present basis, unchanged by this entry (P-101; PROVISIONAL — the operator's word 2026-10-09, until the founder's own; the route's deferred security Rewrite of this entry)
    ↓
 Bad-version scenario end to end — Conductor over the network to an engine on another host, a 1 GB node, silent through the healthy hours (P-102)
    ↓
