@@ -1,0 +1,13 @@
+
+## 2026-10-09-boot-smoke-s-early-exit-found-and-closed — boot's readiness is the harness:ready verdict; the handshake gap closed
+**Section:** §3 → 5-command implementation (`boot`: Command body, Readiness signal, Exit code, Timeout) · §3 → PID file · §1 Test harness requirements (the one-line summary) · §1 Pending coverage triggers (`harness-cleanup-verdict-and-boot-spawn-shell-coverage`)
+**Change:**
+- Readiness signal: was "poll the `harness:status` verdict until `running-healthy`; confirm TCP handshake … the intended contract" with a "Measured gap, OPEN" owned by P-129, per the entry "boot's readiness handshake recorded as an open gap with an owner"; now `boot` polls `cargo xtask harness:ready` until `ready` — the status verdict `running-healthy` AND a TCP connection accepted on `127.0.0.1` at both resolved OTLP ports (defaults 4317 / 4318), one second per attempt; object `{verdict, pid, ended, otlp_grpc, otlp_http}`, exit 0 `ready` · 1 `not-ready` or `ended` · 2 `cannot-evaluate`. The gap is CLOSED: ready follows both bind records, by 0.097 s on the dev host and 0.453 s on `ci#37979648967`. P-129 keeps the unnamed cause of the early exit, not readiness.
+- Exit code: non-zero when no `ready` verdict arrives inside the window; the alive arm prints `app still running (pid N) but never reported healthy`, and `the receivers never both accepted: …` only when the last verdict held a `refusing` label.
+- Command body: the `/dev/null` streams are the waiting subshell's own, the app's go to `logs/boot.log`; the ps1 poll goes through `Invoke-Ready` (parsed by `pwsh`, never run).
+- Timeout: the 1.953 s reading dated to the status-only poll; under `harness:ready`, `boot` returned 0.296 s after the app's first log record on the dev host and ready printed 0.596 s after it on the runner, inside the untouched 10 s default.
+- PID file: the exit record is the `ended` of `harness:status`, `harness:ready` and `harness:settled`.
+- The §1 summary follows. The trigger is widened: the failure line and the ps1 edit have no committed test (one hand-driven never-ready leg; the silent arm and the `app ended:` branch not driven); 20 unit pins cover the pure decisions; `not-settled` is pinned, never read live; owed assertions extended to the receivers line and `Invoke-Ready`.
+**Why:** the chunk built the readiness decision in xtask, where it is pinned, and changed the one verb each script polls. The line is conditional because an app can be alive and unready on a stale log with both receivers accepting.
+**Kept:** `cleanup`'s own handshake probes and the `status` verb, untouched; obs-plan §3 states no readiness rule, so the §3 ↔ §3 bind is not moved.
+**Ref:** .andromeda/runs/2026-10-09T19-51-29Z-wrap/

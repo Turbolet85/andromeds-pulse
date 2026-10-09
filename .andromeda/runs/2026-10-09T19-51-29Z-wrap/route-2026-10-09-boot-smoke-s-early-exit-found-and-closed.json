@@ -1,0 +1,121 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T20:21:54Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--run-dir",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap",
+"--desc-file",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap/master-desc.txt"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"flip master-route.md:108 - 2026-10-09-boot-smoke-s-early-exit-found-and-closed pending -> complete - desc REWRITTEN from --desc-file"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T20:21:54Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--date",
+"2026-10-09",
+"--run-dir",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :15 strip CARRY: 1092ch \"CARRY: measured 2026-10-09 on the boot j\"",
+"pin :15 strip CARRY: 564ch \"CARRY: the harness contract's boot readi\"",
+"pin next markerless :17 holds WATCH:×1",
+"15 · 2026-10-09-boot-smoke-s-early-exit-found-and-closed · strip 2 block(s) · archive APPEND",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 15,
+"marker": "2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T20:22:01Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--date",
+"2026-10-09",
+"--run-dir",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :15 strip CARRY: 1092ch \"CARRY: measured 2026-10-09 on the boot j\"",
+"pin :15 strip CARRY: 564ch \"CARRY: the harness contract's boot readi\"",
+"pin next markerless :17 holds WATCH:×1",
+"15 · 2026-10-09-boot-smoke-s-early-exit-found-and-closed · strip 2 block(s) · archive APPEND",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/route-archive.md",
+"./andromeda-pulse-0.4.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 15,
+"marker": "2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+}
+]

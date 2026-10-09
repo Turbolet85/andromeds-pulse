@@ -83,7 +83,7 @@ cargo run --bin pulse-app
 
 ## Agent-run harness (5-command discipline)
 ```bash
-./scripts/agent-run.sh boot       # Start app, await ready via harness:status verdict (10s default; HARNESS_STATUS_TIMEOUT overrides)
+./scripts/agent-run.sh boot       # Start app, await ready via harness:ready verdict — status running-healthy AND both OTLP ports accepting (10s default; HARNESS_STATUS_TIMEOUT overrides)
 ./scripts/agent-run.sh run        # Execute test suite
 ./scripts/agent-run.sh status     # cargo xtask harness:status — real-process verdict JSON, exits 0/1/1/2 (not-running is non-zero)
 ./scripts/agent-run.sh cleanup    # SIGTERM + verify ports released
@@ -98,6 +98,8 @@ cargo deny check bans licenses sources                         # Duplicate / lic
 cargo deny check advisories                                    # Same as cargo audit but via deny
 cargo xtask check:npm-supply-chain                             # npm advisory/license/ban gate (pulse-app/ui; policy npm-policy.json; lockfile-only)
 cargo xtask harness:status                                     # Real-process status verdict JSON {verdict,pid,ended,log_file_basename,last_write_age_seconds,stale_after_seconds}; exits 0/1/1/2
+cargo xtask harness:ready                                      # Boot readiness verdict JSON {verdict,pid,ended,otlp_grpc,otlp_http}: status running-healthy AND a TCP connection accepted on both OTLP ports; exit 0 ready / 1 not-ready or ended / 2 cannot-evaluate
+cargo xtask harness:settled [--timeout-seconds N]              # Settle verdict JSON {verdict,pid,ended,app_exit_record,windows_settled,display,session_bus}, also written to logs/harness-settled.json; exit 0 settled / 1 ended or not-settled / 2 cannot-evaluate (default 30 s, refused below 8)
 cargo xtask pre-push:linux                                     # Windows host: six Linux-reachable stages (script-modes, source-lint, npm, clippy, test, ci-gates) in a WSL Ubuntu clone of HEAD + worktree; exit 0 green / 1 red / 2 cannot-evaluate
 cargo xtask check:english-sources                              # English-only source lint (crates, pulse-app/src+tests+ui/src, xtask/src); ASCII ::error annotations; exit 0 clean / 1 findings / 2 cannot-evaluate
 cargo xtask check:staged-artifacts                             # Staged git-index bindings + capability grants vs EXPECTED_PROCEDURES/EXPECTED_GRANTS; exit 0 staged-clean / 1 staged-drift / 2 cannot-evaluate

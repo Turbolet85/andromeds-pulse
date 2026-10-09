@@ -1,0 +1,51 @@
+[[pattern]]
+id = "some-runs"
+regex = 'some runs only|on some runs'
+
+[[pattern]]
+id = "four-of-seven"
+regex = 'four of seven|four boot-job logs|four logs hold'
+
+[[pattern]]
+id = "app-life"
+regex = '0\.57 s|1\.40 s'
+
+[[pattern]]
+id = "three-invoc"
+regex = 'three invocations|all three verbs'
+
+[[pattern]]
+id = "step-order"
+regex = 'boot`? ?(→|->) ?`?status'
+
+[[pattern]]
+id = "ready-on-status"
+regex = 'verdict alone|until it reports `running-healthy`|until `running-healthy`'
+
+[[pattern]]
+id = "handshake-gap"
+regex = 'intended contract|[Mm]easured gap|OPEN gap|confirms no handshake'
+
+[[pattern]]
+id = "before-webview"
+regex = 'before the webview|stops the app before'
+
+[[pattern]]
+id = "no-adapter-ci"
+fixed = 'no adapter record in this log'
+
+[[pattern]]
+id = "dev-null"
+fixed = '/dev/null'
+
+[[pattern]]
+id = "boot-poll"
+regex = 'boot poll|readiness poll'
+
+[[pattern]]
+id = "p129-owner"
+regex = 'P-129'
+
+[[pattern]]
+id = "harness-status"
+fixed = 'harness:status'

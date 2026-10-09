@@ -308,3 +308,5 @@ _This section is owned by `/wrap-session`. setup-project preserves content added
 - 2026-10-04: A DIFF-SHAPED PLAN PROBE (scope guard, print-site census, bindings close) names the chunk base sha, never `HEAD` — the operator pre-CI commit moves `HEAD` mid-chunk, after which a `HEAD`-anchored diff reads empty and passes vacuously. And a scope guard's exclusion pathspec lists the chunk's NEW files beside its modified ones: once committed they appear in the diff against the base.
 
 - 2026-10-05: A "zero Rust delta" deferral never holds for the workspace nextest in this project while any file is uncommitted. Two xtask tests carry the `andromeda:walks-tree` mark, and every chunk's own untracked folder voids that deferral under the walk-class rule (and the bindings regen after it). So a zero-delta plan defers clippy alone and lists nextest plus the regen to run.
+
+- 2026-10-09: SWEEP HAZARD — `ci_workflow_runs_on_linux_only` refuses the tokens `windows`, `macos`, `matrix.os` and `runner.os ==` on ANY line of `.github/workflows/ci.yml`, a comment included, so a step comment that says "windows" for the app's windows reddens it; word such a comment without the token.
