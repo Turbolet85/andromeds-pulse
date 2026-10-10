@@ -1,129 +1,39 @@
-use std::net::SocketAddr;
-use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicU64;
 use std::sync::{Arc, Mutex};
-use std::time::Instant;
-use std::{env, fs};
 
-use buffer::{
-    BroadcastSenders, BufferState, DrainConfig, DrainMiner, create_schema, run_consumer,
-    run_retention,
-};
-use duckdb::Connection;
-use ingest::channel::{IngestSender, build_channel};
-use ingest::connection::{self, ConnectionBroadcast, ReceiverBindStatus};
-use ingest::contract::{Error as IngestError, OtlpPort};
-use ingest::observer::SpanObserver;
-use ingest::state::IngestState;
+use interpretation::contract::LlmInferenceRunner;
 use tauri::Manager;
-use tracing_error::SpanTrace;
-use triage::contract::{
-    AttentionCueBroadcast, BaselinePersistence, CadenceConfig, CadenceEventBroadcast,
-    CadenceTriggerChannel, DEFAULT_AUTONOMOUS_THRESHOLD, DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
-    DEFAULT_HEARTBEAT_INTERVAL, DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS,
-    DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS,
-    DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_PERSIST_INTERVAL_SECS,
-    DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, DigestBroadcast,
-    DigestTriggerBroadcast, DurableActiveIncidents, HardwareProfileSource,
-    InMemoryIncidentRegistry, InMemoryServiceRegistry, IncidentLifecycleBroadcast,
-    IncidentPersistence, IncidentRegistry, LifecyclePersistence, LwwQueue, RestartDetector,
-    RestartEventBroadcast, RetryStormDetector, ServiceLifecycleBroadcast, ServiceRegistry,
-    SqlQueryRunner, StormPersistence, SuppressionState, TARGET_LIFECYCLE_CORPUS_RESTORE,
-    TARGET_LIFECYCLE_PERSIST_ERROR, TARGET_PATTERN_STORM_CORPUS_RESTORE,
-    TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds, TriageSqlState, bootstrap_state,
-    run_incident_persist_loop, run_lifecycle_persist_loop, run_persist_loop,
-    run_storm_persist_loop, start_cadence_coordinator, start_emitter, start_lifecycle_heartbeat,
-    start_restart_detector, start_storm_detector,
-};
+use triage::contract::HardwareProfileSource;
 use ui_bridge::Settings;
-use ui_bridge::health::{
-    BindStatus, BufferConnectionStatus, HeartbeatState, IngestChannelStatus, IntrospectionApi,
-    IntrospectionApiImpl, record_start, register_heartbeat_state,
-};
+use ui_bridge::health::{IntrospectionApi, IntrospectionApiImpl};
 use ui_bridge::telemetry::{TelemetryApi, TelemetryApiImpl};
 use ui_bridge::workspace_ipc::{WorkspaceApi, WorkspaceApiImpl};
 use viz::VizState;
 
 use pulse_app::taurpc_export_config;
 use pulse_app::{
-    heartbeat, observability, render_posture, tray, window, window_geometry, xlib_threads,
+    engine_boot, heartbeat, observability, render_posture, tray, window, window_geometry,
+    xlib_threads,
 };
 
-use pulse_app::baseline_observer::BaselineObserverAdapter;
-use pulse_app::baseline_persistence::{
-    CorpusBaselinePersistence, migrate_legacy_baseline_if_present,
-};
-use pulse_app::cadence_runner::CadenceSqlRunner;
-use pulse_app::config_router::{self, ConfigApi, ConfigApiImpl};
-use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBindStatus};
+use pulse_app::config_router::{ConfigApi, ConfigApiImpl};
+use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl};
 use pulse_app::diagnostics_router::{DiagnosticsApi, DiagnosticsApiImpl};
-use pulse_app::discovery_observer::DiscoveryObserverAdapter;
-use pulse_app::drain_persistence::CorpusDrainPersistence;
-use pulse_app::incident_observer::{AutoResolveObserver, run_auto_resolution_loop};
-use pulse_app::incident_persistence::CorpusIncidentPersistence;
+use pulse_app::engine_boot::{EngineConfig, EngineInputs, InterpretationSeat, Program, SeatKind};
 use pulse_app::incidents_router::{IncidentsApi, IncidentsApiImpl};
 use pulse_app::investigate_router::{InvestigateApi, InvestigateApiImpl};
-use pulse_app::lifecycle_persistence::CorpusLifecyclePersistence;
 use pulse_app::llamacli_inference::LlamaCliInference;
 #[cfg(feature = "mcp-server")]
 use pulse_app::mcp_router::{McpApi, McpApiImpl};
 use pulse_app::model_router::{ModelApi, ModelApiImpl, tier_for_profile};
 use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
-use pulse_app::reevaluation::{LiveReevaluator, RecentWindowReevaluator};
-use pulse_app::restart_observer::{CompositeSpanObserver, RestartObserverAdapter};
 use pulse_app::services_router::{ServicesApi, ServicesApiImpl};
 use pulse_app::snapshot_runtime::{SnapshotApi, SnapshotApiImpl};
 use pulse_app::storage_router::{StorageApi, StorageApiImpl};
-use pulse_app::storm_observer::StormObserverAdapter;
-use pulse_app::storm_persistence::CorpusStormPersistence;
 use pulse_app::streams::{StreamsApi, StreamsApiImpl};
 use pulse_app::viz_routers::{
     LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl,
 };
-
-const ENV_OTLP_GRPC_PORT: &str = "ANDROMEDA_PULSE_OTLP_GRPC_PORT";
-const ENV_OTLP_HTTP_PORT: &str = "ANDROMEDA_PULSE_OTLP_HTTP_PORT";
-const ENV_RETENTION_SECONDS: &str = "ANDROMEDA_PULSE_RETENTION_SECONDS";
-
-// Retention bounds per security plan §Input Validation row "Configuration values":
-// reject out-of-range rather than silently clamping. Default fallback per arch
-// §Inherited Defaults (300–600s default range) — chunk #21 picks 600 (upper).
-const RETENTION_SECONDS_MIN: u64 = 60;
-const RETENTION_SECONDS_MAX: u64 = 86_400;
-const RETENTION_SECONDS_DEFAULT: u64 = 600;
-
-fn resolve_retention_seconds() -> u64 {
-    let raw = match env::var(ENV_RETENTION_SECONDS) {
-        Ok(r) => r,
-        Err(_) => return RETENTION_SECONDS_DEFAULT,
-    };
-    let parsed: u64 = match raw.parse::<u64>() {
-        Ok(p) => p,
-        Err(_) => {
-            tracing::warn!(
-                target: "config.load.retention_seconds",
-                env_var_name = ENV_RETENTION_SECONDS,
-                reject_reason = "unparseable",
-                "retention seconds env var rejected; falling back to default",
-            );
-            return RETENTION_SECONDS_DEFAULT;
-        }
-    };
-    if !(RETENTION_SECONDS_MIN..=RETENTION_SECONDS_MAX).contains(&parsed) {
-        tracing::warn!(
-            target: "config.load.retention_seconds",
-            env_var_name = ENV_RETENTION_SECONDS,
-            reject_reason = "out_of_range",
-            "retention seconds env var rejected; falling back to default",
-        );
-        return RETENTION_SECONDS_DEFAULT;
-    }
-    parsed
-}
-
-fn resolve_grpc_port() -> Result<OtlpPort, IngestError> {
-    resolve_port(ENV_OTLP_GRPC_PORT, ingest::grpc::DEFAULT_GRPC_PORT)
-}
 
 // Resolves the path to the andromeda-pulse-mcp sidecar binary. Sibling of
 // the current executable (same dir, with .exe on Windows). Falls back to a
@@ -136,144 +46,12 @@ fn resolve_mcp_sidecar_binary_path() -> std::path::PathBuf {
     } else {
         "andromeda-pulse-mcp"
     };
-    match env::current_exe()
+    match std::env::current_exe()
         .ok()
         .and_then(|p| p.parent().map(|d| d.to_path_buf()))
     {
         Some(dir) => dir.join(binary_name),
         None => std::path::PathBuf::from(binary_name),
-    }
-}
-
-fn resolve_http_port() -> Result<OtlpPort, IngestError> {
-    resolve_port(ENV_OTLP_HTTP_PORT, ingest::http::DEFAULT_HTTP_PORT)
-}
-
-fn resolve_port(env_var_name: &'static str, default: u16) -> Result<OtlpPort, IngestError> {
-    let raw = match env::var(env_var_name) {
-        Ok(r) => r,
-        Err(_) => {
-            return OtlpPort::try_from(default);
-        }
-    };
-    let parsed: u16 = match raw.parse::<u16>() {
-        Ok(p) => p,
-        Err(_) => {
-            tracing::warn!(
-                target: "config.load.port_validation",
-                env_var_name = env_var_name,
-                reject_reason = "unparseable",
-                "OTLP port env var rejected; receiver will not start",
-            );
-            return Err(IngestError::InvalidPort { value: raw });
-        }
-    };
-    match OtlpPort::try_from(parsed) {
-        Ok(p) => Ok(p),
-        Err(e) => {
-            tracing::warn!(
-                target: "config.load.port_validation",
-                env_var_name = env_var_name,
-                reject_reason = "out_of_range",
-                "OTLP port env var rejected; receiver will not start",
-            );
-            Err(e)
-        }
-    }
-}
-
-fn resolve_data_dir() -> PathBuf {
-    if let Ok(p) = env::var("ANDROMEDA_PULSE_DATA_DIR") {
-        return PathBuf::from(p);
-    }
-    if cfg!(target_os = "windows") {
-        if let Ok(appdata) = env::var("APPDATA") {
-            return PathBuf::from(appdata).join("andromeda-pulse");
-        }
-    } else if cfg!(target_os = "macos") {
-        if let Ok(home) = env::var("HOME") {
-            return PathBuf::from(home)
-                .join("Library")
-                .join("Application Support")
-                .join("com.andromeda.pulse");
-        }
-    } else if let Ok(xdg) = env::var("XDG_CONFIG_HOME") {
-        return PathBuf::from(xdg).join("andromeda-pulse");
-    } else if let Ok(home) = env::var("HOME") {
-        return PathBuf::from(home).join(".andromeda-pulse");
-    }
-    env::temp_dir().join("andromeda-pulse")
-}
-
-fn write_pid_file(data_dir: &Path) {
-    let run_dir = data_dir.join("run");
-    if let Err(e) = fs::create_dir_all(&run_dir) {
-        tracing::warn!(target: "app.boot.pid", error = %e, "failed to create run dir");
-        return;
-    }
-    let pid_path = run_dir.join("andromeda-pulse.pid");
-    let canonical_data = match fs::canonicalize(data_dir) {
-        Ok(p) => p,
-        Err(e) => {
-            tracing::warn!(target: "app.boot.pid", error = %e, "data dir canonicalize failed");
-            return;
-        }
-    };
-    let canonical_run = match fs::canonicalize(&run_dir) {
-        Ok(p) => p,
-        Err(e) => {
-            tracing::warn!(target: "app.boot.pid", error = %e, "run dir canonicalize failed");
-            return;
-        }
-    };
-    if !canonical_run.starts_with(&canonical_data) {
-        tracing::error!(
-            target: "app.boot.pid",
-            run_dir_basename = pulse_app::observability::log_basename(&canonical_run)
-                .unwrap_or("unknown"),
-            data_dir_basename = pulse_app::observability::log_basename(&canonical_data)
-                .unwrap_or("unknown"),
-            "run dir escaped data dir; refusing to write PID",
-        );
-        return;
-    }
-    let pid = std::process::id();
-    if let Err(e) = fs::write(&pid_path, pid.to_string()) {
-        tracing::warn!(target: "app.boot.pid", error = %e, "failed to write PID file");
-        return;
-    }
-    tracing::info!(
-        target: "app.boot.pid",
-        pid = pid,
-        path_basename = pulse_app::observability::log_basename(&pid_path).unwrap_or("unknown"),
-        "PID file written",
-    );
-}
-
-/// Publish the resolved incident workspace key so the MCP stdio sidecar —
-/// a separate process that shares only the data dir — filters incidents by
-/// the identity this process stamps them with. Non-fatal: on failure the
-/// sidecar falls back to `data_dir`, which is the pre-publication behaviour.
-///
-/// Basename only in the log line, per the chunk #43 `workspace.detect`
-/// precedent (obs-plan §5 Vector 5).
-fn publish_workspace_key_for_sidecar(data_dir: &Path, key: &str) {
-    match workspace_detector::contract::publish_workspace_key(data_dir, key) {
-        Ok(()) => tracing::info!(
-            target: "app.boot.workspace_key",
-            workspace_root_basename = Path::new(key)
-                .file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("unknown"),
-            key_bytes = key.len(),
-            "workspace key published for sidecar",
-        ),
-        Err(e) => tracing::warn!(
-            target: "app.boot.workspace_key",
-            error_category = "publish_failed",
-            error_detail = %e,
-            "workspace key publish failed; sidecar will fall back to data dir",
-        ),
     }
 }
 
@@ -286,7 +64,7 @@ fn main() {
     // Tauri's Builder doesn't establish one until `.run()` (which happens
     // after the router is constructed). Build + enter our own runtime first
     // and hand it to Tauri via `async_runtime::set` so taurpc's pre-`run()`
-    // spawns and Tauri's setup-closure spawns share a single runtime.
+    // spawns, the engine boot's spawns and Tauri's own share a single runtime.
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
@@ -294,219 +72,13 @@ fn main() {
     let _enter = runtime.enter();
     tauri::async_runtime::set(tokio::runtime::Handle::current());
 
-    let data_dir = resolve_data_dir();
-    observability::hold_log_guard(observability::init(&data_dir));
-    observability::install_exit_hook();
-    #[cfg(unix)]
-    observability::install_signal_listener();
-    record_start();
-    write_pid_file(&data_dir);
+    let data_dir = engine_boot::resolve_data_dir();
+    engine_boot::init_process(&data_dir);
     window::emit_boot_spans();
     render_posture::emit_posture(render_posture);
 
-    let heartbeat_state = Arc::new(HeartbeatState::new());
-    register_heartbeat_state(heartbeat_state.clone());
-
-    let ingest_state = Arc::new(IngestState::new());
-    let (ingest_sender, ingest_receiver) = build_channel();
-    let ingest_sender: Arc<IngestSender> = Arc::new(ingest_sender);
-    heartbeat_state.record_ingest_channel(IngestChannelStatus::Ok { capacity_pct: 0.0 });
-
-    let buffer_state = Arc::new(BufferState::new());
-    let buffer_conn = init_buffer(&heartbeat_state);
-    let retention_seconds = resolve_retention_seconds();
-    let viz_state = Arc::new(VizState::new());
-    let broadcast_senders: Arc<BroadcastSenders> = Arc::new(buffer::broadcast::create());
-
-    // Chunk #59 — connection state machine substrate. The poller (spawned in
-    // setup closure below) reads `ingest_state.last_ingest_at_nanos()` and
-    // bind status from `heartbeat_state` via the `HeartbeatBindStatus`
-    // adapter; transitions broadcast on `pulse://stream/connection-state`.
-    // The TauRPC procedure `connection.current_state` reads the same atomic
-    // for point queries.
-    let connection_broadcast = Arc::new(ConnectionBroadcast::new());
-    let bind_status: Arc<dyn ReceiverBindStatus> =
-        Arc::new(HeartbeatBindStatus::new(Arc::clone(&heartbeat_state)));
-    let connection_impl =
-        ConnectionApiImpl::new(Arc::clone(&ingest_state), Arc::clone(&bind_status));
-
-    // Chunk #68 — persistent incident corpus scaffold (NEW `crates/corpus/`).
-    // OS keychain backend fetches (or creates on first launch) the 32-byte
-    // AES-256-GCM key per capability P-049. Corpus opens at the resolved
-    // data dir's `corpus/corpus.db` subpath; first-launch creates the file
-    // + runs schema migrations idempotently. Boot non-fatal: if keychain
-    // unavailable OR corpus open fails, log structured error + continue
-    // with corpus reader absent (storage.inspect / storage.path return
-    // AppError::Storage at IPC time).
-    //
-    // Chunk #70 promoted this block above the baseline_state bootstrap so
-    // BaselinePersistence can be derived from corpus_writer before
-    // bootstrap_state is called.
-    let keychain_backend: Arc<dyn corpus::contract::KeychainBackend> = Arc::new(
-        corpus::contract::OsKeychainBackend::new("com.andromeda.pulse"),
-    );
-    let corpus_db_path = data_dir.join("corpus").join("corpus.db");
-    let corpus_arc: Option<Arc<corpus::contract::Corpus>> = match corpus::contract::Corpus::open(
-        corpus_db_path.clone(),
-        Arc::clone(&keychain_backend),
-    ) {
-        Ok(c) => Some(Arc::new(c)),
-        Err(e) => {
-            tracing::error!(
-                target: "corpus.open.error",
-                error_kind = ?e,
-                "corpus open failed at boot; storage.* IPC will return error until corpus available",
-            );
-            None
-        }
-    };
-    let corpus_reader: Option<Arc<dyn corpus::contract::CorpusReader>> = corpus_arc
-        .as_ref()
-        .map(|c| Arc::clone(c) as Arc<dyn corpus::contract::CorpusReader>);
-    // Chunk #69 Phase B Session 4 — CorpusWriter trait view from the same
-    // underlying Arc<Corpus>. Both reader + writer share one rusqlite
-    // connection mutex; CorpusReader stays read-only-by-design per P-051
-    // while CorpusWriter is the additive write surface for pipeline-metric
-    // persistence (drain template tree this chunk; future chunks #71+
-    // digest archive writes).
-    let corpus_writer: Option<Arc<dyn corpus::contract::CorpusWriter>> = corpus_arc
-        .as_ref()
-        .map(|c| Arc::clone(c) as Arc<dyn corpus::contract::CorpusWriter>);
-    let storage_impl = corpus_reader
-        .as_ref()
-        .zip(corpus_writer.as_ref())
-        .map(|(r, w)| StorageApiImpl::new(Arc::clone(r), Arc::clone(w)));
-
-    // Retire content orphaned by an earlier key: inventory first, then purge.
-    // Runs before every other corpus consumer because one undecryptable row
-    // fails an entire query, so the reads below depend on it. Idempotent — a
-    // corpus with nothing orphaned is a no-op.
-    if let Some(c) = corpus_arc.as_ref() {
-        let now_nanos = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| i64::try_from(d.as_nanos()).unwrap_or(i64::MAX))
-            .unwrap_or(0);
-        let outcome = corpus::disposition::dispose_orphaned_content(
-            c.as_ref(),
-            &data_dir.join("corpus"),
-            now_nanos,
-        );
-        corpus::disposition::emit_disposition_outcome(&outcome);
-    }
-
-    // Chunk #100 — P-041 pipeline-metrics 30-day retention purge, once per
-    // boot. The corpus-side DELETE preserves the newest row per
-    // (metric_name, layer) series so baseline / Drain / storm snapshots
-    // survive idle gaps longer than the window. Non-fatal on failure.
-    if let Some(w) = corpus_writer.as_ref() {
-        let now_nanos = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| i64::try_from(d.as_nanos()).unwrap_or(i64::MAX))
-            .unwrap_or(0);
-        pulse_app::corpus_retrieval::run_pipeline_metrics_purge(w.as_ref(), now_nanos);
-    }
-
-    // Chunk #70 — BaselineState corpus persistence adapter. Derives a
-    // third trait view from the same Arc<Corpus> (alongside reader +
-    // drain-writer); BaselineState moves from the chunk #61 flat-file
-    // bincode at `<data_dir>/triage/baseline-corpus.bin` to corpus SQLite
-    // via Schema Option A (mirrors chunk #69 Drain — reuses the
-    // `pipeline_metrics` blob slot with metric_name="baseline_state",
-    // layer="l1b"). None ⇒ corpus unavailable at boot (keychain failure
-    // / SQLite open failure); baseline_state runs in-memory-only for
-    // the session, a one-time warn-log fires below.
-    let baseline_persistence: Option<Arc<dyn BaselinePersistence>> =
-        corpus_writer.as_ref().map(|w| {
-            Arc::new(CorpusBaselinePersistence::new(Arc::clone(w))) as Arc<dyn BaselinePersistence>
-        });
-
-    // Chunk #70 — one-shot legacy bincode migration. Reads
-    // `<data_dir>/triage/baseline-corpus.bin` (chunk #61 substrate); if
-    // present + valid, re-persists through the trait + deletes the
-    // legacy file. Idempotent on subsequent boots. Failures preserve
-    // the legacy file for retry; aggregate-only tracing emits per
-    // CLAUDE.md 2026-05-17 session 84 triage AllowList convention.
-    if let Some(persistence) = baseline_persistence.as_ref() {
-        let _ = migrate_legacy_baseline_if_present(&data_dir, persistence.as_ref());
-    } else {
-        tracing::warn!(
-            target: triage::contract::TARGET_BASELINE_PERSIST_ERROR,
-            error_category = "corpus_unavailable_at_boot",
-            duration_ms = 0_u64,
-            "baseline persistence unavailable; in-memory only this session",
-        );
-    }
-
-    // Chunk #71 — lifecycle + storm corpus persistence adapters. Derive
-    // 3rd + 4th trait views from the same `Arc<Corpus>` (alongside reader
-    // + writer + baseline_persistence). None ⇒ corpus unavailable at
-    // boot; registry + storm detector run in-memory-only this session
-    // with one-time warn-once-at-boot emission below.
-    let lifecycle_persistence: Option<Arc<dyn LifecyclePersistence>> =
-        corpus_writer.as_ref().map(|w| {
-            Arc::new(CorpusLifecyclePersistence::new(Arc::clone(w)))
-                as Arc<dyn LifecyclePersistence>
-        });
-    let storm_persistence: Option<Arc<dyn StormPersistence>> = corpus_writer
-        .as_ref()
-        .map(|w| Arc::new(CorpusStormPersistence::new(Arc::clone(w))) as Arc<dyn StormPersistence>);
-    if lifecycle_persistence.is_none() {
-        tracing::warn!(
-            target: TARGET_LIFECYCLE_PERSIST_ERROR,
-            error_category = "corpus_unavailable_at_boot",
-            duration_ms = 0_u64,
-            "lifecycle persistence unavailable; in-memory only this session",
-        );
-    }
-    if storm_persistence.is_none() {
-        tracing::warn!(
-            target: TARGET_PATTERN_STORM_PERSIST_ERROR,
-            error_category = "corpus_unavailable_at_boot",
-            duration_ms = 0_u64,
-            "storm persistence unavailable; in-memory only this session",
-        );
-    }
-
-    // Chunk #62 — attention cue emitter substrate. BaselineState now
-    // bootstraps via the chunk #70 BaselinePersistence trait (None ⇒
-    // cold-start fresh state); the BaselineObserverAdapter wraps it as
-    // `ingest::observer::SpanObserver` for buffer's consumer tap.
-    // AttentionCueBroadcast + CadenceTriggerChannel are the emit
-    // surfaces (chunk #62); Thresholds carries hardcoded defaults this
-    // chunk (hot-reload lands in #86).
-    let baseline_now = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
-    // Resolved before the baseline state it configures: `Thresholds` carries
-    // the cold-start window, and the state receives that same value, so the
-    // silence evaluator, the emitter counters and the lifecycle registry all
-    // gate on one bound.
-    let thresholds = Arc::new(Thresholds::from_env());
-    let baseline_state = Arc::new(bootstrap_state(
-        baseline_persistence.as_deref(),
-        DEFAULT_SERVICE_COUNT_CAP,
-        baseline_now,
-        thresholds.bootstrap_window_seconds,
-    ));
-    let cue_broadcast = Arc::new(AttentionCueBroadcast::new());
-    let cadence_channel = Arc::new(CadenceTriggerChannel::new());
-
-    // Chunk #80 — cadence coordinator substrate. CadenceEventBroadcast is
-    // the L6-visibility emission topic (`pulse://stream/cadence-events`).
-    // CadenceConfig loads from persisted Settings; coordinator reads once
-    // at spawn (hot-reload deferred to chunk #94 per pulse-v0_2_0-route §80).
-    // SqlQueryRunner is wired via CadenceSqlRunner adapter ONLY when buffer_conn
-    // is Some — else coordinator is disabled (warn-logged below). Hardware
-    // profile defaults to Unknown (Tier-2-enabled posture) until chunk #82
-    // delivers a real detector.
-    let cadence_event_broadcast = Arc::new(CadenceEventBroadcast::new());
-    // P-074 — the non-L6 digest-assembly trigger conveys the full triggering
-    // cue (incl. scope_id) from the coordinator to the digest assembler, so a
-    // cue-driven storm digest reaches L4 with its `attention_cues` populated and
-    // the producer can create + dedup the incident. Kept separate from the
-    // PII-free `pulse://stream/cadence-events` topic above.
-    let cadence_digest_trigger = Arc::new(DigestTriggerBroadcast::new());
-    // Chunk #82 — replace the chunk #80 boot stub (UnknownHardwareProfile)
-    // with the real `HardwareProfileDetector`. Detector probes GPU presence
-    // + CPU core count at construction; cached for subsequent reads.
+    // Chunk #82 — the real `HardwareProfileDetector`. Detector probes GPU
+    // presence + CPU core count at construction; cached for subsequent reads.
     // Env var `ANDROMEDA_PULSE_HARDWARE_PROFILE` overrides detection for
     // tests + degraded-environment validation.
     let hardware_profile: Arc<dyn HardwareProfileSource> =
@@ -524,15 +96,20 @@ fn main() {
     // otherwise the real llama-cli subprocess runner. The llama-cli readiness
     // check below still runs in either mode (cheap; file-existence only, no
     // subprocess).
-    let llm_runner: Arc<dyn interpretation::contract::LlmInferenceRunner> =
+    let (llm_runner, seat_kind): (Arc<dyn LlmInferenceRunner>, SeatKind) =
         if pulse_app::deterministic_inference::deterministic_mode_enabled() {
             tracing::info!(
                 target: "interpretation.model.load",
                 inference_mode = "deterministic",
                 "L4 deterministic mode active (ANDROMEDA_PULSE_L4_DETERMINISTIC); canned output, no model",
             );
-            Arc::new(
-                pulse_app::deterministic_inference::DeterministicInferenceRunner::new(model_tier),
+            (
+                Arc::new(
+                    pulse_app::deterministic_inference::DeterministicInferenceRunner::new(
+                        model_tier,
+                    ),
+                ),
+                SeatKind::Deterministic,
             )
         } else {
             tracing::info!(
@@ -540,7 +117,10 @@ fn main() {
                 inference_mode = "real",
                 "L4 real mode (llama-cli subprocess D1)",
             );
-            Arc::clone(&llamacli_inference) as Arc<dyn interpretation::contract::LlmInferenceRunner>
+            (
+                Arc::clone(&llamacli_inference) as Arc<dyn LlmInferenceRunner>,
+                SeatKind::Model,
+            )
         };
     let model_impl = ModelApiImpl::new(Arc::clone(&llm_runner), Arc::clone(&hardware_profile));
 
@@ -557,388 +137,64 @@ fn main() {
             let _ = runner_for_load.load_from_env_if_configured().await;
         });
     }
-    let cadence_sql_runner: Option<Arc<dyn SqlQueryRunner>> = buffer_conn.as_ref().map(|conn| {
-        let state = Arc::new(TriageSqlState::new(Arc::clone(conn)));
-        Arc::new(CadenceSqlRunner::new(state)) as Arc<dyn SqlQueryRunner>
-    });
-    // CadenceConfig itself is constructed inside the setup closure where
-    // `settings` is in scope (mirrors the chunk #67 lifecycle thresholds
-    // pattern of reading settings at spawn-time rather than at substrate-
-    // construction time).
 
-    // Chunk #63 — restart event detector + dual-condition bypass substrate.
-    // RestartDetector tracks per-service last-seen timestamps; gap > threshold
-    // triggers emission on `pulse://stream/restart-events`. SuppressionState
-    // holds per-service post-restart suppression windows consumed by the cue
-    // emitter's surgical-suppression filter. RestartObserverAdapter wraps the
-    // detector + broadcast for the span-observer hot path; CompositeSpanObserver
-    // fan-outs each ingested span to the baseline, restart and first-sighting
-    // adapters (composed below, once the lifecycle registry exists).
-    let restart_broadcast = Arc::new(RestartEventBroadcast::new());
-    let restart_detector = Arc::new(RestartDetector::new(
-        thresholds.restart_gap_threshold_seconds,
-    ));
-    let suppression_state = Arc::new(SuppressionState::new());
-
-    let baseline_adapter: Arc<dyn SpanObserver> =
-        Arc::new(BaselineObserverAdapter::new(Arc::clone(&baseline_state)));
-    let restart_adapter: Arc<dyn SpanObserver> = Arc::new(RestartObserverAdapter::new(
-        Arc::clone(&restart_detector),
-        Arc::clone(&restart_broadcast),
-    ));
-
-    // Chunk #66 + chunk #71 corpus persistence — retry storm detector.
-    // Tracks per-fingerprint occurrences in a 60s rolling window; ≥5/30s
-    // → Suggested cue, ≥10/30s → Autonomous cue, emitted through the
-    // existing chunk #62 attention-cues broadcast channel.
-    // StormObserverAdapter wraps the detector + broadcast for the
-    // buffer-side FingerprintObserver hot path; trait declaration lives
-    // in the lower buffer crate per arch §Cross-cutting Patterns Module
-    // dependency direction.
-    //
-    // Chunk #71 — restore state from corpus at boot. Ok(Some(snapshot))
-    // → preserved dedup window per capability P-018; Ok(None) or Err(_)
-    // → fresh fallback per error/cold-start path. Emits aggregate-only
-    // tracing event + boot-restore counter metric.
-    let storm_detector = {
-        let restore_start = Instant::now();
-        let (detector, restored_fingerprint_count) = match storm_persistence.as_ref() {
-            Some(p) => match p.load() {
-                Ok(Some(snapshot)) => {
-                    let count = snapshot.entries.len() as u64;
-                    (RetryStormDetector::restore_from_snapshot(snapshot), count)
-                }
-                Ok(None) => (
-                    RetryStormDetector::new(
-                        DEFAULT_STORM_WINDOW_SECONDS,
-                        DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
-                        DEFAULT_SUGGESTED_THRESHOLD,
-                        DEFAULT_AUTONOMOUS_THRESHOLD,
-                    ),
-                    0,
-                ),
-                Err(e) => {
-                    tracing::warn!(
-                        target: TARGET_PATTERN_STORM_PERSIST_ERROR,
-                        error_category = e.error_category(),
-                        duration_ms = restore_start.elapsed().as_millis() as u64,
-                        "storm corpus restore failed; fresh detector",
-                    );
-                    (
-                        RetryStormDetector::new(
-                            DEFAULT_STORM_WINDOW_SECONDS,
-                            DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
-                            DEFAULT_SUGGESTED_THRESHOLD,
-                            DEFAULT_AUTONOMOUS_THRESHOLD,
-                        ),
-                        0,
-                    )
-                }
-            },
-            None => (
-                RetryStormDetector::new(
-                    DEFAULT_STORM_WINDOW_SECONDS,
-                    DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
-                    DEFAULT_SUGGESTED_THRESHOLD,
-                    DEFAULT_AUTONOMOUS_THRESHOLD,
-                ),
-                0,
-            ),
-        };
-        let restore_duration_ms = restore_start.elapsed().as_millis() as u64;
-        tracing::info!(
-            target: TARGET_PATTERN_STORM_CORPUS_RESTORE,
-            restored_fingerprint_count = restored_fingerprint_count,
-            duration_ms = restore_duration_ms,
-            kind = "storm",
-            "storm corpus restore",
-        );
-        tracing::info!(
-            target: "metric.triage.pattern.storm.corpus_restore_count_total",
-            value = restored_fingerprint_count,
-            kind = "storm",
-            "storm restore counter",
-        );
-        Arc::new(detector)
-    };
-    let fingerprint_observer: Option<Arc<dyn buffer::fingerprint::FingerprintObserver>> =
-        Some(Arc::new(StormObserverAdapter::new(
-            Arc::clone(&storm_detector),
-            Arc::clone(&cue_broadcast),
-        )));
-
-    // Chunk #67 + chunk #71 corpus persistence — service lifecycle state
-    // machine + registry. Heartbeat task spawned in setup closure below;
-    // subscribes to chunk #63 `pulse://stream/restart-events` to trigger
-    // Bootstrapping transitions on any-state restart-detector observation.
-    // State derives at tick time from chunk #61 `BaselineState`
-    // activity-floor snapshots; thresholds (`dormant_after_secs` /
-    // `archived_after_secs`) flow through Settings.
-    //
-    // Chunk #71 — restore registry from corpus at boot. For each
-    // restored service, emit a synthetic CorpusRestore lifecycle event
-    // on `pulse://stream/service-lifecycle` so downstream constellation
-    // observers cascade. P-027 closure: "Restart Pulse; verify dot
-    // positions match prior session" runtime-true.
-    let lifecycle_broadcast = Arc::new(ServiceLifecycleBroadcast::new());
-    let lifecycle_registry: Arc<dyn ServiceRegistry> = {
-        let restore_start = Instant::now();
-        let restored_at = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
-        let (registry, restored_service_count) = match lifecycle_persistence.as_ref() {
-            Some(p) => match p.load_all() {
-                Ok(Some(entries)) => {
-                    let count = entries.len() as u64;
-                    let mut event_pairs: Vec<(String, triage::contract::ServiceLifecycleState)> =
-                        entries.iter().map(|(s, e)| (s.clone(), e.state)).collect();
-                    let reg = InMemoryServiceRegistry::from_entries(entries);
-                    for (service, state) in event_pairs.drain(..) {
-                        if let Some(event) =
-                            reg.set_state_on_corpus_restore(&service, state, restored_at)
-                        {
-                            let _ = lifecycle_broadcast.sender().send(event);
-                        }
-                    }
-                    (Arc::new(reg) as Arc<dyn ServiceRegistry>, count)
-                }
-                Ok(None) => (
-                    Arc::new(InMemoryServiceRegistry::new()) as Arc<dyn ServiceRegistry>,
-                    0,
-                ),
-                Err(e) => {
-                    tracing::warn!(
-                        target: TARGET_LIFECYCLE_PERSIST_ERROR,
-                        error_category = e.error_category(),
-                        duration_ms = restore_start.elapsed().as_millis() as u64,
-                        "lifecycle corpus restore failed; fresh registry",
-                    );
-                    (
-                        Arc::new(InMemoryServiceRegistry::new()) as Arc<dyn ServiceRegistry>,
-                        0,
-                    )
-                }
-            },
-            None => (
-                Arc::new(InMemoryServiceRegistry::new()) as Arc<dyn ServiceRegistry>,
-                0,
-            ),
-        };
-        let restore_duration_ms = restore_start.elapsed().as_millis() as u64;
-        tracing::info!(
-            target: TARGET_LIFECYCLE_CORPUS_RESTORE,
-            kind = "lifecycle",
-            count = restored_service_count,
-            restored_service_count = restored_service_count,
-            duration_ms = restore_duration_ms,
-            "lifecycle corpus restore",
-        );
-        tracing::info!(
-            target: "metric.triage.lifecycle.corpus_restore_count_total",
-            value = restored_service_count,
-            kind = "lifecycle",
-            "lifecycle restore counter",
-        );
-        registry
-    };
-    // P-027 discovery bound: the first-sighting adapter lists a service at its
-    // first span rather than at the heartbeat's first 15 s tick. It is LAST so
-    // the baseline has admitted the service (cap check) in the same fan-out.
-    let discovery_adapter: Arc<dyn SpanObserver> = Arc::new(DiscoveryObserverAdapter::new(
-        Arc::clone(&lifecycle_registry),
-        Arc::clone(&baseline_state),
-        Arc::clone(&lifecycle_broadcast),
-    ));
-    let span_observer: Arc<dyn SpanObserver> = Arc::new(CompositeSpanObserver::new(vec![
-        baseline_adapter,
-        restart_adapter,
-        discovery_adapter,
-    ]));
-    // Chunk #78 — incident records + lifecycle persistence. Derive a 5th
-    // CorpusWriter trait view (alongside baseline + lifecycle + storm +
-    // drain) from the same Arc<Corpus>. None ⇒ corpus unavailable at
-    // boot; incident registry runs in-memory-only this session.
-    // Hydrate the registry from corpus active-incidents on boot (P-042
-    // cross-session continuity). The workspace identity is single-sourced
-    // via workspace-detector so the FILTER key (services/incidents
-    // resolvers + persistence) equals the value incidents are STAMPED with
-    // (the producer's digest.workspace); the data_dir-vs-detected-root
-    // mismatch was the P-079 defect.
-    let (incident_workspace_key, digest_project_context) = {
-        let detected = std::env::current_dir()
-            .ok()
-            .and_then(|cwd| workspace_detector::detect::detect(&cwd).ok());
-        pulse_app::digest_runtime::resolve_workspace_for_incidents(detected.as_ref(), &data_dir)
-    };
-    publish_workspace_key_for_sidecar(&data_dir, &incident_workspace_key);
-    let incident_broadcast = Arc::new(IncidentLifecycleBroadcast::new());
-    // One adapter instance, two trait views (write + the reconciliation read
-    // port) — the concrete Arc is the intermediate so both views share the
-    // single underlying corpus connection.
-    let incident_adapter: Option<Arc<CorpusIncidentPersistence>> = corpus_writer
-        .as_ref()
-        .map(|w| Arc::new(CorpusIncidentPersistence::new(Arc::clone(w))));
-    let incident_persistence: Option<Arc<dyn IncidentPersistence>> = incident_adapter
-        .as_ref()
-        .map(|a| Arc::clone(a) as Arc<dyn IncidentPersistence>);
-    let incident_durable: Option<Arc<dyn DurableActiveIncidents>> = incident_adapter
-        .as_ref()
-        .map(|a| Arc::clone(a) as Arc<dyn DurableActiveIncidents>);
-    let restored_incidents: Vec<triage::contract::Incident> = incident_persistence
-        .as_ref()
-        .and_then(|p| match p.load_active_incidents(&incident_workspace_key) {
-            Ok(v) => Some(v),
-            Err(e) => {
-                tracing::warn!(
-                    target: triage::contract::TARGET_INCIDENT_PERSIST_ERROR,
-                    error_category = e.error_category(),
-                    persist_kind = "incident_boot_restore",
-                    "incident corpus restore failed at boot; starting with empty registry",
-                );
-                None
-            }
-        })
-        .unwrap_or_default();
-    let restored_incident_count = restored_incidents.len() as u64;
-    let incident_registry: Arc<dyn IncidentRegistry> =
-        Arc::new(InMemoryIncidentRegistry::from_persisted(restored_incidents));
-    tracing::info!(
-        target: "triage.incident.corpus_restore",
-        kind = "incident",
-        restored_incident_count = restored_incident_count,
-        "incident corpus restore",
+    // The engine itself — receivers, buffer, detectors, corpus, its ticks — is
+    // built and spawned by the one boot both programs call.
+    let engine = engine_boot::start(
+        EngineConfig::from_env(data_dir.clone()),
+        EngineInputs {
+            program: Program::Window,
+            key_backend: engine_boot::os_key_backend(),
+            hardware_profile: Arc::clone(&hardware_profile),
+            interpretation: Some(InterpretationSeat {
+                runner: Arc::clone(&llm_runner),
+                kind: seat_kind,
+            }),
+        },
     );
-    let incidents_impl = incident_persistence.as_ref().map(|p| {
+    let heartbeat_state = Arc::clone(&engine.heartbeat_state);
+    let broadcast_senders = Arc::clone(&engine.broadcast_senders);
+    let buffer_conn = engine.buffer_conn.clone();
+
+    let viz_state = Arc::new(VizState::new());
+    let connection_impl = ConnectionApiImpl::new(
+        Arc::clone(&engine.ingest_state),
+        Arc::clone(&engine.bind_status),
+    );
+    // Absent when the corpus did not open at boot: storage.inspect /
+    // storage.path then return AppError::Storage at IPC time.
+    let storage_impl = engine
+        .corpus_reader
+        .as_ref()
+        .zip(engine.corpus_writer.as_ref())
+        .map(|(r, w)| StorageApiImpl::new(Arc::clone(r), Arc::clone(w)));
+    let incidents_impl = engine.incident_persistence.as_ref().map(|p| {
         IncidentsApiImpl::new(
-            Arc::clone(&incident_registry),
-            Arc::clone(&incident_broadcast),
+            Arc::clone(&engine.incident_registry),
+            Arc::clone(&engine.incident_broadcast),
             Arc::clone(p),
-            incident_workspace_key.clone(),
+            engine.incident_workspace_key.clone(),
         )
     });
-
-    // ServicesApiImpl is constructed here (after incident_registry) because
-    // its per-service severity join reads the active-incident registry to
+    // Its per-service severity join reads the active-incident registry to
     // enrich each ServiceListItem.priority_tier for the constellation dots.
     let services_impl = ServicesApiImpl::new(
-        Arc::clone(&lifecycle_registry),
-        Arc::clone(&incident_registry),
-        incident_workspace_key.clone(),
-        Arc::clone(&lifecycle_broadcast),
+        Arc::clone(&engine.lifecycle_registry),
+        Arc::clone(&engine.incident_registry),
+        engine.incident_workspace_key.clone(),
+        Arc::clone(&engine.lifecycle_broadcast),
     );
-
-    // Chunk #69 Phase B Session 4 — Drain miner construction with corpus-backed
-    // persistence. `CorpusDrainPersistence` wraps the writer trait object
-    // via trait-in-lower-crate pattern (per session-learnings 2026-05-16);
-    // serializes DrainState via bincode → AES-256-GCM cell encrypt →
-    // `pipeline_metrics(metric_name="drain_template_tree", layer="l1c")`.
-    // Boot is non-fatal: if corpus_writer is None the miner runs
-    // in-memory-only; if `load_from_persistence` fails, we log + proceed
-    // (template tree resets to empty). Settings-driven config (Step 14)
-    // lands in Session 5 alongside the SettingsModalForm Drain UI.
-    let drain_persistence: Option<Arc<dyn buffer::DrainPersistence>> =
-        corpus_writer.as_ref().map(|writer| {
-            Arc::new(CorpusDrainPersistence::new(Arc::clone(writer)))
-                as Arc<dyn buffer::DrainPersistence>
-        });
-    // Chunk #69 Phase B Session 5 — Settings-driven Drain knobs. Load
-    // Settings from disk; if file missing OR parse-error, silent fallback
-    // to defaults via `Settings::load_from_data_dir` per chunk #30 boot-
-    // load precedent. Settings.drain_* fields shape DrainConfig before
-    // DrainMiner construction; runtime config changes (via Settings UI)
-    // persist but do NOT mutate the live miner — restart required (P-055).
-    // similarity_x100 is the percent-scaled integer storage form (50 ↔ 0.50).
-    let boot_settings = Settings::load_from_data_dir(&data_dir);
-    let mut drain_config = DrainConfig::default_config();
-    drain_config.depth = boot_settings.drain_depth;
-    drain_config.similarity = boot_settings.drain_similarity_x100 as f32 / 100.0;
-    drain_config.max_clusters = boot_settings.drain_max_clusters as usize;
-    let drain_miner = Arc::new(DrainMiner::new(drain_config, drain_persistence));
-    match drain_miner.load_from_persistence() {
-        Ok(true) => {
-            tracing::info!(
-                target: "drain.persistence.load.ok",
-                template_count = drain_miner.template_count(),
-                "drain template tree rehydrated from corpus",
-            );
-        }
-        Ok(false) => {
-            // No prior snapshot OR no persistence configured — fresh tree.
-        }
-        Err(e) => {
-            tracing::warn!(
-                target: "drain.persistence.unavailable",
-                reason = %e,
-                "Drain persistence unavailable; in-memory-only template tree this boot",
-            );
-        }
-    }
-    // Chunk #86 — L4 degraded-mode FSM. Single shared instance per L4
-    // subscriber per Phase 6 user-confirmed GLOBAL scope. Injected into
-    // (a) the L4 inference subscriber (chunk-86 backoff-skip + record
-    // success/failure outcomes), (b) the diagnostics router (manual
-    // override via `diagnostics.retry_interpretation()`), (c) the
-    // backoff-remaining gauge heartbeat (chunk #86 obs metric).
-    let degraded_mode: Arc<dyn interpretation::degraded_mode::DegradedModeStatus> =
-        Arc::new(pulse_app::degraded_mode_runtime::LocalDegradedModeStatus::new());
-
-    // Chunk #96 — configuration hot-reload substrate. The watcher publishes a
-    // validated `Settings` on a watch channel; a boot-time fan-out maps it to
-    // per-consumer watch channels (cadence + lifecycle) so consumers re-read
-    // prospectively. The notify watcher is spawned in the setup closure (needs
-    // the runtime); the router-side ConfigApiImpl reads the handle via a
-    // deferred OnceLock (mirrors snapshot_impl_for_setup). LiveReevaluator
-    // backs the opt-in `diagnostics.reevaluate_recent_window()` retrospective.
-    let config_event_broadcast = Arc::new(config_watcher::ConfigEventBroadcast::new());
-    let config_status = Arc::new(Mutex::new(config_watcher::ConfigStatus::default()));
-    let config_handle_slot: Arc<std::sync::OnceLock<config_watcher::ConfigWatchHandle>> =
-        Arc::new(std::sync::OnceLock::new());
-    let (config_settings_tx, config_settings_rx) =
-        tokio::sync::watch::channel(boot_settings.clone());
-    let (cadence_cfg_tx, cadence_cfg_rx) =
-        tokio::sync::watch::channel(config_router::settings_to_cadence_config(&boot_settings));
-    let (lifecycle_thresh_tx, lifecycle_thresh_rx) = tokio::sync::watch::channel(
-        config_router::settings_to_lifecycle_thresholds(&boot_settings),
+    let config_impl = ConfigApiImpl::new(
+        Arc::clone(&engine.config_handle_slot),
+        Arc::clone(&engine.config_status),
     );
-    let config_impl =
-        ConfigApiImpl::new(Arc::clone(&config_handle_slot), Arc::clone(&config_status));
-    let reevaluator: Arc<dyn RecentWindowReevaluator> = Arc::new(LiveReevaluator::new(
-        Arc::clone(&lifecycle_registry),
-        Arc::clone(&lifecycle_broadcast),
-        Arc::clone(&baseline_state),
-        lifecycle_thresh_rx.clone(),
-    ));
-
     let diagnostics_impl = DiagnosticsApiImpl::new(
-        Arc::clone(&drain_miner),
-        Arc::clone(&degraded_mode),
-        Arc::clone(&reevaluator),
+        Arc::clone(&engine.drain_miner),
+        Arc::clone(&engine.degraded_mode),
+        Arc::clone(&engine.reevaluator),
         Arc::clone(&llm_runner),
         Arc::clone(&hardware_profile),
     );
-
-    let grpc_addr = match resolve_grpc_port() {
-        Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
-        Err(_) => {
-            heartbeat_state.record_otlp_grpc_bind(BindStatus::Failed("invalid_port".to_string()));
-            tracing::error!(
-                target: "app.boot.otlp.grpc.bind",
-                reason = "invalid_port",
-                "OTLP gRPC port validation rejected env-var override; receiver will not start"
-            );
-            None
-        }
-    };
-    let http_addr = match resolve_http_port() {
-        Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
-        Err(_) => {
-            heartbeat_state.record_otlp_http_bind(BindStatus::Failed("invalid_port".to_string()));
-            tracing::error!(
-                target: "app.boot.otlp.http.bind",
-                reason = "invalid_port",
-                "OTLP HTTP port validation rejected env-var override; receiver will not start"
-            );
-            None
-        }
-    };
 
     // features array surfaces in `app_info.features`; populated from compile-time
     // cfg!() checks. mcp-server is the only known opt-in feature at chunk #27.
@@ -950,8 +206,8 @@ fn main() {
         data_dir.clone(),
         features,
         Some(Arc::clone(&broadcast_senders)),
-        Some(Arc::clone(&buffer_state)),
-        retention_seconds,
+        Some(Arc::clone(&engine.buffer_state)),
+        engine.retention_seconds,
     );
 
     // Chunk #44: SnapshotApiImpl constructed BEFORE the router build so the
@@ -1074,35 +330,6 @@ fn main() {
         }
     };
 
-    // Chunk #70: clone baseline_persistence option for use inside the
-    // `.setup(move ...)` closure (the persist loop spawn site). The outer
-    // binding is no longer needed after this point.
-    let baseline_persistence_for_persist = baseline_persistence.clone();
-
-    // Chunk #71: same pattern for lifecycle + storm persistence.
-    let lifecycle_persistence_for_persist = lifecycle_persistence.clone();
-    let storm_persistence_for_persist = storm_persistence.clone();
-    let corpus_basename_for_persist: String = corpus_db_path
-        .file_name()
-        .and_then(|s| s.to_str())
-        .unwrap_or("corpus.db")
-        .to_string();
-
-    // Chunk #78: capture incident persistence + registry + broadcast +
-    // workspace key for the setup closure spawn site (persist loop + auto-
-    // resolution observer loop). Cloning Option<Arc<...>> is cheap (Arc).
-    let incident_persistence_for_persist = incident_persistence.clone();
-    let incident_durable_for_persist = incident_durable.clone();
-    let incident_registry_for_persist = Arc::clone(&incident_registry);
-    // Chunk #86 — capture degraded_mode for the setup closure spawn site
-    // (L4 inference subscriber + backoff-remaining heartbeat). Mirrors the
-    // incident_*_for_persist pattern above. One shared Arc serves all
-    // three consumers (subscriber / heartbeat / diagnostics resolver).
-    let degraded_mode_for_subscriber = Arc::clone(&degraded_mode);
-    let degraded_mode_for_heartbeat = Arc::clone(&degraded_mode);
-    let incident_broadcast_for_observe = Arc::clone(&incident_broadcast);
-    let incident_workspace_for_persist = incident_workspace_key.clone();
-
     // Window geometry (remembered position) — Rust-owned, decoupled from the
     // webview Settings contract so an update_settings can never clobber it.
     // The event handler records moves (throttled) + flushes on close-to-tray;
@@ -1149,428 +376,10 @@ fn main() {
             let tray_icon = tray::setup_tray(app.handle(), Arc::clone(&broadcast_senders))?;
             app.manage(tray_icon);
 
-            // Chunk #96 — configuration hot-reload watcher + fan-out (spawned
-            // here so it runs in the Tauri-managed runtime regardless of
-            // buffer availability). The watcher publishes validated Settings on
-            // the watch channel; the fan-out maps each settled change to the
-            // per-consumer cadence + lifecycle watch channels (prospective).
-            match config_watcher::start_config_watcher(
-                &data_dir,
-                config_settings_tx,
-                config_event_broadcast,
-                config_status,
-            ) {
-                Ok((config_handle, config_task)) => {
-                    let _ = config_handle_slot.set(config_handle);
-                    tauri::async_runtime::spawn(config_task.run());
-                    let mut settings_rx = config_settings_rx;
-                    tauri::async_runtime::spawn(async move {
-                        while settings_rx.changed().await.is_ok() {
-                            let s = settings_rx.borrow_and_update().clone();
-                            let _ =
-                                cadence_cfg_tx.send(config_router::settings_to_cadence_config(&s));
-                            let _ = lifecycle_thresh_tx
-                                .send(config_router::settings_to_lifecycle_thresholds(&s));
-                        }
-                    });
-                    tracing::info!(
-                        target: "config.watcher.boot",
-                        "config hot-reload watcher started",
-                    );
-                }
-                Err(e) => {
-                    tracing::warn!(
-                        target: "config.watcher.boot",
-                        error_category = config_router::config_watch_error_category(&e),
-                        "config hot-reload watcher disabled this boot",
-                    );
-                }
-            }
-
-            match buffer_conn {
-                Some(conn) => {
-                    tauri::async_runtime::spawn(run_consumer(
-                        ingest_receiver,
-                        Arc::clone(&conn),
-                        Arc::clone(&buffer_state),
-                        Arc::clone(&broadcast_senders),
-                        Arc::clone(&span_observer),
-                        fingerprint_observer.clone(),
-                        // Chunk #69 Phase B Session 3 — Drain miner threaded
-                        // into the buffer consumer hot path. The same Arc is
-                        // shared with `diagnostics_impl` so TauRPC reads see
-                        // the live tree. Persistence is None this session;
-                        // Session 4 wires `CorpusDrainPersistence` through
-                        // `DrainMiner::new`'s persistence slot via the
-                        // trait-in-lower-crate `DrainPersistence` adapter.
-                        Some(Arc::clone(&drain_miner)),
-                    ));
-                    tauri::async_runtime::spawn(run_retention(
-                        Arc::clone(&conn),
-                        Arc::clone(&buffer_state),
-                        retention_seconds,
-                    ));
-                }
-                None => {
-                    // Buffer init failed; the health envelope is already degraded
-                    // (BufferConnectionStatus::InitFailed recorded in init_buffer).
-                    // Drain the receiver to keep the OTLP ingest path live so
-                    // chunk #16/#17 receivers don't cascade into channel saturation.
-                    // Retention task is also skipped — no connection to sweep.
-                    //
-                    // Announce it: draining is indistinguishable from a healthy
-                    // path in ingest's own counters (they count at receipt), so
-                    // without this line a dead fingerprint feed and absent
-                    // DuckDB appends can only be inferred from missing signal.
-                    tracing::warn!(
-                        target: "app.boot.buffer.degraded",
-                        reason = "buffer_conn_absent",
-                        consequence = "duckdb_appends_and_fingerprint_feed_inert",
-                        "buffer connection absent; ingest batches are drained and discarded this boot",
-                    );
-                    tauri::async_runtime::spawn(async move {
-                        let mut rx = ingest_receiver;
-                        while rx.recv().await.is_some() {}
-                    });
-                }
-            }
-            if let Some(grpc_addr) = grpc_addr {
-                let grpc_announcer = Arc::clone(&heartbeat_state);
-                let grpc_state = Arc::clone(&ingest_state);
-                let grpc_sender = Arc::clone(&ingest_sender);
-                tauri::async_runtime::spawn(async move {
-                    match ingest::grpc::try_bind(grpc_addr).await {
-                        Ok(listener) => {
-                            grpc_announcer.record_otlp_grpc_bind(BindStatus::Ok);
-                            tracing::info!(
-                                target: "app.boot.otlp.grpc.bind",
-                                bind_address = %grpc_addr,
-                                "OTLP gRPC receiver bound"
-                            );
-                            if let Err(e) =
-                                ingest::grpc::serve_on(listener, grpc_state, grpc_sender).await
-                            {
-                                let reason = format!("{}", e);
-                                grpc_announcer
-                                    .record_otlp_grpc_bind(BindStatus::Failed(reason.clone()));
-                                tracing::error!(
-                                    target: "app.boot.otlp.grpc.bind",
-                                    reason = %reason,
-                                    bind_address = %grpc_addr,
-                                    "OTLP gRPC server stopped"
-                                );
-                            }
-                        }
-                        Err(e) => {
-                            let reason = format!("{}", e);
-                            grpc_announcer
-                                .record_otlp_grpc_bind(BindStatus::Failed(reason.clone()));
-                            tracing::error!(
-                                target: "app.boot.otlp.grpc.bind",
-                                reason = %reason,
-                                bind_address = %grpc_addr,
-                                "bind failed"
-                            );
-                        }
-                    }
-                });
-            }
-            if let Some(http_addr) = http_addr {
-                let http_announcer = Arc::clone(&heartbeat_state);
-                let http_state = Arc::clone(&ingest_state);
-                let http_sender = Arc::clone(&ingest_sender);
-                tauri::async_runtime::spawn(async move {
-                    match ingest::http::try_bind(http_addr).await {
-                        Ok(listener) => {
-                            http_announcer.record_otlp_http_bind(BindStatus::Ok);
-                            tracing::info!(
-                                target: "app.boot.otlp.http.bind",
-                                bind_address = %http_addr,
-                                "OTLP HTTP receiver bound"
-                            );
-                            if let Err(e) =
-                                ingest::http::serve_on(listener, http_state, http_sender).await
-                            {
-                                let reason = format!("{}", e);
-                                http_announcer
-                                    .record_otlp_http_bind(BindStatus::Failed(reason.clone()));
-                                tracing::error!(
-                                    target: "app.boot.otlp.http.bind",
-                                    reason = %reason,
-                                    bind_address = %http_addr,
-                                    "OTLP HTTP server stopped"
-                                );
-                            }
-                        }
-                        Err(e) => {
-                            let reason = format!("{}", e);
-                            http_announcer
-                                .record_otlp_http_bind(BindStatus::Failed(reason.clone()));
-                            tracing::error!(
-                                target: "app.boot.otlp.http.bind",
-                                reason = %reason,
-                                bind_address = %http_addr,
-                                "bind failed"
-                            );
-                        }
-                    }
-                });
-            }
-            // Chunk #59 — connection-state FSM detector loop. 1-second tick
-            // reading IngestState atomic + bind status; broadcasts payload on
-            // pulse://stream/connection-state ONLY when state changes. Separate
-            // concern from the 15s heartbeat tick task below (which emits the
-            // periodic `connection.tick` event regardless of state change).
-            tauri::async_runtime::spawn(connection::start_poller(
-                Arc::clone(&ingest_state),
-                Arc::clone(&bind_status),
-                Arc::clone(&connection_broadcast),
-            ));
-            // Chunk #62 + #70 — baseline corpus periodic persist (60s default)
-            // + attention cue emitter background tick (1s cadence reading
-            // all BaselineState trackers, evaluating thresholds, emitting
-            // cues to broadcast + cadence-triggers channel).
-            //
-            // Chunk #70: spawn the persist loop ONLY when baseline_persistence
-            // is Some (corpus available at boot). None ⇒ in-memory-only this
-            // session per the boot-warn emitted above; no persist task needed.
-            if let Some(persistence) = baseline_persistence_for_persist.as_ref() {
-                tauri::async_runtime::spawn(run_persist_loop(
-                    Arc::clone(&baseline_state),
-                    Arc::clone(persistence),
-                    std::time::Duration::from_nanos(DEFAULT_PERSIST_INTERVAL_NANOS as u64),
-                ));
-            }
-            tauri::async_runtime::spawn(start_emitter(
-                Arc::clone(&baseline_state),
-                Arc::clone(&cue_broadcast),
-                Arc::clone(&cadence_channel),
-                Arc::clone(&thresholds),
-                Arc::clone(&restart_broadcast),
-                Arc::clone(&suppression_state),
-            ));
-            // Chunk #63 — restart detector heartbeat tick (15s default
-            // cadence per `.claude/rules/observability.md` heartbeat-ticks
-            // rule); detection itself happens inline at observe_span time
-            // via the RestartObserverAdapter hot-path hook.
-            tauri::async_runtime::spawn(start_restart_detector(
-                Arc::clone(&restart_detector),
-                DEFAULT_HEARTBEAT_INTERVAL,
-            ));
-            // Chunk #66 — retry storm detector heartbeat tick (15s default;
-            // shares cadence with chunk #63 restart detector). Storm detection
-            // itself happens inline at fingerprint-observation time via the
-            // StormObserverAdapter buffer-side hot-path hook.
-            tauri::async_runtime::spawn(start_storm_detector(
-                Arc::clone(&storm_detector),
-                DEFAULT_HEARTBEAT_INTERVAL,
-            ));
-            // Chunk #80 — cadence coordinator + three-tier triggering.
-            // CadenceConfig reads from persisted Settings (validated by
-            // Settings::validate at load time); coordinator reads once at
-            // spawn per pulse-v0_2_0-route §80 (hot-reload deferred to chunk
-            // #94). Spawn ONLY when buffer_conn is Some (cadence_sql_runner
-            // has a real DuckDB handle); else log warn + skip.
-            let cadence_config = Arc::new(
-                CadenceConfig::try_new(
-                    settings.cadence_baseline_seconds,
-                    settings.cadence_accelerated_seconds,
-                    settings.cadence_reflection_seconds,
-                    settings.cadence_tier2_acceleration_enabled,
-                )
-                .expect("cadence config validated by Settings::validate"),
-            );
-            tracing::info!(
-                target: "cadence.config.load",
-                baseline_seconds = cadence_config.baseline_seconds as u64,
-                accelerated_seconds = cadence_config.accelerated_seconds as u64,
-                reflection_seconds = cadence_config.reflection_seconds as u64,
-                tier2_acceleration_enabled = cadence_config.tier2_acceleration_enabled,
-                "cadence config loaded at boot",
-            );
-            if let Some(sql_runner) = cadence_sql_runner.as_ref() {
-                tauri::async_runtime::spawn(start_cadence_coordinator(
-                    Arc::clone(sql_runner),
-                    Arc::clone(&cadence_event_broadcast),
-                    Arc::clone(&cadence_digest_trigger),
-                    Arc::clone(&cue_broadcast),
-                    Arc::clone(&cadence_channel),
-                    Arc::clone(&hardware_profile),
-                    Arc::clone(&cadence_config),
-                    cadence_cfg_rx,
-                ));
-            } else {
-                tracing::warn!(
-                    target: "cadence.config.safety_floor",
-                    "cadence coordinator disabled — buffer connection unavailable",
-                );
-            }
-            // Chunk #81 — L3 digest assembler runtime. Constructs the
-            // assembler if both sql_runner + corpus_writer are available
-            // (degrades gracefully when buffer or corpus unavailable per
-            // chunk #80 / chunk #68 substrates). Spawns two tasks:
-            // - cadence subscriber: invokes assembler.assemble() per
-            //   CadenceEvent
-            // - digest persister: writes each assembled digest to
-            //   corpus.digest_archive via CorpusWriter::save_digest
-            let digest_broadcast: Arc<DigestBroadcast> = Arc::new(DigestBroadcast::new());
-            let digest_queue: Arc<std::sync::Mutex<LwwQueue>> =
-                Arc::new(std::sync::Mutex::new(LwwQueue::new()));
-            if let (Some(sql_runner), Some(corpus_writer_handle)) =
-                (cadence_sql_runner.as_ref(), corpus_writer.as_ref())
-            {
-                match pulse_app::digest_runtime::build_assembler(
-                    Arc::clone(sql_runner),
-                    Arc::clone(&incident_registry_for_persist),
-                    Arc::clone(&digest_broadcast),
-                    Arc::clone(&digest_queue),
-                    Arc::new(pulse_app::corpus_retrieval::CorpusBackedIncidentSource::new(
-                        Arc::clone(corpus_writer_handle),
-                    )),
-                ) {
-                    Ok(assembler) => {
-                        pulse_app::digest_runtime::spawn_cadence_subscriber(
-                            Arc::clone(&cadence_digest_trigger),
-                            Arc::clone(&assembler),
-                            digest_project_context,
-                        );
-                        pulse_app::digest_runtime::spawn_digest_persister(
-                            Arc::clone(&digest_broadcast),
-                            Arc::clone(corpus_writer_handle),
-                        );
-                        // Chunk #83 substrate + chunk #86 degraded-mode
-                        // wiring. The L4 subscriber now consumes the
-                        // degraded-mode FSM (backoff-skip + record outcome)
-                        // + incident registry + persistence for the
-                        // resolution-summary attachment path (chunk #86).
-                        // Persistence path active ONLY when the corpus
-                        // is available at boot; in-memory-only deployments
-                        // skip the resolution-summary persist site (the
-                        // attachment happens in-memory but the durable
-                        // write is deferred — defensive skip prevents
-                        // None unwrap on Path A non-corpus boot).
-                        // Generation damper — shared by the L4 subscriber
-                        // (the unchanged-input gate) and the backoff
-                        // heartbeat (cumulative counters as tick fields).
-                        let generation_damper =
-                            Arc::new(triage::contract::GenerationDamper::new());
-                        if let Some(persistence) = incident_persistence_for_persist.as_ref() {
-                            pulse_app::inference_runtime::spawn_l4_inference_subscriber(
-                                Arc::clone(&digest_broadcast),
-                                Arc::clone(&llm_runner),
-                                Arc::clone(&degraded_mode_for_subscriber),
-                                Arc::clone(&incident_registry_for_persist),
-                                Arc::clone(persistence),
-                                Arc::clone(&generation_damper),
-                            );
-                        } else {
-                            tracing::warn!(
-                                target: "digest.runtime.boot",
-                                "L4 inference subscriber disabled — corpus unavailable; resolution-summary attachment path inactive this boot",
-                            );
-                        }
-                        pulse_app::inference_runtime::spawn_l4_queue_depth_heartbeat(|| 0);
-                        pulse_app::inference_runtime::spawn_l4_backoff_remaining_heartbeat(
-                            Arc::clone(&degraded_mode_for_heartbeat),
-                            Arc::clone(&generation_damper),
-                        );
-                        tracing::info!(
-                            target: "digest.runtime.boot",
-                            "digest assembler spawned (cadence subscriber + persister + L4 inference subscriber + degraded-mode heartbeat)",
-                        );
-                    }
-                    Err(e) => {
-                        tracing::warn!(
-                            target: "digest.runtime.boot",
-                            error_message = %e,
-                            "digest assembler init failed; L3 disabled",
-                        );
-                    }
-                }
-            } else {
-                tracing::warn!(
-                    target: "digest.runtime.boot",
-                    "digest assembler disabled — buffer connection or corpus unavailable",
-                );
-            }
-            // Chunk #67 — service lifecycle heartbeat tick (15s default
-            // sibling cadence). Reads BaselineState activity snapshots,
-            // emits ServiceLifecycleEvent transitions on the broadcast,
-            // and subscribes to pulse://stream/restart-events to trigger
-            // Bootstrapping transitions on any-state restart-observed gap.
-            // Thresholds source from persisted Settings (loaded above).
-            let lifecycle_restart_rx = restart_broadcast.subscribe();
-            tauri::async_runtime::spawn(start_lifecycle_heartbeat(
-                Arc::clone(&lifecycle_registry),
-                Arc::clone(&lifecycle_broadcast),
-                Arc::clone(&baseline_state),
-                lifecycle_restart_rx,
-                lifecycle_thresh_rx,
-                DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL,
-            ));
-            // Chunk #71 — lifecycle + storm persistence periodic loops
-            // (60s default, mirrors baseline cadence). Spawn ONLY when
-            // corpus available at boot; None ⇒ in-memory-only this
-            // session per the boot-warn emitted above; no persist task
-            // needed. Skip-first-tick + 60s actual cadence preserves
-            // chunk #62/#63/#66 heartbeat convention.
-            if let Some(persistence) = lifecycle_persistence_for_persist.as_ref() {
-                tauri::async_runtime::spawn(run_lifecycle_persist_loop(
-                    Arc::clone(&lifecycle_registry),
-                    Arc::clone(persistence),
-                    std::time::Duration::from_secs(DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS),
-                    corpus_basename_for_persist.clone(),
-                ));
-            }
-            if let Some(persistence) = storm_persistence_for_persist.as_ref() {
-                tauri::async_runtime::spawn(run_storm_persist_loop(
-                    Arc::clone(&storm_detector),
-                    Arc::clone(persistence),
-                    std::time::Duration::from_secs(DEFAULT_STORM_PERSIST_INTERVAL_SECS),
-                    corpus_basename_for_persist.clone(),
-                ));
-            }
-            // Chunk #78 — incident persistence + auto-resolution observer.
-            // Spawn ONLY when corpus available at boot; None ⇒ in-memory-only
-            // this session per the boot-restore-failed warn already emitted.
-            // The persist loop (60s default cadence) catches up corpus state
-            // with the in-memory registry; the auto-resolution observer
-            // (30s tick) evaluates Active+Acknowledged incidents for the
-            // 120s no-reemission window (capability P-022).
-            if let Some(persistence) = incident_persistence_for_persist.as_ref() {
-                if let Some(durable) = incident_durable_for_persist.as_ref() {
-                    tauri::async_runtime::spawn(run_incident_persist_loop(
-                        Arc::clone(&incident_registry_for_persist),
-                        Arc::clone(persistence),
-                        Arc::clone(durable),
-                        vec![incident_workspace_for_persist.clone()],
-                        DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS,
-                    ));
-                }
-                let observer = AutoResolveObserver::new(
-                    Arc::clone(&incident_registry_for_persist),
-                    Arc::clone(persistence),
-                    Arc::clone(&incident_broadcast_for_observe),
-                );
-                tauri::async_runtime::spawn(run_auto_resolution_loop(observer));
-            }
-            let _heartbeat_handles = heartbeat::spawn(
-                heartbeat_state,
-                Arc::clone(&ingest_state),
-                Arc::clone(&ingest_sender),
-                Arc::clone(&buffer_state),
-                retention_seconds,
-                Arc::clone(&viz_state),
-                Arc::clone(&broadcast_senders),
-                Arc::clone(&plugins_registry),
-                Arc::clone(&bind_status),
-                // chunk #69 Phase B Session 7+: thread the DrainMiner ref
-                // into the buffer.tick heartbeat task so drain_template_count
-                // + drain_lru_evictions_since_tick fields surface AND the
-                // `metric.pipeline.l1c.drain_template_count_total` event
-                // emits per tick (15s sibling cadence).
-                Some(Arc::clone(&drain_miner)),
-            );
+            // The window's own two ticks; the engine's three are spawned by
+            // the engine boot.
+            let _window_tick_handles =
+                heartbeat::spawn_window_ticks(heartbeat_state, viz_state, plugins_registry);
             Ok(())
         })
         .build(tauri::generate_context!())
@@ -1581,233 +390,19 @@ fn main() {
     observability::exit_after_event_loop(exit_code);
 }
 
-fn init_buffer(heartbeat_state: &Arc<HeartbeatState>) -> Option<Arc<Mutex<Connection>>> {
-    let start = Instant::now();
-    let conn = match Connection::open_in_memory() {
-        Ok(c) => c,
-        Err(_) => {
-            heartbeat_state.record_buffer_connection(BufferConnectionStatus::InitFailed(
-                "open_in_memory".into(),
-            ));
-            tracing::error!(
-                target: "buffer.schema.init.error",
-                error_type = "open_in_memory_failed",
-                spantrace = ?SpanTrace::capture(),
-                "DuckDB :memory: connection open failed",
-            );
-            return None;
-        }
-    };
-    if create_schema(&conn).is_err() {
-        heartbeat_state.record_buffer_connection(BufferConnectionStatus::InitFailed(
-            "schema_create_failed".into(),
-        ));
-        tracing::error!(
-            target: "buffer.schema.init.error",
-            error_type = "schema_create",
-            spantrace = ?SpanTrace::capture(),
-            "DuckDB schema creation failed",
-        );
-        return None;
-    }
-    heartbeat_state.record_buffer_connection(BufferConnectionStatus::Ok);
-    let duration_ms = start.elapsed().as_millis() as u64;
-    tracing::info!(
-        target: "buffer.schema.init",
-        table_count = 7_u64,
-        duration_ms = duration_ms,
-        "ring buffer schema created",
-    );
-    Some(Arc::new(Mutex::new(conn)))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use triage::contract::UnknownHardwareProfile;
-
-    // SAFETY: env::set_var / remove_var are unsafe in Rust 2024 edition because
-    // they race with concurrent threads' env reads. cargo-nextest gives us
-    // per-process test isolation (per .claude/rules/testing.md §Framework), and
-    // each test uses a unique env-var name so there is no overlap with sibling
-    // tests sharing the same process. Calls are scoped narrowly and the env
-    // var is removed at end-of-test.
-
-    #[test]
-    fn resolve_port_unset_env_returns_default() {
-        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_UNSET";
-        unsafe {
-            std::env::remove_var(TEST_ENV);
-        }
-        let result = resolve_port(TEST_ENV, 4317);
-        let port = result.expect("unset env returns default port");
-        assert_eq!(port.value(), 4317);
-    }
-
-    #[test]
-    fn resolve_port_unparseable_env_returns_invalid_port_err() {
-        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_UNPARSEABLE";
-        unsafe {
-            std::env::set_var(TEST_ENV, "not-a-number");
-        }
-        let result = resolve_port(TEST_ENV, 4317);
-        unsafe {
-            std::env::remove_var(TEST_ENV);
-        }
-        assert!(matches!(result, Err(IngestError::InvalidPort { .. })));
-    }
-
-    #[test]
-    fn resolve_port_overflow_env_returns_invalid_port_err() {
-        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_OVERFLOW";
-        unsafe {
-            std::env::set_var(TEST_ENV, "99999");
-        }
-        let result = resolve_port(TEST_ENV, 4317);
-        unsafe {
-            std::env::remove_var(TEST_ENV);
-        }
-        assert!(matches!(result, Err(IngestError::InvalidPort { .. })));
-    }
-
-    #[test]
-    fn resolve_port_privileged_env_returns_invalid_port_err() {
-        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_PRIVILEGED";
-        unsafe {
-            std::env::set_var(TEST_ENV, "80");
-        }
-        let result = resolve_port(TEST_ENV, 4317);
-        unsafe {
-            std::env::remove_var(TEST_ENV);
-        }
-        assert!(matches!(result, Err(IngestError::InvalidPort { .. })));
-    }
-
-    #[test]
-    fn resolve_port_zero_env_returns_invalid_port_err() {
-        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_ZERO";
-        unsafe {
-            std::env::set_var(TEST_ENV, "0");
-        }
-        let result = resolve_port(TEST_ENV, 4317);
-        unsafe {
-            std::env::remove_var(TEST_ENV);
-        }
-        assert!(matches!(result, Err(IngestError::InvalidPort { .. })));
-    }
-
-    #[test]
-    fn resolve_port_valid_non_privileged_returns_ok() {
-        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_VALID";
-        unsafe {
-            std::env::set_var(TEST_ENV, "9000");
-        }
-        let result = resolve_port(TEST_ENV, 4317);
-        unsafe {
-            std::env::remove_var(TEST_ENV);
-        }
-        let port = result.expect("non-privileged port must pass");
-        assert_eq!(port.value(), 9000);
-    }
-
-    #[test]
-    fn resolve_port_spec_default_via_env_returns_ok() {
-        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_SPEC_DEFAULT";
-        unsafe {
-            std::env::set_var(TEST_ENV, "4318");
-        }
-        let result = resolve_port(TEST_ENV, 4317);
-        unsafe {
-            std::env::remove_var(TEST_ENV);
-        }
-        let port = result.expect("spec-default 4318 via env must pass");
-        assert_eq!(port.value(), 4318);
-    }
-
-    // resolve_retention_seconds tests (chunk #21). Same `unsafe { std::env::set_var }`
-    // discipline as resolve_port tests above — cargo-nextest gives per-process
-    // isolation, each test uses a distinct fixture by removing/setting the
-    // same env var (ANDROMEDA_PULSE_RETENTION_SECONDS) within a narrow scope.
-
-    #[test]
-    fn resolve_retention_seconds_unset_returns_default() {
-        unsafe {
-            std::env::remove_var(ENV_RETENTION_SECONDS);
-        }
-        assert_eq!(resolve_retention_seconds(), RETENTION_SECONDS_DEFAULT);
-    }
-
-    #[test]
-    fn resolve_retention_seconds_unparseable_falls_back_to_default() {
-        unsafe {
-            std::env::set_var(ENV_RETENTION_SECONDS, "not-a-number");
-        }
-        let result = resolve_retention_seconds();
-        unsafe {
-            std::env::remove_var(ENV_RETENTION_SECONDS);
-        }
-        assert_eq!(result, RETENTION_SECONDS_DEFAULT);
-    }
-
-    #[test]
-    fn resolve_retention_seconds_below_min_falls_back_to_default() {
-        unsafe {
-            std::env::set_var(ENV_RETENTION_SECONDS, "30");
-        }
-        let result = resolve_retention_seconds();
-        unsafe {
-            std::env::remove_var(ENV_RETENTION_SECONDS);
-        }
-        assert_eq!(result, RETENTION_SECONDS_DEFAULT);
-    }
-
-    #[test]
-    fn resolve_retention_seconds_above_max_falls_back_to_default() {
-        unsafe {
-            std::env::set_var(ENV_RETENTION_SECONDS, "999999");
-        }
-        let result = resolve_retention_seconds();
-        unsafe {
-            std::env::remove_var(ENV_RETENTION_SECONDS);
-        }
-        assert_eq!(result, RETENTION_SECONDS_DEFAULT);
-    }
-
-    #[test]
-    fn resolve_retention_seconds_in_range_returns_parsed_value() {
-        unsafe {
-            std::env::set_var(ENV_RETENTION_SECONDS, "300");
-        }
-        let result = resolve_retention_seconds();
-        unsafe {
-            std::env::remove_var(ENV_RETENTION_SECONDS);
-        }
-        assert_eq!(result, 300);
-    }
-
-    #[test]
-    fn resolve_retention_seconds_at_min_boundary_returns_min() {
-        unsafe {
-            std::env::set_var(ENV_RETENTION_SECONDS, "60");
-        }
-        let result = resolve_retention_seconds();
-        unsafe {
-            std::env::remove_var(ENV_RETENTION_SECONDS);
-        }
-        assert_eq!(result, RETENTION_SECONDS_MIN);
-    }
-
-    #[test]
-    fn resolve_retention_seconds_at_max_boundary_returns_max() {
-        unsafe {
-            std::env::set_var(ENV_RETENTION_SECONDS, "86400");
-        }
-        let result = resolve_retention_seconds();
-        unsafe {
-            std::env::remove_var(ENV_RETENTION_SECONDS);
-        }
-        assert_eq!(result, RETENTION_SECONDS_MAX);
-    }
+    use buffer::{BroadcastSenders, DrainConfig, DrainMiner};
+    use duckdb::Connection;
+    use ingest::state::IngestState;
+    use pulse_app::incident_persistence::CorpusIncidentPersistence;
+    use pulse_app::reevaluation::{LiveReevaluator, RecentWindowReevaluator};
+    use triage::contract::{
+        InMemoryIncidentRegistry, InMemoryServiceRegistry, IncidentLifecycleBroadcast,
+        IncidentPersistence, IncidentRegistry, ServiceLifecycleBroadcast, ServiceRegistry,
+        UnknownHardwareProfile,
+    };
 
     // Bindings emission test (chunk #25). taurpc 0.7 emits TS bindings at
     // `Router::into_handler()` call time when `tauri::is_dev()` returns true

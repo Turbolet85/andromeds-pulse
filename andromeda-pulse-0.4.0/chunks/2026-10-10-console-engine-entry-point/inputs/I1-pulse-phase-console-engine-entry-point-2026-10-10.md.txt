@@ -1,0 +1,30 @@
+# Phase directive — Pulse 0.4.0, tenth chunk: `Console engine entry point` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines come from this pair's own reads; re-derive what you rely on.
+Nothing here is this chunk's design.
+
+1. **This is the first chunk that builds the new form, and the size of the step is the first question.** measured on
+   2026-10-08 at `18a872d`, stale by nine chunks — re-measure before leaning on any of it: the engine lives inside the
+   Tauri process; `tauri` is a dependency of `crates/ingest`, `crates/triage`, `crates/ui-bridge` and `pulse-app`; two
+   binaries exist (`pulse-app`, `andromeda-pulse-mcp`); `main.rs` has no headless switch; 18 of 42 files of
+   `pulse-app/src` name tauri or taurpc. Research says what "one program boots ingest, buffer, detectors, corpus with
+   no display" costs against that, in files and in crates whose dependency on the window framework must be cut.
+2. **If it does not fit one chunk, say so at P4 and propose the cut** — where a first chunk ends with something that
+   runs and is gated, and what the second holds. A chunk that ends with a half-separated engine is not a cut. The
+   route is mine to change at a wrap; the plan is not asked to squeeze.
+3. **What must stay true while the window still stands.** Until `Window retired`, the window app boots and its boot
+   job, its eight boots and its a11y job stay green: the console engine is built beside the window, sharing the engine
+   code, never by breaking it. Say in the plan how one engine serves both until Epoch 2, and what forbids the two from
+   drifting apart in between.
+4. **The entry's own list is closed:** log, identity, panic, heartbeat and process-end records are kept by the console
+   program. The harness verbs, the door, the scenario legs and the end-to-end gate are the NEXT entries'; name each
+   thing this chunk leaves for them so none is assumed done.
+5. **No local model in the engine.** The console program does not start, load or wait for a model; what the window app
+   does with one today is not this chunk's to move. Say what the console engine does where 0.3.0's flow called the
+   model.
+6. **Boundaries.** A listening socket other than the two OTLP receivers the app binds today, a new place on disk, a
+   new credential, or anything reachable from another host halts for the founder's own word. Ports 4317 / 4318 are
+   shared on this host: ask before a run that binds them.
+7. **P-086 is carried by four entries;** show at P5 what of its acceptance this chunk can show and claim nothing
+   that was not shown. The plan lists the merge-base probe directly before its push entry.
+8. **At P5** say what `planlint` check 4 listed, print the plan card and stop for my `yes`.

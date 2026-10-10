@@ -54,7 +54,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-10-10 (2026-10-10-console-engine-entry-point, phase P5): advanced by this chunk, not claimed. The chunk plans the first half of the acceptance: a second program, andromeda-pulse-engine, boots the two loopback receivers, the buffer, the detectors and the corpus with no display variable, no GPU probe and no session bus in its environment, stays up until signalled and answers the commands run and version. The second half is not provable by this chunk: \"runs in the background\" as a service, every kind of finding 0.3.0 detected, one incident for a sustained storm and automatic resolution on the same telemetry are carried by the five other working entries that name this id (\"Agent harness drives the console engine\", \"Scenario legs driven against the console engine\", \"Engine end-to-end gate reachable\", \"Detection baseline through the console engine\", \"Detection parity after the removals\"). On the operator's answer at P4 (the pc overseer, 2026-10-10) the console program forms an incident only with ANDROMEDA_PULSE_L4_DETERMINISTIC set; unset it forms none, and \"Incident is the engine's own record\" owns that arm."
     },
     {
       "id": "P-087",

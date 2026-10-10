@@ -1,0 +1,1 @@
+2026-10-10-console-engine-entry-point · pending · one console program boots ingest, buffer, detectors, corpus with no display, driven by commands; its log, identity, panic, heartbeat, process-end records kept · → andromeda-pulse-0.4.0/chunks/2026-10-10-console-engine-entry-point/

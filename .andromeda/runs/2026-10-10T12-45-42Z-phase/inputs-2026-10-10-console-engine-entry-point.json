@@ -1,0 +1,111 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T12:46:09Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-console-engine-entry-point",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-phase-console-engine-entry-point-2026-10-10.md",
+"--kind",
+"relay",
+"--why",
+"the operator phase directive for this chunk: size of the step, what stays true while the window stands, the closed list, no local model, boundaries, P-086 carried by four entries",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-45-42Z-phase",
+"--marker",
+"2026-10-10-console-engine-entry-point"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-console-engine-entry-point-2026-10-10.md",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-pulse-phase-console-engine-entry-point-2026-10-10.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-phase-console-engine-entry-point-2026-10-10.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "b625a55dfc2f17d68c76f7939a217addef9b70c88bc9b566d752ad356a9b1a06",
+"copy": "I1-pulse-phase-console-engine-entry-point-2026-10-10.md.txt",
+"link": false,
+"read_at": "2026-10-10T12:46:09Z",
+"step": "phase:P1",
+"why": "the operator phase directive for this chunk: size of the step, what stays true while the window stands, the closed list, no local model, boundaries, P-086 carried by four entries"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T13:05:24Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-console-engine-entry-point",
+"--message-file",
+".andromeda/runs/2026-10-10T12-45-42Z-phase/relay-1.md",
+"--origin",
+"the operator (the pc overseer), in the session at P4, 2026-10-10",
+"--kind",
+"relay",
+"--why",
+"the model seat of the console engine: it follows the registered variable; the unset arm is owned by Incident is the engine own record; both arms are pinned",
+"--step",
+"phase:P4",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-45-42Z-phase",
+"--marker",
+"2026-10-10-console-engine-entry-point"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: the operator (the pc overseer), in the session at P4, 2026-10-10",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (the pc overseer), in the session at P4, 2026-10-10",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "da19ec3c1dc01bb3f64e586ae39c073962fb14be7a14fa6ffa2df68b383f8e02",
+"copy": "I2-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-10T13:05:24Z",
+"step": "phase:P4",
+"why": "the model seat of the console engine: it follows the registered variable; the unset arm is owned by Incident is the engine own record; both arms are pinned"
+}
+}
+]

@@ -81,16 +81,16 @@ fn now_unix_nanos() -> u64 {
         .unwrap_or(0)
 }
 
+/// The engine's three ticks (`ingest.tick`, `buffer.tick`, `connection.tick`),
+/// spawned by `engine_boot::start` in both programs.
 #[allow(clippy::too_many_arguments)]
-pub fn spawn(
+pub fn spawn_engine_ticks(
     state: Arc<HeartbeatState>,
     ingest_state: Arc<IngestState>,
     ingest_sender: Arc<IngestSender>,
     buffer_state: Arc<BufferState>,
     retention_seconds: u64,
-    viz_state: Arc<VizState>,
     broadcast_senders: Arc<BroadcastSenders>,
-    plugins_registry: Arc<Mutex<PluginRegistry>>,
     bind_status: Arc<dyn ReceiverBindStatus>,
     // Chunk #69 Phase B Session 7+: when Some, the buffer.tick heartbeat
     // surfaces drain_template_count + drain_lru_evictions_since_tick fields
@@ -113,9 +113,20 @@ pub fn spawn(
             retention_seconds,
             drain_miner,
         )),
-        tokio::spawn(run_viz(state.clone(), viz_state)),
-        tokio::spawn(run_plugins(state.clone(), plugins_registry)),
         tokio::spawn(run_connection(state, ingest_state, bind_status)),
+    ]
+}
+
+/// The window's two ticks (`viz.tick`, `plugins.tick`), spawned by the window
+/// app alone.
+pub fn spawn_window_ticks(
+    state: Arc<HeartbeatState>,
+    viz_state: Arc<VizState>,
+    plugins_registry: Arc<Mutex<PluginRegistry>>,
+) -> Vec<JoinHandle<()>> {
+    vec![
+        tokio::spawn(run_viz(state.clone(), viz_state)),
+        tokio::spawn(run_plugins(state, plugins_registry)),
     ]
 }
 

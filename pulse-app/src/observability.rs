@@ -1011,6 +1011,14 @@ impl AllowList {
             "app.boot.render.posture",
             ["posture", "lever"].iter().copied().collect(),
         );
+        // The engine boot record: three closed labels, one record per boot.
+        by_target.insert(
+            "app.boot.engine",
+            ["program", "interpretation", "reason"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "app.boot.window.show",
             ["label", "error_kind", "error_msg"]
