@@ -1,0 +1,1662 @@
+{
+  "schema_version": 1,
+  "product": "andromeda-pulse",
+  "version": "andromeda-pulse-0.4.0",
+  "as_of": "2026-10-10",
+  "supersedes": [
+    "docs/v0_2_0/pulse-capability-spec.md",
+    "docs/v0_2_0/capability-verification-matrix.json",
+    "andromeda-pulse-0.3.0/verification-matrix.json"
+  ],
+  "legend": {
+    "disposition": {
+      "claimed": "The engine as it will stand in 0.4.0 keeps the capability; carried_by names the 0.4.0 requirement that carries it, and changed_form says so where the original text no longer holds as written. The accepted set is every entry whose disposition is this word.",
+      "retired": "The capability leaves with what this version removes; surfaces says with what, removed_by names the working-route entry that removes it, and guard says what holds it until that entry runs."
+    },
+    "surface": {
+      "window": "The desktop window: the shell, the webview interface, its IPC routes, the tray, the updater and notification plugins, and the gates that drive them.",
+      "model": "The local model and everything that served it: interpretation, the cadence coordinator and the digest.",
+      "desktop": "The desktop's distribution: bundles, the updater channel, package channels. Named by P-117; none of the 82 ids is about it.",
+      "workspace": "Workspace detection and the workspace incident key.",
+      "training-export": "The export of corpus content for training.",
+      "corpus-encryption": "Encryption of the corpus at rest and the custody of its key."
+    },
+    "guard": {
+      "runs": "Every automated proof the superseded records name for the id runs in a CI job; by lists them.",
+      "part": "At least one automated proof the superseded records name runs in a CI job (by) and at least one runs in no gate (unrun).",
+      "none": "No proof of the id runs in any gate; unrun lists the automated proofs the superseded records name."
+    }
+  },
+  "capabilities": [
+    {
+      "id": "P-001",
+      "title": "Receiver Lifecycle State",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-098"
+      ],
+      "changed_form": "The original text no longer holds as written: the five named receiver states and the connection dot that showed them are not claimed. Claimed is what the requirement carries: '\"the service went quiet\", \"no data reached the engine\" and \"the check could not be evaluated\" are three different states, and a recovery is announced' (P-098).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/ingest/src/connection.rs",
+          "contains": "P-001"
+        }
+      ]
+    },
+    {
+      "id": "P-002",
+      "title": "Last-Span-Ago Tracking",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "kept_half_owner": "Display-only computation retired",
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/ingest/src/connection.rs"
+        ],
+        "unrun": []
+      },
+      "note": "No 0.4.0 requirement text carries its kept half (read word by word against P-098, P-086 and P-122), so it is retired with the window that showed it; the last-span tracker in crates/ingest/src/connection.rs is owned by the entry kept_half_owner names."
+    },
+    {
+      "id": "P-003",
+      "title": "Receiver Failure Surface",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "kept_half_owner": "Display-only computation retired",
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/ingest/src/connection.rs",
+          "pulse-app/tests/e2e_p003_panic_hook_propagation.rs"
+        ],
+        "unrun": []
+      },
+      "note": "No 0.4.0 requirement text carries its kept half (read word by word against P-098, P-086 and P-122), so it is retired with the window that showed it; the receiver-failure state in crates/ingest/src/connection.rs is owned by the entry kept_half_owner names."
+    },
+    {
+      "id": "P-004",
+      "title": "Orthogonal Health Domains",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-098",
+        "P-091"
+      ],
+      "changed_form": "The original text no longer holds as written: the connection dot and the halo that showed the two domains are not claimed. Claimed: the three states are different states, '\"the service went quiet\", \"no data reached the engine\" and \"the check could not be evaluated\" are three different states, and a recovery is announced' (P-098), and \"a gap while the engine was down is not read as the service's silence\" (P-091).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/ingest/src/connection.rs",
+          "contains": "P-004"
+        },
+        {
+          "kind": "ui-test",
+          "ref": "pulse-app/ui/src/halo/orthogonality.test.ts",
+          "contains": "halo axis orthogonality"
+        },
+        {
+          "kind": "ui-test",
+          "ref": "pulse-app/ui/src/halo/activity-state.test.ts",
+          "contains": "quiet"
+        }
+      ]
+    },
+    {
+      "id": "P-005",
+      "title": "Span Status Error Detection",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086",
+        "P-096"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/baseline/sql.rs",
+          "contains": "status_code"
+        }
+      ]
+    },
+    {
+      "id": "P-006",
+      "title": "Exception Event Capture",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086",
+        "P-095"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/buffer/src/appender.rs",
+          "contains": "P-006"
+        }
+      ]
+    },
+    {
+      "id": "P-007",
+      "title": "High-Severity Log Capture",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086",
+        "P-096"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/baseline/sql.rs",
+          "contains": "severity_number"
+        }
+      ]
+    },
+    {
+      "id": "P-008",
+      "title": "Root-Span Error Scope Distinction",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/baseline/sql.rs",
+          "contains": "parent_span_id IS NULL"
+        }
+      ]
+    },
+    {
+      "id": "P-009",
+      "title": "Per-Service Error Rate Baseline",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086",
+        "P-091"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/baseline/ewma.rs",
+          "contains": "P-009"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/unit_baseline_persistence.rs",
+          "contains": "load"
+        }
+      ]
+    },
+    {
+      "id": "P-010",
+      "title": "Error Rate Spike Detection",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086"
+      ],
+      "changed_form": "The original text no longer holds as written: it gives a local model the last word on whether the detection surfaces as an incident. The detection stands and no model decides whether it surfaces: \"everything 0.3.0 detected is still detected\" (P-086).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/cue/evaluate.rs",
+          "contains": "P-010"
+        }
+      ]
+    },
+    {
+      "id": "P-011",
+      "title": "Per-Operation Latency Baseline",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/baseline/tdigest_pair.rs",
+          "contains": "P-011"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/cue/evaluate.rs",
+          "contains": "min_latency_samples"
+        }
+      ]
+    },
+    {
+      "id": "P-012",
+      "title": "Latency Regression Detection",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086"
+      ],
+      "changed_form": "The original text no longer holds as written: it gives a local model the last word on whether the detection surfaces as an incident. The detection stands and no model decides whether it surfaces: \"everything 0.3.0 detected is still detected\" (P-086).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/cue/evaluate.rs",
+          "contains": "P-012"
+        }
+      ]
+    },
+    {
+      "id": "P-013",
+      "title": "Service Activity Floor Learning",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086",
+        "P-091"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/baseline/activity_floor.rs",
+          "contains": "P-013"
+        }
+      ]
+    },
+    {
+      "id": "P-014",
+      "title": "Service Went Silent Detection",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086",
+        "P-098"
+      ],
+      "changed_form": "The original text no longer holds as written: it gives a local model the last word on whether the detection surfaces as an incident. The detection stands and no model decides whether it surfaces: \"everything 0.3.0 detected is still detected\" (P-086).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/baseline/activity_floor.rs",
+          "contains": "P-014"
+        }
+      ]
+    },
+    {
+      "id": "P-015",
+      "title": "Restart Event Detection",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/pattern/mod.rs",
+          "contains": "P-015"
+        }
+      ]
+    },
+    {
+      "id": "P-016",
+      "title": "Restart-Window Suppression (Surgical)",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/cue/emitter.rs",
+          "contains": "surfaces_sustained_spike_inside_active_restart_window"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/cue/emitter.rs",
+          "contains": "drops_short_persistence_error_spike_in_active_window"
+        }
+      ]
+    },
+    {
+      "id": "P-017",
+      "title": "Exception Fingerprinting",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/pattern/storm.rs",
+          "contains": "P-017"
+        }
+      ]
+    },
+    {
+      "id": "P-018",
+      "title": "Retry Storm Detection",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086"
+      ],
+      "changed_form": "The original text no longer holds as written: it gives a local model the last word on whether the detection surfaces as an incident. The detection stands and no model decides whether it surfaces: \"everything 0.3.0 detected is still detected\" (P-086).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/pattern/storm.rs",
+          "contains": "P-018"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/e2e_storm_detection.rs",
+          "contains": "storm"
+        }
+      ]
+    },
+    {
+      "id": "P-019",
+      "title": "Three-Tier Severity Model",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Local model retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/triage/src/contract.rs",
+          "crates/interpretation/src/schema.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-020",
+      "title": "Model-Driven Severity Decision",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Local model retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "crates/interpretation/src/degraded_mode.rs"
+        ],
+        "unrun": [
+          "pulse-app/tests/integration_real_llama_cli.rs (the real-model leg)"
+        ]
+      },
+      "note": "The real-model leg of pulse-app/tests/integration_real_llama_cli.rs is gated on a model path and binaries no CI job has; the file runs and that leg skips."
+    },
+    {
+      "id": "P-021",
+      "title": "Algorithmic Attention Cues",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086",
+        "P-112"
+      ],
+      "changed_form": "The original text no longer holds as written: there a cue never becomes an incident by itself and is input to a model's interpretation. Now a cue forms the incident itself: \"an incident stores what the engine knows (which check found it, in which service, since when, after which version, which errors, which evidence by identifier) and nothing shaped as a model's answer\" (P-112); \"everything 0.3.0 detected is still detected\" (P-086).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/contract.rs",
+          "contains": "P-021"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/cue/emitter.rs",
+          "contains": "AttentionCue"
+        }
+      ]
+    },
+    {
+      "id": "P-022",
+      "title": "Auto-Resolution and Lifecycle",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086",
+        "P-112"
+      ],
+      "changed_form": "The original text no longer holds as written: the resolution summary a model wrote on the transition to Resolved is not claimed. Auto-resolution and the lifecycle stand, and resolution carries no model summary: \"an incident stores what the engine knows (which check found it, in which service, since when, after which version, which errors, which evidence by identifier) and nothing shaped as a model's answer\" (P-112); \"everything 0.3.0 detected is still detected\" (P-086).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/e2e_incidents_lifecycle.rs",
+          "contains": "P-022"
+        }
+      ]
+    },
+    {
+      "id": "P-023",
+      "title": "Acknowledge Cool-Down",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "kept_half_owner": "Incident is the engine's own record",
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/e2e_incidents_lifecycle.rs"
+        ],
+        "unrun": []
+      },
+      "note": "Its only trigger is the window's IPC route incidents.acknowledge; the door keeps one write, resolving (P-093). The cool-down code in crates/triage/src/incident/registry.rs is owned by the entry kept_half_owner names."
+    },
+    {
+      "id": "P-024",
+      "title": "Widget Ambient Surface",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "pulse-app/ui/tests-a11y/axe/p5-compact-widget.spec.ts"
+        ],
+        "unrun": [
+          "pulse-app/ui/src/widget/CompactWidget.test.tsx"
+        ]
+      }
+    },
+    {
+      "id": "P-025",
+      "title": "Halo Hue Encoding",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired",
+        "Display-only computation retired"
+      ],
+      "guard": {
+        "state": "none",
+        "by": [],
+        "unrun": [
+          "pulse-app/ui/src/halo/severity-to-halo.test.ts"
+        ]
+      }
+    },
+    {
+      "id": "P-026",
+      "title": "Halo Breathing Encoding",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "none",
+        "by": [],
+        "unrun": [
+          "pulse-app/ui/src/halo/activity-state.test.ts"
+        ]
+      }
+    },
+    {
+      "id": "P-027",
+      "title": "Service Constellation Auto-Discovery",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-109"
+      ],
+      "changed_form": "The original text no longer holds as written: nothing is rendered, so the constellation dot and its five-second bound are not claimed. Claimed: \"the service registry's liveness truth stays engine state\" (P-109).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/lifecycle/state_machine.rs",
+          "contains": "P-027"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/e2e_service_lifecycle.rs",
+          "contains": "lifecycle"
+        },
+        {
+          "kind": "ui-test",
+          "ref": "pulse-app/ui/src/widget/ConstellationCanvas.test.tsx",
+          "contains": "dot"
+        }
+      ]
+    },
+    {
+      "id": "P-028",
+      "title": "Findings Counter",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "pulse-app/tests/integration_findings_counter_persists_across_restart.rs"
+        ],
+        "unrun": [
+          "pulse-app/ui/src/widget/FindingsCounter.test.tsx"
+        ]
+      }
+    },
+    {
+      "id": "P-029",
+      "title": "Findings Dropdown",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "pulse-app/tests/unit_incidents_mark_all_read_router.rs"
+        ],
+        "unrun": [
+          "pulse-app/ui/src/widget/FindingsDropdown.test.tsx"
+        ]
+      }
+    },
+    {
+      "id": "P-030",
+      "title": "No Interrupting Notifications by Default",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-099",
+        "P-102"
+      ],
+      "provisional": true,
+      "changed_form": "The original sentence no longer holds as written: it promised no OS notification for an incident in the default configuration. Claimed in a changed form: \"a change of state raises a system notification\" (P-099), and the engine \"stayed silent through the healthy hours before it\" (P-102).",
+      "verification_mode": "by-construction",
+      "scenarios": [
+        {
+          "kind": "by-construction",
+          "ref": ""
+        }
+      ],
+      "note": "PROVISIONAL: claimed in this changed form on the operator's answer of 2026-10-10 (the pc overseer, at the P4 dialog of chunk 2026-10-10-capability-record-re-based); the founder's own word is owed. The by-construction scenario is the old record's, for the original sentence: the incident pipeline of the 0.3.0 product holds no notification, toast or sound emit site. The changed form has no proof yet; the notification is built under P-099."
+    },
+    {
+      "id": "P-031",
+      "title": "Report Structure",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Local model retired",
+        "Incident is the engine's own record"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/interpretation/src/markdown.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-032",
+      "title": "Project Context Grounding",
+      "disposition": "retired",
+      "surfaces": [
+        "model",
+        "workspace"
+      ],
+      "removed_by": [
+        "Local model retired",
+        "Workspace detection retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/triage/src/digest/mod.rs",
+          "crates/triage/src/digest/assembler.rs",
+          "pulse-app/tests/e2e_p7_workspace_detect.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-033",
+      "title": "Ranked Hypothesis Generation",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Local model retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/interpretation/src/schema.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-034",
+      "title": "Suggested Investigation Steps",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Local model retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/interpretation/src/schema.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-035",
+      "title": "Anonymized Telemetry Excerpts",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Local model retired",
+        "Incident is the engine's own record"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/e2e_pii_scrubber_persistence_coverage.rs",
+          "pulse-app/tests/e2e_security_negative_canaries.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-036",
+      "title": "Cross-Incident Pattern Reference",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-110",
+        "P-092"
+      ],
+      "changed_form": "The original text no longer holds as written: the \"Previously seen\" subsection of a local model's report, matched per workspace, is not claimed. Claimed: \"the search for similar past incidents is kept and lives where incidents live\" (P-110); \"it reaches one incident whole, with its evidence, and the incidents like it from the past\" (P-092). The reader is a large model through the door, not a local one.",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/interpretation/src/markdown.rs",
+          "contains": "previously_seen_from_incidents"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+          "contains": "previously_seen_matches_resolver_selection"
+        },
+        {
+          "kind": "source-evidence",
+          "ref": "pulse-app/ui/src/report/ReportRenderer.tsx",
+          "contains": "P-036"
+        }
+      ]
+    },
+    {
+      "id": "P-037",
+      "title": "In-App Report Surface",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/ui/tests-a11y/axe/p9-diagnostic-report-modal.spec.ts",
+          "pulse-app/tests/e2e_p3_mcp_incident_tools.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-038",
+      "title": "Copy to Clipboard",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/e2e_p3_mcp_incident_tools.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-039",
+      "title": "MCP Delivery When Configured",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-092",
+        "P-093"
+      ],
+      "changed_form": "The original text no longer holds as written: the \"Send to agent\" button is not claimed. Claimed are the door's tools: \"an agent on the developer's machine reaches the engine's tools\" (P-092); \"the one write it keeps (resolving an incident) is named as a write and can be switched off\" (P-093).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "ui-test",
+          "ref": "pulse-app/ui/src/report/use-mcp-delivery.test.ts",
+          "contains": "visibility gate"
+        },
+        {
+          "kind": "ui-test",
+          "ref": "pulse-app/ui/src/report/SendToAgentButton.test.tsx",
+          "contains": "connected"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+          "contains": "retrieve_report"
+        }
+      ]
+    },
+    {
+      "id": "P-040",
+      "title": "MCP Independence",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-084",
+        "P-099"
+      ],
+      "provisional": true,
+      "changed_form": "The original sentence no longer holds as written: it promised that every capability works with no MCP configured. Claimed in a changed form: \"the engine starts, detects and reports with no model present and none configured\" (P-084); \"a large model reads through the door (P-092) and is not part of the engine\" (P-084); the report is \"written without a model\" (P-099). The door itself is part of the engine and is not optional.",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "ui-test",
+          "ref": "pulse-app/ui/src/dashboard/routes/SettingsModalForm.test.tsx",
+          "contains": "mcp"
+        }
+      ],
+      "note": "PROVISIONAL: claimed in this changed form on the operator's answer of 2026-10-10 (the pc overseer, at the P4 dialog of chunk 2026-10-10-capability-record-re-based); the founder's own word is owed. The carrying text is the thinnest of the four: the requirements say the engine works with no model and that a large model is outside it; none says in so many words that it works with no reader at the door."
+    },
+    {
+      "id": "P-041",
+      "title": "Persistent Incident Corpus",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-112"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/unit_incident_persistence.rs",
+          "contains": "P-041"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "crates/corpus/src/contract.rs",
+          "contains": "purge_pipeline_metrics_preserves_latest_row_per_series_even_when_stale"
+        }
+      ]
+    },
+    {
+      "id": "P-042",
+      "title": "Cross-Session Continuity",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-112",
+        "P-105"
+      ],
+      "changed_form": "The original text no longer holds as written: the read and acknowledged marks were the window's and are not claimed. Claimed is the incident's own state across restarts: \"incidents are formed, kept, listed and resolved the same from wherever the engine is started\" (P-105); the incident is the engine's own record (P-112).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/unit_incident_persistence.rs",
+          "contains": "P-042"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+          "contains": "restart"
+        }
+      ]
+    },
+    {
+      "id": "P-043",
+      "title": "Project-Scoped Memory",
+      "disposition": "retired",
+      "surfaces": [
+        "workspace"
+      ],
+      "removed_by": [
+        "Workspace detection retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/unit_incident_persistence.rs",
+          "pulse-app/tests/e2e_p043_two_workspace_switch.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-044",
+      "title": "Retrieval-Augmented Interpretation",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-110",
+        "P-092"
+      ],
+      "changed_form": "The original text no longer holds as written: the reader of the retrieved incidents was the local model during interpretation, per workspace; that is not claimed. Claimed: \"the search for similar past incidents is kept and lives where incidents live\" (P-110); \"it reaches one incident whole, with its evidence, and the incidents like it from the past\" (P-092). The reader is a large model through the door, not a local one.",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/digest/retrieval.rs",
+          "contains": "select_corpus_matches"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/digest/assembler.rs",
+          "contains": "load_candidates"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/integration_corpus_retrieval_two_session.rs",
+          "contains": "incident_from_session_a_surfaces_in_session_b_corpus_matches"
+        }
+      ]
+    },
+    {
+      "id": "P-045",
+      "title": "Counter Derivation from Corpus",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/integration_findings_counter_persists_across_restart.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-046",
+      "title": "Export for Community Training",
+      "disposition": "retired",
+      "surfaces": [
+        "training-export"
+      ],
+      "removed_by": [
+        "Training export retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/e2e_p95_export_for_training.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-047",
+      "title": "PII Scrubbing at Ingestion",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-085",
+        "P-088"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/security/src/scrubber.rs",
+          "contains": "P-047"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/e2e_pii_scrubber_persistence_coverage.rs",
+          "contains": "P-047"
+        }
+      ]
+    },
+    {
+      "id": "P-048",
+      "title": "No Raw OTLP Attribute Values Stored",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-088",
+        "P-093",
+        "P-085"
+      ],
+      "provisional": true,
+      "changed_form": "The original sentence no longer holds as written: it promised that no raw OTLP attribute value is stored. Claimed in a changed form, scrubbing before storing: \"everything the scrubber removes today is still removed before anything is stored\" (P-088); \"what it returns was scrubbed at ingest\" (P-093); \"the secret scrubber at ingest stays as it is\" (P-085).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/buffer/src/appender.rs",
+          "contains": "P-048"
+        }
+      ],
+      "note": "PROVISIONAL: claimed in this changed form on the operator's answer of 2026-10-10 (the pc overseer, at the P4 dialog of chunk 2026-10-10-capability-record-re-based); the founder's own word is owed."
+    },
+    {
+      "id": "P-049",
+      "title": "Encryption at Rest",
+      "disposition": "retired",
+      "surfaces": [
+        "corpus-encryption"
+      ],
+      "removed_by": [
+        "Corpus encryption at rest retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/corpus/src/keychain.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-050",
+      "title": "Cross-Project Sharing Opt-In",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-106",
+        "P-093"
+      ],
+      "provisional": true,
+      "changed_form": "The original sentence no longer holds as written: it promised a fully local default. Claimed in a changed form: \"nothing the engine writes lands outside its own stores\" (P-106); the door \"answers only a party the node's owner has admitted\" (P-093).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/ingest/tests/grpc_loopback.rs",
+          "contains": "loopback"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/e2e_p95_export_for_training.rs",
+          "contains": "confirm"
+        }
+      ],
+      "note": "PROVISIONAL: claimed in this changed form on the operator's answer of 2026-10-10 (the pc overseer, at the P4 dialog of chunk 2026-10-10-capability-record-re-based); the founder's own word is owed."
+    },
+    {
+      "id": "P-051",
+      "title": "Transparent Storage",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/corpus/src/contract.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-052",
+      "title": "Cadence Configuration",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Cadence coordinator retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/triage/src/cadence/mod.rs",
+          "pulse-app/tests/integration_config_hot_reload.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-053",
+      "title": "Fallback Model Tier",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Local model retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/interpretation/src/prompt.rs",
+          "pulse-app/tests/unit_inference_runtime.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-054",
+      "title": "Hardware Profile Awareness",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Local model retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "crates/interpretation/src/hardware.rs"
+        ],
+        "unrun": [
+          "xtask/ci/l4-latency-p99.sh"
+        ]
+      }
+    },
+    {
+      "id": "P-055",
+      "title": "Configuration Hot Reload",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-108"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/config-watcher/src/lib.rs",
+          "contains": "P-055"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/integration_config_hot_reload.rs",
+          "contains": "hot"
+        }
+      ]
+    },
+    {
+      "id": "P-056",
+      "title": "Prospective Threshold Application",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-108"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/config-watcher/src/lib.rs",
+          "contains": "P-056"
+        },
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/unit_config_watcher.rs",
+          "contains": "reevaluate"
+        }
+      ]
+    },
+    {
+      "id": "P-057",
+      "title": "Dual-Condition Suppression Bypass",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086"
+      ],
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/cue/classify.rs",
+          "contains": "P-057"
+        }
+      ]
+    },
+    {
+      "id": "P-058",
+      "title": "Pipeline Self-Observability",
+      "disposition": "retired",
+      "surfaces": [
+        "window",
+        "model"
+      ],
+      "removed_by": [
+        "Window retired",
+        "Local model retired"
+      ],
+      "kept_half_owner": "Display-only computation retired",
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/unit_diagnostics_router_snapshot.rs",
+          "pulse-app/ui/tests-a11y/axe/p10-diagnostics-view.spec.ts"
+        ],
+        "unrun": []
+      },
+      "note": "No 0.4.0 requirement text carries the pipeline's operational metrics (P-122 carries two other figures), so it is retired with the window view and the model metrics it showed; the diagnostics snapshot is owned by the entry kept_half_owner names."
+    },
+    {
+      "id": "P-059",
+      "title": "Active-Incident Interpretation Continuity",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Digest retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "crates/triage/src/digest/mod.rs",
+          "pulse-app/tests/integration_resolution_summary_attachment.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-060",
+      "title": "Tiered Triggering Priority",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Cadence coordinator retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "crates/triage/src/cadence/mod.rs"
+        ],
+        "unrun": [
+          "xtask/ci/l4-latency-p99.sh"
+        ]
+      }
+    },
+    {
+      "id": "P-061",
+      "title": "Window geometry + movable shell",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/window_chrome_config.rs",
+          "pulse-app/tests/unit_window_geometry.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-062",
+      "title": "Window size constraints",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/unit_window_constraints.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-063",
+      "title": "Predictable close + honest tray",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "pulse-app/tests/unit_close_signpost.rs"
+        ],
+        "unrun": [
+          "cargo xtask self-verify"
+        ]
+      }
+    },
+    {
+      "id": "P-064",
+      "title": "Suppress browser context menu",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "none",
+        "by": [],
+        "unrun": [
+          "pulse-app/ui/src/hooks/use-suppress-browser-chrome.test.tsx"
+        ]
+      }
+    },
+    {
+      "id": "P-065",
+      "title": "Canvas not a browser image",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "none",
+        "by": [],
+        "unrun": [
+          "pulse-app/ui/src/hooks/use-suppress-browser-chrome.test.tsx"
+        ]
+      }
+    },
+    {
+      "id": "P-066",
+      "title": "Widget-to-dashboard navigation",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "none",
+        "by": [],
+        "unrun": [
+          "pulse-app/ui/src/components/Titlebar.test.tsx",
+          "pulse-app/ui/src/hooks/use-toggle-dashboard.test.ts",
+          "cargo xtask self-verify"
+        ]
+      }
+    },
+    {
+      "id": "P-067",
+      "title": "Live-only service truth",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-109"
+      ],
+      "changed_form": "The original text no longer holds as written: nothing is rendered, so the surface that showed only live services is not claimed. Claimed: \"the service registry's liveness truth stays engine state\" (P-109).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "crates/triage/src/lifecycle/registry.rs",
+          "contains": "set_state_on_corpus_restore_preserves_persisted_last_seen"
+        }
+      ]
+    },
+    {
+      "id": "P-068",
+      "title": "Anomaly surfacing",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "none",
+        "by": [],
+        "unrun": [
+          "pulse-app/ui/src/dashboard/routes/traces/TraceTable.test.tsx",
+          "pulse-app/ui/src/dashboard/routes/traces/sort.test.ts"
+        ]
+      }
+    },
+    {
+      "id": "P-069",
+      "title": "Legible labeled constellation",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "pulse-app/ui/tests-a11y/axe/p11-constellation-semantics.spec.ts"
+        ],
+        "unrun": [
+          "pulse-app/ui/src/dashboard/routes/traces/ConstellationCanvas.test.tsx"
+        ]
+      }
+    },
+    {
+      "id": "P-070",
+      "title": "Plain-language connection status",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "crates/ui-bridge/src/health.rs",
+          "crates/buffer/src/state.rs"
+        ],
+        "unrun": [
+          "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx",
+          "pulse-app/ui/src/hooks/use-ingest-stats.test.ts",
+          "pulse-app/ui/src/components/ConnectionDot.test.tsx"
+        ]
+      }
+    },
+    {
+      "id": "P-071",
+      "title": "Self-explaining empty states",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "pulse-app/ui/tests-a11y/axe/p13-empty-states.spec.ts"
+        ],
+        "unrun": [
+          "pulse-app/ui/src/components/EmptyState.test.tsx",
+          "pulse-app/ui/src/dashboard/routes/MetricsRoute.test.tsx",
+          "pulse-app/ui/src/dashboard/routes/LogsRoute.test.tsx"
+        ]
+      }
+    },
+    {
+      "id": "P-072",
+      "title": "Investigate actions functional",
+      "disposition": "retired",
+      "surfaces": [
+        "window",
+        "model"
+      ],
+      "removed_by": [
+        "Window retired",
+        "Local model retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/integration_investigate_actions.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-073",
+      "title": "Deterministic env-gated L4 mode",
+      "disposition": "retired",
+      "surfaces": [
+        "model"
+      ],
+      "removed_by": [
+        "Local model retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/integration_deterministic_l4_mode.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-074",
+      "title": "Tier1 incident-path reliability under load",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-086"
+      ],
+      "changed_form": "The original text no longer holds as written: the cadence, digest and model chain it names is not claimed. The outcome stands, one incident for a sustained storm: \"everything 0.3.0 detected is still detected\" (P-086).",
+      "verification_mode": "automated-nextest",
+      "scenarios": [
+        {
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+          "contains": "sustained_identical_fingerprint_storm_yields_exactly_one_incident"
+        }
+      ]
+    },
+    {
+      "id": "P-075",
+      "title": "Conductor e2e + delegated-timing verification",
+      "disposition": "claimed",
+      "carried_by": [
+        "P-102"
+      ],
+      "changed_form": "The original text no longer holds as written: the four delegated timing bounds each end at a paint in the window and are not claimed, nor is the stand-in model the round ran under. Claimed is the read-back half: \"after each theme the external harness checks that theme's result from the input to the output, through the door\" (P-102).",
+      "verification_mode": "dynamic-external",
+      "scenarios": [
+        {
+          "kind": "external",
+          "ref": "Conductor 2a494804f6d91bb61718fc9a520cebc73b29af86 (CI#36970919487), round on Pulse 03ec94481b0d6c3ba574626e7acb39e33fd40141: crates/conductor-run/tests/lifecycle_harvest.rs::p075_round_assertion_1_read_back_content_fidelity and ::p075_round_assertion_2_runtime_state_fidelity"
+        }
+      ],
+      "note": "The proof is a round of the external harness (Conductor) against the 0.3.0 product, read back through the stdio sidecar; its test ids and evidence path are in andromeda-pulse-0.3.0/verification-matrix.json, P-075. A round through the door is P-102's to show."
+    },
+    {
+      "id": "P-076",
+      "title": "Integration UX e2e test",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window's gates retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "xtask/src/webview_drive.rs"
+        ],
+        "unrun": [
+          "cargo xtask webview-drive"
+        ]
+      },
+      "note": "The pins in xtask/src/webview_drive.rs hold the drive's stage predicates and run under the workspace test job; the drive of the assembled app has no CI caller."
+    },
+    {
+      "id": "P-077",
+      "title": "Demo telemetry injector formalized",
+      "disposition": "claimed",
+      "carried_by": [],
+      "verification_mode": "manual",
+      "scenarios": [
+        {
+          "kind": "source-evidence",
+          "ref": "crates/ingest/examples/inject_demo.rs"
+        },
+        {
+          "kind": "manual",
+          "ref": "real-model direct-binary smoke of 2026-08-26, driven by the prebuilt inject_demo"
+        }
+      ],
+      "note": "No 0.4.0 requirement restates it; it is claimed on the route's reading of the 22 ids of 0.3.0 (andromeda-pulse-0.4.0/requirements.md, Notes for the reader). The manual scenario is the operator's confirmation of 2026-08-26, recorded in andromeda-pulse-0.3.0/verification-matrix.json, P-077; that run drove a local model, which this version removes."
+    },
+    {
+      "id": "P-078",
+      "title": "Agent-headful self-verify harness",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window's gates retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "xtask/src/self_verify.rs"
+        ],
+        "unrun": [
+          "cargo xtask self-verify"
+        ]
+      }
+    },
+    {
+      "id": "P-079",
+      "title": "Constellation severity live-wiring (workspace-key reconciliation)",
+      "disposition": "retired",
+      "surfaces": [
+        "window",
+        "workspace"
+      ],
+      "removed_by": [
+        "Window retired",
+        "Workspace detection retired"
+      ],
+      "guard": {
+        "state": "runs",
+        "by": [
+          "pulse-app/tests/integration_constellation_severity_workspace_key.rs"
+        ],
+        "unrun": []
+      }
+    },
+    {
+      "id": "P-080",
+      "title": "Incidents (Findings) dropdown bounded popover",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "pulse-app/ui/tests-a11y/axe/p8-findings-dropdown.spec.ts"
+        ],
+        "unrun": [
+          "pulse-app/ui/src/widget/FindingsDropdown.test.tsx"
+        ]
+      }
+    },
+    {
+      "id": "P-081",
+      "title": "Traces table live refresh",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "pulse-app/ui/tests-a11y/axe/p4-live-trace-list.spec.ts"
+        ],
+        "unrun": [
+          "pulse-app/ui/src/dashboard/routes/traces/use-traces.test.ts",
+          "pulse-app/ui/src/dashboard/routes/traces/TraceTable.test.tsx"
+        ]
+      }
+    },
+    {
+      "id": "P-082",
+      "title": "Traces table internal scroll (fixed hero + toolbar)",
+      "disposition": "retired",
+      "surfaces": [
+        "window"
+      ],
+      "removed_by": [
+        "Window retired"
+      ],
+      "guard": {
+        "state": "part",
+        "by": [
+          "pulse-app/ui/tests-a11y/axe/p1-traces.spec.ts"
+        ],
+        "unrun": [
+          "pulse-app/ui/src/dashboard/routes/traces/TraceTable.test.tsx",
+          "pulse-app/ui/src/dashboard/routes/TracesRoute.test.tsx"
+        ]
+      }
+    }
+  ]
+}

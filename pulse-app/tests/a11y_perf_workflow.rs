@@ -147,9 +147,8 @@ fn ci_workflow_invokes_xtask_verify_capability_matrix() {
     let content = read_workflow();
     assert!(
         content.contains("cargo xtask verify:capability-matrix"),
-        "ci.yml MUST invoke `cargo xtask verify:capability-matrix` per chunk \
-         #99 (P-001..P-060 capability scenario mapping is a tag-gate \
-         invariant)"
+        "ci.yml MUST invoke `cargo xtask verify:capability-matrix` (the gate \
+         over the capability record: P-001..P-082, each claimed or retired)"
     );
 }
 

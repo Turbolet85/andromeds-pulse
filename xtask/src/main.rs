@@ -7,6 +7,7 @@
 #![allow(clippy::items_after_test_module)]
 
 mod bundle_format;
+mod capability_record;
 mod ci_gates;
 mod discovery;
 mod external_resolve;
@@ -241,7 +242,7 @@ enum Cmd {
     QuarantineTracking,
     #[command(
         name = "verify:capability-matrix",
-        about = "Chunk #99 — validate docs/v0_2_0/capability-verification-matrix.json: all 60 P-001..P-060 ids present exactly once, every scenario file ref exists, every `contains` anchor greps non-empty, by-construction entries carry justification notes"
+        about = "Validate docs/capability-record.json against andromeda-pulse-0.4.0/working-route.md: P-001..P-082 present exactly once, each claimed or retired; a claimed id names its carrying requirement and its proofs (every file ref exists, every `contains` anchor is found); a retired id names its surface, a route entry that removes it and its guard, and carries no proof (exit 0 clean / 1 findings / 2 cannot-evaluate)"
     )]
     VerifyCapabilityMatrix,
     #[command(
@@ -323,7 +324,7 @@ async fn main() -> ExitCode {
         } => webview_drive::run_webview_drive(expect_absent, no_inject).await,
         Cmd::PerfSloLoad => run_perf_slo_load().await,
         Cmd::QuarantineTracking => run_quarantine_tracking().await,
-        Cmd::VerifyCapabilityMatrix => verify_capability_matrix().await,
+        Cmd::VerifyCapabilityMatrix => verify_capability_matrix(),
         Cmd::PerfLoadProfiles => run_perf_load_profiles().await,
         Cmd::PrePushLinux => pre_push::run(),
     };
@@ -763,181 +764,38 @@ async fn run_perf_load_profiles() -> Result<ExitCode> {
     Ok(ExitCode::SUCCESS)
 }
 
-// Chunk #99 — capability verification matrix validator (the v0.2.0 tag
-// gate's "every P-XXX has at least one named scenario" enforcement).
-// Validates docs/v0_2_0/capability-verification-matrix.json structurally:
-// exactly P-001..P-060 present once each, every file-kind scenario ref
-// exists on disk, every `contains` anchor greps non-empty in its ref,
-// xtask-gate refs name known subcommands, and by-construction entries
-// carry a justification note. Mirrors capability_drift's report shape at
-// target/capability-matrix/report.json + obs §3 structured event line.
-async fn verify_capability_matrix() -> Result<ExitCode> {
+// The capability record's gate (test-plan 9, Capability verification matrix):
+// reads the record and the working route through `capability_record`, both
+// at fixed in-repo paths. Exit 0 clean, 1 findings, 2 cannot-evaluate.
+// Report twin at target/capability-matrix/report.json + one structured event
+// line on stdout.
+fn verify_capability_matrix() -> Result<ExitCode> {
     let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .context("xtask manifest has no workspace parent")?
         .to_path_buf();
-    let matrix_path = workspace_root
-        .join("docs")
-        .join("v0_2_0")
-        .join("capability-verification-matrix.json");
-    let content = fs::read_to_string(&matrix_path)
-        .with_context(|| format!("read capability matrix at {}", matrix_path.display()))?;
-    let doc: Value = serde_json::from_str(&content).context("parse capability matrix JSON")?;
-
-    const FILE_KINDS: &[&str] = &[
-        "nextest-file",
-        "ui-test",
-        "a11y-spec",
-        "ci-script",
-        "source-evidence",
-    ];
-    const ALL_KINDS: &[&str] = &[
-        "nextest-file",
-        "ui-test",
-        "a11y-spec",
-        "ci-script",
-        "source-evidence",
-        "xtask-gate",
-        "by-construction",
-    ];
-    const MODES: &[&str] = &[
-        "automated-nextest",
-        "automated-a11y",
-        "automated-e2e",
-        "xtask-gate",
-        "env-gated-runtime",
-        "manual-sr-supplemental",
-        "by-construction",
-    ];
-    const XTASK_GATES: &[&str] = &[
-        "capability-drift",
-        "capability-widening-check",
-        "test:a11y",
-        "perf:slo-load",
-        "perf:load-profiles",
-        "verify:capability-matrix",
-        "ci-gates",
-        "quarantine-tracking",
-    ];
-
-    let mut violations: Vec<String> = Vec::new();
-    let mut mode_counts: BTreeMap<String, usize> = BTreeMap::new();
-    let mut seen_ids: BTreeSet<String> = BTreeSet::new();
-
-    let capabilities = doc
-        .get("capabilities")
-        .and_then(Value::as_array)
-        .context("matrix JSON missing `capabilities` array")?;
-
-    for entry in capabilities {
-        let id = entry.get("id").and_then(Value::as_str).unwrap_or("");
-        if id.is_empty() {
-            violations.push("entry with missing/empty `id`".to_string());
-            continue;
-        }
-        if !seen_ids.insert(id.to_string()) {
-            violations.push(format!("{id}: duplicate id"));
-        }
-        let mode = entry
-            .get("verification_mode")
-            .and_then(Value::as_str)
-            .unwrap_or("");
-        if !MODES.contains(&mode) {
-            violations.push(format!("{id}: unknown verification_mode `{mode}`"));
-        }
-        *mode_counts.entry(mode.to_string()).or_insert(0) += 1;
-        let notes = entry.get("notes").and_then(Value::as_str).unwrap_or("");
-
-        let scenarios = entry
-            .get("scenarios")
-            .and_then(Value::as_array)
-            .cloned()
-            .unwrap_or_default();
-        if scenarios.is_empty() {
-            violations.push(format!("{id}: zero scenarios (every capability needs ≥1)"));
-            continue;
-        }
-        let mut has_verifying_scenario = false;
-        for scenario in &scenarios {
-            let kind = scenario.get("kind").and_then(Value::as_str).unwrap_or("");
-            let reference = scenario.get("ref").and_then(Value::as_str).unwrap_or("");
-            if !ALL_KINDS.contains(&kind) {
-                violations.push(format!("{id}: unknown scenario kind `{kind}`"));
-                continue;
-            }
-            match kind {
-                "by-construction" => {
-                    if notes.trim().is_empty() {
-                        violations.push(format!(
-                            "{id}: by-construction scenario requires a justification in `notes`"
-                        ));
-                    }
-                    has_verifying_scenario = true;
-                }
-                "xtask-gate" => {
-                    if !XTASK_GATES.contains(&reference) {
-                        violations.push(format!(
-                            "{id}: xtask-gate ref `{reference}` is not a known subcommand"
-                        ));
-                    }
-                    has_verifying_scenario = true;
-                }
-                kind if FILE_KINDS.contains(&kind) => {
-                    let path = workspace_root.join(reference);
-                    if !path.is_file() {
-                        violations.push(format!(
-                            "{id}: scenario ref `{reference}` does not exist on disk"
-                        ));
-                        continue;
-                    }
-                    if let Some(anchor) = scenario.get("contains").and_then(Value::as_str) {
-                        let file_content = fs::read_to_string(&path)
-                            .with_context(|| format!("read scenario ref `{reference}` for {id}"))?;
-                        if !file_content.contains(anchor) {
-                            violations.push(format!(
-                                "{id}: anchor `{anchor}` not found in `{reference}`"
-                            ));
-                            continue;
-                        }
-                    }
-                    if kind != "source-evidence" {
-                        has_verifying_scenario = true;
-                    }
-                }
-                _ => unreachable!("kind membership checked above"),
-            }
-        }
-        if !has_verifying_scenario && notes.trim().is_empty() {
-            violations.push(format!(
-                "{id}: only source-evidence scenarios and no `notes` justification"
-            ));
-        }
-    }
-
-    let expected_ids: BTreeSet<String> = (1..=60).map(|n| format!("P-{n:03}")).collect();
-    for missing in expected_ids.difference(&seen_ids) {
-        violations.push(format!("{missing}: capability missing from matrix"));
-    }
-    for unexpected in seen_ids.difference(&expected_ids) {
-        violations.push(format!("{unexpected}: id outside P-001..P-060 range"));
-    }
-
-    let state = if violations.is_empty() {
-        "clean"
-    } else {
-        "violations"
+    let verdict = capability_record::evaluate(&workspace_root);
+    let state = verdict.state();
+    let (reading, reason) = match &verdict {
+        capability_record::Verdict::Read(reading) => (Some(reading), None),
+        capability_record::Verdict::CannotEvaluate(reason) => (None, Some(reason.as_str())),
     };
+    let violations: &[String] = reading.map_or(&[], |reading| &reading.findings);
+    let counts = serde_json::json!({
+        "state": state,
+        "capability_count": reading.map(|reading| reading.ids),
+        "claimed_count": reading.map(|reading| reading.claimed),
+        "retired_count": reading.map(|reading| reading.retired),
+        "violation_count": reading.map(|reading| reading.findings.len()),
+        "reason": reason,
+    });
+
     let report_dir = workspace_root.join("target").join("capability-matrix");
     fs::create_dir_all(&report_dir).context("create capability-matrix report dir")?;
     let report_path = report_dir.join("report.json");
-    let report = serde_json::json!({
-        "state": state,
-        "capability_count": seen_ids.len(),
-        "violation_count": violations.len(),
-        "violations": violations,
-        "verification_mode_counts": mode_counts,
-        "generated_at": chrono::Utc::now().to_rfc3339(),
-    });
+    let mut report = counts.clone();
+    report["violations"] = serde_json::json!(violations);
+    report["generated_at"] = serde_json::json!(chrono::Utc::now().to_rfc3339());
     fs::write(&report_path, serde_json::to_string_pretty(&report)?)
         .context("write capability-matrix report")?;
 
@@ -945,30 +803,18 @@ async fn verify_capability_matrix() -> Result<ExitCode> {
         "timestamp": chrono::Utc::now().to_rfc3339(),
         "level": if state == "clean" { "INFO" } else { "WARN" },
         "target": "xtask.verify_capability_matrix",
-        "message": "capability verification matrix check complete",
-        "fields": {
-            "state": state,
-            "capability_count": seen_ids.len(),
-            "violation_count": violations.len(),
-        },
+        "message": "capability record check complete",
+        "fields": counts,
     });
     println!("{}", serde_json::to_string(&event)?);
 
-    eprintln!(
-        "verify:capability-matrix: {state} ({}/60 capabilities, {} violation(s))",
-        seen_ids.len(),
-        violations.len()
-    );
-    for v in &violations {
+    eprintln!("{}", verdict.line());
+    for v in violations {
         eprintln!("  violation: {v}");
     }
     eprintln!("  report: {}", report_path.display());
 
-    if state == "clean" {
-        Ok(ExitCode::SUCCESS)
-    } else {
-        Ok(ExitCode::FAILURE)
-    }
+    Ok(ExitCode::from(verdict.exit_code()))
 }
 
 async fn invoke_quarantine_tracking_check() -> Result<bool> {

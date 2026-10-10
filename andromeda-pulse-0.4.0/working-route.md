@@ -24,7 +24,7 @@ _Chunks separated by `   ↓` within an epoch; only `### Epoch K — {name}` hea
    ↓
 [2026-10-10-no-gate-stands-while-reading-nothing] No gate stands while reading nothing — coverage branch and empty-report arms, empty test selections, boot budget and heartbeat reads, zero-span check: each reads something or leaves (P-128)
    ↓
-Capability record re-based — one current record for all 82 ids, each claimed or retired with its surface; the old gate reads it (P-117)
+[2026-10-10-capability-record-re-based] Capability record re-based — one current record for all 82 ids, each claimed or retired with its surface; the old gate reads it (P-117)
    ↓
 Console engine entry point — one program boots ingest, buffer, detectors, corpus with no display, driven by commands; log, identity, panic, heartbeat, process-end records kept (P-086)
    ↓

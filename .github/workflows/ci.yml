@@ -102,7 +102,7 @@ jobs:
       - name: cargo xtask capability-widening-check (chunk #77 — NEVER-widen bans on pulse:notification/tray/plugin-fs)
         run: cargo xtask capability-widening-check
 
-      - name: cargo xtask verify:capability-matrix (chunk #99 — P-001..P-060 scenario mapping)
+      - name: cargo xtask verify:capability-matrix (reads the capability record — P-001..P-082, each claimed or retired)
         run: cargo xtask verify:capability-matrix
 
       # Runs after the drift checks: the default-features test run rewrites
