@@ -21,12 +21,13 @@ use std::process::ExitCode;
 use anyhow::{Context, Result};
 use serde_json::{Value, json};
 
-pub(crate) const ROOTS: [&str; 5] = [
+pub(crate) const ROOTS: [&str; 6] = [
     "crates",
     "pulse-app/src",
     "pulse-app/tests",
     "pulse-app/ui/src",
     "xtask/src",
+    "xtask/tests",
 ];
 const EXTENSIONS: [&str; 3] = ["rs", "ts", "tsx"];
 const CYRILLIC_FIRST: u32 = 0x0400;
@@ -226,6 +227,25 @@ mod tests {
                 "::error file=crates/a/src/lib.rs,line=2::Cyrillic character in source - crates/a/src/lib.rs:2: // send \\u{043A} the model"
             ),
             "annotation must name file:line with the escaped codepoint: {stdout}"
+        );
+    }
+
+    #[test]
+    fn english_sources_reads_the_xtask_integration_tests() {
+        let dir = fixture_tree();
+        fs::create_dir_all(dir.path().join("xtask/tests")).expect("dir");
+        fs::write(
+            dir.path().join("xtask/tests/pins.rs"),
+            format!("// {}\n", cyrillic(0x0430)),
+        )
+        .expect("write");
+        let report = evaluate(dir.path());
+        assert_eq!(report.exit, 1);
+        assert_eq!(report.payload["hits"], 1);
+        assert!(
+            report.annotations[0].starts_with("::error file=xtask/tests/pins.rs,line=1::"),
+            "{:?}",
+            report.annotations
         );
     }
 

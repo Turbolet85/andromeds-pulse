@@ -2,8 +2,11 @@
 //! pulse-app process that `harness:status` does not give.
 //!
 //! `harness:ready` is the `boot` verb's readiness signal (test-plan §3,
-//! 5-command implementation): the status verdict reads `running-healthy`
-//! and both OTLP receivers accept a TCP connection on loopback.
+//! 5-command implementation): the status verdict reads `running-healthy`,
+//! both OTLP receivers accept a TCP connection on loopback, and the run's
+//! own log holds each receiver's bound record at that port. A port that
+//! accepts with no such record is another program's listener (`foreign`),
+//! never this run's.
 //! `harness:settled` reads the app once its windows have settled, by the
 //! app's own `app.boot.window.navigation` records, or at its end, and says
 //! what it saw of the display and the session bus the app depends on, and
@@ -26,13 +29,16 @@ use anyhow::Result;
 use serde_json::{Value, json};
 
 use crate::harness_status::{
-    PROGRAM_UNKNOWN, Program, Verdict, classify, end_file, for_program, newest_family_member,
-    pid_alive, read_ended, read_pid, read_program, resolve_data_dir, resolve_paths,
+    BOOT_ENGINE_TARGET, PROGRAM_UNKNOWN, Program, Verdict, classify, end_file, for_program,
+    newest_family_member, pid_alive, program_of, read_ended, read_pid, resolve_data_dir,
+    resolve_paths,
 };
 
 const DEFAULT_GRPC_PORT: u16 = 4317;
 const DEFAULT_HTTP_PORT: u16 = 4318;
 const RECEIVER_PROBE_TIMEOUT: Duration = Duration::from_secs(1);
+const GRPC_BIND_TARGET: &str = "app.boot.otlp.grpc.bind";
+const HTTP_BIND_TARGET: &str = "app.boot.otlp.http.bind";
 
 const NAVIGATION_TARGET: &str = "app.boot.window.navigation";
 const EXIT_TARGET: &str = "app.exit";
@@ -55,7 +61,12 @@ pub(crate) fn run_ready(asked: Option<Program>) -> Result<ExitCode> {
     let payload = match (resolve_paths(), ports) {
         (Some((pidfile, log_base)), (Some(grpc_port), Some(http_port))) => {
             let pid = read_pid(&pidfile);
-            let program = read_program(&log_base);
+            // The ports are probed before the log is read, so a receiver
+            // that accepts has had its bound record written first.
+            let grpc_accepted = receiver_accepts(grpc_port);
+            let http_accepted = receiver_accepts(http_port);
+            let lines = crate::smoke::read_jsonl_lines(&log_base).unwrap_or_default();
+            let program = program_of(&lines);
             let status = for_program(
                 classify(
                     pid,
@@ -65,8 +76,14 @@ pub(crate) fn run_ready(asked: Option<Program>) -> Result<ExitCode> {
                 asked,
                 program,
             );
-            let grpc = receiver_accepts(grpc_port);
-            let http = receiver_accepts(http_port);
+            let grpc = Receiver::read(
+                grpc_accepted,
+                bound_by_this_run(&lines, GRPC_BIND_TARGET, grpc_port),
+            );
+            let http = Receiver::read(
+                http_accepted,
+                bound_by_this_run(&lines, HTTP_BIND_TARGET, http_port),
+            );
             let verdict = decide_ready(&status, grpc, http);
             let ended = (verdict == "ended")
                 .then(|| read_ended(&end_file(&pidfile)))
@@ -76,7 +93,7 @@ pub(crate) fn run_ready(asked: Option<Program>) -> Result<ExitCode> {
                 pid,
                 ended,
                 program,
-                Some((receiver_label(grpc), receiver_label(http))),
+                Some((grpc.label(), http.label())),
             )
         }
         _ => ready_payload("cannot-evaluate", None, None, PROGRAM_UNKNOWN, None),
@@ -152,13 +169,70 @@ fn exit_status(verdict: &str) -> u8 {
     }
 }
 
+/// What one receiver's port read. A port that accepts is this run's only
+/// when the run's own log says the receiver bound it: on a shared host
+/// another program's listener accepts too.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Receiver {
+    Accepting,
+    Foreign,
+    Refusing,
+}
+
+impl Receiver {
+    fn read(accepted: bool, bound_by_this_run: bool) -> Self {
+        match (accepted, bound_by_this_run) {
+            (false, _) => Receiver::Refusing,
+            (true, true) => Receiver::Accepting,
+            (true, false) => Receiver::Foreign,
+        }
+    }
+
+    fn label(self) -> &'static str {
+        match self {
+            Receiver::Accepting => "accepting",
+            Receiver::Foreign => "foreign",
+            Receiver::Refusing => "refusing",
+        }
+    }
+}
+
+/// Whether `lines` hold, after their last `app.boot.engine` record, an INFO
+/// record of `target` whose `bind_address` is loopback at `port`. A bind that
+/// failed is an ERROR record of the same target, and a record before the
+/// last boot record belongs to an earlier boot on the same data dir.
+fn bound_by_this_run(lines: &[String], target: &str, port: u16) -> bool {
+    let records: Vec<Value> = lines
+        .iter()
+        .filter_map(|line| serde_json::from_str(line).ok())
+        .collect();
+    let is =
+        |record: &Value, wanted: &str| record.get("target").and_then(Value::as_str) == Some(wanted);
+    let Some(boot) = records
+        .iter()
+        .rposition(|record| is(record, BOOT_ENGINE_TARGET))
+    else {
+        return false;
+    };
+    let address = format!("127.0.0.1:{port}");
+    records[boot + 1..].iter().any(|record| {
+        is(record, target)
+            && record.get("level").and_then(Value::as_str) == Some("INFO")
+            && record
+                .get("fields")
+                .and_then(|fields| fields.get("bind_address"))
+                .and_then(Value::as_str)
+                == Some(address.as_str())
+    })
+}
+
 /// The readiness core — pure so the arms are pinnable without a process.
-fn decide_ready(status: &Verdict, grpc_accepting: bool, http_accepting: bool) -> &'static str {
+fn decide_ready(status: &Verdict, grpc: Receiver, http: Receiver) -> &'static str {
     match status.arm {
         "cannot-evaluate" => "cannot-evaluate",
         "wrong-program" => "wrong-program",
         "not-running" if status.pid.is_some() => "ended",
-        "running-healthy" if grpc_accepting && http_accepting => "ready",
+        "running-healthy" if grpc == Receiver::Accepting && http == Receiver::Accepting => "ready",
         _ => "not-ready",
     }
 }
@@ -174,13 +248,9 @@ fn env_port(name: &str, default: u16) -> Option<u16> {
     resolve_port(std::env::var(name).ok().as_deref(), default)
 }
 
-fn receiver_accepts(port: u16) -> bool {
+pub(crate) fn receiver_accepts(port: u16) -> bool {
     let addr = SocketAddr::from((Ipv4Addr::LOCALHOST, port));
     TcpStream::connect_timeout(&addr, RECEIVER_PROBE_TIMEOUT).is_ok()
-}
-
-fn receiver_label(accepting: bool) -> &'static str {
-    if accepting { "accepting" } else { "refusing" }
 }
 
 fn timeout_supports_verdict(timeout_seconds: u64) -> bool {
@@ -417,14 +487,144 @@ mod tests {
 
     #[test]
     fn ready_requires_running_healthy_and_both_receivers_accepting() {
-        assert_eq!(decide_ready(&healthy(), true, true), "ready");
+        assert_eq!(
+            decide_ready(&healthy(), Receiver::Accepting, Receiver::Accepting),
+            "ready"
+        );
     }
 
     #[test]
     fn a_refusing_receiver_is_not_ready() {
-        assert_eq!(decide_ready(&healthy(), false, true), "not-ready");
-        assert_eq!(decide_ready(&healthy(), true, false), "not-ready");
-        assert_eq!(decide_ready(&healthy(), false, false), "not-ready");
+        assert_eq!(
+            decide_ready(&healthy(), Receiver::Refusing, Receiver::Accepting),
+            "not-ready"
+        );
+        assert_eq!(
+            decide_ready(&healthy(), Receiver::Accepting, Receiver::Refusing),
+            "not-ready"
+        );
+        assert_eq!(
+            decide_ready(&healthy(), Receiver::Refusing, Receiver::Refusing),
+            "not-ready"
+        );
+    }
+
+    const GRPC_PORT: u16 = 24317;
+    const HTTP_PORT: u16 = 24318;
+
+    fn boot_line(program: &str) -> String {
+        json!({"level": "INFO", "target": BOOT_ENGINE_TARGET, "fields": {"program": program}})
+            .to_string()
+    }
+
+    fn bind_line(target: &str, level: &str, port: u16) -> String {
+        json!({
+            "level": level,
+            "target": target,
+            "fields": {"bind_address": format!("127.0.0.1:{port}"), "reason": "in use"},
+        })
+        .to_string()
+    }
+
+    /// One boot of a program whose two receivers bound their ports.
+    fn own_log() -> Vec<String> {
+        vec![
+            boot_line("console"),
+            bind_line(GRPC_BIND_TARGET, "INFO", GRPC_PORT),
+            bind_line(HTTP_BIND_TARGET, "INFO", HTTP_PORT),
+        ]
+    }
+
+    /// Both receivers as read over `lines` with both ports accepting.
+    fn read_both(lines: &[String]) -> (Receiver, Receiver) {
+        (
+            Receiver::read(true, bound_by_this_run(lines, GRPC_BIND_TARGET, GRPC_PORT)),
+            Receiver::read(true, bound_by_this_run(lines, HTTP_BIND_TARGET, HTTP_PORT)),
+        )
+    }
+
+    #[test]
+    fn both_ports_accepting_over_the_run_s_own_bound_records_is_ready() {
+        let (grpc, http) = read_both(&own_log());
+        assert_eq!((grpc.label(), http.label()), ("accepting", "accepting"));
+        assert_eq!(decide_ready(&healthy(), grpc, http), "ready");
+    }
+
+    #[test]
+    fn a_held_port_with_no_bound_record_is_foreign_and_not_ready() {
+        let lines = vec![
+            boot_line("console"),
+            bind_line(HTTP_BIND_TARGET, "INFO", HTTP_PORT),
+        ];
+        let (grpc, http) = read_both(&lines);
+        assert_eq!((grpc.label(), http.label()), ("foreign", "accepting"));
+        assert_eq!(decide_ready(&healthy(), grpc, http), "not-ready");
+        assert_eq!(decide_ready(&healthy(), http, grpc), "not-ready");
+        assert_eq!(decide_ready(&healthy(), grpc, grpc), "not-ready");
+    }
+
+    #[test]
+    fn a_failed_bind_record_of_the_same_target_does_not_count() {
+        let lines = vec![
+            boot_line("console"),
+            bind_line(GRPC_BIND_TARGET, "ERROR", GRPC_PORT),
+            bind_line(HTTP_BIND_TARGET, "INFO", HTTP_PORT),
+        ];
+        let (grpc, http) = read_both(&lines);
+        assert_eq!((grpc.label(), http.label()), ("foreign", "accepting"));
+        assert_eq!(decide_ready(&healthy(), grpc, http), "not-ready");
+    }
+
+    #[test]
+    fn a_bound_record_for_another_port_or_the_other_receiver_does_not_count() {
+        let other_port = vec![
+            boot_line("window"),
+            bind_line(GRPC_BIND_TARGET, "INFO", GRPC_PORT + 1),
+            bind_line(HTTP_BIND_TARGET, "INFO", HTTP_PORT),
+        ];
+        assert_eq!(read_both(&other_port).0.label(), "foreign");
+        let other_receiver = vec![
+            boot_line("window"),
+            bind_line(HTTP_BIND_TARGET, "INFO", GRPC_PORT),
+            bind_line(HTTP_BIND_TARGET, "INFO", HTTP_PORT),
+        ];
+        assert_eq!(read_both(&other_receiver).0.label(), "foreign");
+    }
+
+    #[test]
+    fn a_bound_record_before_the_last_boot_record_does_not_count() {
+        let mut lines = own_log();
+        lines.push(boot_line("console"));
+        lines.push(bind_line(HTTP_BIND_TARGET, "INFO", HTTP_PORT));
+        let (grpc, http) = read_both(&lines);
+        assert_eq!((grpc.label(), http.label()), ("foreign", "accepting"));
+        assert_eq!(decide_ready(&healthy(), grpc, http), "not-ready");
+    }
+
+    #[test]
+    fn a_log_with_no_boot_record_holds_no_bound_record_of_this_run() {
+        let lines = own_log()[1..].to_vec();
+        let (grpc, http) = read_both(&lines);
+        assert_eq!((grpc.label(), http.label()), ("foreign", "foreign"));
+        assert_eq!(read_both(&[]).0.label(), "foreign");
+        assert_eq!(read_both(&["not json".to_string()]).1.label(), "foreign");
+    }
+
+    #[test]
+    fn a_port_that_refuses_is_refusing_whatever_the_log_holds() {
+        let lines = own_log();
+        let bound = bound_by_this_run(&lines, GRPC_BIND_TARGET, GRPC_PORT);
+        assert_eq!(Receiver::read(false, bound).label(), "refusing");
+        assert_eq!(Receiver::read(false, false).label(), "refusing");
+    }
+
+    #[test]
+    fn a_receiver_reads_one_of_three_closed_labels() {
+        let labels: BTreeSet<&str> = [(true, true), (true, false), (false, true), (false, false)]
+            .into_iter()
+            .map(|(accepted, bound)| Receiver::read(accepted, bound).label())
+            .collect();
+        assert_eq!(labels, BTreeSet::from(["accepting", "foreign", "refusing"]));
     }
 
     #[test]
@@ -434,15 +634,24 @@ mod tests {
             Some(false),
             Some(("agent-latest.jsonl.2026-10-09".into(), 0)),
         );
-        assert_eq!(decide_ready(&dead, true, true), "ended");
+        assert_eq!(
+            decide_ready(&dead, Receiver::Accepting, Receiver::Accepting),
+            "ended"
+        );
     }
 
     #[test]
     fn a_stale_log_or_an_absent_pidfile_is_not_ready() {
         let stale = classify(Some(1234), Some(true), None);
-        assert_eq!(decide_ready(&stale, true, true), "not-ready");
+        assert_eq!(
+            decide_ready(&stale, Receiver::Accepting, Receiver::Accepting),
+            "not-ready"
+        );
         let no_pid = classify(None, None, None);
-        assert_eq!(decide_ready(&no_pid, true, true), "not-ready");
+        assert_eq!(
+            decide_ready(&no_pid, Receiver::Accepting, Receiver::Accepting),
+            "not-ready"
+        );
     }
 
     #[test]
@@ -453,24 +662,42 @@ mod tests {
             log_file_basename: None,
             last_write_age_seconds: None,
         };
-        assert_eq!(decide_ready(&unresolved, true, true), "cannot-evaluate");
+        assert_eq!(
+            decide_ready(&unresolved, Receiver::Accepting, Receiver::Accepting),
+            "cannot-evaluate"
+        );
     }
 
     #[test]
     fn a_status_of_the_wrong_program_is_wrong_program_whatever_the_receivers_say() {
         let wrong = for_program(healthy(), Some(Program::Console), "window");
-        assert_eq!(decide_ready(&wrong, true, true), "wrong-program");
-        assert_eq!(decide_ready(&wrong, false, false), "wrong-program");
+        assert_eq!(
+            decide_ready(&wrong, Receiver::Accepting, Receiver::Accepting),
+            "wrong-program"
+        );
+        assert_eq!(
+            decide_ready(&wrong, Receiver::Refusing, Receiver::Refusing),
+            "wrong-program"
+        );
         let no_record = for_program(healthy(), Some(Program::Window), PROGRAM_UNKNOWN);
-        assert_eq!(decide_ready(&no_record, true, true), "wrong-program");
+        assert_eq!(
+            decide_ready(&no_record, Receiver::Accepting, Receiver::Accepting),
+            "wrong-program"
+        );
     }
 
     #[test]
     fn the_asked_program_matching_the_log_is_ready_as_before() {
         let console = for_program(healthy(), Some(Program::Console), "console");
-        assert_eq!(decide_ready(&console, true, true), "ready");
+        assert_eq!(
+            decide_ready(&console, Receiver::Accepting, Receiver::Accepting),
+            "ready"
+        );
         let unasked = for_program(healthy(), None, "console");
-        assert_eq!(decide_ready(&unasked, true, true), "ready");
+        assert_eq!(
+            decide_ready(&unasked, Receiver::Accepting, Receiver::Accepting),
+            "ready"
+        );
     }
 
     #[test]
@@ -484,7 +711,10 @@ mod tests {
             Some(Program::Console),
             "window",
         );
-        assert_eq!(decide_ready(&dead, true, true), "ended");
+        assert_eq!(
+            decide_ready(&dead, Receiver::Accepting, Receiver::Accepting),
+            "ended"
+        );
     }
 
     #[test]
@@ -547,10 +777,10 @@ mod tests {
         let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).expect("bind");
         let port = listener.local_addr().expect("addr").port();
         assert!(receiver_accepts(port));
-        assert_eq!(receiver_label(true), "accepting");
+        assert_eq!(Receiver::read(true, true).label(), "accepting");
         drop(listener);
         assert!(!receiver_accepts(port));
-        assert_eq!(receiver_label(false), "refusing");
+        assert_eq!(Receiver::read(false, true).label(), "refusing");
     }
 
     #[test]

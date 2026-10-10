@@ -1,0 +1,38 @@
+# obs extract
+
+## Relevance
+partial — the chunk adds no product record, span or metric; it proves the obs gates that grade a console engine's log (`check:engine-log`'s arms, `ci-gates` under the pre-push stage) and takes readings from a spawned engine's log family, so the plan's gate semantics, log location and allowlist rules bind it, the instrumentation sections do not.
+
+## Constraints
+- obs-plan §10 CI gates (the zero-records bullet) requires `cargo xtask check:engine-log` to FAIL a log family whose members hold no record (`family` arm; no member at all is cannot-evaluate and nothing else is graded) and to FAIL a cycle in which no span landed (`progress` arm; no `buffer.tick` or no numeric `rows_ingested` is cannot-evaluate, never PASS). A mutation per arm (C5) has to show each of these readings is the arm's own, not a neighbour's.
+- obs-plan §10 CI gates (the heartbeat-stall bullet) requires the `heartbeat-gap` arm to grade `ingest.tick`, `buffer.tick` and `connection.tick` only, a gap over 45 000 ms FAIL, fewer than two records of a target or a record with no readable timestamp cannot-evaluate, and `viz.tick` / `plugins.tick` never read. A mutation that makes the arm read the window's two ticks, or pass on one record, must go red.
+- obs-plan §10 CI gates (the perf-budget bullet) requires the `budget` arm to grade the memory arm alone, required, through the shared grader: over 512 000 000 B, a non-numeric value, no sample, or only zero samples is FAIL; frame and snapshot are stated as not graded on one line.
+- obs-plan §10 Load-profile constraints requires that `check:engine-log` has no NEUTRAL reading and never passes over an input it cannot grade, and that `ci-gates` reads an absent log family as exit 2 `cannot-evaluate`, never NEUTRAL or PASS. This binds the pre-push sixth stage (C3): the plan has no statement about that stage at all (it is named nowhere in obs-plan), so what the stage reads today over its seed, and whether that reading can fail, is research's question; what the plan must then say is the wrap's amendment, not this phase's.
+- obs-plan §10 CI gates (the zero-panic bullet) requires `ci-gates` to keep two arms, zero-spans and zero-panic, with exits 0 PASS · 1 FAIL · 2 cannot-evaluate, and its FAIL line to name the member's file name and line number, never the record's text or a path. A stage that runs `ci-gates` over a real engine cycle's log inherits these readings unchanged.
+- obs-plan §4 Span / Trace Coverage (the CLI / main binary row) and §6 Log Coverage (the `app.boot.engine` clause) require a console `run` to carry `app.boot.tracing.init`, `app.boot.pid`, the panic and process-end records and exactly one `app.boot.engine` per `engine_boot::start`, and none of the window's boot records. Every spawned reading (C2) is taken against that record set; an in-process arm that calls `start` emits its own `app.boot.engine`.
+- obs-plan §8 PII Scrubbing (default-deny posture) requires every field a reading asserts on to sit under an exact allowlist leaf, or it renders redacted. The plan names no failed-bind or rejected-port record: which record the test-plan row's "failed-bind record" is, its target, and whether its fields render, is research's question.
+
+## Patterns to follow
+- Three readings per arm, PASS · FAIL · cannot-evaluate, with a required arm never NEUTRAL: the form `check:engine-log` and `ci-gates` hold per obs-plan §10 Load-profile constraints. Any new pin or leg that grades a log reads the same three.
+- Settle before grading ticks: obs-plan §10 CI gates (the heartbeat-stall bullet) has the cycle's settle verb hold the run until the family holds two records of each of the three engine ticks, at the 15 s interval of obs-plan §3 Heartbeat ticks. A leg that grades a real cycle pays that wait, which is part of the time the P4 question on the pre-push stage has to state.
+- Identify the program from the log, not from the spawn line: obs-plan §3 Heartbeat ticks reads a log as a console engine's when its `app.boot.engine` record says `program: console`, and the absence of `viz.tick` / `plugins.tick` there is by design.
+- Read the family, not one file: obs-plan §3 Log file location puts the log at `<data_dir>/logs/agent-latest.jsonl` under daily rotation, so a reader resolves the `agent-latest.jsonl*` family. The shell `logs` verb's family branch (C4) is pinned against a dated member, not the bare name alone.
+- Mutation proof stated as a count: obs-plan §8 PII Scrubbing (the `app.boot.engine` leaf entry and its sibling leaves) records each guard as mutation-checked with which pin went red. The per-arm mutations of C5 are recorded in the same form.
+
+## Anti-patterns to avoid
+- A gate that passes over an absent or self-written input: obs-plan §10 Load-profile constraints says the perf grader's tolerance "is not a licence for a gate to pass over an absent input", and obs-plan §11 Obs Anti-Patterns → SLO bans soft budgets with no enforcement.
+- A full path or a record's text in a log line or a verdict line: obs-plan §11 Obs Anti-Patterns → Logs bans full paths (Vector 3), and obs-plan §8 PII Scrubbing holds paths to basename and byte count. The lock file's directory reading (C2) is asserted in the test, never printed by a product record or a harness verdict.
+- Colour-coded or prose-only verdicts: obs-plan §11 Obs Anti-Patterns → CI requires CI-facing output to be structured and machine-readable, and bans losing the log on failure.
+
+## Contract bindings
+- obs ↔ tests (harness): obs-plan §3 Heartbeat ticks and §10 CI gates state what each `check:engine-log` arm reads; test-plan §1's row `engine-log-arm-mutation-and-engine-cycle-glue-coverage` owes the mutations that prove them.
+- obs ↔ tests (harness): obs-plan §3 Log file location is the family the shell `logs` verb resolves; test-plan §1's row `harness-log-family-resolution-coverage` owes its assertion.
+- obs ↔ tests (CI): obs-plan §9 CI Integration (the CI failure triage bullets) states that a spawned console engine's log under a test's own data dir is not uploaded, and that a cycle refused before its boot writes no log so the `logs-engine-Linux` upload fails its own step. New spawned tests and the four refusal-label pins fall under both; neither is seen on a runner per the plan.
+- obs ↔ security: obs-plan §8 PII Scrubbing (environment variables row) never lets `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` out as a value, field or presence flag, and the engine cycle makes one per run; the classification of the `logs-engine-Linux` upload sits in security-plan §Security Anti-Patterns → Input, as obs-plan §9 CI Integration (the Log file row) says.
+- obs ↔ a11y: (none).
+
+## Acceptance criteria contributions
+- Each mutation of a `check:engine-log` arm turns a log family that read PASS into that arm's FAIL or cannot-evaluate, and no mutated or unmutated arm reads PASS over input it cannot grade (per obs-plan §10 CI gates; obs-plan §10 Load-profile constraints)
+- Each spawned-engine reading takes its records from the `agent-latest.jsonl*` family under the engine's own data dir, and that family holds exactly one `app.boot.engine` record per boot with `program: console` rendered, not redacted (per obs-plan §3 Log file location; obs-plan §6 Log Coverage; obs-plan §8 PII Scrubbing)
+- The pre-push sixth stage, in whatever form P4 rules, reads exit 2 `cannot-evaluate` over no log family member and can read FAIL over the log it grades (per obs-plan §10 CI gates; obs-plan §10 Load-profile constraints)
+- No product record and no harness verdict line added by this chunk carries a full path, a record's text or the corpus passphrase (per obs-plan §8 PII Scrubbing; obs-plan §11 Obs Anti-Patterns → Logs)

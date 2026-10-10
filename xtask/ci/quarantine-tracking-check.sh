@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Quarantine convention enforcement (test-plan §11: NEVER commit #[ignore]
 # tests without an open GitHub issue). Greps for #[ignore] in the Rust
-# sources under crates/, pulse-app/{src,tests}/ and xtask/src/; for each
+# sources under crates/, pulse-app/{src,tests}/ and xtask/{src,tests}/; for each
 # match, scans the surrounding 5-line window for a GitHub issue URL
 # (https://github.com/.../issues/N) and fails with a file:line citation when
 # a quarantine lacks one.
@@ -21,6 +21,7 @@ SEARCH_DIRS=(
     "pulse-app/src"
     "pulse-app/tests"
     "xtask/src"
+    "xtask/tests"
 )
 
 missing=0

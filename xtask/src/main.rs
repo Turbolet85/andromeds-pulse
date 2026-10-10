@@ -64,7 +64,7 @@ enum Cmd {
     },
     #[command(
         name = "harness:ready",
-        about = "The boot verb's readiness verdict: the harness:status verdict reads running-healthy AND both OTLP receivers accept a TCP connection on 127.0.0.1 at the ports resolved from ANDROMEDA_PULSE_OTLP_GRPC_PORT / _HTTP_PORT (defaults 4317 / 4318), each attempt bounded at one second. One JSON verdict (ready, not-ready, wrong-program, ended, cannot-evaluate) with the pid, the exit record when the app ended, the program the log records (window, console, unknown) and one label per receiver (accepting, refusing). With --program the verdict is wrong-program when the log records another program or none. Exit 0 ready, 1 not-ready, wrong-program or ended, 2 cannot-evaluate"
+        about = "The boot verb's readiness verdict: the harness:status verdict reads running-healthy AND both OTLP receivers accept a TCP connection on 127.0.0.1 at the ports resolved from ANDROMEDA_PULSE_OTLP_GRPC_PORT / _HTTP_PORT (defaults 4317 / 4318), each attempt bounded at one second, AND the run's own log holds, after its last app.boot.engine record, each receiver's bound record at that port. One JSON verdict (ready, not-ready, wrong-program, ended, cannot-evaluate) with the pid, the exit record when the app ended, the program the log records (window, console, unknown) and one label per receiver (accepting, foreign for a port that accepts with no bound record of this run, refusing). With --program the verdict is wrong-program when the log records another program or none. Exit 0 ready, 1 not-ready, wrong-program or ended, 2 cannot-evaluate"
     )]
     HarnessReady {
         #[arg(long, value_enum, value_name = "PROGRAM")]
@@ -80,7 +80,7 @@ enum Cmd {
     },
     #[command(
         name = "harness:engine-cycle",
-        about = "One cycle of the harness verbs on the console engine, on a data dir and ports of its own: build the injector, agent-run.sh boot engine, a healthy feed over OTLP (inject_demo --sustained --error-pct=0, by path), harness:engine-settled, the injector ended, agent-run.sh status engine, agent-run.sh cleanup, check:engine-log. Cleanup runs whatever the verbs before it returned; after a failed boot the two verbs between are skipped. Every child gets a cleared environment plus a fixed set (HOME, PATH, the data dir, the two ports, a 60 s retention, a corpus passphrase made for the run, and the exit-witness variable only when this verb's own environment holds it). One JSON verdict (pass, fail, cannot-evaluate) with each verb's exit (null when skipped), the count of ERROR records in the log family and whether a witness file exists (absent, present); the children's output goes to stderr. Exit 0 pass (five exits 0, no ERROR record, no witness file), 1 fail, 2 cannot-evaluate (not Linux, port 4317 or 4318, a data dir that already holds a log family, or a verb that could not evaluate)"
+        about = "One cycle of the harness verbs on the console engine, on a data dir and ports of its own: build the injector, agent-run.sh boot engine, a healthy feed over OTLP (inject_demo --sustained --error-pct=0, by path), harness:engine-settled, the injector ended, agent-run.sh status engine, agent-run.sh cleanup, check:engine-log. Cleanup runs whatever the verbs before it returned; after a failed boot the two verbs between are skipped. Every child gets a cleared environment plus a fixed set (HOME, PATH, the data dir, the two ports, a 60 s retention, a corpus passphrase made for the run, and the exit-witness variable only when this verb's own environment holds it). One JSON verdict (pass, fail, cannot-evaluate) with each verb's exit (null when skipped), the count of ERROR records in the log family and whether a witness file exists (absent, present); the children's output goes to stderr. Exit 0 pass (five exits 0, no ERROR record, no witness file), 1 fail, 2 cannot-evaluate (not Linux, port 4317 or 4318, a data dir that already holds a log family, a cycle port another program already holds, or a verb that could not evaluate)"
     )]
     HarnessEngineCycle {
         #[arg(long, value_name = "DIR")]
@@ -288,7 +288,7 @@ enum Cmd {
     PerfLoadProfiles,
     #[command(
         name = "pre-push:linux",
-        about = "Run the Linux-reachable CI gates (script modes, the English-only source lint, npm build, clippy, xtask test, ci-gates) on the Linux dev host, in the working tree, before a push: six stages in order, first failure stops, each under a constructed environment. One JSON verdict; exit 0 green / 1 red / 2 cannot-evaluate (not Linux, or a pin read from the repo is unmet: the Rust channel, ci.yml's Node major, a missing tool). Installs nothing, puts the generated bindings back as found, never binds a port"
+        about = "Run the Linux-reachable CI gates (script modes, the English-only source lint, npm build, clippy, xtask test, ci-gates over one console engine cycle the stage runs) on the Linux dev host, in the working tree, before a push: six stages in order, first failure stops, each under a constructed environment. One JSON verdict; exit 0 green / 1 red / 2 cannot-evaluate (not Linux, or a pin read from the repo is unmet: the Rust channel, ci.yml's Node major, a missing tool, or a taken engine-cycle port). Installs nothing and puts the generated bindings back as found; its last stage starts andromeda-pulse-engine on loopback ports 24317 and 24318 and ends it"
     )]
     PrePushLinux,
 }
@@ -936,8 +936,13 @@ mod empty_input_tests {
         }
     }
 
-    const QUARANTINE_SEARCH_DIRS: [&str; 4] =
-        ["crates", "pulse-app/src", "pulse-app/tests", "xtask/src"];
+    const QUARANTINE_SEARCH_DIRS: [&str; 5] = [
+        "crates",
+        "pulse-app/src",
+        "pulse-app/tests",
+        "xtask/src",
+        "xtask/tests",
+    ];
 
     fn quarantine_root(sources: &[(&str, &str)]) -> tempfile::TempDir {
         let root = tempfile::TempDir::new().expect("tmp");
@@ -1009,6 +1014,18 @@ mod empty_input_tests {
         assert_eq!(code, Some(1), "printed:\n{printed}");
         assert!(
             printed.contains("lacks GitHub issue URL"),
+            "printed:\n{printed}"
+        );
+    }
+
+    #[test]
+    fn quarantine_check_reads_the_xtask_integration_tests() {
+        let source = "#[test]\n#[ignore]\nfn quarantined() {}\n";
+        let root = quarantine_root(&[("xtask/tests/pins.rs", source)]);
+        let (code, printed) = quarantine_check(root.path());
+        assert_eq!(code, Some(1), "printed:\n{printed}");
+        assert!(
+            printed.contains("::error::") && printed.contains("xtask/tests/pins.rs:2"),
             "printed:\n{printed}"
         );
     }

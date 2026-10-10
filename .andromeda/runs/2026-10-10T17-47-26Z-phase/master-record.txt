@@ -1,0 +1,1 @@
+2026-10-10-engine-harness-proofs-completed · pending · rejected port, socket census, lock-file place read on a spawned engine; pre-push reads a real engine cycle; cleanup, boot, logs verbs pinned in shell · → andromeda-pulse-0.4.0/chunks/2026-10-10-engine-harness-proofs-completed/

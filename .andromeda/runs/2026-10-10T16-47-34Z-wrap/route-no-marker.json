@@ -216,5 +216,38 @@
 "wrote": [],
 "before": null,
 "after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T17:44:12Z",
+"argv": [
+"route.py",
+"epoch",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"working-route.md · 10 epoch headers · 84 entries · freeze state joined to 94 master records",
+"10 · Epoch 1 — Foundation: base CI, the capabili… · entries 19 · markerless 8 · frozen complete 11 · pending 0",
+"49 · Epoch 2 — What leaves: the window, its brid… · entries 8 · markerless 8 · frozen complete 0 · pending 0",
+"66 · Epoch 3 — What leaves: the local model, wha… · entries 10 · markerless 10 · frozen complete 0 · pending 0",
+"87 · Epoch 4 — The engine is reached over a netw… · entries 7 · markerless 7 · frozen complete 0 · pending 0",
+"102 · Epoch 5 — The engine lives on a small node · entries 7 · markerless 7 · frozen complete 0 · pending 0",
+"117 · Epoch 6 — Memory on disk and the door's ful… · entries 10 · markerless 10 · frozen complete 0 · pending 0",
+"138 · Epoch 7 — Keep what OpenTelemetry sends · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"151 · Epoch 8 — Comparisons that work from the fi… · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"164 · Epoch 9 — The voice · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"177 · Epoch 10 — Polish & ship · entries 5 · markerless 5 · frozen complete 0 · pending 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
 }
 ]

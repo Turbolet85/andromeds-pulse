@@ -11,7 +11,8 @@ $searchDirs = @(
     "crates",
     "pulse-app/src",
     "pulse-app/tests",
-    "xtask/src"
+    "xtask/src",
+    "xtask/tests"
 )
 
 $missing = $false

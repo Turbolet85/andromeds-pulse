@@ -195,6 +195,11 @@ case "${1:-}" in
           echo "  the receivers never both accepted: OTLP gRPC 127.0.0.1:$GRPC_PORT, OTLP HTTP 127.0.0.1:$HTTP_PORT" >&2
           ;;
       esac
+      case "$last_ready" in
+        *'"foreign"'*)
+          echo "  a receiver port accepts but this run's log holds no bound record for it: OTLP gRPC 127.0.0.1:$GRPC_PORT, OTLP HTTP 127.0.0.1:$HTTP_PORT" >&2
+          ;;
+      esac
     else
       for _ in $(seq 20); do
         [ -s "$EXIT_FILE" ] && break

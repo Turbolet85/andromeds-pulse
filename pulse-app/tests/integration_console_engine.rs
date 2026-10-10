@@ -1,9 +1,10 @@
 //! The built console program, `andromeda-pulse-engine`, run with no display.
 //!
 //! Each arm spawns the binary under a CLEARED environment that holds only its
-//! own `TempDir` data dir, two ports the test picked and a corpus passphrase
+//! own `TempDir` data dir, two ports the test claimed and a corpus passphrase
 //! canary (plus the coverage profile variable when this process has one): no
-//! display variable, no session bus, no runtime dir, no home. Its working
+//! display variable, no session bus, no runtime dir, no home. The lock-file
+//! arm alone also names a temp dir and a runtime dir of its own. Its working
 //! directory is the data dir, so a file written relative to it would show up
 //! there. Telemetry goes in over the real gRPC receiver, and the program's own
 //! log family is read only after the process has ended.
@@ -31,10 +32,54 @@ const END_WAIT: Duration = Duration::from_secs(30);
 const MAX_TICK_GAP: Duration = Duration::from_secs(45);
 const SPAN_COUNT: usize = 5;
 
-/// A port nothing holds: bound on `127.0.0.1:0`, read, released.
-fn pick_port() -> u16 {
-    let listener = TcpListener::bind("127.0.0.1:0").expect("bind an ephemeral loopback port");
-    listener.local_addr().expect("local addr").port()
+/// A loopback port claimed for one arm. It lies below the kernel's ephemeral
+/// range, so no bind to port 0 is ever handed it, and an advisory lock under
+/// `target/` holds it against every other test of this workspace for as long
+/// as the claim lives. A port bound to 0, read and released is taken again by
+/// another test often enough to fail a run when many start at once.
+struct PortClaim {
+    number: u16,
+    _lock: std::fs::File,
+}
+
+const CLAIMED_PORTS: std::ops::Range<u16> = 20_000..32_000;
+/// The harness's own registered ports inside that range.
+const HARNESS_PORTS: [u16; 2] = [24_317, 24_318];
+
+fn claim_port() -> PortClaim {
+    use std::hash::{BuildHasher, Hasher};
+    let claims = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("the package sits under the workspace root")
+        .join("target")
+        .join("test-ports");
+    std::fs::create_dir_all(&claims).expect("the port claims directory");
+    let span = u64::from(CLAIMED_PORTS.end - CLAIMED_PORTS.start);
+    for _ in 0..10_000 {
+        let word = std::collections::hash_map::RandomState::new()
+            .build_hasher()
+            .finish();
+        let offset = u16::try_from(word % span).expect("an offset inside the range");
+        let number = CLAIMED_PORTS.start + offset;
+        if HARNESS_PORTS.contains(&number) {
+            continue;
+        }
+        let Ok(lock) = std::fs::OpenOptions::new()
+            .create(true)
+            .truncate(false)
+            .write(true)
+            .open(claims.join(number.to_string()))
+        else {
+            continue;
+        };
+        if lock.try_lock().is_ok() && TcpListener::bind(("127.0.0.1", number)).is_ok() {
+            return PortClaim {
+                number,
+                _lock: lock,
+            };
+        }
+    }
+    panic!("no loopback port could be claimed")
 }
 
 fn loopback(port: u16) -> SocketAddr {
@@ -61,6 +106,7 @@ struct Running {
     streams: tempfile::TempDir,
     grpc: u16,
     http: u16,
+    _ports: [PortClaim; 2],
 }
 
 impl Drop for Running {
@@ -76,8 +122,8 @@ impl Running {
     fn spawn(extra_env: &[(&str, &str)]) -> Self {
         let data_dir = tempfile::tempdir().expect("data dir");
         let streams = tempfile::tempdir().expect("streams dir");
-        let grpc = pick_port();
-        let http = pick_port();
+        let ports = [claim_port(), claim_port()];
+        let (grpc, http) = (ports[0].number, ports[1].number);
         let stdout = std::fs::File::create(streams.path().join("stdout")).expect("stdout file");
         let stderr = std::fs::File::create(streams.path().join("stderr")).expect("stderr file");
         let mut command = cleared(data_dir.path());
@@ -98,6 +144,7 @@ impl Running {
             streams,
             grpc,
             http,
+            _ports: ports,
         }
     }
 
@@ -112,6 +159,18 @@ impl Running {
             assert!(
                 Instant::now() < deadline,
                 "both ports accept within {BOOT_WAIT:?}"
+            );
+            tokio::time::sleep(Duration::from_millis(50)).await;
+        }
+    }
+
+    async fn wait_for_port(&mut self, port: u16) {
+        let deadline = Instant::now() + BOOT_WAIT;
+        while !accepts(port) {
+            assert!(self.still_running(), "the program ended before it listened");
+            assert!(
+                Instant::now() < deadline,
+                "the port accepts within {BOOT_WAIT:?}"
             );
             tokio::time::sleep(Duration::from_millis(50)).await;
         }
@@ -315,6 +374,380 @@ fn entries(dir: &Path) -> BTreeSet<String> {
         .flatten()
         .map(|entry| entry.file_name().to_string_lossy().to_string())
         .collect()
+}
+
+/// One socket a process holds: the kernel table that lists it and its local
+/// end.
+#[cfg(target_os = "linux")]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+struct Socket {
+    table: &'static str,
+    local: String,
+    listening: bool,
+}
+
+/// Every socket of one process, with the count of its socket inodes that no
+/// table lists.
+#[cfg(target_os = "linux")]
+#[derive(Debug)]
+struct Census {
+    sockets: Vec<Socket>,
+    unlisted: usize,
+}
+
+#[cfg(target_os = "linux")]
+impl Census {
+    fn listeners(&self) -> BTreeSet<(&'static str, String)> {
+        self.sockets
+            .iter()
+            .filter(|socket| socket.listening)
+            .map(|socket| (socket.table, socket.local.clone()))
+            .collect()
+    }
+
+    /// No socket is in the middle of a connection the readiness probe made.
+    fn at_rest(&self) -> bool {
+        self.unlisted == 0
+            && self
+                .sockets
+                .iter()
+                .all(|socket| socket.listening || !socket.table.starts_with("tcp"))
+    }
+}
+
+/// The socket inodes in a process's fd table.
+#[cfg(target_os = "linux")]
+fn socket_inodes(pid: u32) -> BTreeSet<u64> {
+    std::fs::read_dir(format!("/proc/{pid}/fd"))
+        .expect("read the process's fd table under /proc")
+        .flatten()
+        .filter_map(|entry| std::fs::read_link(entry.path()).ok())
+        .filter_map(|target| {
+            let target = target.to_string_lossy();
+            target
+                .strip_prefix("socket:[")?
+                .strip_suffix(']')?
+                .parse()
+                .ok()
+        })
+        .collect()
+}
+
+/// `0100007F:10E1` as `127.0.0.1:4321`; an IPv6 address stays in its hex form.
+#[cfg(target_os = "linux")]
+fn local_end(column: &str) -> String {
+    let (address, port) = column.rsplit_once(':').unwrap_or((column, ""));
+    let port = u16::from_str_radix(port, 16).unwrap_or(0);
+    match u32::from_str_radix(address, 16) {
+        Ok(raw) if address.len() == 8 => {
+            format!("{}:{port}", std::net::Ipv4Addr::from(raw.to_ne_bytes()))
+        }
+        _ => format!("[{address}]:{port}"),
+    }
+}
+
+/// The sockets of `pid`, matched by inode in the kernel's TCP, TCP6, UDP, UDP6
+/// and unix tables.
+#[cfg(target_os = "linux")]
+fn socket_census(pid: u32) -> Census {
+    let inodes = socket_inodes(pid);
+    let table =
+        |name: &str| std::fs::read_to_string(format!("/proc/net/{name}")).unwrap_or_default();
+    let mut listed = BTreeSet::new();
+    let mut sockets = Vec::new();
+    for name in ["tcp", "tcp6", "udp", "udp6"] {
+        for line in table(name).lines().skip(1) {
+            let columns: Vec<&str> = line.split_whitespace().collect();
+            let Some(inode) = columns.get(9).and_then(|inode| inode.parse::<u64>().ok()) else {
+                continue;
+            };
+            if inodes.contains(&inode) {
+                listed.insert(inode);
+                sockets.push(Socket {
+                    table: name,
+                    local: local_end(columns[1]),
+                    listening: name.starts_with("tcp") && columns[3] == "0A",
+                });
+            }
+        }
+    }
+    for line in table("unix").lines().skip(1) {
+        let columns: Vec<&str> = line.split_whitespace().collect();
+        let Some(inode) = columns.get(6).and_then(|inode| inode.parse::<u64>().ok()) else {
+            continue;
+        };
+        if inodes.contains(&inode) {
+            listed.insert(inode);
+            sockets.push(Socket {
+                table: "unix",
+                local: columns.get(7).copied().unwrap_or("(unnamed)").to_string(),
+                listening: columns[3] == "00010000",
+            });
+        }
+    }
+    sockets.sort();
+    Census {
+        unlisted: inodes.len() - listed.len(),
+        sockets,
+    }
+}
+
+/// The census once the connections the readiness probe opened are closed, or
+/// the last one read when `BOOT_WAIT` has passed.
+#[cfg(target_os = "linux")]
+async fn census_at_rest(pid: u32) -> Census {
+    let deadline = Instant::now() + BOOT_WAIT;
+    loop {
+        let census = socket_census(pid);
+        if census.at_rest() || Instant::now() >= deadline {
+            return census;
+        }
+        tokio::time::sleep(Duration::from_millis(50)).await;
+    }
+}
+
+/// An empty census cannot pass: pointed at this process, it finds a listener
+/// this process opened.
+#[cfg(target_os = "linux")]
+fn assert_the_census_finds_a_listener_of_this_process() {
+    let listener = TcpListener::bind("127.0.0.1:0").expect("bind an ephemeral loopback port");
+    let port = listener.local_addr().expect("local addr").port();
+    let census = socket_census(std::process::id());
+    assert!(
+        census
+            .listeners()
+            .contains(&("tcp", format!("127.0.0.1:{port}"))),
+        "the census reads this process's own listener on port {port}: {census:?}"
+    );
+}
+
+#[cfg(target_os = "linux")]
+fn assert_no_socket_beyond_the_listeners(census: &Census) {
+    for socket in &census.sockets {
+        assert!(
+            !socket.table.starts_with("udp"),
+            "a UDP socket in table {} at {}",
+            socket.table,
+            socket.local
+        );
+        assert!(
+            socket.listening || socket.table == "unix",
+            "a connected socket in table {} at {}",
+            socket.table,
+            socket.local
+        );
+    }
+    assert_eq!(
+        census.unlisted, 0,
+        "a socket inode outside the five tables: {census:?}"
+    );
+}
+
+#[cfg(target_os = "linux")]
+fn file_names_under(dir: &Path, out: &mut Vec<String>) {
+    for entry in std::fs::read_dir(dir).expect("read a directory").flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            file_names_under(&path, out);
+        } else {
+            out.push(entry.file_name().to_string_lossy().to_string());
+        }
+    }
+}
+
+/// The log family's bytes as written, for a count of a text in them.
+#[cfg(target_os = "linux")]
+fn family_text(dir: &Path) -> String {
+    let mut names = Vec::new();
+    file_names_under(&dir.join("logs"), &mut names);
+    names
+        .iter()
+        .filter(|name| name.starts_with("agent-latest.jsonl"))
+        .map(|name| std::fs::read_to_string(dir.join("logs").join(name)).expect("read a member"))
+        .collect()
+}
+
+#[cfg(target_os = "linux")]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_rejected_grpc_port_leaves_that_receiver_unstarted_and_the_http_receiver_alone_listening()
+{
+    use std::os::unix::process::ExitStatusExt;
+
+    assert_the_census_finds_a_listener_of_this_process();
+    let claimed = claim_port();
+    let digits = claimed.number;
+    let rejected = format!("{digits}/tcp");
+    let mut engine = Running::spawn(&[("ANDROMEDA_PULSE_OTLP_GRPC_PORT", rejected.as_str())]);
+    let http = engine.http;
+    engine.wait_for_port(http).await;
+    engine
+        .wait_for_records("app.boot.otlp.grpc.bind", 1, BOOT_WAIT)
+        .await;
+
+    let census = census_at_rest(engine.child.id()).await;
+    eprintln!("socket census, gRPC port variable rejected: {census:?}");
+    assert_eq!(
+        census.listeners(),
+        BTreeSet::from([("tcp", format!("127.0.0.1:{http}"))]),
+        "the HTTP receiver is the one listener: {census:?}"
+    );
+    assert_no_socket_beyond_the_listeners(&census);
+    assert!(
+        !accepts(digits) && !accepts(engine.grpc),
+        "no gRPC receiver was started"
+    );
+    assert!(engine.still_running(), "the program runs on");
+
+    engine.signal(libc::SIGTERM);
+    let status = engine.wait_for_end().await;
+    assert_eq!(status.signal(), Some(15), "ended by SIGTERM");
+
+    let lines = family_lines(engine.data_dir.path());
+    let grpc_binds = records(&lines, "app.boot.otlp.grpc.bind");
+    assert_eq!(grpc_binds.len(), 1, "one gRPC bind record: {grpc_binds:?}");
+    assert_eq!(grpc_binds[0]["level"], "ERROR");
+    assert_eq!(
+        grpc_binds[0]["fields"]["reason"], "invalid_port",
+        "the reason is rendered"
+    );
+    eprintln!(
+        "gRPC bind record: level {}, reason {}",
+        grpc_binds[0]["level"], grpc_binds[0]["fields"]["reason"]
+    );
+    assert!(
+        grpc_binds[0]["fields"].get("bind_address").is_none(),
+        "a rejected port has no bind address"
+    );
+    let http_binds = records(&lines, "app.boot.otlp.http.bind");
+    assert_eq!(http_binds.len(), 1, "one HTTP bind record: {http_binds:?}");
+    assert_eq!(http_binds[0]["level"], "INFO");
+    assert_eq!(
+        http_binds[0]["fields"]["bind_address"],
+        format!("127.0.0.1:{http}")
+    );
+    assert_the_one_exit_record_is_last(&lines, "sigterm");
+}
+
+#[cfg(target_os = "linux")]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn the_engine_listens_on_its_two_loopback_receivers_and_on_nothing_else() {
+    use std::os::unix::process::ExitStatusExt;
+
+    assert_the_census_finds_a_listener_of_this_process();
+    let mut engine = Running::spawn(&[]);
+    engine.wait_for_both_ports().await;
+
+    let census = census_at_rest(engine.child.id()).await;
+    eprintln!("socket census, both ports valid: {census:?}");
+    assert_eq!(
+        census.listeners(),
+        BTreeSet::from([
+            ("tcp", format!("127.0.0.1:{}", engine.grpc)),
+            ("tcp", format!("127.0.0.1:{}", engine.http)),
+        ]),
+        "the two receivers are the only listeners: {census:?}"
+    );
+    assert_no_socket_beyond_the_listeners(&census);
+
+    engine.signal(libc::SIGTERM);
+    let status = engine.wait_for_end().await;
+    assert_eq!(status.signal(), Some(15), "ended by SIGTERM");
+}
+
+#[cfg(target_os = "linux")]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn the_corpus_key_lock_file_sits_in_the_directory_the_environment_gives() {
+    use std::os::unix::fs::PermissionsExt;
+    use std::os::unix::process::ExitStatusExt;
+    const LOCK_PREFIX: &str = "andromeda-pulse-corpus-key-";
+
+    for with_runtime_dir in [false, true] {
+        let temp = tempfile::tempdir().expect("a temp dir of the run's own");
+        let runtime = tempfile::tempdir().expect("a runtime dir of the run's own");
+        let temp_text = temp.path().to_string_lossy().to_string();
+        let runtime_text = runtime.path().to_string_lossy().to_string();
+        let mut env = vec![("TMPDIR", temp_text.as_str())];
+        if with_runtime_dir {
+            env.push(("XDG_RUNTIME_DIR", runtime_text.as_str()));
+        }
+        let mut engine = Running::spawn(&env);
+        engine.wait_for_both_ports().await;
+        engine
+            .wait_for_records("corpus.keychain.fallback", 1, BOOT_WAIT)
+            .await;
+        engine.signal(libc::SIGTERM);
+        let status = engine.wait_for_end().await;
+        assert_eq!(status.signal(), Some(15), "ended by SIGTERM");
+
+        let holder = if with_runtime_dir {
+            runtime.path()
+        } else {
+            temp.path()
+        };
+        let held = entries(holder);
+        assert_eq!(held.len(), 1, "the lock file is the only entry: {held:?}");
+        let name = held.first().expect("one entry");
+        let hex = name
+            .strip_prefix(LOCK_PREFIX)
+            .and_then(|rest| rest.strip_suffix(".lock"))
+            .unwrap_or_else(|| panic!("a lock file name: {name}"));
+        assert!(
+            hex.len() == 16
+                && hex
+                    .bytes()
+                    .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
+            "sixteen hex characters: {name}"
+        );
+        let meta = std::fs::metadata(holder.join(name)).expect("the lock file's metadata");
+        assert_eq!(meta.len(), 0, "the lock file holds nothing");
+        assert_eq!(meta.permissions().mode() & 0o777, 0o600);
+        eprintln!(
+            "lock file, {}: {name}, {} bytes, mode {:o}",
+            if with_runtime_dir {
+                "runtime dir given"
+            } else {
+                "temp dir given, no runtime dir"
+            },
+            meta.len(),
+            meta.permissions().mode() & 0o777
+        );
+        if with_runtime_dir {
+            assert!(
+                entries(temp.path()).is_empty(),
+                "nothing in the temp dir when a runtime dir is given"
+            );
+        }
+
+        let data_dir = engine.data_dir.path();
+        assert_eq!(
+            entries(data_dir),
+            BTreeSet::from(["corpus", "logs", "run"].map(String::from)),
+            "the data dir's top entries"
+        );
+        let mut under_data_dir = Vec::new();
+        file_names_under(data_dir, &mut under_data_dir);
+        assert!(
+            under_data_dir
+                .iter()
+                .all(|file| !file.starts_with(LOCK_PREFIX)),
+            "no lock file under the data dir"
+        );
+
+        let log = family_text(data_dir);
+        assert!(!log.is_empty(), "the program wrote its log");
+        let resolved = holder.canonicalize().expect("the lock dir resolves");
+        for text in [
+            name.as_str(),
+            &holder.to_string_lossy(),
+            &resolved.to_string_lossy(),
+        ] {
+            assert_eq!(
+                log.matches(text).count(),
+                0,
+                "the lock file's place is not in the log"
+            );
+        }
+    }
 }
 
 #[cfg(unix)]

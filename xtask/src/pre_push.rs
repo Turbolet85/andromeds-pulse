@@ -11,7 +11,13 @@
 //! the per-run area `target/pre-push/run/` is removed and created again on
 //! each run. The `test` stage rewrites the tracked TauRPC bindings and the
 //! verb puts them back as found. Stage output goes to stderr so stdout carries
-//! the verdict alone. No stage starts pulse-app or binds a port.
+//! the verdict alone. The `ci-gates` stage runs one console engine cycle
+//! (`harness:engine-cycle`, which starts `andromeda-pulse-engine` on the
+//! harness-only loopback ports 24317 and 24318) over the stage data dir, then
+//! `ci-gates` over that cycle's log. A cycle port already taken is
+//! `cannot-evaluate`, never green, and the stage ends what it started
+//! whichever way the cycle returned. No other stage starts a program or binds
+//! a port.
 
 use std::ffi::{OsStr, OsString};
 use std::fs;
@@ -23,20 +29,13 @@ use std::time::Instant;
 use anyhow::Result;
 use serde_json::{Value, json};
 
+use crate::engine_cycle::{DEFAULT_GRPC_PORT, DEFAULT_HTTP_PORT};
+use crate::harness_ready::receiver_accepts;
+use crate::harness_status::{pid_alive, read_pid};
+
 const SCRIPT: &str = "scripts/agent-run.sh";
 const BINDINGS: &str = "pulse-app/ui/src/bindings/index.ts";
 const SYSTEM_PATH: &str = "/usr/local/bin:/usr/bin:/bin";
-
-/// One boot record and two ticks: the `ci-gates` stage reads the record count
-/// and the panic read over it.
-const SEED_LOG: &str = concat!(
-    r#"{"timestamp":"2026-01-01T00:00:00.000000Z","level":"INFO","target":"app.boot.ready","fields":{"message":"pre-push seed"}}"#,
-    "\n",
-    r#"{"timestamp":"2026-01-01T00:00:00.000000Z","level":"INFO","target":"ingest.tick","fields":{}}"#,
-    "\n",
-    r#"{"timestamp":"2026-01-01T00:00:15.000000Z","level":"INFO","target":"ingest.tick","fields":{}}"#,
-    "\n",
-);
 
 /// One variable of a child's environment.
 type Var = (OsString, OsString);
@@ -74,6 +73,7 @@ struct Doc {
     missing: Vec<String>,
 }
 
+#[derive(Debug, PartialEq, Eq)]
 struct Stop {
     verdict: Verdict,
     reason: String,
@@ -179,7 +179,7 @@ fn drive(root: &Path, doc: &mut Doc) -> Result<(), Stop> {
         let outcome = stage.run(&host);
         doc.stages
             .push(json!({"name": stage.name(), "ok": outcome.is_ok(), "ms": elapsed_ms(started)}));
-        outcome.map_err(Stop::red)?;
+        outcome?;
     }
     Ok(())
 }
@@ -224,8 +224,8 @@ impl Stage {
         }
     }
 
-    /// `Err` carries the verdict's reason.
-    fn run(self, host: &Host) -> Result<(), String> {
+    /// `Err` carries the verdict the run stops on.
+    fn run(self, host: &Host) -> Result<(), Stop> {
         let root = host.root;
         let ui = root.join("pulse-app").join("ui");
         let passed = match self {
@@ -273,19 +273,115 @@ impl Stage {
             Stage::Test => {
                 let test = || succeeds(&host.plain, root, "cargo", &["xtask", "test"]);
                 restoring(&root.join(BINDINGS), test)
-                    .map_err(|RestoreFailed| "restore-failed:bindings".to_owned())?
+                    .map_err(|RestoreFailed| Stop::red("restore-failed:bindings"))?
             }
-            Stage::CiGates => {
-                seed(&host.area.data)
-                    && succeeds(&host.plain, root, "cargo", &["xtask", "ci-gates"])
-            }
+            Stage::CiGates => return decide_ci_gates(read_engine_cycle(host)),
         };
-        if passed {
-            Ok(())
-        } else {
-            Err(format!("stage-failed:{}", self.name()))
-        }
+        if passed { Ok(()) } else { Err(self.failed()) }
     }
+
+    fn failed(self) -> Stop {
+        Stop::red(format!("stage-failed:{}", self.name()))
+    }
+}
+
+/// What the `ci-gates` stage read around its engine cycle.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+struct CycleReading {
+    /// A cycle port accepted before the stage had started anything.
+    port_taken: bool,
+    /// The cycle verb's exit; `None` when it was not run.
+    cycle_exit: Option<i32>,
+    /// A cycle port still accepting once the verb had returned.
+    port_accepting_after: bool,
+    /// The pid of the cycle's own pid file still alive once the verb had
+    /// returned.
+    pid_alive_after: bool,
+    /// `cargo xtask ci-gates` over the cycle's log; `None` when it was not
+    /// run.
+    gates_passed: Option<bool>,
+}
+
+/// The stage's decision, pure so each arm is pinnable without a process. A
+/// taken port is refused before anything starts; a cycle that left a port
+/// accepting or its engine alive is red whatever it returned.
+fn decide_ci_gates(reading: CycleReading) -> Result<(), Stop> {
+    if reading.port_taken {
+        return Err(Stop::cannot("engine-port-taken"));
+    }
+    if reading.port_accepting_after || reading.pid_alive_after {
+        return Err(Stage::CiGates.failed());
+    }
+    match (reading.cycle_exit, reading.gates_passed) {
+        (Some(0), Some(true)) => Ok(()),
+        (Some(2), _) => Err(Stop::cannot("engine-cycle-unevaluated")),
+        _ => Err(Stage::CiGates.failed()),
+    }
+}
+
+/// One console engine cycle on the stage data dir, then `ci-gates` over its
+/// log when the cycle passed.
+fn read_engine_cycle(host: &Host) -> CycleReading {
+    let data = &host.area.data;
+    let mut reading = CycleReading::default();
+    if remove_tree(data).is_err() || fs::create_dir_all(data).is_err() {
+        return reading;
+    }
+    let accepting = || {
+        [DEFAULT_GRPC_PORT, DEFAULT_HTTP_PORT]
+            .into_iter()
+            .any(receiver_accepts)
+    };
+    reading.port_taken = accepting();
+    if reading.port_taken {
+        return reading;
+    }
+    let exit = command(
+        &host.plain,
+        host.root,
+        "cargo",
+        &[
+            "xtask",
+            "harness:engine-cycle",
+            "--data-dir",
+            &data.to_string_lossy(),
+        ],
+    )
+    .status()
+    .ok()
+    .and_then(|status| status.code())
+    .unwrap_or(-1);
+    reading.cycle_exit = Some(exit);
+    reading.port_accepting_after = accepting();
+    reading.pid_alive_after = read_pid(&data.join("run").join("andromeda-pulse.pid"))
+        .is_some_and(|pid| pid_alive(pid) != Some(false));
+    if reading.port_accepting_after || reading.pid_alive_after {
+        end_cycle(host);
+    } else if exit == 0 {
+        reading.gates_passed = Some(succeeds(
+            &host.plain,
+            host.root,
+            "cargo",
+            &["xtask", "ci-gates"],
+        ));
+    }
+    reading
+}
+
+/// The script's `cleanup` on the stage data dir, once: it ends the pid the
+/// cycle's own pid file holds and no other process.
+fn end_cycle(host: &Host) {
+    let mut cleanup = command(&host.plain, host.root, "bash", &[SCRIPT, "cleanup"]);
+    cleanup
+        .env(
+            "ANDROMEDA_PULSE_OTLP_GRPC_PORT",
+            DEFAULT_GRPC_PORT.to_string(),
+        )
+        .env(
+            "ANDROMEDA_PULSE_OTLP_HTTP_PORT",
+            DEFAULT_HTTP_PORT.to_string(),
+        );
+    let _ = cleanup.status();
 }
 
 /// The verb's own per-run area: the browser cache, the stages' data dir and
@@ -514,14 +610,6 @@ fn head_and_tree(host: &Host) -> Result<(String, String), Stop> {
         tree = out(&mut git(args)).ok_or_else(unreadable)?;
     }
     Ok((head.trim().to_owned(), tree.trim().to_owned()))
-}
-
-/// A fresh data dir whose log holds only `SEED_LOG`.
-fn seed(data_dir: &Path) -> bool {
-    let logs = data_dir.join("logs");
-    remove_tree(data_dir).is_ok()
-        && fs::create_dir_all(&logs).is_ok()
-        && fs::write(logs.join("agent-latest.jsonl"), SEED_LOG).is_ok()
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -890,6 +978,156 @@ mod tests {
                 "test",
                 "ci-gates"
             ]
+        );
+    }
+
+    fn passed_cycle() -> CycleReading {
+        CycleReading {
+            cycle_exit: Some(0),
+            gates_passed: Some(true),
+            ..CycleReading::default()
+        }
+    }
+
+    fn stage_six_red() -> Result<(), Stop> {
+        Err(Stop::red("stage-failed:ci-gates"))
+    }
+
+    #[test]
+    fn a_passed_cycle_with_passing_gates_and_nothing_left_running_is_green() {
+        assert_eq!(decide_ci_gates(passed_cycle()), Ok(()));
+    }
+
+    #[test]
+    fn a_taken_cycle_port_cannot_be_evaluated_and_never_reads_green() {
+        for reading in [
+            CycleReading {
+                port_taken: true,
+                ..CycleReading::default()
+            },
+            CycleReading {
+                port_taken: true,
+                ..passed_cycle()
+            },
+        ] {
+            let stop = decide_ci_gates(reading).expect_err("a taken port stops the run");
+            assert_eq!(stop, Stop::cannot("engine-port-taken"));
+            assert_eq!(stop.verdict, Verdict::CannotEvaluate);
+        }
+    }
+
+    #[test]
+    fn a_cycle_that_could_not_be_evaluated_stops_as_cannot_evaluate() {
+        for gates_passed in [None, Some(true)] {
+            let reading = CycleReading {
+                cycle_exit: Some(2),
+                gates_passed,
+                ..CycleReading::default()
+            };
+            assert_eq!(
+                decide_ci_gates(reading),
+                Err(Stop::cannot("engine-cycle-unevaluated"))
+            );
+        }
+    }
+
+    #[test]
+    fn a_failed_cycle_is_red() {
+        for exit in [1, -1, 101] {
+            let reading = CycleReading {
+                cycle_exit: Some(exit),
+                ..CycleReading::default()
+            };
+            assert_eq!(decide_ci_gates(reading), stage_six_red(), "exit {exit}");
+        }
+        assert_eq!(
+            decide_ci_gates(CycleReading::default()),
+            stage_six_red(),
+            "a cycle that was never run"
+        );
+    }
+
+    #[test]
+    fn a_passed_cycle_whose_gates_failed_or_did_not_run_is_red() {
+        for gates_passed in [Some(false), None] {
+            let reading = CycleReading {
+                gates_passed,
+                ..passed_cycle()
+            };
+            assert_eq!(
+                decide_ci_gates(reading),
+                stage_six_red(),
+                "{gates_passed:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn a_cycle_that_left_a_port_accepting_or_its_engine_alive_is_red_whatever_it_returned() {
+        for exit in [0, 1, 2] {
+            for (port_accepting_after, pid_alive_after) in
+                [(true, false), (false, true), (true, true)]
+            {
+                let reading = CycleReading {
+                    cycle_exit: Some(exit),
+                    port_accepting_after,
+                    pid_alive_after,
+                    ..passed_cycle()
+                };
+                assert_eq!(
+                    decide_ci_gates(reading),
+                    stage_six_red(),
+                    "exit {exit}, port {port_accepting_after}, pid {pid_alive_after}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn the_stage_s_cycle_ports_are_the_harness_only_pair_and_never_the_shared_ones() {
+        assert_eq!((DEFAULT_GRPC_PORT, DEFAULT_HTTP_PORT), (24317, 24318));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn end_cycle_ends_the_process_the_stage_data_dir_s_pid_file_names() {
+        let tmp = TempDir::new().expect("tempdir");
+        let area = RunArea::under(tmp.path());
+        let run = area.data.join("run");
+        fs::create_dir_all(&run).expect("run dir");
+        // Started through a shell that exits, so the process is no child of
+        // this test and its end needs no reaping here.
+        let started =
+            out(Command::new("bash")
+                .args(["-c", "sleep 600 < /dev/null > /dev/null 2>&1 & echo $!"]))
+            .expect("`bash` MUST be on PATH: the teardown is the bash script's");
+        let pid: u32 = started.trim().parse().expect("a pid");
+        fs::write(run.join("andromeda-pulse.pid"), format!("{pid}\n")).expect("pid file");
+        assert_eq!(pid_alive(pid), Some(true), "the process runs");
+
+        let root = workspace_root();
+        let home = std::env::var_os("HOME").unwrap_or_default();
+        let verb_path = std::env::var_os("PATH").unwrap_or_default();
+        end_cycle(&Host {
+            root: &root,
+            area: &area,
+            plain: stage_env(&home, &verb_path, &area, false),
+            npm: Vec::new(),
+        });
+
+        let ended = pid_alive(pid);
+        let _ = Command::new("kill")
+            .args(["-KILL", &pid.to_string()])
+            .stderr(Stdio::null())
+            .status();
+        assert_eq!(
+            ended,
+            Some(false),
+            "the process the pid file named is ended"
+        );
+        assert!(
+            !run.join("andromeda-pulse.pid").exists(),
+            "the pid file is gone"
         );
     }
 

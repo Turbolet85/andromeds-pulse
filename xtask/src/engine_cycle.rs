@@ -12,7 +12,8 @@
 //! It refuses, as `cannot-evaluate` and before anything is started: a host
 //! that is not Linux, port 4317 or 4318 (shared on a dev host), a data dir
 //! that already holds a log family (a gap read across two boots would be
-//! false).
+//! false), a cycle port that already accepts a loopback connection (another
+//! program holds it; nothing is waited on, ended or reused).
 //!
 //! Every child gets a cleared environment plus the set `child_env` builds.
 //! The session bus address, the runtime dir and the display variables are
@@ -32,6 +33,7 @@ use std::process::{Child, Command, ExitCode, Stdio};
 use anyhow::Result;
 use serde_json::{Value, json};
 
+use crate::harness_ready::receiver_accepts;
 use crate::harness_witness::WITNESS_FILE;
 use crate::perf_budget::{family_members, read_family};
 
@@ -115,6 +117,13 @@ fn refusal(linux: bool, grpc_port: u16, http_port: u16, holds_log: bool) -> Opti
     } else {
         None
     }
+}
+
+/// A cycle port that accepts before the cycle has started anything is held
+/// by another program: the engine could not bind it and the feed would reach
+/// the holder.
+fn taken_port_refusal(grpc_accepting: bool, http_accepting: bool) -> Option<&'static str> {
+    (grpc_accepting || http_accepting).then_some("port-taken")
 }
 
 fn holds_log_family(data_dir: &Path) -> bool {
@@ -229,6 +238,14 @@ fn drive(root: &Path, options: &Options) -> Result<Outcome, &'static str> {
         holds_log_family(&data_dir),
     );
     if let Some(reason) = refused {
+        return Err(reason);
+    }
+    // Probed only once the shared ports are refused, so 4317 and 4318 are
+    // never touched.
+    if let Some(reason) = taken_port_refusal(
+        receiver_accepts(options.grpc_port),
+        receiver_accepts(options.http_port),
+    ) {
         return Err(reason);
     }
     let home = std::env::var_os("HOME")
@@ -394,6 +411,30 @@ mod tests {
         assert_eq!(refusal(true, 14317, 14318, false), None);
         assert!(!SHARED_PORTS.contains(&DEFAULT_GRPC_PORT));
         assert!(!SHARED_PORTS.contains(&DEFAULT_HTTP_PORT));
+    }
+
+    #[test]
+    fn a_port_that_accepts_in_either_place_is_refused_as_taken() {
+        for (grpc, http) in [(true, false), (false, true), (true, true)] {
+            assert_eq!(
+                taken_port_refusal(grpc, http),
+                Some("port-taken"),
+                "{grpc} / {http}"
+            );
+        }
+        assert_eq!(taken_port_refusal(false, false), None);
+    }
+
+    #[test]
+    fn a_listener_on_a_cycle_port_is_read_as_taken_and_a_closed_one_is_not() {
+        let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).expect("bind");
+        let port = listener.local_addr().expect("addr").port();
+        assert_eq!(
+            taken_port_refusal(receiver_accepts(port), false),
+            Some("port-taken")
+        );
+        drop(listener);
+        assert_eq!(taken_port_refusal(false, receiver_accepts(port)), None);
     }
 
     #[test]
