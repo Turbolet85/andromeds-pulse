@@ -81,6 +81,7 @@ reqwest.workspace = true
 arrow.workspace = true
 assert_fs.workspace = true
 pulldown-cmark.workspace = true
+test-support = { path = "../crates/test-support" }
 
 [features]
 default = []

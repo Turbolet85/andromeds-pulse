@@ -774,8 +774,11 @@ mod tests {
 
     #[test]
     fn receiver_probe_tells_a_listening_loopback_port_from_a_closed_one() {
-        let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).expect("bind");
-        let port = listener.local_addr().expect("addr").port();
+        // The claim outlives the listener, so no other test of the workspace
+        // takes the port between the drop and the refusing read.
+        let claim = test_support::ports::claim_port();
+        let port = claim.number;
+        let listener = std::net::TcpListener::bind(("127.0.0.1", port)).expect("bind");
         assert!(receiver_accepts(port));
         assert_eq!(Receiver::read(true, true).label(), "accepting");
         drop(listener);

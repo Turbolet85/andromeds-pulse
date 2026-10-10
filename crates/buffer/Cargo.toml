@@ -50,3 +50,4 @@ tokio = { workspace = true, features = ["test-util"] }
 # Chunk #77 — Drain LogHub-style golden corpus regression harness reads
 # expected.json fixtures via serde_json (test-only; no production link).
 serde_json.workspace = true
+test-support = { path = "../test-support" }

@@ -19,10 +19,9 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest;
 use ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient;
-use ingest::grpc::proto::opentelemetry::proto::common::v1::{AnyValue, KeyValue, any_value};
-use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
-use ingest::grpc::proto::opentelemetry::proto::trace::v1::{ResourceSpans, ScopeSpans, Span};
 use serde_json::Value;
+use test_support::otlp::{resource, span};
+use test_support::ports::{PortClaim, claim_port};
 
 const ENGINE: &str = env!("CARGO_BIN_EXE_andromeda-pulse-engine");
 const PASSPHRASE_CANARY: &str = "console-engine-passphrase-canary-4be81d";
@@ -31,56 +30,6 @@ const TICK_WAIT: Duration = Duration::from_secs(60);
 const END_WAIT: Duration = Duration::from_secs(30);
 const MAX_TICK_GAP: Duration = Duration::from_secs(45);
 const SPAN_COUNT: usize = 5;
-
-/// A loopback port claimed for one arm. It lies below the kernel's ephemeral
-/// range, so no bind to port 0 is ever handed it, and an advisory lock under
-/// `target/` holds it against every other test of this workspace for as long
-/// as the claim lives. A port bound to 0, read and released is taken again by
-/// another test often enough to fail a run when many start at once.
-struct PortClaim {
-    number: u16,
-    _lock: std::fs::File,
-}
-
-const CLAIMED_PORTS: std::ops::Range<u16> = 20_000..32_000;
-/// The harness's own registered ports inside that range.
-const HARNESS_PORTS: [u16; 2] = [24_317, 24_318];
-
-fn claim_port() -> PortClaim {
-    use std::hash::{BuildHasher, Hasher};
-    let claims = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .expect("the package sits under the workspace root")
-        .join("target")
-        .join("test-ports");
-    std::fs::create_dir_all(&claims).expect("the port claims directory");
-    let span = u64::from(CLAIMED_PORTS.end - CLAIMED_PORTS.start);
-    for _ in 0..10_000 {
-        let word = std::collections::hash_map::RandomState::new()
-            .build_hasher()
-            .finish();
-        let offset = u16::try_from(word % span).expect("an offset inside the range");
-        let number = CLAIMED_PORTS.start + offset;
-        if HARNESS_PORTS.contains(&number) {
-            continue;
-        }
-        let Ok(lock) = std::fs::OpenOptions::new()
-            .create(true)
-            .truncate(false)
-            .write(true)
-            .open(claims.join(number.to_string()))
-        else {
-            continue;
-        };
-        if lock.try_lock().is_ok() && TcpListener::bind(("127.0.0.1", number)).is_ok() {
-            return PortClaim {
-                number,
-                _lock: lock,
-            };
-        }
-    }
-    panic!("no loopback port could be claimed")
-}
 
 fn loopback(port: u16) -> SocketAddr {
     SocketAddr::from(([127, 0, 0, 1], port))
@@ -280,38 +229,14 @@ fn now_ns() -> u64 {
         .as_nanos() as u64
 }
 
+// The engine's retention sweep reads a record's stamp against the wall clock,
+// so spans sent to a running engine are stamped now.
 fn spans_request(service: &str) -> ExportTraceServiceRequest {
     let start = now_ns();
-    let spans = (0..SPAN_COUNT)
-        .map(|i| Span {
-            trace_id: vec![3u8; 16],
-            span_id: (i as u64 + 1).to_le_bytes().to_vec(),
-            name: "console-engine-span".to_string(),
-            kind: 0,
-            start_time_unix_nano: start,
-            end_time_unix_nano: start + 1_000_000,
-            ..Default::default()
-        })
-        .collect();
-    ExportTraceServiceRequest {
-        resource_spans: vec![ResourceSpans {
-            resource: Some(Resource {
-                attributes: vec![KeyValue {
-                    key: "service.name".into(),
-                    value: Some(AnyValue {
-                        value: Some(any_value::Value::StringValue(service.into())),
-                    }),
-                }],
-                dropped_attributes_count: 0,
-            }),
-            scope_spans: vec![ScopeSpans {
-                scope: None,
-                spans,
-                schema_url: String::new(),
-            }],
-            schema_url: String::new(),
-        }],
-    }
+    resource()
+        .service(service)
+        .spans((0..SPAN_COUNT).map(|_| span().name("console-engine-span").at(start)))
+        .trace_request()
 }
 
 fn timestamp(line: &Value) -> chrono::DateTime<chrono::Utc> {

@@ -285,8 +285,8 @@ mod tests {
     use super::*;
     use crate::schema::create_schema;
     use ingest::channel::build_channel;
-    use ingest::grpc::proto::opentelemetry::proto::trace::v1::{ResourceSpans, ScopeSpans, Span};
     use ingest::observer::NoopSpanObserver;
+    use test_support::otlp::{gauge, log_record, metric_point, resource, span, span_event};
 
     fn noop_observer() -> Arc<dyn SpanObserver> {
         Arc::new(NoopSpanObserver)
@@ -306,97 +306,36 @@ mod tests {
         ))
     }
 
-    fn metrics_batch_with_credential_name() -> Batch {
-        use ingest::grpc::proto::opentelemetry::proto::common::v1::{
-            AnyValue, KeyValue, any_value,
-        };
-        use ingest::grpc::proto::opentelemetry::proto::metrics::v1::{
-            Gauge, Metric, NumberDataPoint, ResourceMetrics, ScopeMetrics, metric,
-            number_data_point,
-        };
-        use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
+    const CREDENTIAL_NAME: &str = "sk_live_51NotARealKeyOnlyForPulseTests00"; // gitleaks:allow
 
-        Batch::Metrics(vec![ResourceMetrics {
-            resource: Some(Resource {
-                attributes: vec![KeyValue {
-                    key: "service.name".into(),
-                    value: Some(AnyValue {
-                        value: Some(any_value::Value::StringValue("svc-fold".into())),
-                    }),
-                }],
-                dropped_attributes_count: 0,
-            }),
-            scope_metrics: vec![ScopeMetrics {
-                scope: None,
-                metrics: vec![Metric {
-                    // gitleaks:allow
-                    name: "sk_live_51NotARealKeyOnlyForPulseTests00".into(),
-                    description: String::new(),
-                    unit: String::new(),
-                    metadata: Vec::new(),
-                    data: Some(metric::Data::Gauge(Gauge {
-                        data_points: vec![NumberDataPoint {
-                            attributes: Vec::new(),
-                            start_time_unix_nano: 0,
-                            time_unix_nano: 1_700_000_000_000_000_000,
-                            exemplars: Vec::new(),
-                            flags: 0,
-                            value: Some(number_data_point::Value::AsInt(1)),
-                        }],
-                    })),
-                }],
-                schema_url: String::new(),
-            }],
-            schema_url: String::new(),
-        }])
+    fn metrics_batch_with_credential_name() -> Batch {
+        Batch::Metrics(
+            resource()
+                .service("svc-fold")
+                .gauge(gauge().name(CREDENTIAL_NAME).point(metric_point()))
+                .resource_metrics(),
+        )
     }
 
     fn span_batch(trace_id: u8, span_id: u8) -> Batch {
-        Batch::Spans(vec![ResourceSpans {
-            resource: None,
-            scope_spans: vec![ScopeSpans {
-                scope: None,
-                spans: vec![Span {
-                    trace_id: vec![trace_id; 16],
-                    span_id: vec![span_id; 8],
-                    name: "x".into(),
-                    start_time_unix_nano: 1_700_000_000_000_000_000,
-                    end_time_unix_nano: 1_700_000_000_000_000_001,
-                    ..Default::default()
-                }],
-                schema_url: String::new(),
-            }],
-            schema_url: String::new(),
-        }])
+        Batch::Spans(
+            resource()
+                .span(span().trace_id([trace_id; 16]).span_id([span_id; 8]))
+                .resource_spans(),
+        )
     }
 
     fn span_batch_with_events(trace_id: u8, span_id: u8, event_count: usize) -> Batch {
-        use ingest::grpc::proto::opentelemetry::proto::trace::v1::span;
-        let events: Vec<span::Event> = (0..event_count)
-            .map(|i| span::Event {
-                time_unix_nano: 1_700_000_000_000_000_000 + i as u64,
-                name: format!("evt-{i}"),
-                attributes: Vec::new(),
-                dropped_attributes_count: 0,
-            })
-            .collect();
-        Batch::Spans(vec![ResourceSpans {
-            resource: None,
-            scope_spans: vec![ScopeSpans {
-                scope: None,
-                spans: vec![Span {
-                    trace_id: vec![trace_id; 16],
-                    span_id: vec![span_id; 8],
-                    name: "parent".into(),
-                    start_time_unix_nano: 1_700_000_000_000_000_000,
-                    end_time_unix_nano: 1_700_000_000_000_000_010,
-                    events,
-                    ..Default::default()
-                }],
-                schema_url: String::new(),
-            }],
-            schema_url: String::new(),
-        }])
+        Batch::Spans(
+            resource()
+                .span(
+                    span()
+                        .trace_id([trace_id; 16])
+                        .span_id([span_id; 8])
+                        .events((0..event_count).map(|_| span_event())),
+                )
+                .resource_spans(),
+        )
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
@@ -683,16 +622,55 @@ mod tests {
         );
     }
 
+    // What the factories leave unset must cross the write boundary unmasked: a
+    // default that tripped a scrubber arm would redact in every test that
+    // takes it. `dispatch_folds_redactions_after_a_successful_append` is the
+    // other side, where a set canary still reads one redaction.
+    #[tokio::test]
+    async fn a_default_built_batch_of_every_kind_lands_whole_with_no_redaction() {
+        let conn = fresh_conn_with_schema();
+        let state = Arc::new(BufferState::new());
+        let senders = Arc::new(broadcast::create());
+
+        let telemetry = resource()
+            .spans([span().event(span_event()).event(span_event()), span()])
+            .gauge(gauge().points([metric_point(), metric_point()]))
+            .log_records([log_record(), log_record(), log_record()]);
+        let rows_sent = 2 + 2 + 3;
+
+        let (sender, receiver) = build_channel();
+        for batch in [
+            Batch::Spans(telemetry.resource_spans()),
+            Batch::Metrics(telemetry.resource_metrics()),
+            Batch::Logs(telemetry.resource_logs()),
+        ] {
+            sender.try_send(batch).expect("send within capacity");
+        }
+
+        let handle = tokio::spawn(run_consumer(
+            receiver,
+            Arc::clone(&conn),
+            Arc::clone(&state),
+            Arc::clone(&senders),
+            noop_observer(),
+            None,
+            None,
+        ));
+        drop(sender);
+        handle.await.expect("consumer must complete cleanly");
+
+        let snap = state.snapshot();
+        assert_eq!(snap.rows_ingested, rows_sent, "every row sent persisted");
+        assert_eq!(snap.redactions_applied, 0, "no default is masked");
+        assert_eq!(snap.append_rejections, 0, "no default batch is rejected");
+    }
+
     // chunk #66: end-to-end integration of the fingerprint observer hook
     // through the consumer's spawn_blocking dispatch. Verifies the observer
     // receives one callback per exception-bearing span event.
     #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
     async fn run_consumer_invokes_fingerprint_observer_on_exception_span_events() {
         use crate::fingerprint::{ExceptionFingerprint, FingerprintObserver};
-        use ingest::grpc::proto::opentelemetry::proto::common::v1::{
-            AnyValue, KeyValue, any_value,
-        };
-        use ingest::grpc::proto::opentelemetry::proto::trace::v1::span;
 
         struct CapturingObs {
             captured: Arc<Mutex<Vec<(ExceptionFingerprint, String, i64)>>>,
@@ -717,52 +695,22 @@ mod tests {
             captured: Arc::clone(&captured),
         });
 
-        fn str_attr(key: &str, value: &str) -> KeyValue {
-            KeyValue {
-                key: key.into(),
-                value: Some(AnyValue {
-                    value: Some(any_value::Value::StringValue(value.into())),
-                }),
-            }
-        }
+        let event_with_exception = span_event()
+            .name("exception")
+            .at(1_700_000_000_000_000_001)
+            .attribute("exception.type", "java.lang.RuntimeException")
+            .attribute("exception.message", "boom")
+            .attribute(
+                "exception.stacktrace",
+                "    at com.example.Foo.bar(Foo.java:42)",
+            );
+        let plain_event = span_event().name("plain");
 
-        let event_with_exception = span::Event {
-            time_unix_nano: 1_700_000_000_000_000_001,
-            name: "exception".into(),
-            attributes: vec![
-                str_attr("exception.type", "java.lang.RuntimeException"),
-                str_attr("exception.message", "boom"),
-                str_attr(
-                    "exception.stacktrace",
-                    "    at com.example.Foo.bar(Foo.java:42)",
-                ),
-            ],
-            dropped_attributes_count: 0,
-        };
-        let plain_event = span::Event {
-            time_unix_nano: 1_700_000_000_000_000_002,
-            name: "plain".into(),
-            attributes: vec![],
-            dropped_attributes_count: 0,
-        };
-
-        let batch = Batch::Spans(vec![ResourceSpans {
-            resource: None,
-            scope_spans: vec![ScopeSpans {
-                scope: None,
-                spans: vec![Span {
-                    trace_id: vec![20u8; 16],
-                    span_id: vec![20u8; 8],
-                    name: "parent".into(),
-                    start_time_unix_nano: 1_700_000_000_000_000_000,
-                    end_time_unix_nano: 1_700_000_000_000_000_010,
-                    events: vec![event_with_exception, plain_event],
-                    ..Default::default()
-                }],
-                schema_url: String::new(),
-            }],
-            schema_url: String::new(),
-        }]);
+        let batch = Batch::Spans(
+            resource()
+                .span(span().event(event_with_exception).event(plain_event))
+                .resource_spans(),
+        );
 
         let conn = fresh_conn_with_schema();
         let state = Arc::new(BufferState::new());

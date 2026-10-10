@@ -2,7 +2,7 @@
 //! process.
 //!
 //! Four arms call `engine_boot::start` on their own `TempDir` data dir, with
-//! the fake key backend and two ports they picked: the composition (receivers,
+//! the fake key backend and two ports they claimed: the composition (receivers,
 //! buffer, the three span observers), the two interpretation seats, and the
 //! program label. Each arm boots a different program and seat pair, so its one
 //! boot record is told apart in the process-wide capture under any runner.
@@ -15,7 +15,7 @@
 //! pid file holding its own pid).
 
 use std::collections::BTreeMap;
-use std::net::{SocketAddr, TcpListener};
+use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitStatus, Stdio};
 use std::sync::{Arc, Mutex, OnceLock};
@@ -25,15 +25,14 @@ use corpus::contract::FakeKeychainBackend;
 use ingest::contract::OtlpPort;
 use ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest;
 use ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient;
-use ingest::grpc::proto::opentelemetry::proto::common::v1::{AnyValue, KeyValue, any_value};
-use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
-use ingest::grpc::proto::opentelemetry::proto::trace::v1::{ResourceSpans, ScopeSpans, Span};
 use interpretation::contract::ModelTier;
 use pulse_app::deterministic_inference::DeterministicInferenceRunner;
 use pulse_app::engine_boot::{
     self, EngineConfig, EngineHandles, EngineInputs, InterpretationSeat, Program, SeatKind,
 };
 use serde_json::Value;
+use test_support::otlp::{resource, span};
+use test_support::ports::{PortClaim, claim_port};
 use triage::contract::{
     CueKind, CueScope, Digest, DigestCueRef, DigestKind, DigestLwwMode, PriorityTier,
     UnknownHardwareProfile,
@@ -125,14 +124,14 @@ struct Booted {
     engine: EngineHandles,
     grpc: SocketAddr,
     http: SocketAddr,
+    // Held for the arm's life: the engine binds these numbers after `boot`
+    // has returned.
+    _ports: [PortClaim; 2],
     _dir: tempfile::TempDir,
 }
 
-/// A port nothing holds: bound on `127.0.0.1:0`, read, released.
-fn pick_port() -> OtlpPort {
-    let listener = TcpListener::bind("127.0.0.1:0").expect("bind an ephemeral loopback port");
-    let port = listener.local_addr().expect("local addr").port();
-    OtlpPort::try_from(port).expect("an ephemeral port is a valid receiver port")
+fn receiver_port(claim: &PortClaim) -> OtlpPort {
+    OtlpPort::try_from(claim.number).expect("a claimed port is a valid receiver port")
 }
 
 fn canned_seat(kind: SeatKind) -> InterpretationSeat {
@@ -144,8 +143,8 @@ fn canned_seat(kind: SeatKind) -> InterpretationSeat {
 
 fn boot(program: Program, interpretation: Option<InterpretationSeat>) -> Booted {
     let dir = tempfile::tempdir().expect("tempdir");
-    let grpc = pick_port();
-    let http = pick_port();
+    let ports = [claim_port(), claim_port()];
+    let (grpc, http) = (receiver_port(&ports[0]), receiver_port(&ports[1]));
     let engine = engine_boot::start(
         EngineConfig {
             data_dir: dir.path().to_path_buf(),
@@ -164,6 +163,7 @@ fn boot(program: Program, interpretation: Option<InterpretationSeat>) -> Booted 
         engine,
         grpc: SocketAddr::from(([127, 0, 0, 1], grpc.value())),
         http: SocketAddr::from(([127, 0, 0, 1], http.value())),
+        _ports: ports,
         _dir: dir,
     }
 }
@@ -202,35 +202,13 @@ fn now_ns() -> u64 {
         .as_nanos() as u64
 }
 
+// The engine's retention sweep reads a record's stamp against the wall clock,
+// so a span sent to a running engine is stamped now.
 fn one_span_request(service: &str) -> ExportTraceServiceRequest {
-    let start = now_ns();
-    ExportTraceServiceRequest {
-        resource_spans: vec![ResourceSpans {
-            resource: Some(Resource {
-                attributes: vec![KeyValue {
-                    key: "service.name".into(),
-                    value: Some(AnyValue {
-                        value: Some(any_value::Value::StringValue(service.into())),
-                    }),
-                }],
-                dropped_attributes_count: 0,
-            }),
-            scope_spans: vec![ScopeSpans {
-                scope: None,
-                spans: vec![Span {
-                    trace_id: vec![7u8; 16],
-                    span_id: vec![9u8; 8],
-                    name: "engine-boot-span".to_string(),
-                    kind: 0,
-                    start_time_unix_nano: start,
-                    end_time_unix_nano: start + 1_000_000,
-                    ..Default::default()
-                }],
-                schema_url: String::new(),
-            }],
-            schema_url: String::new(),
-        }],
-    }
+    resource()
+        .service(service)
+        .span(span().name("engine-boot-span").at(now_ns()))
+        .trace_request()
 }
 
 /// The shape of `digest_with_cue()` in `integration_deterministic_l4_mode.rs`,

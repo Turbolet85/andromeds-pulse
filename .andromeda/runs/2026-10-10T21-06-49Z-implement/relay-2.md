@@ -1,0 +1,3 @@
+The operator's directive, given in the implement session after its P4 report, 2026-10-10, verbatim.
+
+"Operator: one correction of the plan between runs, made by you as my hands and recorded as the operator edit in evidence: entry 4 git diff takes --src-prefix=a/ --dst-prefix=b/ so it reads the same on any host; the plan lines that restate the command follow. Re-fire entry 4. If it reads green, go on to the operator pass, entries 23 to 26 in the plan order: hygiene, the pre-CI commit, the pre-push check, the merge-base probe, the push, the CI read. If the boot job, the cycle step or a test is red on the runner, stop and report what the job kept; fix nothing on top. Start no skill - the wrap is mine to call."

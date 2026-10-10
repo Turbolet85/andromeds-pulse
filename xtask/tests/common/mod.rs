@@ -13,6 +13,8 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
 use std::time::{Duration, Instant};
 
+use test_support::ports::{PortClaim, claim_port};
+
 pub const XTASK: &str = env!("CARGO_BIN_EXE_xtask");
 pub const ENGINE_NAME: &str = "andromeda-pulse-engine";
 const SCRIPT: &str = "scripts/agent-run.sh";
@@ -63,53 +65,11 @@ fn require_proc() {
     );
 }
 
-/// A loopback port claimed for one run. It lies below the kernel's ephemeral
-/// range, so no bind to port 0 is ever handed it, and an advisory lock under
-/// `target/` holds it against every other test of this workspace for as long
-/// as the claim lives. A port bound to 0, read and released is taken again by
-/// another test often enough to fail a run when many start at once.
-pub struct PortClaim {
-    pub number: u16,
-    _lock: std::fs::File,
-}
-
-const CLAIMED_PORTS: std::ops::Range<u16> = 20_000..32_000;
-/// The harness's own registered ports inside that range.
-const HARNESS_PORTS: [u16; 2] = [24_317, 24_318];
-
 fn random_word() -> u64 {
     use std::hash::{BuildHasher, Hasher};
     std::collections::hash_map::RandomState::new()
         .build_hasher()
         .finish()
-}
-
-pub fn claim_port() -> PortClaim {
-    let claims = repo_root().join("target").join("test-ports");
-    std::fs::create_dir_all(&claims).expect("the port claims directory");
-    let span = u64::from(CLAIMED_PORTS.end - CLAIMED_PORTS.start);
-    for _ in 0..10_000 {
-        let offset = u16::try_from(random_word() % span).expect("an offset inside the range");
-        let number = CLAIMED_PORTS.start + offset;
-        if HARNESS_PORTS.contains(&number) {
-            continue;
-        }
-        let Ok(lock) = std::fs::OpenOptions::new()
-            .create(true)
-            .truncate(false)
-            .write(true)
-            .open(claims.join(number.to_string()))
-        else {
-            continue;
-        };
-        if lock.try_lock().is_ok() && TcpListener::bind(("127.0.0.1", number)).is_ok() {
-            return PortClaim {
-                number,
-                _lock: lock,
-            };
-        }
-    }
-    panic!("no loopback port could be claimed")
 }
 
 pub fn listen(port: u16) -> TcpListener {

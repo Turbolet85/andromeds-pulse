@@ -32,6 +32,8 @@ mod self_verify;
 mod smoke;
 mod source_lint;
 mod staged_gate;
+#[cfg(test)]
+mod test_support_edges;
 mod webview_drive;
 
 use std::collections::{BTreeMap, BTreeSet};

@@ -427,8 +427,11 @@ mod tests {
 
     #[test]
     fn a_listener_on_a_cycle_port_is_read_as_taken_and_a_closed_one_is_not() {
-        let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).expect("bind");
-        let port = listener.local_addr().expect("addr").port();
+        // The claim outlives the listener, so no other test of the workspace
+        // takes the port between the drop and the closed read.
+        let claim = test_support::ports::claim_port();
+        let port = claim.number;
+        let listener = std::net::TcpListener::bind(("127.0.0.1", port)).expect("bind");
         assert_eq!(
             taken_port_refusal(receiver_accepts(port), false),
             Some("port-taken")
