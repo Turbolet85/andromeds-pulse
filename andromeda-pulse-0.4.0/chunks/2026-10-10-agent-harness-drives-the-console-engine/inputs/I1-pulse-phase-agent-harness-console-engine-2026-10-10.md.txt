@@ -1,0 +1,27 @@
+# Phase directive — Pulse 0.4.0, eleventh chunk: `Agent harness drives the console engine` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines come from this pair's own reads; re-derive what you rely on.
+Nothing here is this chunk's design.
+
+1. **The entry carries more freight than any before it** — its own line and five `CARRY:` blocks pinned over the last
+   four wraps. Before planning, list every carried reading in one table: what it is, where it was measured, and
+   whether this chunk BUILDS it for the console engine, RETIRES it (the master sentence amended at the wrap, with the
+   reason), or hands it to a named later entry because its subject does not exist yet. No fourth column.
+2. **Two programs, one harness, until Epoch 2.** measured at the last chunk: the window's boot job launches
+   `target/release/pulse-app` by path and stays green on eight boots a run. This chunk aims the verbs at
+   `andromeda-pulse-engine`; say how the same five verbs serve both programs meanwhile, or which verbs stay the
+   window's until `Window's gates retired`, and what forbids a verb from quietly grading the wrong program.
+3. **The checks grade a log that can fail them.** The heartbeat-gap and budget arms left `ci-gates` at an earlier
+   chunk because a boot of six seconds could never fail them. A check built here over the console engine's log is
+   shown red on a constructed log before it is trusted green — each arm, by a pin.
+4. **The console program is ended by signal only today**, its pid file and a `stop` being `One place on a node`'s.
+   If a verb needs to find or end the engine, say at P4 what it uses now and what that entry replaces; do not build
+   that entry's subject here.
+5. **If the freight does not fit one chunk, propose the cut at P4** — a first chunk that ends with verbs that run and
+   are gated, and what the second holds. The route is mine to change at a wrap.
+6. **Boundaries.** A listening socket other than the two loopback receivers, a new place on disk, a new credential,
+   anything reachable from another host, or a new command word of the engine halts for my word; ports 4317 / 4318 are
+   shared on this host — the legs use other ports.
+7. **P-086 is carried by six entries;** show at P5 what of its acceptance this chunk shows and claim nothing that was
+   not shown. The plan lists the merge-base probe directly before its push entry.
+8. **At P5** say what `planlint` check 4 listed, print the plan card and stop for my `yes`.

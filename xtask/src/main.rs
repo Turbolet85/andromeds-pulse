@@ -10,6 +10,8 @@ mod bundle_format;
 mod capability_record;
 mod ci_gates;
 mod discovery;
+mod engine_cycle;
+mod engine_log;
 mod external_resolve;
 mod gap_resume;
 mod harness_ready;
@@ -52,13 +54,47 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Cmd {
-    #[command(name = "harness:status")]
-    HarnessStatus,
+    #[command(
+        name = "harness:status",
+        about = "The real-process status verdict from the pid file, that pid's liveness and the log family's last write: one JSON verdict (running-healthy, stale, wrong-program, not-running, cannot-evaluate) with the pid, the exit record when not healthy, the program the log's last app.boot.engine record names (window, console, unknown), the newest log member's name and its age. With --program the verdict is wrong-program when the log records another program or none; not-running and cannot-evaluate stand whatever was asked. Exit 0 running-healthy, 1 stale, wrong-program or not-running, 2 cannot-evaluate"
+    )]
+    HarnessStatus {
+        #[arg(long, value_enum, value_name = "PROGRAM")]
+        program: Option<harness_status::Program>,
+    },
     #[command(
         name = "harness:ready",
-        about = "The boot verb's readiness verdict: the harness:status verdict reads running-healthy AND both OTLP receivers accept a TCP connection on 127.0.0.1 at the ports resolved from ANDROMEDA_PULSE_OTLP_GRPC_PORT / _HTTP_PORT (defaults 4317 / 4318), each attempt bounded at one second. One JSON verdict (ready, not-ready, ended, cannot-evaluate) with the pid, the exit record when the app ended and one label per receiver (accepting, refusing). Exit 0 ready, 1 not-ready or ended, 2 cannot-evaluate"
+        about = "The boot verb's readiness verdict: the harness:status verdict reads running-healthy AND both OTLP receivers accept a TCP connection on 127.0.0.1 at the ports resolved from ANDROMEDA_PULSE_OTLP_GRPC_PORT / _HTTP_PORT (defaults 4317 / 4318), each attempt bounded at one second. One JSON verdict (ready, not-ready, wrong-program, ended, cannot-evaluate) with the pid, the exit record when the app ended, the program the log records (window, console, unknown) and one label per receiver (accepting, refusing). With --program the verdict is wrong-program when the log records another program or none. Exit 0 ready, 1 not-ready, wrong-program or ended, 2 cannot-evaluate"
     )]
-    HarnessReady,
+    HarnessReady {
+        #[arg(long, value_enum, value_name = "PROGRAM")]
+        program: Option<harness_status::Program>,
+    },
+    #[command(
+        name = "harness:engine-settled",
+        about = "Wait, bounded, until the console engine's log family holds what check:engine-log reads with the engine alive: an app.boot.engine record reading console, at least two records of each of ingest.tick, buffer.tick and connection.tick, and one metric.buffer.memory_bytes sample with a non-zero value (settled); or the pid is gone (ended); or the boot record reads window (wrong-program); or the timeout passes (not-settled). One JSON verdict with the pid, the program, the three tick counts and the count of populated memory samples; writes no file. Exit 0 settled, 1 ended, wrong-program or not-settled, 2 cannot-evaluate (no pid, or a timeout below 20 s, which could never hold a second tick)"
+    )]
+    HarnessEngineSettled {
+        #[arg(long, value_name = "SECONDS", default_value_t = 60)]
+        timeout_seconds: u64,
+    },
+    #[command(
+        name = "harness:engine-cycle",
+        about = "One cycle of the harness verbs on the console engine, on a data dir and ports of its own: build the injector, agent-run.sh boot engine, a healthy feed over OTLP (inject_demo --sustained --error-pct=0, by path), harness:engine-settled, the injector ended, agent-run.sh status engine, agent-run.sh cleanup, check:engine-log. Cleanup runs whatever the verbs before it returned; after a failed boot the two verbs between are skipped. Every child gets a cleared environment plus a fixed set (HOME, PATH, the data dir, the two ports, a 60 s retention, a corpus passphrase made for the run, and the exit-witness variable only when this verb's own environment holds it). One JSON verdict (pass, fail, cannot-evaluate) with each verb's exit (null when skipped), the count of ERROR records in the log family and whether a witness file exists (absent, present); the children's output goes to stderr. Exit 0 pass (five exits 0, no ERROR record, no witness file), 1 fail, 2 cannot-evaluate (not Linux, port 4317 or 4318, a data dir that already holds a log family, or a verb that could not evaluate)"
+    )]
+    HarnessEngineCycle {
+        #[arg(long, value_name = "DIR")]
+        data_dir: Option<PathBuf>,
+        #[arg(long, value_name = "N", default_value_t = engine_cycle::DEFAULT_GRPC_PORT)]
+        grpc_port: u16,
+        #[arg(long, value_name = "N", default_value_t = engine_cycle::DEFAULT_HTTP_PORT)]
+        http_port: u16,
+    },
+    #[command(
+        name = "check:engine-log",
+        about = "Grade the console engine's log family under the resolved data dir after the run has ended, one line per arm: family (a member exists and holds a record), program (exactly one app.boot.engine record, reading console), panic (no app.panic.fatal record at ERROR), heartbeat-gap (no gap over 45000 ms between two consecutive records of ingest.tick, buffer.tick or connection.tick; viz.tick and plugins.tick are not graded), progress (no buffer.consumer.stalled record that is not a recovery, and a largest rows_ingested above 0), process-end (exactly one app.exit record, the last of the family; with none, unloggable-end when the harness's exit record reads signal 9, else end-not-recorded), budget (metric.buffer.memory_bytes max at most 512000000 B over at least one non-zero sample; frame and snapshot are not graded). The last line is engine-log: PASS, FAIL or cannot-evaluate. Lines hold labels, counts, a member's file name and a line number, never a record's text, a path or an environment value. Exit 0 PASS, 1 FAIL on any arm, 2 cannot-evaluate (no FAIL and an arm that cannot be graded: no log family, no or several boot records, fewer than two ticks of a target, no buffer.tick)"
+    )]
+    CheckEngineLog,
     #[command(
         name = "harness:settled",
         about = "Wait, bounded, until the app's log family holds an app.boot.window.navigation record for each of its four windows with the app alive (settled), or the app's pid is gone (ended), or the timeout passes (not-settled). One JSON verdict with the pid, the exit record, whether the log holds an app.exit record, the count of settled windows, whether the display and the session bus are reachable (labels only, never a variable's value), and what the exit witness recorded of the app's end (one label: unset, unreadable, loaded, exit-call, runtime-exit, no-record); the same object is written to logs/harness-settled.json under the data dir. Exit 0 settled, 1 ended or not-settled, 2 cannot-evaluate (no pid, or a timeout below 8 s, which could never read settled)"
@@ -261,8 +297,19 @@ enum Cmd {
 async fn main() -> ExitCode {
     let cli = Cli::parse();
     let result: Result<ExitCode> = match cli.command {
-        Cmd::HarnessStatus => harness_status::run(),
-        Cmd::HarnessReady => harness_ready::run_ready(),
+        Cmd::HarnessStatus { program } => harness_status::run(program),
+        Cmd::HarnessReady { program } => harness_ready::run_ready(program),
+        Cmd::HarnessEngineSettled { timeout_seconds } => engine_log::run_settled(timeout_seconds),
+        Cmd::HarnessEngineCycle {
+            data_dir,
+            grpc_port,
+            http_port,
+        } => engine_cycle::run(&engine_cycle::Options {
+            data_dir,
+            grpc_port,
+            http_port,
+        }),
+        Cmd::CheckEngineLog => Ok(engine_log::run_check()),
         Cmd::HarnessSettled { timeout_seconds } => harness_ready::run_settled(timeout_seconds),
         Cmd::HarnessBootSeries { count } => harness_series::run(count).await,
         Cmd::Test { extra } => run_cargo_nextest(extra).await,

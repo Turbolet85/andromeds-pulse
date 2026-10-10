@@ -363,12 +363,31 @@ jobs:
       - name: cargo xtask ci-gates
         run: cargo xtask ci-gates
 
+      # One cycle of the harness verbs on the console engine, on a data dir
+      # and ports of its own: boot engine, a healthy feed over OTLP, the
+      # settle read, status engine, cleanup, then the check over the engine's
+      # own log (panic, heartbeat gap, progress, process end, memory budget).
+      # It runs whatever the steps before it returned.
+      - name: Console engine cycle
+        if: always()
+        run: cargo xtask harness:engine-cycle --data-dir "$RUNNER_TEMP/andromeda-pulse-engine-data"
+
       - name: Upload boot logs artifact
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: logs-boot-${{ runner.os }}
           path: ${{ env.ANDROMEDA_PULSE_DATA_DIR }}/logs/
+          if-no-files-found: error
+          retention-days: 14
+
+      # The console engine's own log family, as the cycle above left it.
+      - name: Upload engine logs artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: logs-engine-${{ runner.os }}
+          path: ${{ runner.temp }}/andromeda-pulse-engine-data/logs/
           if-no-files-found: error
           retention-days: 14
 

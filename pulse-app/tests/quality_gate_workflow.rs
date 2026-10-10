@@ -5,10 +5,11 @@
 //! `continue-on-error` on any step, no artifact download without a producer,
 //! every upload failing its step when it finds no file, every nextest run
 //! failing on an empty selection, the coverage thresholds step failing on a
-//! report that tracks nothing, and the boot job's smoke, exit-witness and
-//! series steps). Same shape as `a11y_perf_workflow.rs`, a file read and a
-//! substring or pattern assertion, with no Tauri runtime and no network; the
-//! thresholds witness also runs the step's own script with `bash` and `awk`.
+//! report that tracks nothing, and the boot job's smoke, exit-witness, series
+//! and console engine cycle steps). Same shape as `a11y_perf_workflow.rs`, a
+//! file read and a substring or pattern assertion, with no Tauri runtime and
+//! no network; the thresholds witness also runs the step's own script with
+//! `bash` and `awk`.
 
 use std::path::PathBuf;
 
@@ -685,6 +686,109 @@ fn ci_workflow_boot_series_carries_no_soft_fail() {
             step.join("\n")
         );
     }
+}
+
+const ENGINE_CYCLE_STEP: &str = "Console engine cycle";
+const ENGINE_UPLOAD_STEP: &str = "Upload engine logs artifact";
+const ENGINE_DATA_DIR: &str = "andromeda-pulse-engine-data";
+
+#[test]
+fn ci_workflow_boot_job_runs_the_console_engine_cycle_after_ci_gates_whatever_they_returned() {
+    let content = read_workflow();
+    let (cycle, step) = boot_job_step(&content, ENGINE_CYCLE_STEP);
+    let (ci_gates, _) = boot_job_step(&content, "cargo xtask ci-gates");
+    assert!(
+        ci_gates < cycle,
+        "the engine cycle MUST sit after `ci-gates` (test-plan §9 Pipeline structure)"
+    );
+    assert!(
+        step.iter().any(|line| line == "if: always()"),
+        "the engine cycle MUST run whatever the steps before it returned (`if: always()`); \
+         step:\n{}",
+        step.join("\n")
+    );
+    let run = format!(
+        r#"run: cargo xtask harness:engine-cycle --data-dir "$RUNNER_TEMP/{ENGINE_DATA_DIR}""#
+    );
+    assert!(
+        step.contains(&run),
+        "the engine cycle MUST be the plain step `{run}`; step:\n{}",
+        step.join("\n")
+    );
+}
+
+// The boot job's own data dir holds the window app's log, which `ci-gates`
+// and the boot logs upload read: the engine's cycle must not write into it.
+#[test]
+fn ci_workflow_console_engine_cycle_runs_on_a_data_dir_of_its_own() {
+    let content = read_workflow();
+    let (_, step) = boot_job_step(&content, ENGINE_CYCLE_STEP);
+    assert!(
+        !step
+            .iter()
+            .any(|line| line.contains("ANDROMEDA_PULSE_DATA_DIR")),
+        "the engine cycle MUST name its data dir by flag, never through the job's own \
+         `ANDROMEDA_PULSE_DATA_DIR`; step:\n{}",
+        step.join("\n")
+    );
+    let export = boot_job_step(&content, "Export ANDROMEDA_PULSE_DATA_DIR").1;
+    assert!(
+        !export.iter().any(|line| line.contains(ENGINE_DATA_DIR)),
+        "the job's own data dir MUST be another directory than `{ENGINE_DATA_DIR}`; step:\n{}",
+        export.join("\n")
+    );
+}
+
+#[test]
+fn ci_workflow_console_engine_cycle_carries_no_soft_fail() {
+    let (_, step) = boot_job_step(&read_workflow(), ENGINE_CYCLE_STEP);
+    for banned in ["continue-on-error", "retry", "|| true"] {
+        assert!(
+            !step.iter().any(|line| line.contains(banned)),
+            "the engine cycle step MUST hold no `{banned}`: a cycle that reads red fails the \
+             job (test-plan §11 Test Anti-Patterns); step:\n{}",
+            step.join("\n")
+        );
+    }
+}
+
+#[test]
+fn ci_workflow_uploads_the_engine_log_family_under_its_own_name() {
+    let content = read_workflow();
+    let (upload, step) = boot_job_step(&content, ENGINE_UPLOAD_STEP);
+    let (cycle, _) = boot_job_step(&content, ENGINE_CYCLE_STEP);
+    assert!(
+        cycle < upload,
+        "the engine log upload MUST sit after the cycle that writes the log"
+    );
+    for wanted in [
+        "if: always()".to_string(),
+        "name: logs-engine-${{ runner.os }}".to_string(),
+        format!("path: ${{{{ runner.temp }}}}/{ENGINE_DATA_DIR}/logs/"),
+        "if-no-files-found: error".to_string(),
+    ] {
+        assert!(
+            step.contains(&wanted),
+            "the engine log upload MUST carry `{wanted}` (obs-plan §9 Telemetry artifact \
+             handling); step:\n{}",
+            step.join("\n")
+        );
+    }
+    assert!(
+        step.iter()
+            .any(|line| line.starts_with("uses: actions/upload-artifact@")),
+        "the engine log upload MUST use the upload action the workflow already pins; step:\n{}",
+        step.join("\n")
+    );
+    let names = uploaded_artifact_names();
+    assert_eq!(
+        names
+            .iter()
+            .filter(|name| name.starts_with("logs-engine-"))
+            .count(),
+        1,
+        "exactly one upload names the engine's log family; uploaded names: {names:?}"
+    );
 }
 
 const COVERAGE_THRESHOLDS_STEP: &str = "Enforce coverage thresholds";

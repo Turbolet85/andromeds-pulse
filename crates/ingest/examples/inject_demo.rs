@@ -39,6 +39,14 @@
 //! delayed operator sees "No traces yet" on a healthy boot; and a 100% firehose
 //! drives cadence into tier1, where the LWW queue drops digests before L4 can
 //! consume them (~4s/inference).
+//!
+//! # Endpoint
+//!
+//! The host is always `127.0.0.1`. The port is the registered gRPC receiver
+//! variable `ANDROMEDA_PULSE_OTLP_GRPC_PORT` when it is set, else 4317, so a
+//! leg that moves the receiver moves the feed with the same variable. A set
+//! value that is no port from 1 to 65535 is a usage error (exit 2) and
+//! nothing is sent.
 
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -288,6 +296,23 @@ fn error_roll(seq: u64) -> u64 {
     (seq.wrapping_mul(2_654_435_761) >> 8) % 100
 }
 
+const ENV_GRPC_PORT: &str = "ANDROMEDA_PULSE_OTLP_GRPC_PORT";
+const DEFAULT_GRPC_PORT: u16 = 4317;
+
+/// The receiver port for this run. A set value that is no port is refused
+/// rather than defaulted: a silent fallback would feed whatever program
+/// holds the default port. The message never repeats the value.
+fn resolve_port(raw: Option<&str>) -> Result<u16, String> {
+    match raw {
+        None => Ok(DEFAULT_GRPC_PORT),
+        Some(text) => text
+            .parse::<u16>()
+            .ok()
+            .filter(|port| *port != 0)
+            .ok_or_else(|| format!("{ENV_GRPC_PORT} must be a port from 1 to 65535")),
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let profile = match parse_profile(std::env::args().skip(1)) {
@@ -302,13 +327,22 @@ async fn main() {
         }
     };
 
+    let raw_port = std::env::var_os(ENV_GRPC_PORT).map(|v| v.to_string_lossy().into_owned());
+    let port = match resolve_port(raw_port.as_deref()) {
+        Ok(p) => p,
+        Err(e) => {
+            eprintln!("inject_demo: {e}");
+            std::process::exit(2);
+        }
+    };
+
     let run_salt = profile.run_salt();
 
-    let endpoint = "http://127.0.0.1:4317";
+    let endpoint = format!("http://127.0.0.1:{port}");
     println!("connecting to {endpoint} ...");
     let mut client = TraceServiceClient::connect(endpoint)
         .await
-        .expect("could not connect — is andromeda-pulse running on :4317?");
+        .expect("could not connect — is andromeda-pulse running on that port?");
     println!(
         "connected. profile={} batches={} PHASE 1: ~5s warmup, then payment degradation.\n",
         profile.label,
@@ -542,5 +576,29 @@ mod tests {
         let p = parse(&["--sustained", "--replay"]).expect("parse");
         assert_eq!(p.label, "sustained");
         assert_eq!(p.replay_salt, Some(REPLAY_RUN_SALT));
+    }
+
+    #[test]
+    fn the_port_is_4317_when_the_variable_is_unset() {
+        assert_eq!(resolve_port(None), Ok(4317));
+    }
+
+    #[test]
+    fn the_port_follows_the_registered_variable() {
+        assert_eq!(resolve_port(Some("24317")), Ok(24317));
+        assert_eq!(resolve_port(Some("1")), Ok(1));
+        assert_eq!(resolve_port(Some("65535")), Ok(65535));
+    }
+
+    #[test]
+    fn a_set_value_that_is_no_port_is_refused_never_defaulted() {
+        for raw in ["", " ", "0", "65536", "grpc", "-1", "24317 ", "\u{fffd}"] {
+            let refused = resolve_port(Some(raw)).expect_err(raw);
+            assert!(refused.contains(ENV_GRPC_PORT), "{refused}");
+            assert!(
+                raw.trim().is_empty() || !refused.contains(raw.trim()),
+                "the message must not repeat the value: {refused}"
+            );
+        }
     }
 }

@@ -10,7 +10,9 @@
 //! what the exit witness recorded of the app's end (`harness_witness`).
 //!
 //! Both follow the `harness:status` shape, with one pretty-JSON verdict
-//! object on stdout and exit 0 / 1 / 2. The three system variables read here
+//! object on stdout and exit 0 / 1 / 2. `harness:ready` carries the status
+//! verdict's program reading: asked for one program over a log that records
+//! the other, it reads `wrong-program`. The three system variables read here
 //! (`DISPLAY`, `DBUS_SESSION_BUS_ADDRESS`, `XDG_RUNTIME_DIR`) are reported as
 //! closed labels only; no value of theirs is printed or written.
 
@@ -24,8 +26,8 @@ use anyhow::Result;
 use serde_json::{Value, json};
 
 use crate::harness_status::{
-    Verdict, classify, end_file, newest_family_member, pid_alive, read_ended, read_pid,
-    resolve_data_dir, resolve_paths,
+    PROGRAM_UNKNOWN, Program, Verdict, classify, end_file, for_program, newest_family_member,
+    pid_alive, read_ended, read_pid, read_program, resolve_data_dir, resolve_paths,
 };
 
 const DEFAULT_GRPC_PORT: u16 = 4317;
@@ -45,7 +47,7 @@ const SETTLE_POLL_INTERVAL: Duration = Duration::from_millis(200);
 const EXIT_RECORD_WAIT: Duration = Duration::from_secs(2);
 const KEPT_VERDICT_FILE: &str = "harness-settled.json";
 
-pub(crate) fn run_ready() -> Result<ExitCode> {
+pub(crate) fn run_ready(asked: Option<Program>) -> Result<ExitCode> {
     let ports = (
         env_port("ANDROMEDA_PULSE_OTLP_GRPC_PORT", DEFAULT_GRPC_PORT),
         env_port("ANDROMEDA_PULSE_OTLP_HTTP_PORT", DEFAULT_HTTP_PORT),
@@ -53,10 +55,15 @@ pub(crate) fn run_ready() -> Result<ExitCode> {
     let payload = match (resolve_paths(), ports) {
         (Some((pidfile, log_base)), (Some(grpc_port), Some(http_port))) => {
             let pid = read_pid(&pidfile);
-            let status = classify(
-                pid,
-                pid.and_then(pid_alive),
-                newest_family_member(&log_base),
+            let program = read_program(&log_base);
+            let status = for_program(
+                classify(
+                    pid,
+                    pid.and_then(pid_alive),
+                    newest_family_member(&log_base),
+                ),
+                asked,
+                program,
             );
             let grpc = receiver_accepts(grpc_port);
             let http = receiver_accepts(http_port);
@@ -64,25 +71,36 @@ pub(crate) fn run_ready() -> Result<ExitCode> {
             let ended = (verdict == "ended")
                 .then(|| read_ended(&end_file(&pidfile)))
                 .flatten();
-            json!({
-                "verdict": verdict,
-                "pid": pid,
-                "ended": ended,
-                "otlp_grpc": receiver_label(grpc),
-                "otlp_http": receiver_label(http),
-            })
+            ready_payload(
+                verdict,
+                pid,
+                ended,
+                program,
+                Some((receiver_label(grpc), receiver_label(http))),
+            )
         }
-        _ => json!({
-            "verdict": "cannot-evaluate",
-            "pid": null,
-            "ended": null,
-            "otlp_grpc": null,
-            "otlp_http": null,
-        }),
+        _ => ready_payload("cannot-evaluate", None, None, PROGRAM_UNKNOWN, None),
     };
     println!("{}", serde_json::to_string_pretty(&payload)?);
     let verdict = payload["verdict"].as_str().unwrap_or("cannot-evaluate");
     Ok(ExitCode::from(exit_status(verdict)))
+}
+
+fn ready_payload(
+    verdict: &str,
+    pid: Option<u32>,
+    ended: Option<String>,
+    program: &str,
+    receivers: Option<(&str, &str)>,
+) -> Value {
+    json!({
+        "verdict": verdict,
+        "pid": pid,
+        "ended": ended,
+        "program": program,
+        "otlp_grpc": receivers.map(|(grpc, _)| grpc),
+        "otlp_http": receivers.map(|(_, http)| http),
+    })
 }
 
 pub(crate) fn run_settled(timeout_seconds: u64) -> Result<ExitCode> {
@@ -138,6 +156,7 @@ fn exit_status(verdict: &str) -> u8 {
 fn decide_ready(status: &Verdict, grpc_accepting: bool, http_accepting: bool) -> &'static str {
     match status.arm {
         "cannot-evaluate" => "cannot-evaluate",
+        "wrong-program" => "wrong-program",
         "not-running" if status.pid.is_some() => "ended",
         "running-healthy" if grpc_accepting && http_accepting => "ready",
         _ => "not-ready",
@@ -438,10 +457,76 @@ mod tests {
     }
 
     #[test]
+    fn a_status_of_the_wrong_program_is_wrong_program_whatever_the_receivers_say() {
+        let wrong = for_program(healthy(), Some(Program::Console), "window");
+        assert_eq!(decide_ready(&wrong, true, true), "wrong-program");
+        assert_eq!(decide_ready(&wrong, false, false), "wrong-program");
+        let no_record = for_program(healthy(), Some(Program::Window), PROGRAM_UNKNOWN);
+        assert_eq!(decide_ready(&no_record, true, true), "wrong-program");
+    }
+
+    #[test]
+    fn the_asked_program_matching_the_log_is_ready_as_before() {
+        let console = for_program(healthy(), Some(Program::Console), "console");
+        assert_eq!(decide_ready(&console, true, true), "ready");
+        let unasked = for_program(healthy(), None, "console");
+        assert_eq!(decide_ready(&unasked, true, true), "ready");
+    }
+
+    #[test]
+    fn a_dead_pid_is_ended_whatever_program_was_asked() {
+        let dead = for_program(
+            classify(
+                Some(1234),
+                Some(false),
+                Some(("agent-latest.jsonl.2026-10-10".into(), 0)),
+            ),
+            Some(Program::Console),
+            "window",
+        );
+        assert_eq!(decide_ready(&dead, true, true), "ended");
+    }
+
+    #[test]
+    fn the_ready_payload_carries_the_closed_member_set() {
+        let payload = ready_payload(
+            "wrong-program",
+            Some(7),
+            None,
+            "window",
+            Some(("accepting", "refusing")),
+        );
+        let keys: BTreeSet<&str> = payload
+            .as_object()
+            .expect("object")
+            .keys()
+            .map(String::as_str)
+            .collect();
+        assert_eq!(
+            keys,
+            BTreeSet::from([
+                "verdict",
+                "pid",
+                "ended",
+                "program",
+                "otlp_grpc",
+                "otlp_http"
+            ])
+        );
+        assert_eq!(payload["program"], "window");
+        assert_eq!(payload["otlp_grpc"], "accepting");
+        assert_eq!(payload["otlp_http"], "refusing");
+        let unresolved = ready_payload("cannot-evaluate", None, None, PROGRAM_UNKNOWN, None);
+        assert!(unresolved["otlp_grpc"].is_null() && unresolved["otlp_http"].is_null());
+        assert_eq!(unresolved["program"], PROGRAM_UNKNOWN);
+    }
+
+    #[test]
     fn exit_status_is_zero_only_for_a_passing_verdict() {
         assert_eq!(exit_status("ready"), 0);
         assert_eq!(exit_status("settled"), 0);
         assert_eq!(exit_status("not-ready"), 1);
+        assert_eq!(exit_status("wrong-program"), 1);
         assert_eq!(exit_status("ended"), 1);
         assert_eq!(exit_status("not-settled"), 1);
         assert_eq!(exit_status("cannot-evaluate"), 2);

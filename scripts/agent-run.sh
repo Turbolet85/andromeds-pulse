@@ -5,9 +5,12 @@
 #
 # 5-command discipline:
 #   boot     — pre-build under the boot env, spawn target/release/pulse-app BY PATH,
-#              wait for the harness:ready verdict (10s timeout; build absorbed before it)
+#              wait for the harness:ready verdict (10s timeout; build absorbed before it);
+#              `boot engine` does the same for the console engine,
+#              target/release/andromeda-pulse-engine run
 #   run      — execute cargo-nextest test suite
-#   status   — real-process verdict via cargo xtask harness:status
+#   status   — real-process verdict via cargo xtask harness:status, asked for the
+#              window app's run; `status engine` asks for the console engine's
 #   cleanup  — terminate the app pid, then verify pid gone + ports released; exit 0
 #              only on verified teardown (bounded verdict token on stdout)
 #   logs     — tail the structured JSON log file
@@ -32,34 +35,70 @@ STATUS_TIMEOUT_SEC="${HARNESS_STATUS_TIMEOUT:-10}"
 GRPC_PORT="${ANDROMEDA_PULSE_OTLP_GRPC_PORT:-4317}"
 HTTP_PORT="${ANDROMEDA_PULSE_OTLP_HTTP_PORT:-4318}"
 
+usage() {
+  echo "Usage: $0 {boot [engine]|run|status [engine]|cleanup|logs}" >&2
+  echo "" >&2
+  echo "  boot, status           the window app (target/release/pulse-app)" >&2
+  echo "  boot engine,           the console engine" >&2
+  echo "  status engine          (target/release/andromeda-pulse-engine run)" >&2
+  echo "" >&2
+  echo "Bindings:" >&2
+  echo "  test-plan §3 — 5-command discipline, status endpoint, PID file" >&2
+  echo "  obs-plan §3  — JSON log file at ~/.andromeda-pulse/logs/agent-latest.jsonl" >&2
+  exit 2
+}
+
+# The program a verb is asked for: the word after boot or status. No word is
+# the window app; `engine` is the console engine. The verdict the verb reads
+# is held against the program the run's own log records, so a verb pointed
+# at the other program's data dir says wrong-program instead of grading it.
+PROGRAM="window"
+case "${1:-}" in
+  boot|status)
+    case "${2:-}" in
+      "") ;;
+      engine) PROGRAM="console" ;;
+      *) usage ;;
+    esac
+    ;;
+esac
+
 mkdir -p "$DATA_DIR/run" "$DATA_DIR/logs"
 
 case "${1:-}" in
   boot)
-    # Start pulse-app in background with isolated data dir
+    # Start the program in background with isolated data dir
     export ANDROMEDA_PULSE_DATA_DIR="$DATA_DIR"
     export ANDROMEDA_PULSE_LOG_LEVEL="${ANDROMEDA_PULSE_LOG_LEVEL:-debug}"
     export RUST_LOG="${RUST_LOG:-debug}"
 
-    # The exit witness (scripts/exit-witness.c): when the harness names a
-    # built library, the app alone is spawned with it loaded. A name that is
-    # no regular file ends boot here, so a mistyped path cannot run a job
-    # without its witness.
-    WITNESS_LIB="${ANDROMEDA_PULSE_EXIT_WITNESS_LIB:-}"
-    WITNESS_LIB="${WITNESS_LIB#"${WITNESS_LIB%%[![:space:]]*}"}"
-    WITNESS_LIB="${WITNESS_LIB%"${WITNESS_LIB##*[![:space:]]}"}"
-    if [ -n "$WITNESS_LIB" ] && [ ! -f "$WITNESS_LIB" ]; then
-      echo "boot: exit witness library not found" >&2
-      exit 1
-    fi
+    APP_NAME="pulse-app"
+    WITNESS_LIB=""
     WITNESS_FILE="$DATA_DIR/logs/exit-witness.jsonl"
+    if [ "$PROGRAM" = console ]; then
+      # The console engine is spawned with no preload whatever the witness
+      # variable holds: boot engine never reads it.
+      APP_NAME="andromeda-pulse-engine"
+    else
+      # The exit witness (scripts/exit-witness.c): when the harness names a
+      # built library, the app alone is spawned with it loaded. A name that is
+      # no regular file ends boot here, so a mistyped path cannot run a job
+      # without its witness.
+      WITNESS_LIB="${ANDROMEDA_PULSE_EXIT_WITNESS_LIB:-}"
+      WITNESS_LIB="${WITNESS_LIB#"${WITNESS_LIB%%[![:space:]]*}"}"
+      WITNESS_LIB="${WITNESS_LIB%"${WITNESS_LIB##*[![:space:]]}"}"
+      if [ -n "$WITNESS_LIB" ] && [ ! -f "$WITNESS_LIB" ]; then
+        echo "boot: exit witness library not found" >&2
+        exit 1
+      fi
+    fi
 
     # Pre-build OUTSIDE the timed readiness window, under the same exported
     # env the app runs with — the env participates in cargo's fingerprint, so
     # a warm binary can still cost a full thin-LTO relink (measured
     # 2026-08-30: a 180s ceiling died mid-rustc; absorbed here instead).
-    if ! cargo build --bin pulse-app --release > "$DATA_DIR/logs/build.log" 2>&1; then
-      echo "boot: cargo build --bin pulse-app --release failed" >&2
+    if ! cargo build --bin "$APP_NAME" --release > "$DATA_DIR/logs/build.log" 2>&1; then
+      echo "boot: cargo build --bin $APP_NAME --release failed" >&2
       echo "  Build log: $DATA_DIR/logs/build.log" >&2
       exit 1
     fi
@@ -74,11 +113,11 @@ case "${1:-}" in
     # Spawn the dev-build binary BY PATH — no cargo wrapper: $! IS the app,
     # and the app itself overwrites the default pidfile with the same
     # identity at boot (pulse-app/src/main.rs::write_pid_file).
-    APP_BIN="target/release/pulse-app"
+    APP_BIN="target/release/$APP_NAME"
     if [ -f "$APP_BIN.exe" ]; then
       APP_BIN="$APP_BIN.exe"
     elif [ ! -f "$APP_BIN" ]; then
-      echo "boot: built binary not found at target/release/pulse-app[.exe]" >&2
+      echo "boot: built binary not found at target/release/$APP_NAME[.exe]" >&2
       exit 1
     fi
     # The app runs under a waiting subshell that records how it ended: once
@@ -87,11 +126,16 @@ case "${1:-}" in
     # reads this record as `ended`).
     EXIT_FILE="$(dirname "$PIDFILE")/andromeda-pulse.exit"
     SPAWN_FILE="$(dirname "$PIDFILE")/andromeda-pulse.spawn"
-    rm -f "$EXIT_FILE" "$SPAWN_FILE" "$WITNESS_FILE"
+    rm -f "$EXIT_FILE" "$SPAWN_FILE"
+    if [ "$PROGRAM" = window ]; then
+      rm -f "$WITNESS_FILE"
+    fi
     (
       # The preload is set on this one command, never exported: the builds
       # above and the verbs after it run without it.
-      if [ -n "$WITNESS_LIB" ]; then
+      if [ "$PROGRAM" = console ]; then
+        "$APP_BIN" run > "$DATA_DIR/logs/boot.log" 2>&1 &
+      elif [ -n "$WITNESS_LIB" ]; then
         LD_PRELOAD="$WITNESS_LIB" ANDROMEDA_PULSE_EXIT_WITNESS_FILE="$WITNESS_FILE" \
           "$APP_BIN" > "$DATA_DIR/logs/boot.log" 2>&1 &
       else
@@ -122,12 +166,15 @@ case "${1:-}" in
     # file + the app's own log-family freshness) AND a TCP handshake on both
     # resolved OTLP ports, so ready is only reported once the spawned app is
     # writing and its receivers accept (test-plan §3 boot, Readiness signal;
-    # the status verdict alone read ready before the receivers bound).
+    # the status verdict alone read ready before the receivers bound). The
+    # verdict is asked for the program just spawned: the boot record that
+    # names it is the first one the engine boot writes, so a poll that reads
+    # the log a moment early reads wrong-program once and the next one ready.
     last_ready=""
     deadline=$(($(date +%s) + STATUS_TIMEOUT_SEC))
     while [ "$(date +%s)" -lt "$deadline" ]; do
       if last_ready=$(ANDROMEDA_PULSE_PIDFILE="$PIDFILE" ANDROMEDA_PULSE_LOGFILE="$LOGFILE" \
-        cargo xtask harness:ready 2>/dev/null); then
+        cargo xtask harness:ready --program "$PROGRAM" 2>/dev/null); then
         echo "boot: ready (PID=$DAEMON_PID, data_dir=$DATA_DIR)"
         echo "  OTLP gRPC:    127.0.0.1:$GRPC_PORT"
         echo "  OTLP HTTP:    127.0.0.1:$HTTP_PORT"
@@ -168,12 +215,13 @@ case "${1:-}" in
 
   status)
     # Real-process verdict about THIS harness's resolved paths: JSON with
-    # {verdict, pid, log_file_basename, last_write_age_seconds}; exit 0 only
-    # for running-healthy (pid file present + log family written <= 60s ago).
+    # {verdict, pid, program, log_file_basename, last_write_age_seconds};
+    # exit 0 only for running-healthy (pid file present + log family written
+    # <= 60s ago) on a run whose log records the program asked for.
     ANDROMEDA_PULSE_DATA_DIR="$DATA_DIR" \
       ANDROMEDA_PULSE_PIDFILE="$PIDFILE" \
       ANDROMEDA_PULSE_LOGFILE="$LOGFILE" \
-      cargo xtask harness:status
+      cargo xtask harness:status --program "$PROGRAM"
     ;;
 
   cleanup)
@@ -290,11 +338,6 @@ case "${1:-}" in
     ;;
 
   *)
-    echo "Usage: $0 {boot|run|status|cleanup|logs}" >&2
-    echo "" >&2
-    echo "Bindings:" >&2
-    echo "  test-plan §3 — 5-command discipline, status endpoint, PID file" >&2
-    echo "  obs-plan §3  — JSON log file at ~/.andromeda-pulse/logs/agent-latest.jsonl" >&2
-    exit 2
+    usage
     ;;
 esac

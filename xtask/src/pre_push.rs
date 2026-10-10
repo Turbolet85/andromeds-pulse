@@ -27,8 +27,8 @@ const SCRIPT: &str = "scripts/agent-run.sh";
 const BINDINGS: &str = "pulse-app/ui/src/bindings/index.ts";
 const SYSTEM_PATH: &str = "/usr/local/bin:/usr/bin:/bin";
 
-/// A heartbeat pair and a boot record, no metric: drives the heartbeat arm and
-/// the in-process grader's empty-arm reading.
+/// One boot record and two ticks: the `ci-gates` stage reads the record count
+/// and the panic read over it.
 const SEED_LOG: &str = concat!(
     r#"{"timestamp":"2026-01-01T00:00:00.000000Z","level":"INFO","target":"app.boot.ready","fields":{"message":"pre-push seed"}}"#,
     "\n",
