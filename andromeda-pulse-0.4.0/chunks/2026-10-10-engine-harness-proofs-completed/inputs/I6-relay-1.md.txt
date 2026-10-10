@@ -1,0 +1,1 @@
+/andromeda-wrap-session Operator directive for this wrap: read ~/dev/projects/additional/pc-overseer/relays/pulse-wrap-engine-harness-proofs-2026-10-10.md first and fold it as an input. Your window reads 72.1 percent: run P1 only (the report), put what curation would need from this conversation into the report, say so and stop - I clear and the wrap resumes from the report.

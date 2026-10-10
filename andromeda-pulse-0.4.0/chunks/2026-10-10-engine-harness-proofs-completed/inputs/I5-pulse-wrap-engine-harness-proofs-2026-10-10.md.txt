@@ -1,0 +1,30 @@
+# Wrap directive — Pulse 0.4.0, chunk `2026-10-10-engine-harness-proofs-completed` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on. This directive names
+only what a wrap's own steps write; it asks for no change to a product file.
+
+1. **The operator pass stands as your record states it.** I read the CI verdict of the pre-CI commit myself before my
+   word at the last stop.
+2. **This wrap runs in two windows.** Run P1 (the report) only, say so and stop: I clear, and the wrap resumes from
+   the report.
+3. **The last wrap's handoff owes this cascade a list — it will not pick it up by itself.** The handoff written at
+   `514fbe57` names, file by file, 19 groups of file-layout lines in the leaf docs that the tree contradicts and no
+   master holds. Here each is corrected from a read of the source tree as it stands, and each result is named in this
+   wrap's cascade-dispositions. It is not carried a second time.
+4. **The pre-push sixth stage is PROVISIONAL.** Where the masters and the check's own contract said that no stage
+   starts a program or binds a port, the amended sentence says what the stage does now (one console engine cycle on
+   two loopback ports, a taken port read as cannot-evaluate), that it is the operator's reading (the pc overseer,
+   2026-10-10), and that the founder's own word is owed. P-103 gets its dated note; its acceptance is not re-worded.
+5. **The console engine that stays up with a receiver unbound** (your reading, your lean: one receiver bound may stay
+   up degraded, none bound ends non-zero): present it at the card for disposition with the entry you would pin it on.
+   It is a product behaviour; say which requirement's text it touches (P-086's "answers its commands", P-098's "no
+   data reached the engine") so the owner entry's plan rules on it rather than a harness chunk.
+6. **Readings brought and not repaired** (the lock file in the shared temp dir; `cleanup` and an unreaped child;
+   `boot` with no spawn record leaving its engine running): each gets its owner at the card, or a stated nothing-owed
+   with the reason.
+7. **The four new closed labels** and the readiness verdict's changed decision are registered where the masters list
+   verdict words; the shell-coverage row stays open on the three clauses your plan named, with their owners.
+8. **For the main overseer, one line each if they occur:** `REFUSED id:` in a trail, with what the session did next;
+   `held 3` at the citation sweep.
+9. **Stops.** After P1; then, in the second window, the route-resolve card, and before the flip and the commit with
+   `git status --short`.

@@ -923,3 +923,49 @@ exit is not; the gap is recorded so that it is not read as covered by the 36 pin
 **Why:** The chunk aimed the harness at the console engine, put one whole engine run in the gate block and in the `boot` job, and left three readings uncommitted that the new pending row names.
 **Kept:** `engine-boot-rejected-port-and-socket-census-coverage` is not discharged: its readings were cut to the entry minted at this wrap. The reason no trigger is built is carried as read at the chunk's research, not driven.
 **Ref:** .andromeda/runs/2026-10-10T16-47-34Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — five pending-coverage rows narrowed or landed, and one new row for the pre-push stage's glue
+**Section:** §1 Test Scope Summary → Pending coverage triggers (`harness-log-family-resolution-coverage`; `harness-cleanup-verdict-and-boot-spawn-shell-coverage`; `quarantine-tracking-ps1-mirror-coverage`; `engine-boot-rejected-port-and-socket-census-coverage`; `engine-log-arm-mutation-and-engine-cycle-glue-coverage`; new `pre-push-engine-cycle-stage-glue-coverage`)
+**Change:**
+- `harness-log-family-resolution-coverage`: shell half LANDED — three committed `logs` pins, one on a real engine's date-suffixed family. Nothing further owed.
+- `engine-boot-rejected-port-and-socket-census-coverage`: LANDED — three spawned arms (a rejected port variable; a socket census from `/proc`; the lock file's directory, size and mode in both environments). The suite holds 7 arms, was 4. Nothing further owed.
+- `engine-log-arm-mutation-and-engine-cycle-glue-coverage`: narrowed — one mutation per arm closed (seven of seven; n = 1 real log, the passing side; one heartbeat pin stayed green under the inverted comparison); the refusal labels are eight and each is named by a test; `engine_cycle::drive` runs under committed tests. Still owed: a runner reading of a red cycle; pins of `engine_log::run_check` / `run_settled`.
+- `harness-cleanup-verdict-and-boot-spawn-shell-coverage`: narrowed — 19 committed pins close (a) each `cleanup` token, (b) each sh `boot` failure-reason arm, (f) each word arm. Still open, each with a route owner: (c) the ps1 boot-cycle leg; (d) the exit-witness branches; (e) the boot series' `timed-out` path. Two behaviours pinned as they stand: `cleanup` reads an unreaped child as alive; `boot` with no spawn record exits 1 and leaves its engine running.
+- `quarantine-tracking-ps1-mirror-coverage`: widened — the mirror's `xtask/tests` entry is parsed, never run; the `.sh` pins are six, was five.
+- New `pre-push-engine-cycle-stage-glue-coverage`: the stage is pinned at `decide_ci_gates` (seven pins) and at its teardown call (one pin, a real process); `read_engine_cycle` has no pin of its own. Owed: a committed reading over a taken cycle port and over a cycle that leaves its engine running.
+**Why:** The chunk's subject was the proofs these rows owed; each row now says, clause by clause, what closed and what did not. "Discharged" is written over no clause that stayed open.
+**Kept:** The pins of unchanged behaviour have no per-test red reading. For the window program the `foreign` reading is pinned at the decision only.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — the harness contract: readiness over own bound records, the foreign failure line, the pre-push stage's engine cycle (PROVISIONAL), the two gate forms
+**Section:** §1 Test Scope Summary (the console-engine surface row; the one-line harness summary) · §3 → 5-command implementation (boot: Command body, Readiness signal, Exit code) · §3 → Per-chunk gate discipline (the `pre-push:linux` paragraph; Spawned-program witness form; Engine cycle gate form) · §3 → Bootstrap phases (item 1)
+**Change:**
+- Readiness signal: was "`running-healthy` AND a TCP connection accepted at each port", labels `accepting` | `refusing`; now both receivers `accepting`, a receiver `accepting` only when the connection is accepted AND the log family holds, after its last `app.boot.engine` record, an INFO record of its bind target for `127.0.0.1:` and that port; `foreign` when accepted with no such record; `refusing` when not accepted. Eight pins added. The §1 summary restates it.
+- Exit code: a second failure line on `foreign`; both can print; three committed pins read the receivers line, neither line and the `foreign` line. Command body: the word and the `boot` failure arms are pinned at shell level; the exit-witness arm and the ps1 leg are not.
+- `pre-push:linux`: was "`ci-gates` over a seed log … it binds no port and starts no `pulse-app`"; now the sixth stage runs one console engine cycle on loopback 24317 / 24318 and then `ci-gates` over its log; a taken port is `cannot-evaluate` / `engine-port-taken`; a cycle exit of 2 `engine-cycle-unevaluated`; the stage ends what it started. Reasons eleven, was nine. One `cleanup` child carries the two cycle port variables. PROVISIONAL: the operator's reading, the founder's own word owed. Readings: 107.04 to 110.44 s warm, four runs.
+- Spawned-program witness form: was "two picked loopback ports"; now two CLAIMED ports (20000 to 31999, 24317 and 24318 left out, an advisory file lock in `target/test-ports/`), three readings added (rejected port, socket census, the lock file's directory), and a sibling of the form in `xtask/tests/`.
+- Engine cycle gate form: refusal labels eight, was seven (`port-taken`), each named by a test; the form is also run by the pre-push stage.
+- Bootstrap phases item 1: per-process isolation separates processes, not port numbers.
+**Why:** The plan stated the earlier decision, one failure line, a seed log and picked ports; the chunk changed each. The pre-push stage is a boundary widening recorded on the operator's reading (the pc overseer, 2026-10-10, relayed verbatim in the wrap directive).
+**Kept:** `agent-run.ps1` is not edited: it matches `refusing` alone and has no `engine` word.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — a second separate tests directory, what the workspace run needs for it, and what per-process isolation does not give
+**Section:** §2 Test Strategy → Test directory + naming conventions (Directory pattern; Test function naming) · §4 Unit Test Strategy → Conventions (Test file location, Rust) · §9 CI Integration → Pipeline structure (the `lint-test` row; the Integration tests row)
+**Change:**
+- Was "no separate `tests/` directory EXCEPT the `pulse-app` binary crate"; now a second: `xtask/tests/`, two integration binaries (`agent_run_shell.rs`, `engine_cycle_refusals.rs`) over a shared `common/mod.rs`, because they drive the committed script, the built `harness:engine-cycle` verb and the built engine as processes. xtask's unit pins stay co-located in `xtask/src`. `check:english-sources` (a sixth root) and `quarantine-tracking` (a fifth search dir) read it, and its absence fails both. Framework and runner unchanged; no dependency added.
+- §4: `pulse-app/tests/*.rs` still counts 109 (no file added; three arms to `integration_console_engine.rs`, 7 in all).
+- §9 `lint-test`: the workspace run also needs `bash`, a Linux `/proc`, an advisory file lock under `target/` and the engine built in the test profile; the quarantine pins are six, was five; green on `ci#38079305603`, 3112 tests (3064 on the previous verdict run); the same tests run in `mcp-test` and `coverage`.
+- §9 Integration tests, the Parallel cell: was "per-process isolation prevents port conflicts"; now it separates processes, not port numbers — a port bound to 0, read and released can be handed to another test starting at the same instant (one of seven hand runs failed; 14 of 14 green after the change, a count, not an exclusion), so three binaries claim their ports under an advisory file lock in `target/test-ports/`.
+**Why:** The convention named one exception and the chunk made a second; the runner's isolation was read as preventing a collision it was measured not to prevent.
+**Kept:** `pulse-app/tests/integration_engine_boot.rs` still picks by bind-and-release; no owner was named at the amendment.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — what three pending rows and the Integration tests row leave open has an owner from the route-resolve card
+**Section:** §1 Test Scope Summary → Pending coverage triggers (`harness-cleanup-verdict-and-boot-spawn-shell-coverage`; `engine-log-arm-mutation-and-engine-cycle-glue-coverage`; `pre-push-engine-cycle-stage-glue-coverage`) · §9 CI Integration → Pipeline structure (the Integration tests row)
+**Change:**
+- The engine-log row's remainder (a runner red cycle, the `run_check` / `run_settled` pins, the heartbeat pin that stayed green under inversion) and the whole of `pre-push-engine-cycle-stage-glue-coverage`: owned by the route entry `Engine end-to-end gate reachable`.
+- The shell-coverage row's two behaviours pinned as they stand: on `cleanup` reading an unreaped child as alive nothing is owed (under `boot` the waiting wrapper reaps the app); `boot` with no spawn record leaving its engine running is owned by the route entry `One place on a node`.
+- §9: was "no owner named" for `integration_engine_boot.rs`'s bind-and-release picking; now owned by the route entry `Shared telemetry test data`.
+**Why:** A pending row with no owner on the route is drift, not sequencing; the operator gave each its owner or its nothing-owed at the card (the pc overseer, 2026-10-10).
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/

@@ -1,0 +1,13 @@
+
+## 2026-10-10-engine-harness-proofs-completed — five pending-coverage rows narrowed or landed, and one new row for the pre-push stage's glue
+**Section:** §1 Test Scope Summary → Pending coverage triggers (`harness-log-family-resolution-coverage`; `harness-cleanup-verdict-and-boot-spawn-shell-coverage`; `quarantine-tracking-ps1-mirror-coverage`; `engine-boot-rejected-port-and-socket-census-coverage`; `engine-log-arm-mutation-and-engine-cycle-glue-coverage`; new `pre-push-engine-cycle-stage-glue-coverage`)
+**Change:**
+- `harness-log-family-resolution-coverage`: shell half LANDED — three committed `logs` pins, one on a real engine's date-suffixed family. Nothing further owed.
+- `engine-boot-rejected-port-and-socket-census-coverage`: LANDED — three spawned arms (a rejected port variable; a socket census from `/proc`; the lock file's directory, size and mode in both environments). The suite holds 7 arms, was 4. Nothing further owed.
+- `engine-log-arm-mutation-and-engine-cycle-glue-coverage`: narrowed — one mutation per arm closed (seven of seven; n = 1 real log, the passing side; one heartbeat pin stayed green under the inverted comparison); the refusal labels are eight and each is named by a test; `engine_cycle::drive` runs under committed tests. Still owed: a runner reading of a red cycle; pins of `engine_log::run_check` / `run_settled`.
+- `harness-cleanup-verdict-and-boot-spawn-shell-coverage`: narrowed — 19 committed pins close (a) each `cleanup` token, (b) each sh `boot` failure-reason arm, (f) each word arm. Still open, each with a route owner: (c) the ps1 boot-cycle leg; (d) the exit-witness branches; (e) the boot series' `timed-out` path. Two behaviours pinned as they stand: `cleanup` reads an unreaped child as alive; `boot` with no spawn record exits 1 and leaves its engine running.
+- `quarantine-tracking-ps1-mirror-coverage`: widened — the mirror's `xtask/tests` entry is parsed, never run; the `.sh` pins are six, was five.
+- New `pre-push-engine-cycle-stage-glue-coverage`: the stage is pinned at `decide_ci_gates` (seven pins) and at its teardown call (one pin, a real process); `read_engine_cycle` has no pin of its own. Owed: a committed reading over a taken cycle port and over a cycle that leaves its engine running.
+**Why:** The chunk's subject was the proofs these rows owed; each row now says, clause by clause, what closed and what did not. "Discharged" is written over no clause that stayed open.
+**Kept:** The pins of unchanged behaviour have no per-test red reading. For the window program the `foreign` reading is pinned at the decision only.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/

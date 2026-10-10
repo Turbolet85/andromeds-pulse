@@ -696,3 +696,33 @@ _Records key decisions during plan generation + manual additions between phase l
 **Change:** Was "whether the class covers the two harness files is the operator's word at that chunk's wrap card"; now the class covers `boot.log` and `build.log` in `logs-engine-Linux` as it does in the boot job's upload — the operator's own reading, given at the wrap's route-resolve card (the pc overseer, 2026-10-10; not the founder's word). The reading at the plan dialog had named the engine's own log family alone.
 **Why:** The detector raised the upload's `build.log` (the runner's checkout paths, no scrubber) at escalate severity; the operator answered it at the card, where the wrap directive had routed it.
 **Ref:** .andromeda/runs/2026-10-10T16-47-34Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — the pre-push check's sixth stage is classed PROVISIONAL, outside the 2026-10-09 harness reading
+**Section:** §Threat Model Summary → Attack surface (CLI input, the trust boundary) · §Input Validation → the CLI / env var inputs row (`cargo xtask pre-push:linux`) · §Security Anti-Patterns → Input (the `pre-push:linux` harness-class paragraph)
+**Change:**
+- New, beside the harness carve-out and outside the 2026-10-09 "routine harness evidence" reading: the sixth stage of `pre-push:linux` starts the console engine `andromeda-pulse-engine` and binds loopback 24317 and 24318, never 4317 or 4318. Classification PROVISIONAL: a boundary widening, the operator's reading, the founder's own word owed.
+- The stage: the stage data dir removed and created; a cycle port already accepting → `cannot-evaluate` / `engine-port-taken`, nothing started; `harness:engine-cycle --data-dir {that dir}` under the unchanged stage child set; both ports and that data dir's pid file read, the stage ending what it started; cycle exit 2 → `cannot-evaluate` / `engine-cycle-unevaluated`; exit 0 → `ci-gates` over the same data dir. Eleven closed reasons.
+- Three statements of the 2026-10-09 paragraph are bounded: item (b)'s exact child set has one exception (the single `cleanup` child also carries the two cycle port variables); item (c)'s "writes only its per-run area" does not cover the stage's engine, which writes the content-free corpus-key lock file to the system temp dir, nor the cycle's stderr printing the data dir; and the heading's reading does not reach this stage.
+- Nothing product-consumed is added: no `ANDROMEDA_PULSE_*` name, no product port, no file under `pulse-app/src`.
+**Why:** The check gained a crossing the never-routine class names: it starts a program and binds ports where its contract said it did neither. Recorded on the operator's reading (the pc overseer, 2026-10-10, at the plan dialog, relayed verbatim in the wrap directive); a relayed answer on a boundary widening is provisional, and the founder's own later word supersedes it.
+**Kept:** Not read live: a taken port on 24317 / 24318, and the teardown after a cycle that left an engine (pinned at the decision; one pin runs the teardown against a real process).
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — harness registrations: the taken-port refusal, the readiness verb's read of bind records, the pinned word set, the cycle engine's lock file
+**Section:** §Input Validation → the CLI / env var inputs row (`harness:ready`; the `agent-run.sh` word set; `harness:engine-cycle`) · §Security Anti-Patterns → Input (the console-engine harness paragraph, items (a) and (c); the exit-witness arm, item (a))
+**Change:**
+- `harness:engine-cycle`: was seven closed refusal labels; now eight, `port-taken` added — a cycle port already accepting a loopback connection, read before the `HOME` read, nothing built or started, no data dir made.
+- `harness:ready`: it probes both resolved ports, reads the log family once as JSON lines (a non-JSON line skipped), and each receiver member is one of three closed labels, `accepting` · `foreign` · `refusing`; labels alone leave the verb. The harness paragraph names the read as joining its readers, with no classification of its own. `agent-run.sh boot` prints one more failure line on `foreign` (two loopback ports, nothing else); `agent-run.ps1` not edited.
+- The `agent-run.sh` word set: was "no committed shell-level test"; now pinned by committed shell-level tests in `xtask/tests/agent_run_shell.rs` (bare `boot`, `status engine` and bare `status`, any other word → usage, exit 2, no data dir). The ps1 script has no such word.
+- The cycle verb, item (c): was "it writes only its per-cycle data dir"; now the verb itself writes only that, while the engine it starts also writes the content-free corpus-key lock file to the system temp dir (no runtime dir in the child set) and takes the passphrase fallback after opening it; pinned on a spawned engine.
+- The exit-witness arm's "no committed shell-level test" is scoped to clause (d) of the shell-coverage row, whose cleanup, boot failure-reason and word-arm clauses are closed.
+**Why:** Each is what the chunk built and tested; the registry enumerated seven labels and two receiver labels and called the word set untested.
+**Kept:** No classification is written for the readiness verb's read of bind records: it reads two more record kinds of a log family it already read. The exit-witness arm stays PROVISIONAL as it stood.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — the readiness verb's read of bind records is classed routine harness evidence on the operator's reading
+**Section:** §Security Anti-Patterns → Input (the console-engine harness paragraph, item (a))
+**Change:** Was "no classification of its own is made for it"; now the read is routine harness evidence: a harness verb reading further record kinds from a log family it already reads, closed labels only. The operator's own reading, not the founder's word.
+**Why:** The plan had listed the read under the boundary-widening class and the wrap directive asked only that it be registered; the operator classed it at the route-resolve card (the pc overseer, 2026-10-10) and declined a playbook rule for the class.
+**Kept:** No rule was minted: a later read of this kind is judged again. A new file, variable, port or process is not this reading.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/

@@ -41,8 +41,9 @@ Owns the in-memory DuckDB ring buffer (5–10 min retention, configurable) + Apa
 - **Appender pipeline:** `crates/buffer/src/appender.rs` (Arrow zero-copy ingest path)
 - **Retention task:** `crates/buffer/src/retention.rs` (periodic DELETE)
 - **Broadcast fan-out:** `crates/buffer/src/broadcast.rs` (tokio broadcast → channel emit)
-- **Connection pool:** `crates/buffer/src/conn.rs` (DuckDB `Connection` lifecycle)
-- **Tests:** colocated `#[cfg(test)]` per module
+- **Connection lifecycle:** not in this crate, and there is no `conn.rs` or pool — the caller opens the one in-memory `Connection` (`pulse-app/src/engine_boot.rs`, `Connection::open_in_memory`) and `crates/buffer/src/schema.rs::create_schema` creates the tables on it
+- **Consumer loop:** `crates/buffer/src/consumer.rs` (`run_consumer`) · **Counters:** `state.rs` (`BufferState`) · **Drain templates:** `drain.rs` · **Exception fingerprints:** `fingerprint.rs` · **Contract:** `contract.rs` (`BufferHeartbeat`, `Error`)
+- **Tests:** colocated `#[cfg(test)]` in every `src` file but `lib.rs`, and `crates/buffer/tests/drain_golden_corpus.rs` with its fixtures under `tests/fixtures/drain/`
 
 ## Testing this service
 - **Unit tests:** `cargo nextest run --filter-expr 'package(buffer)'`

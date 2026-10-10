@@ -1,6 +1,6 @@
 ### Bootstrap phases
 
-1. **test-runner-install:** `cargo-nextest` 0.9.x (per Phase 2 research; provides per-process isolation for port-binding tests)
+1. **test-runner-install:** `cargo-nextest` 0.9.x (per Phase 2 research; provides per-process isolation for port-binding tests — isolation of processes only: it does not keep two tests from being handed one port number, so the port-using spawned suites claim their ports, §9 Integration tests row)
 2. **5-command-discipline-wire:** Materialize `scripts/agent-run.sh` with 5-command bodies (boot / run / status / cleanup / logs) per Section 3 above
 3. **status-endpoint-implement:** Wire TauRPC `health` command to return required fields (status / subsystems / pid / uptime_ms)
 4. **log-format-bind-with-obs:** Configure `tracing-subscriber::fmt().json()` to emit JSON per-line format (binds with obs-plan §3 JSON schema)

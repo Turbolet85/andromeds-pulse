@@ -1,0 +1,13 @@
+
+## 2026-10-10-engine-harness-proofs-completed — the harness contract: readiness over own bound records, the foreign failure line, the pre-push stage's engine cycle (PROVISIONAL), the two gate forms
+**Section:** §1 Test Scope Summary (the console-engine surface row; the one-line harness summary) · §3 → 5-command implementation (boot: Command body, Readiness signal, Exit code) · §3 → Per-chunk gate discipline (the `pre-push:linux` paragraph; Spawned-program witness form; Engine cycle gate form) · §3 → Bootstrap phases (item 1)
+**Change:**
+- Readiness signal: was "`running-healthy` AND a TCP connection accepted at each port", labels `accepting` | `refusing`; now both receivers `accepting`, a receiver `accepting` only when the connection is accepted AND the log family holds, after its last `app.boot.engine` record, an INFO record of its bind target for `127.0.0.1:` and that port; `foreign` when accepted with no such record; `refusing` when not accepted. Eight pins added. The §1 summary restates it.
+- Exit code: a second failure line on `foreign`; both can print; three committed pins read the receivers line, neither line and the `foreign` line. Command body: the word and the `boot` failure arms are pinned at shell level; the exit-witness arm and the ps1 leg are not.
+- `pre-push:linux`: was "`ci-gates` over a seed log … it binds no port and starts no `pulse-app`"; now the sixth stage runs one console engine cycle on loopback 24317 / 24318 and then `ci-gates` over its log; a taken port is `cannot-evaluate` / `engine-port-taken`; a cycle exit of 2 `engine-cycle-unevaluated`; the stage ends what it started. Reasons eleven, was nine. One `cleanup` child carries the two cycle port variables. PROVISIONAL: the operator's reading, the founder's own word owed. Readings: 107.04 to 110.44 s warm, four runs.
+- Spawned-program witness form: was "two picked loopback ports"; now two CLAIMED ports (20000 to 31999, 24317 and 24318 left out, an advisory file lock in `target/test-ports/`), three readings added (rejected port, socket census, the lock file's directory), and a sibling of the form in `xtask/tests/`.
+- Engine cycle gate form: refusal labels eight, was seven (`port-taken`), each named by a test; the form is also run by the pre-push stage.
+- Bootstrap phases item 1: per-process isolation separates processes, not port numbers.
+**Why:** The plan stated the earlier decision, one failure line, a seed log and picked ports; the chunk changed each. The pre-push stage is a boundary widening recorded on the operator's reading (the pc overseer, 2026-10-10, relayed verbatim in the wrap directive).
+**Kept:** `agent-run.ps1` is not edited: it matches `refusing` alone and has no `engine` word.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/

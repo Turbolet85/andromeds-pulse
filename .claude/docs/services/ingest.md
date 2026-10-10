@@ -1,7 +1,7 @@
 # `ingest` — OTLP Receivers
 
 ## Responsibility
-Owns the two OTLP receiver surfaces (`:4317` gRPC + `:4318` HTTP) bound `127.0.0.1` only. Decodes incoming OTLP via `prost` + `opentelemetry-proto`, runs post-decode invariant checks, hands off to `buffer` via `tokio::sync::mpsc` (with backpressure). Does NOT own storage / query / visualization.
+Owns the two OTLP receiver surfaces (`:4317` gRPC + `:4318` HTTP) bound `127.0.0.1` only. Decodes incoming OTLP via `prost` over the vendored OTLP protos (`crates/ingest/proto/`, compiled by `build.rs`), runs post-decode invariant checks, hands off to `buffer` via `tokio::sync::mpsc` (with backpressure). Does NOT own storage / query / visualization.
 
 ## Key integrations
 
@@ -10,14 +10,14 @@ Owns the two OTLP receiver surfaces (`:4317` gRPC + `:4318` HTTP) bound `127.0.0
 - W3C `traceparent` from gRPC `grpc-trace-bin` metadata + HTTP header at request entry.
 
 ### Publishes to
-- `buffer` crate via `tokio::sync::mpsc` channel (decoded `OtlpBatch` records).
+- `buffer` crate via `tokio::sync::mpsc` channel (decoded `ingest::channel::Batch` values — `Spans` / `Metrics` / `Logs`; there is no `OtlpBatch` type).
 - `tracing` events at module boundaries (`ingest.grpc.export.request`, `ingest.http.export.request`, `ingest.tick`).
 
 ### Dependencies
-- `tonic` 0.14.x — gRPC server + `prost` 0.14 codegen against `opentelemetry-proto`.
+- `tonic` 0.14.x — gRPC server + `prost` 0.14 codegen against the vendored OTLP protos.
 - `axum` 0.8.x on `hyper` 1.x + `tower` — HTTP server.
 - `prost` 0.14 — protobuf wire format decode.
-- `opentelemetry-proto` — OTLP message definitions.
+- OTLP message definitions — vendored `.proto` files under `crates/ingest/proto/`, compiled at build time (`tonic-build` / `tonic-prost-build` with `protoc-bin-vendored`); the `opentelemetry-proto` crate is not a dependency.
 - `tower_governor` — coarse global + per-source-port rate limiting (pinned at bootstrap; SHA-pinned in CI).
 - `std` both-sides-canonicalize — env var path canonicalization where a path var applies (port overrides via `ANDROMEDA_PULSE_OTLP_*_PORT` are `TryFrom<u16>`, not paths).
 - `tower_http::cors::CorsLayer::new()` — default-deny CORS on `:4318`.
@@ -32,19 +32,20 @@ Owns the two OTLP receiver surfaces (`:4317` gRPC + `:4318` HTTP) bound `127.0.0
 - `ingest.tick` heartbeat every 15s with `span_count`, `buffer_capacity_pct`, `broadcast_subscribers`.
 
 ## Service-specific gotchas
-- **`tonic 0.14` vs `opentelemetry-otlp 0.31`** transitive duplicate (the latter still pins `tonic 0.13`) — `cargo deny check bans` enforces; reconcile before tagging v0.1.0. Note: this crate doesn't actually depend on `opentelemetry-otlp` (we use `prost` + `opentelemetry-proto` directly), so the duplicate is purely transitive.
+- **`tonic 0.14` vs `opentelemetry-otlp 0.31`** transitive duplicate (the latter still pins `tonic 0.13`) — `cargo deny check bans` enforces; reconcile before tagging v0.1.0. Note: this crate doesn't actually depend on `opentelemetry-otlp` (it uses `prost` over the vendored protos), so the duplicate is purely transitive.
 - See `.claude/docs/gotchas.md` for the full list.
 
 ## Entry points for modification
 - **gRPC handlers:** `crates/ingest/src/grpc.rs` (TraceService / MetricsService / LogsService impls)
 - **HTTP routes:** `crates/ingest/src/http.rs` (axum router for `/v1/traces`, `/v1/metrics`, `/v1/logs`)
 - **Post-decode invariants:** `crates/ingest/src/invariants.rs` (span_id / trace_id length checks, attribute bounds)
-- **Channel hand-off:** `crates/ingest/src/pipeline.rs` (mpsc to `buffer::Appender`)
-- **Tests:** `crates/ingest/src/{grpc,http,invariants,pipeline}.rs` colocated `#[cfg(test)]` modules
+- **Channel hand-off:** `crates/ingest/src/channel.rs` (`Batch`, `IngestSender` / `IngestReceiver`, `MPSC_CAPACITY` — the mpsc to `buffer`; there is no `pipeline.rs`)
+- **Other modules:** `connection.rs` (the connection state machine), `contract.rs` (`Error`, `OtlpPort`, `IngestHeartbeat`), `observer.rs` (`SpanObserver`), `state.rs`
+- **Tests:** a colocated `#[cfg(test)]` module in eight of the nine `src` files (all but `lib.rs`), and six integration files under `crates/ingest/tests/`: `backpressure.rs`, `grpc_loopback.rs`, `http_loopback.rs`, `invariants.rs`, `proptest_invariants.rs`, `rate_limit.rs`
 
 ## Testing this service
 - **Unit tests:** `cargo nextest run --filter-expr 'package(ingest)'`
-- **Integration:** `tonic` 0.14.5 native client → loopback `:4317`; `axum-test` 18.7 + `reqwest` 0.12 → `:4318`. Use `MockTraceSpan::builder()` for fixture seeding.
+- **Integration:** `tonic` 0.14.5 native client → loopback `:4317`; `axum-test` 18.7 + `reqwest` 0.12 → `:4318`. The once-specified `MockTraceSpan::builder()` is not implemented (0 hits under `crates`, `pulse-app/src`, `pulse-app/tests`, `xtask/src`, read 2026-10-10); the tests build OTLP messages directly.
 - **Negative tests REQUIRED:** post-`prost` invariant rejection, oversized body 413, `0.0.0.0` bind rejection, Host-header allowlist miss, CORS rejection, rate-limit hit.
 
 ## Local development

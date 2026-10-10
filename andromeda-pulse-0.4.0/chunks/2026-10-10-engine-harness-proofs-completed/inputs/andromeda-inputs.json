@@ -70,5 +70,41 @@
     "read_at": "2026-10-10T19:16:09Z",
     "step": "implement",
     "why": "the operator word for the operator pass: deviations accepted as recorded, two findings to the wrap card as found and not owned, entries 20 to 25 in plan order, stop and report on a runner red, fix nothing on top, start no skill"
+  },
+  {
+    "id": "I5",
+    "kind": "relay",
+    "repo": null,
+    "path": "../additional/pc-overseer/relays/pulse-wrap-engine-harness-proofs-2026-10-10.md",
+    "form": "copy",
+    "state": "no-repo",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "74b0db15819d9c0ab76aa7dfff04bd84dd2740e024c81f66412cc64686689a6d",
+    "copy": "I5-pulse-wrap-engine-harness-proofs-2026-10-10.md.txt",
+    "link": false,
+    "read_at": "2026-10-10T19:50:19Z",
+    "step": "wrap",
+    "why": "the operator wrap directive for this chunk: nine items on the two-window wrap, the leaf layout list owed to this cascade, the PROVISIONAL stage-six wording, the unbound-receiver reading and the three readings for the card, the four labels, the lines for the main overseer, the stops"
+  },
+  {
+    "id": "I6",
+    "kind": "relay",
+    "repo": null,
+    "path": "message: the operator, in the /andromeda-wrap-session invocation message of this session, 2026-10-10",
+    "form": "copy",
+    "state": "message",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "bcd881e7fcc55cc84dda86eff2c2f53a3007b37b4f59d421db185e5bd5b71ae3",
+    "copy": "I6-relay-1.md.txt",
+    "link": false,
+    "read_at": "2026-10-10T19:50:20Z",
+    "step": "wrap",
+    "why": "the invocation directive: it names the relay file as an input to fold, limits this window to P1, and asks that the report carry what curation needs from this conversation"
   }
 ]

@@ -1,7 +1,7 @@
 # `mcp-server` — MCP stdio Sidecar (hand-rolled JSON-RPC 2.0)
 
 ## Responsibility
-Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 2.0 over stdin/stdout per MCP spec. Tool methods (9): `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot` (shares the snapshot crate's curation pipeline) + `query_incident_list`, `retrieve_report`, `retrieve_telemetry_slice`, `mark_incident_resolved` (corpus-backed incident/report, chunk #94) + `retrieve_incident_events` (input `{incident_id}`; response `{incident_id, events: [{event_kind, occurred_unix_nano}], total, truncated}` oldest first, bounded at 256; `event_kind` coerced to `triage::contract::incident_event_kinds()`, else `unknown`; unknown id → -32603 `incident not found`; chunk 2026-10-02-incident-events-readable-through-mcp). Hosts `mcp.{status,start,stop}` TauRPC routers. **Feature double-gated:** compile-time `--features mcp-server` AND runtime `ANDROMEDA_PULSE_MCP_ENABLED=true`.
+Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 2.0 over stdin/stdout per MCP spec. Tool methods (9): `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot` (shares the snapshot crate's curation pipeline) + `query_incident_list`, `retrieve_report`, `retrieve_telemetry_slice`, `mark_incident_resolved` (corpus-backed incident/report, chunk #94) + `retrieve_incident_events` (input `{incident_id}`; response `{incident_id, events: [{event_kind, occurred_unix_nano}], total, truncated}` oldest first, bounded at 256; `event_kind` coerced to `triage::contract::incident_event_kinds()`, else `unknown`; unknown id → -32603 `incident not found`; chunk 2026-10-02-incident-events-readable-through-mcp). The `mcp.{status,start,stop}` TauRPC router is hosted by `pulse-app/src/mcp_router.rs` (`McpApiImpl`), not by this crate, which supplies the `feature_gate` it reads. **Feature double-gated:** compile-time `--features mcp-server` AND runtime `ANDROMEDA_PULSE_MCP_ENABLED=true`.
 
 ## Key integrations
 
@@ -44,7 +44,7 @@ Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 
 - **JSON-RPC framing:** `crates/mcp-server/src/jsonrpc.rs` (hand-rolled serde; MCP protocol `2024-11-05` — measured 2026-08-29, nothing rmcp-provided)
 - **Feature gate check:** `crates/mcp-server/src/feature_gate.rs` (compile-time + runtime double-gate)
 - **TauRPC router:** `pulse-app/src/mcp_router.rs` (`McpApiImpl`: mcp.status / mcp.start / mcp.stop; compiled only with `--features mcp-server`, mounted by the window app's `main.rs`)
-- **Tests:** colocated + `tests/integration/mcp/` for E2E P3
+- **Tests:** colocated, and two subprocess files under `crates/mcp-server/tests/` (`sidecar_subprocess.rs`, `incident_events_subprocess.rs`). The E2E P3 legs sit at the binary boundary: `pulse-app/tests/e2e_p3_mcp_subprocess_tools_call.rs`, `e2e_p3_mcp_incident_tools.rs`, `e2e_p3_mcp_incident_events_content.rs`, `e2e_p3_mcp_resolve_content.rs`, beside `security_mcp_response_body_redaction.rs` and `unit_mcp_router.rs`. There is no `tests/integration/mcp/`.
 
 ## Testing this service
 - **Unit tests:** `cargo nextest run --filter-expr 'package(mcp-server)'`

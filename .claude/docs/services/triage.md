@@ -18,8 +18,8 @@ L1 streaming distillation layer (chunk #60 scaffold; chunks #61+ fill the implem
 - `tracing` events at `triage.{baseline,cue,pattern,lifecycle}.*` targets (registered in `pulse-app/src/observability.rs::AllowList`).
 
 ### Dependencies
-- Workspace-inherited: `tdigest` (streaming percentiles per chunk #61), `dashmap` (per-service tracker map), `bincode` (corpus persist serialization), `tokio` (broadcast + sleep loops), `tracing`, `thiserror`, `serde`, `specta` (optional via `taurpc-runtime` feature for TauRPC envelope types).
-- Internal: `crates/security` (PII scrubber consumed at cue emission boundary, deferred to chunk #70+).
+- Workspace-inherited: `tdigest` (streaming percentiles per chunk #61), `dashmap` (per-service tracker map), `bincode` (corpus persist serialization), `tokio` (broadcast + sleep loops), `duckdb` (the L1a SQL aggregation queries of `baseline/sql.rs`, chunk #79), `tokenizers` (the digest assembler's token budget, chunk #81; its tokenizer file is fetched and hash-checked by `build.rs`), `tracing`, `thiserror`, `serde`, `specta` (optional via `taurpc-runtime` feature for TauRPC envelope types).
+- Internal: none — `crates/triage/Cargo.toml` names no workspace crate (no `security` dependency).
 
 ## Internal conventions
 - **Module layout:** 8 sub-modules (7 from the chunk #60 scaffold, `cadence` since chunk #80):
@@ -42,7 +42,7 @@ L1 streaming distillation layer (chunk #60 scaffold; chunks #61+ fill the implem
 
 ## Entry points for modification
 - **Public contract:** `crates/triage/src/contract.rs`
-- **Per-module impl:** `crates/triage/src/{baseline,pattern,cue,digest,interpretation,incident,lifecycle}/`
+- **Per-module impl:** seven directories, `crates/triage/src/{baseline,cadence,cue,digest,incident,lifecycle,pattern}/`, and one file, `crates/triage/src/interpretation.rs`
 - **Boot wiring:** `pulse-app/src/engine_boot.rs` (`engine_boot::start`, the one shared engine boot both programs call — constructs broadcasts, builds the baseline state, spawns heartbeats; `main.rs` wires no engine part itself and only threads the returned `Arc<dyn Trait>` handles into the window app's resolvers; the console program mounts no resolver)
 - **Resolvers:** `pulse-app/src/{services_router,storm_observer,baseline_observer,restart_observer}.rs` (chunk-specific TauRPC routers + observer adapters)
 - **Tests:** unit tests inline per sub-module; integration via boot-smoke + cue emission scenarios.

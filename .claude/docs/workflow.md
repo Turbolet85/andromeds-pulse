@@ -69,7 +69,7 @@ git add <files>
 git commit -m "feat(ingest): …"
 
 # 5. Pre-push check (Linux dev host, ci.yml's Node major first on PATH), the merge-base probe, then push + open PR
-cargo xtask pre-push:linux                       # six stages; exit 0 green / 1 red / 2 cannot-evaluate
+cargo xtask pre-push:linux                       # six stages, the sixth one console engine cycle on loopback 24317 / 24318; exit 0 green / 1 red / 2 cannot-evaluate
 m="$(git ls-remote origin refs/heads/main | cut -f1)" && test -n "$m" && git merge-base --is-ancestor "$m" HEAD   # red: bring it to the operator; never clear it by a fetch, merge or rebase
 git push -u origin feat/my-task
 gh pr create --fill

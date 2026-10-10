@@ -1,0 +1,90 @@
+# Cascade step-2 sweep — 2026-10-10-engine-harness-proofs-completed.
+# One pattern per RETIRED claim of this pass: its wording and its mechanism, not only the name it went by.
+
+[[pattern]]
+id = "no-port"
+regex = 'binds no port and starts no|[Nn]o stage starts|starts no `pulse-app`|bound no port'
+
+[[pattern]]
+id = "seed"
+regex = 'seed log|a seed\b|seed of|wrote itself|it wrote itself|record it wrote'
+
+[[pattern]]
+id = "ready-accept"
+regex = 'accepted connection on both|connection accepted on both|connection is accepted on|connection accepted on `127'
+
+[[pattern]]
+id = "two-labels"
+regex = '`accepting` \| `refusing`|accepting.{1,6}refusing'
+
+[[pattern]]
+id = "receivers-line"
+regex = 'never both accepted|only when the last readiness verdict'
+
+[[pattern]]
+id = "cycle-labels"
+regex = 'injector-build-failed|seven refusal'
+
+[[pattern]]
+id = "prepush-reasons"
+regex = 'restore-failed:bindings|[Rr]easons, complete'
+
+[[pattern]]
+id = "census"
+regex = 'third socket|not measured from the process|socket list'
+
+[[pattern]]
+id = "lock-unasserted"
+regex = 'not asserted by|read on a hand run'
+
+[[pattern]]
+id = "key-path"
+regex = 'was not read from its log|which key path'
+
+[[pattern]]
+id = "five-pins"
+regex = 'five pins|five tests|five xtask pins'
+
+[[pattern]]
+id = "lint-roots"
+regex = '`pulse-app/ui/src` · `xtask/src`|`pulse-app/tests` and `xtask/src`|`pulse-app/tests`, `xtask/src`'
+
+[[pattern]]
+id = "picked-ports"
+regex = 'picked loopback ports|two picked|bind-and-release'
+
+[[pattern]]
+id = "no-shell-test"
+regex = '[Nn][Oo] committed shell-level test|driven once by hand, no committed test'
+
+[[pattern]]
+id = "one-binary"
+regex = 'one test binary|that `integration_console_engine` produces'
+
+[[pattern]]
+id = "isolation"
+regex = 'per-process isolation'
+
+[[pattern]]
+id = "prepush-name"
+fixed = 'pre-push:linux'
+
+[[pattern]]
+id = "ready-name"
+fixed = 'harness:ready'
+
+[[pattern]]
+id = "cycle-name"
+fixed = 'harness:engine-cycle'
+
+[[pattern]]
+id = "pending-rows"
+regex = 'engine-boot-rejected-port-and-socket-census-coverage|harness-cleanup-verdict-and-boot-spawn-shell-coverage|harness-log-family-resolution-coverage|engine-log-arm-mutation-and-engine-cycle-glue-coverage|quarantine-tracking-ps1-mirror-coverage'
+
+[[pattern]]
+id = "tests-dir"
+regex = 'no separate `tests/`|is the exception|co-located'
+
+[[pattern]]
+id = "warm-time"
+regex = '\b89 s\b|\b90 s\b'

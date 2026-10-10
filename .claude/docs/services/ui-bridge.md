@@ -18,11 +18,11 @@ Owns the TauRPC bridge between Rust and webview. Hosts the cross-cutting envelop
 - Auto-generated TypeScript bindings: `pulse-app/ui/src/bindings/index.ts` (one tracked file for the whole procedure surface).
 
 ### Dependencies
-- `taurpc` derive macro (router-level type-safe IPC).
-- `tauri` 2.x core.
-- `serde` + `serde_json` for `AppError` serialization.
-- `thiserror` 2.x for module-internal error enums.
-- `anyhow` 1.x at the boundary (`main.rs` + non-IPC top-level).
+- `taurpc`, `tauri`, `specta`, `tokio` — all four optional, gated so `xtask` and type-only consumers can opt out of the Tauri runtime.
+- `serde` for `AppError` and envelope serialization (`serde_json` is a dev-dependency only).
+- `thiserror` 2.x for module-internal error enums; `chrono`, `tracing`, `toml`.
+- Seven workspace crates by path: `ingest`, `buffer`, `viz`, `snapshot`, `plugins`, `workspace-detector`, `mcp-server`.
+- `anyhow` is not a dependency of this crate.
 
 ## Internal conventions
 - **`AppError` enum (binding):** `Validation { field, reason }`, `NotFound { resource }`, `Internal { message }`, `Plugin { plugin_id, message }`, `Storage { message }`, `Ingest { message }`. All variants `Serialize`-able.
@@ -38,8 +38,9 @@ Owns the TauRPC bridge between Rust and webview. Hosts the cross-cutting envelop
 - **No `pub use` re-exports across crate boundaries** — only the explicit contract module of each crate exposes public surface.
 
 ## Entry points for modification
-- **AppError enum:** `crates/ui-bridge/src/error.rs`
-- **Cross-cutting envelope:** `crates/ui-bridge/src/{app_info,health,ready,settings}.rs`
+- **AppError enum:** `crates/ui-bridge/src/contract.rs` (there is no `error.rs`); `AppInfo`, `Settings`, `ReadyChecks` and `ReadyEnvelope` are in the same file
+- **Cross-cutting envelope:** `crates/ui-bridge/src/health.rs` — the `IntrospectionApi` trait and its `IntrospectionApiImpl` carry all five procedures (`app_info` / `health` / `ready` / `get_settings` / `update_settings`) and `HealthEnvelope`. Of the four files once named here only `health.rs` exists.
+- **Own routers:** `crates/ui-bridge/src/telemetry.rs` (`TelemetryApi`), `crates/ui-bridge/src/workspace_ipc.rs` (`WorkspaceApi`)
 - **TauRPC type generation:** the `emit_taurpc_bindings` test in `pulse-app/src/main.rs` rewrites the tracked `pulse-app/ui/src/bindings/index.ts` when the workspace tests run (`pulse-app/build.rs` is `tauri_build::build()` only)
 - **Capability JSON:** `pulse-app/capabilities/{default,tray,notification,updater,plugin-fs,clipboard}.json` (six files; identifiers `pulse:default` … `pulse:clipboard`)
 - **Tests:** colocated per module

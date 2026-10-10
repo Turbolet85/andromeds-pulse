@@ -981,3 +981,53 @@ says so to the operator for Conductor's side before it lands.
 **Why:** The chunk aimed the agent harness at the console engine and graded its log in CI; the registry described a harness that builds, spawns and reads the window app alone.
 **Kept:** The exit-witness arm's classification stays PROVISIONAL in security-plan and is not restated here. Which key path the engine of a cycle takes was not read from its log; the entry says so.
 **Ref:** .andromeda/runs/2026-10-10T16-47-34Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — the readiness verb reads ready only over this run's own bound records
+**Section:** §Occupied Resources → xtask CLI surfaces (`cargo xtask harness:ready`; the `scripts/agent-run.{sh,ps1}` entry) · → Filesystem locations (the `run/andromeda-pulse.pid` bullet) · → Environment variables (`ANDROMEDA_PULSE_LOGFILE`)
+**Change:**
+- Was "`ready` = the status verdict `running-healthy` plus a TCP connection accepted on each OTLP port", receiver labels `accepting` | `refusing`; now `ready` needs both receivers `accepting`, and the labels are three: `accepting` (the connection accepted AND, after the last `app.boot.engine` record, an INFO record of that receiver's bind target, `app.boot.otlp.grpc.bind` / `app.boot.otlp.http.bind`, with `bind_address` `127.0.0.1:` and that port), `foreign` (accepted, no such record: a failed-bind ERROR record, another port, the other receiver, a record before the last boot record, no boot record), `refusing` (not accepted).
+- The verb probes both ports, reads the log family once, takes the program by `harness_status::program_of` and still passes the status through `for_program`; `read_program` is `harness:status`'s. Verdict words, exits and the six members unchanged; both programs.
+- `agent-run.sh boot` prints a second failure line when the last verdict held `foreign` (`a receiver port accepts but this run's log holds no bound record for it: …`); both lines can print. `agent-run.ps1` is not edited and matches `refusing` alone.
+- The pid-file bullet and the script entry restate the decision with the bound-record condition.
+**Why:** An accepted loopback connection does not say whose listener accepted it: with another process on the port the verb read `ready` and the boot verb printed `boot: ready`. Fixed at the verb, for both programs, on the operator's word at the plan dialog (the pc overseer, 2026-10-10).
+**Kept:** For the window program the `foreign` reading is pinned at the decision and not read live. The ps1 script's missing `foreign` line stays with the route entry that retires the other operating systems.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — the pre-push check's sixth stage runs a real console engine cycle (PROVISIONAL)
+**Section:** §Occupied Resources → xtask CLI surfaces (`cargo xtask pre-push:linux`; `cargo xtask ci-gates`; `cargo xtask harness:engine-cycle`; the `agent-run` entry's callers) · → Network ports (`:24317` / `:24318`) · → Filesystem locations (the pid file's readers; the harness-made data dirs) · → Environment variables (`PUPPETEER_CACHE_DIR`)
+**Change:**
+- Was "It binds no port and starts no `pulse-app`", stage six reading `ci-gates` over a seed log the stage wrote; now the sixth stage, and no other, starts `andromeda-pulse-engine` and binds loopback 24317 and 24318, never 4317 or 4318. Order: the stage data dir removed and created; a cycle port already accepting → `cannot-evaluate` / `engine-port-taken`, nothing started; `harness:engine-cycle --data-dir {that dir}`; both ports and the stage data dir's pid file read — one accepting or alive → `cleanup` once and `stage-failed:ci-gates` whatever the cycle returned; cycle exit 2 → `cannot-evaluate` / `engine-cycle-unevaluated`; exit 0 → `ci-gates` over the same data dir; any other exit red.
+- Reasons, complete: eleven (was nine): `engine-port-taken`, `engine-cycle-unevaluated` added. Stage names, order and the six verdict members unchanged; a stage stopped `cannot-evaluate` is listed `"ok": false`.
+- The exact child set gains one exception: the stage's single `cleanup` child also carries the two cycle port variables (also registered under Environment variables).
+- `harness:engine-cycle` gains an eighth refusal label, `port-taken` (a cycle port already accepting; read before `HOME`; nothing built or started, no data dir), and a third caller, this stage. `ci-gates`' pre-push caller reads the cycle's log family, only when the cycle exited 0. `agent-run.sh cleanup` gains this stage as a caller; the pid file gains it as a reader.
+- Readings: four green runs, 107.04 to 110.44 s warm with the engine built in release; the stage 18.8 to 19.0 s over 335 records.
+**Why:** A stage that reads a record it wrote itself reads nothing. The change is a boundary widening: the operator's reading (the pc overseer, 2026-10-10, at the plan dialog, relayed verbatim in the wrap directive), PROVISIONAL — the founder's own word is owed and supersedes it.
+**Kept:** P-103's acceptance is not re-worded. Not read live: a taken port on 24317 / 24318, and the teardown after a cycle that left an engine.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — the engine's sockets, lock file and key path are read on a spawned engine; test-only ports and claim files registered
+**Section:** §Occupied Resources → Network ports (the two-receivers bullet; a new test-only range) · → Filesystem locations (the out-of-data-dir lock file; a new `target/test-ports/` bullet) · → Environment variables (the bullet of what `harness:engine-cycle` sets)
+**Change:**
+- Was "That no third socket listens is by construction and was not measured"; now it is also read from a spawned console engine's socket list under `/proc`: exactly the two receivers on `127.0.0.1`, no socket beyond them, and under a rejected gRPC port variable `invalid_port`, that receiver unstarted, the HTTP receiver alone listening. Not read on the window app.
+- Was "the lock file's placement is not asserted by a test"; now a spawned arm asserts it in both environments (a runtime dir handed and not): the rule's directory, zero bytes, mode `0o600`, nothing under the data dir, its name and directory 0 times in the log family. Residual (2) names who meets the temp-dir fallback on every run: an engine started by `harness:engine-cycle`, by the pre-push stage, or by a spawned arm handing no runtime dir.
+- Was "which key path the engine then took was not read"; now: handed a passphrase and no session bus, the engine takes the passphrase fallback after opening its lock file — read on the spawned suite's engine (`corpus.keychain.fallback`), not on a cycle's own log.
+- New: `:20000`–`:31999` (24317 and 24318 left out), test-only: the three port-using test binaries CLAIM each port under an advisory file lock in `target/test-ports/` instead of binding port 0 and releasing it. New: `target/test-ports/`, one empty file per claimed number, git-ignored, never unlinked, removed by `cargo clean`.
+**Why:** The chunk committed the three readings the console-engine entry point had left unmeasured, and its tests had to stop colliding on ports: with bind-and-release one of seven hand runs failed; 14 of 14 after the claims (a count, not an exclusion).
+**Kept:** `pulse-app/tests/integration_engine_boot.rs` still picks by bind-and-release, and the claim files accumulate; neither had an owner at the amendment. A proposal to register the variables test code hands a child was declined: the registry lists what a program reads or sets.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — the xtask package's integration tests and the two lints that read them
+**Section:** §Stack and Technologies → Gate-script pins (test-only) · §Occupied Resources → xtask CLI surfaces (`cargo xtask check:english-sources`; `cargo xtask quarantine-tracking`)
+**Change:**
+- Gate-script pins: the `xtask` package has its first integration tests, two binaries in `xtask/tests/` (`agent_run_shell`, 19 tests; `engine_cycle_refusals`, 6) over `xtask/tests/common/mod.rs`, running the committed `scripts/agent-run.sh` and the built `harness:engine-cycle` verb with `bash` on real console engines. With three new spawned arms of `integration_console_engine.rs`, a host that runs the workspace tests needs `bash`, a Linux `/proc`, an advisory file lock under `target/` and the engine built in the test profile. No dependency, manifest or lockfile change. They run in `lint / test`, `mcp-server tests` and `coverage gate`.
+- The quarantine script's pins: was five; now six.
+- `check:english-sources`: was five roots; now six, `xtask/tests` added. `quarantine-tracking`: was four search dirs; now five, `xtask/tests` added, in the `.sh` and the `.ps1` mirror. An absent `xtask/tests` fails both.
+**Why:** The shell-level and refusal pins drive processes, which a co-located test module cannot; the two lints had to read the new directory in the same commit or it would stand unlinted.
+**Kept:** The `.ps1` mirror's new entry is parsed, never run.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/
+
+## 2026-10-10-engine-harness-proofs-completed — the two test-side leftovers take their dispositions from the route-resolve card
+**Section:** §Occupied Resources → Network ports (the test-only range) · → Filesystem locations (the `target/test-ports/` bullet)
+**Change:** Was "no owner named" on both; now `pulse-app/tests/integration_engine_boot.rs`'s bind-and-release picking is owned by the route entry `Shared telemetry test data`, and on the accumulating claim files nothing is owed (empty, bounded by the range, removed by `cargo clean`).
+**Why:** Both were brought to the card as found and not owned; the operator gave each its disposition there (the pc overseer, 2026-10-10).
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/

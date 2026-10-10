@@ -1,7 +1,7 @@
 # `viz` — Query Layer + Real-time Push
 
 ## Responsibility
-Owns the query layer feeding webview WebGPU charts. Hosts the `traces.*` / `metrics.*` / `logs.*` TauRPC routers. Aggregates buffer data by service / time-bucket via DuckDB prepared statements; emits real-time push streams as binary Arrow IPC payloads via Tauri Channel API.
+Owns the query layer feeding webview WebGPU charts: `query_traces` / `query_metrics` / `query_logs` read buffer data through DuckDB prepared statements and return paginated rows. The `traces.*` / `metrics.*` / `logs.*` TauRPC routers that call them are hosted in `pulse-app/src/viz_routers.rs`, and the real-time push streams are bound by `pulse-app` (below); this crate links no `tauri`, `taurpc` or `arrow`.
 
 ## Key integrations
 
@@ -10,15 +10,14 @@ Owns the query layer feeding webview WebGPU charts. Hosts the `traces.*` / `metr
 - `buffer` broadcast channel for real-time fan-out.
 
 ### Publishes to
-- TauRPC routers: `traces.query`, `metrics.query`, `logs.query` (paginated result sets).
+- The query functions behind `traces.query`, `metrics.query`, `logs.query` (paginated result sets); the routers themselves are `pulse-app`'s.
 - The push streams `pulse://stream/spans` / `metrics` / `logs` (binary Arrow IPC) are bound by the `streams.subscribe_{spans,metrics,logs}` procedures of the `pulse-app` crate (`Channel<Vec<u8>>` over `buffer::BroadcastSenders`, `pulse-app/src/streams.rs`), not by this crate.
 - `tracing` events: `viz.query.{traces|metrics|logs}`, `viz.tick`, `metric.trace.latency_percentiles`.
 
 ### Dependencies
 - `duckdb` crate (read-side prepared statements).
-- `arrow-rs` 55.x for Arrow RecordBatch + `arrow_ipc::StreamWriter` to emit binary payloads.
-- `tauri` 2.x for Channel API.
-- `taurpc` for IPC router registration.
+- `specta` (derive) and `serde` for the row and argument types the bindings export; `chrono`, `tokio`, `thiserror`, `tracing`, `tracing-error`.
+- Not dependencies of this crate (`crates/viz/Cargo.toml`): `arrow`, `tauri`, `taurpc`. The Channel binding belongs to `pulse-app/src/streams.rs` (which relays the bytes `buffer`'s broadcast carries); router registration to `pulse-app/src/viz_routers.rs`.
 
 ## Internal conventions
 - **Prepared statements ONLY** — `Connection::prepare("SELECT … WHERE service_name = ?").execute([&service_name])`. NEVER `format!` SQL with user input.
@@ -35,8 +34,9 @@ Owns the query layer feeding webview WebGPU charts. Hosts the `traces.*` / `metr
 
 ## Entry points for modification
 - **Query routers:** `pulse-app/src/viz_routers.rs` (`TracesApiImpl` / `MetricsApiImpl` / `LogsApiImpl`); the query layer they call is `crates/viz/src/query.rs` + `state.rs` (`VizState`)
-- **Aggregation queries:** `crates/viz/src/aggregator.rs` (time-bucket grouping, percentile computation)
-- **Channel emit pipeline:** `crates/viz/src/stream.rs` (broadcast subscriber → Arrow IPC encoder → Tauri Channel)
+- **Queries:** `crates/viz/src/query.rs` holds all three query functions and their row / argument types; there is no `aggregator.rs`
+- **Contract + heartbeat payload:** `crates/viz/src/contract.rs` (`Error`, `VizHeartbeat`, `heartbeat_payload`)
+- **Channel emit:** not this crate — `pulse-app/src/streams.rs`; there is no `stream.rs`
 - **Tests:** colocated per module
 
 ## Testing this service
