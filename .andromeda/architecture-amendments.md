@@ -829,3 +829,28 @@ The entry also carries both rejected alternatives, the deferred `AttentionCue` t
 - CI/CD approach: a `pull_request` run builds the pull request's merge ref, not the pushed tip (measured: `88d5ed30` is `e2931127` merged into `main`'s `178ebac5`); its log's `git.commit.sha` names the merge commit; "equal source" across such runs means the branch tip AND `main`'s tip both unchanged; the merged tree equalled the tip's on that run (0 files differ), which holds only while `main` holds nothing the branch lacks.
 **Why:** the smoke now reads the app past the point where both red runs ended and keeps what a run that ends needs to show. The files and the variable read were classified routine harness evidence, not a boundary widening, by the pc overseer (founder-delegated) at the chunk's plan review, with a standing stop if the display output carries a watched service's telemetry. The merge-ref fact was measured and recorded on the operator's direction at the wrap: a later plan's "equal source" reads it here.
 **Ref:** .andromeda/runs/2026-10-09T19-51-29Z-wrap/
+
+## 2026-10-09-pre-push-check-native-on-linux — the pre-push:linux row describes the native check
+**Section:** §Occupied Resources → xtask CLI surfaces, the `cargo xtask pre-push:linux` row
+**Change:** The row describes a verb that runs on the Linux dev host itself; was "the WSL Linux pre-push verb … Windows host only", every call going through `wsl.exe` into a distro clone. Now:
+- Linux alone; any other system reads `cannot-evaluate` / `not-linux`.
+- The verdict document has six members, `{verdict, reason, head, tree, stages[{name, ok, ms}], missing[]}`, pinned by set equality, none carrying an environment value or a path; was eight, with `remediation` and `cache{bytes, cap, cleaned}`.
+- Reasons, complete: `all-stages-ok` · `not-linux` · `pins-unreadable` · `home-unset` · `provisioning-missing` · `run-dir-unusable` · `tree-unreadable` · `stage-failed:{stage}` · `restore-failed:bindings`; `sync-mismatch` is gone.
+- Order of a run: host guard → two pins from the repo (the Rust channel, ci.yml's Node major) → `HOME` → provisioning probes → per-run area → `head` and `tree` → six stages in the working tree, output on stderr.
+- Every probe and stage child: a cleared environment plus `HOME`, `PATH`, `ANDROMEDA_PULSE_DATA_DIR`, `PUPPETEER_CACHE_DIR` (the `npm` stage only), `GIT_INDEX_FILE` (the tree-id git calls only); no session bus, runtime dir or display variable.
+- `missing[]` names: `rust:{channel}`, `rust:clippy`, `cargo-nextest` (the last two probed only when the channel is listed), `node:{pin} (found {version})` with `none` / `unreadable`, `tool:npm`, `tool:git`, `tool:cc`, `tool:python3`. The apt-list pin and the one `sudo apt-get install` line are gone; the verb installs nothing.
+- The per-run area `target/pre-push/run/` is reset once provisioning has passed, so a `provisioning-missing` run rewrites only the report twin. The clone, its 40 GiB cap and the binary-patch sync are gone.
+- The `test` stage's rewrite of the tracked bindings is put back as found; `restore-failed:bindings` when it cannot; the restore does not run on a signal.
+- "reads no new env var" is retired: the verb reads `HOME` and `PATH` by value and prints or writes neither.
+- Node is the first `node` on the caller's PATH; on the dev host a user-level `mise` Node 24 (v24.21.0, npm 11.19.0, as measured there) beside the default Node 26. The other project's Node install is no longer read.
+**Why:** The chunk rebuilt the verb natively and measured it green on the dev host twice. The reset-after-provisioning order, the `home-unset` reason and the `missing[]` names are implement's deviations, accepted for these rows by the operator (the pc overseer, 2026-10-10).
+**Kept:** "Dev-host only — not wired into CI"; the three exits; the six stage names and their order; the `check:english-sources` row's mention of the `source-lint` stage.
+**Ref:** .andromeda/runs/2026-10-10T01-19-03Z-wrap/
+
+## 2026-10-09-pre-push-check-native-on-linux — HOME, PATH and PUPPETEER_CACHE_DIR registered as harness-only
+**Section:** §Occupied Resources → Environment variables (two new rows)
+**Change:** Two rows are new.
+- `HOME` · `PATH`: SYSTEM variables, not `ANDROMEDA_PULSE_*` inputs, read harness-only and by value by `cargo xtask pre-push:linux` to build the environment its stage children receive. `HOME` unset or empty reads `cannot-evaluate` / `home-unset`. `PATH` is searched, absolute entries only, for the first directory holding a `node` file, and that directory alone is carried into the stage PATH between `{HOME}/.cargo/bin` and `/usr/local/bin:/usr/bin:/bin`. No value of either is printed or written.
+- `PUPPETEER_CACHE_DIR`: harness-only, SET by the verb into its `npm` stage's children only, as the absolute `target/pre-push/run/puppeteer`, so the stage's browser download never touches `~/.cache/puppeteer`; read by no product code. The same row records that the verb SETs `GIT_INDEX_FILE` (`target/pre-push/run/index`) for the three git calls that compute `head` and `tree`, and `ANDROMEDA_PULSE_DATA_DIR` (`target/pre-push/run/data`) for every probe and stage child.
+**Why:** The native verb reads two system variables and sets one variable no row held; the registry lists every harness-only variable beside the product's own.
+**Ref:** .andromeda/runs/2026-10-10T01-19-03Z-wrap/

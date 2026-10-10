@@ -1,0 +1,203 @@
+[
+{
+"tool": "cascade",
+"v": "1.2",
+"sha8": "89172b3d",
+"ts": "2026-10-10T01:34:50Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"baseline 8f655cae (pre-CI parent — the oldest of 1 pre-CI commit(s), cb8cc4dc)",
+"wsl · new 0 · standing 2 · leaf 5 · curation 0 · base 0 · control architecture.md:250 (prose)",
+"pre-push · new 5 · standing 3 · leaf 6 · curation 1 · base 0 · control architecture.md:250 (prose)",
+"clone · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · case-variants +1 · control architecture.md:250 (prose)",
+"windows-host · new 0 · standing 2 · leaf 3 · curation 1 · base 0 · control architecture.md:250 (prose)",
+"apt-remedy · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:250 (prose)",
+"eight-members · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:250 …",
+"viola-node · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:250 (prose)",
+"no-new-env · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:250 (pr…",
+"cannot-run · 0 rows (control fired) — a statement about this pattern, not the masters · control registries/contracts/te…",
+"patch-sync · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:250 (prose)",
+"stage-5 · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · case-variants +1 · control test-plan.md:227 (prose)",
+"settle-line · new 1 · standing 6 · leaf 3 · curation 0 · base 0 · control architecture.md:180 (prose)",
+"node-22 · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:250 (prose)",
+".andromeda/test-plan.md:134 wsl standing @c1310/3064 …st (its evidence: 30 WSL trials each recording `signal 15 (TERM)`…",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:32 wsl standing edited mixed ×2 @c557/5476 … WSL…",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:32 wsl @c+4180/5476",
+"CLAUDE.md:14 wsl leaf … pre-push) / `pre-push:linux` (WSL Linux pre-push check) / `perf:budget` (the perf-budget grader…",
+"CLAUDE.md:36 wsl leaf …stage) + `pre-push:linux`, the WSL Linux pre-push check (six stages) + `perf:budget` (grades the…",
+".claude/rules/verification-harness.md:96 wsl leaf ×3 …indows host with the WSL `Ubuntu` distro (`wsl.exe`) — so it cann…",
+".claude/docs/commands.md:103 wsl leaf …ppy, test, ci-gates) in a WSL Ubuntu clone of HEAD + worktree; exit 0 green / 1 …",
+".claude/docs/tests-summary.md:90 wsl leaf ×2 …a Windows host with the WSL `Ubuntu` distro (`wsl.exe`), so it cannot run…",
+".andromeda/architecture.md:247 pre-push new ×3 … value by `cargo xtask pre-push:linux` (`xtask/src/pre_push.rs`; chunk …",
+".andromeda/architecture.md:248 pre-push new ×5 …y, SET by `cargo xtask pre-push:linux` into its `npm` stage's children …",
+".andromeda/architecture.md:252 pre-push standing edited mixed ×12 @c6472,14485/21972 …, and as `pre-push:linux`'s `sour…",
+".andromeda/architecture.md:252 pre-push @c+14520,14560,14681,15127,16053,16141,16264,17150,17436,18740/21972",
+".andromeda/security-plan.md:85 pre-push new ×3 …and-closed`), and the `pre-push:linux` xtask verb's by-value read of `H…",
+".andromeda/security-plan.md:138 pre-push new ×3 @c6041,6069,6101/8975 …, `cargo xtask pre-push:linux` (`xtask/src/pre_p…",
+".andromeda/security-plan.md:395 pre-push new ×7 @c3463,3689,3717,4338,4425,4750,4860/6455 …26-10-09-pre-push-check-nati…",
+".andromeda/test-plan.md:227 pre-push standing edited mixed ×3 @c4078,4136,4194/4575 …e 5 of the pre-push stages, then r…",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:32 pre-push standing edited mixed ×9 @c13/5476 ……",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:32 pre-push @c+108,143,282,1282,1885,1967/5476",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:32 pre-push @c+3242,4751/5476",
+".claude/rules/verification-harness.md:157 pre-push curation …ated `npm ci` (the pre-push `npm` stage) then failed on th…",
+"CLAUDE.md:14 pre-push leaf ×3 … source lint; CI lint-test + pre-push) / `pre-push:linux` (WSL Linux pre-push check) / `…",
+"CLAUDE.md:36 pre-push leaf ×3 …/1/2; ci.yml lint-test + the pre-push `source-lint` stage) + `pre-push:linux`, the WSL L…",
+".claude/rules/verification-harness.md:85 pre-push leaf …e runner system); local: `pre-push:linux`'s `source-lint` stage.",
+".claude/rules/verification-harness.md:96 pre-push leaf ×3 - `xtask pre-push:linux` (added 2026-09-29) — the local Linux…",
+".claude/docs/commands.md:103 pre-push leaf cargo xtask pre-push:linux                                     # Windows hos…",
+".claude/docs/tests-summary.md:90 pre-push leaf ×3 `cargo xtask pre-push:linux` (2026-09-29) is the local Linux pre-push…",
+".andromeda/test-plan.md:223 clone standing …e_connection` — asserts the clone is a DISTINCT `Arc` and still sees the sa…",
+".claude/rules/verification-harness.md:96 clone leaf …e_push.rs`). Syncs a distro clone to HEAD + the working tree as on…",
+".claude/docs/tests-summary.md:90 clone leaf …t a CI step: it syncs a distro clone to HEAD + the working tree (tree-id v…",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:32 windows-host standing edited @c535/5476 … Win…",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:42 windows-host standing …; on a Windows host th…",
+".claude/docs/session-learnings.md:1422 windows-host curation …meout to 180s for Windows hosts (spec amendment); (b) pre…",
+".claude/rules/verification-harness.md:96 windows-host leaf …h check, needing a Windows host with the WSL `Ubuntu` distr…",
+".claude/docs/commands.md:103 windows-host leaf …                     # Windows host: six Linux-reachable stages (script…",
+".claude/docs/tests-summary.md:90 windows-host leaf …sh check — it needs a Windows host with the WSL `Ubuntu` distro (`w…",
+".claude/rules/verification-harness.md:96 apt-remedy leaf …-evaluate` with one apt remediation line, never green; binds …",
+".claude/rules/verification-harness.md:96 viola-node leaf ×2 …Its Node 24 is the Viola repo's `~/.local/viola-node/bin` …",
+".claude/docs/tests-summary.md:90 viola-node leaf ×2 …. Its Node 24 is the Viola repo's `~/.local/viola-node` install (t…",
+".claude/rules/verification-harness.md:96 patch-sync leaf …working tree as one binary patch through a temporary `GIT_IND…",
+".andromeda/test-plan.md:227 stage-5 new @c4063/4575 … -i` at that chunk's stage 5 of the pre-push stages, then run by h…",
+".andromeda/architecture.md:180 settle-line standing …rd on every run that reaches the settle verdict, since the smoke r…",
+".andromeda/security-plan.md:447 settle-line standing …st on every run that reaches the settle verdict; as measured on o…",
+".andromeda/test-plan.md:100 settle-line standing edited …t on every run that reaches the settle verdict, so on a run wh…",
+".andromeda/test-plan.md:142 settle-line standing …ord on every run that reaches the settle verdict (as measured on one …",
+".andromeda/obs-plan.md:132 settle-line standing …WARN on every run that reaches the settle verdict — the smoke runs `ca…",
+".andromeda/obs-plan.md:445 settle-line standing …r request on every run that reaches the settle verdict (§10 frame row).",
+".andromeda/obs-plan.md:545 settle-line new @c3692/3882 …N arm on a run that reaches the settle verdict, and the dev-hos…",
+".claude/rules/observability.md:64 settle-line leaf …ord on every run that reaches the settle verdict — the smoke runs `…",
+".claude/rules/observability.md:99 settle-line leaf @c1053/2533 …on every run that reaches the settle verdict, since the…",
+".claude/docs/obs-summary.md:80 settle-line leaf …pu)` on every run that reaches the settle verdict (one run measured, `…",
+".claude/rules/verification-harness.md:96 node-22 leaf …all (the distro's apt ships Node 22) — a cross-project fragility.",
+".claude/docs/tests-summary.md:90 node-22 leaf …la repo's `~/.local/viola-node` install (the distro's apt ships Node 22).",
+"wsl · new 0 · standing 2 · leaf 5 · curation 0 · base 0 · control architecture.md:250 (prose)",
+"pre-push · new 5 · standing 3 · leaf 6 · curation 1 · base 0 · control architecture.md:250 (prose)",
+"clone · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · case-variants +1 · control architecture.md:250 (prose)",
+"windows-host · new 0 · standing 2 · leaf 3 · curation 1 · base 0 · control architecture.md:250 (prose)",
+"apt-remedy · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:250 (prose)",
+"eight-members · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:250 …",
+"viola-node · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:250 (prose)",
+"no-new-env · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:250 (pr…",
+"cannot-run · 0 rows (control fired) — a statement about this pattern, not the masters · control registries/contracts/te…",
+"patch-sync · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:250 (prose)",
+"stage-5 · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · case-variants +1 · control test-plan.md:227 (prose)",
+"settle-line · new 1 · standing 6 · leaf 3 · curation 0 · base 0 · control architecture.md:180 (prose)",
+"node-22 · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:250 (prose)",
+"total (13 patterns) · 48 rows over 12 files",
+"per class · new 7/4 · standing 14/5 · leaf 25/6 · curation 2/2 · base 0/0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "8f655caef468e90844fef54dcc33cef7bd4e426c",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), cb8cc4dc",
+"counts": {
+"wsl": {
+"new": 0,
+"standing": 2,
+"leaf": 5,
+"curation": 0,
+"base": 0
+},
+"pre-push": {
+"new": 5,
+"standing": 3,
+"leaf": 6,
+"curation": 1,
+"base": 0
+},
+"clone": {
+"new": 0,
+"standing": 1,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"windows-host": {
+"new": 0,
+"standing": 2,
+"leaf": 3,
+"curation": 1,
+"base": 0
+},
+"apt-remedy": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"eight-members": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"viola-node": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"no-new-env": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"cannot-run": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"patch-sync": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"stage-5": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"settle-line": {
+"new": 1,
+"standing": 6,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"node-22": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

@@ -1,0 +1,193 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-10T01:47:40Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-113",
+"--text-file",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/note-P-113.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-113: +582 chars (total 1386) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-113",
+"chunk": null,
+"status": "planned",
+"method": "by-construction",
+"ref": "null",
+"acceptance": "The tree builds, tests and runs on Linux alone; it holds no branch, script, link hint or workaround for another operatin… (175 chars)",
+"notes_chars": 802
+},
+"after": {
+"id": "P-113",
+"chunk": null,
+"status": "planned",
+"method": "by-construction",
+"ref": "null",
+"acceptance": "The tree builds, tests and runs on Linux alone; it holds no branch, script, link hint or workaround for another operatin… (175 chars)",
+"notes_chars": 1386
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-10T01:47:40Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-129",
+"--text-file",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/note-P-129.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-129: +904 chars (total 4294) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-129",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The cause of the early exit is named from evidence a run produced, not inferred; with it closed, the boot smoke reads gr… (253 chars)",
+"notes_chars": 3388
+},
+"after": {
+"id": "P-129",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The cause of the early exit is named from evidence a run produced, not inferred; with it closed, the boot smoke reads gr… (253 chars)",
+"notes_chars": 4294
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-10T01:47:40Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--chunk",
+"2026-10-09-pre-push-check-native-on-linux",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"claimed by 2026-10-09-pre-push-check-native-on-linux: 1 · to flip 1 · already verified 0 · below 0",
+"flipped P-103 → verified — On the Linux dev host `cargo xtask pre-push:linux`, started with Node 24 (the ma… (717 chars)",
+"dry-run: nothing written",
+"version: verified 2/47"
+],
+"stderr": null,
+"wrote": [],
+"before": [
+{
+"id": "P-103",
+"chunk": "2026-10-09-pre-push-check-native-on-linux",
+"status": "implemented",
+"method": "integration",
+"ref": "plan.md ## Test Commands entry 16 (d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xtask pre-push:linux) · read a… (669 chars)",
+"acceptance": "On the Linux dev host `cargo xtask pre-push:linux`, started with Node 24 (the major ci.yml pins) first on PATH, exits 0 … (717 chars)",
+"notes_chars": 0
+}
+],
+"after": [
+{
+"id": "P-103",
+"chunk": "2026-10-09-pre-push-check-native-on-linux",
+"status": "verified",
+"method": "integration",
+"ref": "plan.md ## Test Commands entry 16 (d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xtask pre-push:linux) · read a… (669 chars)",
+"acceptance": "On the Linux dev host `cargo xtask pre-push:linux`, started with Node 24 (the major ci.yml pins) first on PATH, exits 0 … (717 chars)",
+"notes_chars": 0
+}
+]
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-10T01:48:35Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--chunk",
+"2026-10-09-pre-push-check-native-on-linux",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"claimed by 2026-10-09-pre-push-check-native-on-linux: 1 · to flip 1 · already verified 0 · below 0",
+"flipped P-103 → verified — On the Linux dev host `cargo xtask pre-push:linux`, started with Node 24 (the ma… (717 chars)",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"version: verified 2/47"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": [
+{
+"id": "P-103",
+"chunk": "2026-10-09-pre-push-check-native-on-linux",
+"status": "implemented",
+"method": "integration",
+"ref": "plan.md ## Test Commands entry 16 (d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xtask pre-push:linux) · read a… (669 chars)",
+"acceptance": "On the Linux dev host `cargo xtask pre-push:linux`, started with Node 24 (the major ci.yml pins) first on PATH, exits 0 … (717 chars)",
+"notes_chars": 0
+}
+],
+"after": [
+{
+"id": "P-103",
+"chunk": "2026-10-09-pre-push-check-native-on-linux",
+"status": "verified",
+"method": "integration",
+"ref": "plan.md ## Test Commands entry 16 (d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xtask pre-push:linux) · read a… (669 chars)",
+"acceptance": "On the Linux dev host `cargo xtask pre-push:linux`, started with Node 24 (the major ci.yml pins) first on PATH, exits 0 … (717 chars)",
+"notes_chars": 0
+}
+]
+}
+]
