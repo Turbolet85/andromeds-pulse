@@ -8,6 +8,10 @@
 //! verdict follows the `harness:status` shape: one pretty-JSON object on
 //! stdout, exit 0 / 1 / 2, `cannot-evaluate` never passing. No value of an
 //! environment variable and no path is printed in it or written with it.
+//!
+//! A boot that ends before the boot verb reads ready takes no settle
+//! verdict. Its exit record and witness label are then read from what it
+//! left in its own data dir, through the settle verdict's own readers.
 
 use std::path::{Path, PathBuf};
 use std::process::{ExitCode, Stdio};
@@ -16,7 +20,7 @@ use std::time::Duration;
 use anyhow::Result;
 use serde_json::{Value, json};
 
-use crate::harness_status::resolve_data_dir;
+use crate::harness_status::{end_file, read_ended, read_pid, resolve_data_dir};
 use crate::harness_witness::WITNESS_FILE;
 
 const MIN_COUNT: u32 = 1;
@@ -29,6 +33,10 @@ const CYCLE_TIMEOUT: Duration = Duration::from_secs(1200);
 
 const SETTLE_VERDICT_FILE: &str = "harness-settled.json";
 const SERIES_VERDICT_FILE: &str = "boot-series.json";
+/// The boot verb's cleanup removes the pid file on a failed boot; the spawn
+/// record and the exit record beside it stay.
+const SPAWN_RECORD_FILE: &str = "andromeda-pulse.spawn";
+const SMOKE_CYCLE: &str = "smoke";
 const LOG_FAMILY_PREFIX: &str = "agent-latest.jsonl";
 const KEPT_FILES: [&str; 4] = ["boot.log", SETTLE_VERDICT_FILE, "xvfb.log", WITNESS_FILE];
 const LABEL_MAX_BYTES: usize = 48;
@@ -60,11 +68,20 @@ enum BootClass {
     Other,
 }
 
+/// What a boot that took no settle verdict left in its own data dir.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct EndRead {
+    ended: String,
+    exit_witness: &'static str,
+}
+
 #[derive(Debug)]
 struct BootRecord {
     ordinal: u32,
     cycle: &'static str,
     settle: Option<Value>,
+    /// Read only when `settle` is absent.
+    end: Option<EndRead>,
 }
 
 pub(crate) async fn run(count: u32) -> Result<ExitCode> {
@@ -72,7 +89,7 @@ pub(crate) async fn run(count: u32) -> Result<ExitCode> {
     let mut records = Vec::new();
     let mut smoke = None;
     if let Some(data_dir) = &data_dir {
-        smoke = read_settle(&data_dir.join("logs").join(SETTLE_VERDICT_FILE));
+        smoke = smoke_record(data_dir);
         let root = workspace_root();
         for ordinal in FIRST_ORDINAL..FIRST_ORDINAL + count {
             let record = run_boot(&root, data_dir, ordinal).await;
@@ -133,15 +150,22 @@ async fn run_boot(root: &Path, data_dir: &Path, ordinal: u32) -> BootRecord {
             ordinal,
             cycle: cycle_label(None, false),
             settle: None,
+            end: None,
         };
     }
 
     eprintln!("harness:boot-series: boot {ordinal}");
     let (exits, timed_out) = run_cycle(root, &boot_dir).await;
+    let settle = read_settle(&logs.join(SETTLE_VERDICT_FILE));
+    let end = match settle {
+        Some(_) => None,
+        None => read_end(&boot_dir),
+    };
     let record = BootRecord {
         ordinal,
         cycle: cycle_label(exits, timed_out),
-        settle: read_settle(&logs.join(SETTLE_VERDICT_FILE)),
+        settle,
+        end,
     };
     if copy_kept(&logs, &data_dir.join("logs").join("series").join(&name)).is_err() {
         eprintln!("harness:boot-series: could not keep the files of boot {ordinal}");
@@ -258,9 +282,22 @@ fn cycle_stops_series(cycle: &str) -> bool {
     matches!(cycle, "timed-out" | "no-record" | "cleanup-not-clean")
 }
 
-fn classify(cycle: &str, settle_verdict: Option<&str>) -> BootClass {
+/// Whether the exit record of a boot that took no settle verdict is an end
+/// the app made itself. `signal 15 (TERM)` and `signal 9 (KILL)` are the
+/// boot verb's own cleanup ending an app still running at the readiness
+/// timeout; the app re-raises a signal and never turns it into an exit code.
+fn ended_by_itself(ended: Option<&str>) -> bool {
+    !matches!(
+        ended,
+        None | Some("signal 15 (TERM)") | Some("signal 9 (KILL)")
+    )
+}
+
+/// `ended` is the exit record of a boot that took no settle verdict.
+fn classify(cycle: &str, settle_verdict: Option<&str>, ended: Option<&str>) -> BootClass {
     match settle_verdict {
         Some("ended") => BootClass::Ended,
+        None if ended_by_itself(ended) => BootClass::Ended,
         Some("settled") if cycle == "complete" => BootClass::Settled,
         _ => BootClass::Other,
     }
@@ -274,8 +311,15 @@ fn settle_verdict(record: &BootRecord) -> Option<&str> {
         .and_then(Value::as_str)
 }
 
+fn exit_record(record: &BootRecord) -> Option<&str> {
+    match &record.settle {
+        Some(_) => None,
+        None => record.end.as_ref().map(|end| end.ended.as_str()),
+    }
+}
+
 fn class_of(record: &BootRecord) -> BootClass {
-    classify(record.cycle, settle_verdict(record))
+    classify(record.cycle, settle_verdict(record), exit_record(record))
 }
 
 /// The series core — pure so the arms are pinnable without a process. It is
@@ -331,6 +375,35 @@ fn read_settle(path: &Path) -> Option<Value> {
         .filter(Value::is_object)
 }
 
+/// The exit record a boot left under `data_dir`, with the witness label for
+/// the pid its spawn record names. No exit record reads as nothing.
+fn read_end(data_dir: &Path) -> Option<EndRead> {
+    let spawn_record = data_dir.join("run").join(SPAWN_RECORD_FILE);
+    let ended = read_ended(&end_file(&spawn_record))?;
+    let exit_witness =
+        crate::harness_witness::label(Some(data_dir), read_pid(&spawn_record), Some(&ended));
+    Some(EndRead {
+        ended,
+        exit_witness,
+    })
+}
+
+/// The smoke step's own boot, read from the top data dir: its settle verdict
+/// or, when it took none, the end it made itself.
+fn smoke_record(data_dir: &Path) -> Option<BootRecord> {
+    let settle = read_settle(&data_dir.join("logs").join(SETTLE_VERDICT_FILE));
+    let end = match settle {
+        Some(_) => None,
+        None => read_end(data_dir).filter(|end| ended_by_itself(Some(&end.ended))),
+    };
+    (settle.is_some() || end.is_some()).then_some(BootRecord {
+        ordinal: FIRST_ORDINAL - 1,
+        cycle: SMOKE_CYCLE,
+        settle,
+        end,
+    })
+}
+
 fn bounded_label(value: Option<&Value>) -> Value {
     match value.and_then(Value::as_str) {
         Some(text)
@@ -344,23 +417,36 @@ fn bounded_label(value: Option<&Value>) -> Value {
 }
 
 /// One boot's entry: its ordinal, how its cycle went, and five members of
-/// its settle verdict reduced to bounded labels and a count.
-fn boot_entry(ordinal: u32, cycle: &str, settle: Option<&Value>) -> Value {
+/// its settle verdict reduced to bounded labels and a count. A boot that
+/// took no settle verdict has `ended` and `exit_witness` from `end` and the
+/// other three null: no settle read ran.
+fn boot_entry(ordinal: u32, cycle: &str, settle: Option<&Value>, end: Option<&EndRead>) -> Value {
     let member = |name: &str| settle.and_then(|settle| settle.get(name));
+    let (ended, exit_witness) = match (settle, end) {
+        (None, Some(end)) => (
+            bounded_label(Some(&json!(end.ended))),
+            bounded_label(Some(&json!(end.exit_witness))),
+        ),
+        _ => (
+            bounded_label(member("ended")),
+            bounded_label(member("exit_witness")),
+        ),
+    };
     json!({
         "ordinal": ordinal,
         "cycle": cycle,
         "verdict": bounded_label(member("verdict")),
-        "ended": bounded_label(member("ended")),
+        "ended": ended,
         "app_exit_record": bounded_label(member("app_exit_record")),
         "windows_settled": member("windows_settled").and_then(Value::as_u64),
-        "exit_witness": bounded_label(member("exit_witness")),
+        "exit_witness": exit_witness,
     })
 }
 
-/// The counts are of the boots this verb ran; the smoke's own settle
-/// verdict, when the data dir holds one, is listed first as ordinal 1.
-fn series_payload(verdict: &str, records: &[BootRecord], smoke: Option<&Value>) -> Value {
+/// The counts are of the boots this verb ran; the smoke's own boot, when the
+/// data dir holds its settle verdict or its own end, is listed first as
+/// ordinal 1.
+fn series_payload(verdict: &str, records: &[BootRecord], smoke: Option<&BootRecord>) -> Value {
     let count = |wanted| {
         records
             .iter()
@@ -368,13 +454,16 @@ fn series_payload(verdict: &str, records: &[BootRecord], smoke: Option<&Value>) 
             .count()
     };
     let per_boot: Vec<Value> = smoke
-        .map(|settle| boot_entry(FIRST_ORDINAL - 1, "smoke", Some(settle)))
         .into_iter()
-        .chain(
-            records
-                .iter()
-                .map(|record| boot_entry(record.ordinal, record.cycle, record.settle.as_ref())),
-        )
+        .chain(records)
+        .map(|record| {
+            boot_entry(
+                record.ordinal,
+                record.cycle,
+                record.settle.as_ref(),
+                record.end.as_ref(),
+            )
+        })
         .collect();
     json!({
         "verdict": verdict,
@@ -417,7 +506,50 @@ mod tests {
             ordinal,
             cycle,
             settle: verdict.map(settle),
+            end: None,
         }
+    }
+
+    /// A boot that took no settle verdict, with what its data dir held.
+    fn unsettled(
+        ordinal: u32,
+        cycle: &'static str,
+        ended: &str,
+        exit_witness: &'static str,
+    ) -> BootRecord {
+        BootRecord {
+            ordinal,
+            cycle,
+            settle: None,
+            end: Some(EndRead {
+                ended: ended.to_string(),
+                exit_witness,
+            }),
+        }
+    }
+
+    const FIXTURE_PID: u32 = 374_465;
+
+    /// A data dir as a failed boot leaves it: the spawn record (when
+    /// `spawn`), the exit record and a witness file of `witness`.
+    fn left_by_a_boot(spawn: bool, ended: &str, witness: &str) -> tempfile::TempDir {
+        let dir = tempfile::TempDir::new().expect("tmp");
+        let run = dir.path().join("run");
+        let logs = dir.path().join("logs");
+        std::fs::create_dir_all(&run).expect("run");
+        std::fs::create_dir_all(&logs).expect("logs");
+        if spawn {
+            std::fs::write(run.join(SPAWN_RECORD_FILE), format!("{FIXTURE_PID}\n")).expect("spawn");
+        }
+        std::fs::write(run.join("andromeda-pulse.exit"), format!("{ended}\n")).expect("exit");
+        std::fs::write(logs.join(WITNESS_FILE), witness).expect("witness");
+        dir
+    }
+
+    fn witness_of_an_exit_call() -> String {
+        format!(
+            "{{\"kind\":\"loaded\",\"pid\":{FIXTURE_PID},\"comm\":\"pulse-app\"}}\n{{\"kind\":\"end\",\"pid\":{FIXTURE_PID},\"tid\":{FIXTURE_PID},\"comm\":\"pulse-app\",\"call\":\"_exit\",\"code\":1,\"errno\":11,\"frames\":[]}}\n"
+        )
     }
 
     fn keys(value: &Value) -> BTreeSet<&str> {
@@ -493,22 +625,151 @@ mod tests {
 
     #[test]
     fn a_boot_is_settled_only_on_a_complete_cycle_and_ended_whatever_the_cycle() {
-        assert_eq!(classify("complete", Some("settled")), BootClass::Settled);
         assert_eq!(
-            classify("status-not-healthy", Some("settled")),
+            classify("complete", Some("settled"), None),
+            BootClass::Settled
+        );
+        assert_eq!(
+            classify("status-not-healthy", Some("settled"), None),
             BootClass::Other
         );
-        assert_eq!(classify("complete", Some("ended")), BootClass::Ended);
+        assert_eq!(classify("complete", Some("ended"), None), BootClass::Ended);
         assert_eq!(
-            classify("status-not-healthy", Some("ended")),
+            classify("status-not-healthy", Some("ended"), None),
             BootClass::Ended
         );
-        assert_eq!(classify("complete", Some("not-settled")), BootClass::Other);
         assert_eq!(
-            classify("complete", Some("cannot-evaluate")),
+            classify("complete", Some("not-settled"), None),
             BootClass::Other
         );
-        assert_eq!(classify("boot-failed", None), BootClass::Other);
+        assert_eq!(
+            classify("complete", Some("cannot-evaluate"), None),
+            BootClass::Other
+        );
+        assert_eq!(classify("boot-failed", None, None), BootClass::Other);
+    }
+
+    #[test]
+    fn a_boot_that_ended_by_itself_before_ready_is_ended_with_its_record_and_label() {
+        assert_eq!(
+            classify("boot-failed", None, Some("exit 1")),
+            BootClass::Ended
+        );
+        let records = [
+            boot(2, "complete", Some("settled")),
+            unsettled(3, "boot-failed", "exit 1", "exit-call"),
+        ];
+        assert_eq!(class_of(&records[1]), BootClass::Ended);
+        assert_eq!(decide_series(&records), "self-ended");
+        let payload = series_payload("self-ended", &records, None);
+        assert_eq!(payload["settled"], 1);
+        assert_eq!(payload["ended"], 1);
+        assert_eq!(payload["other"], 0);
+        let entry = &payload["per_boot"][1];
+        assert_eq!(entry["cycle"], "boot-failed");
+        assert_eq!(entry["ended"], "exit 1");
+        assert_eq!(entry["exit_witness"], "exit-call");
+        assert_eq!(entry["verdict"], Value::Null);
+        assert_eq!(entry["app_exit_record"], Value::Null);
+        assert_eq!(entry["windows_settled"], Value::Null);
+    }
+
+    #[test]
+    fn the_boot_verbs_own_term_and_kill_are_not_self_ends() {
+        for ended in ["signal 15 (TERM)", "signal 9 (KILL)"] {
+            assert!(!ended_by_itself(Some(ended)), "{ended}");
+            let records = [
+                boot(2, "complete", Some("settled")),
+                unsettled(3, "boot-failed", ended, "loaded"),
+            ];
+            assert_eq!(class_of(&records[1]), BootClass::Other, "{ended}");
+            assert_eq!(decide_series(&records), "not-all-settled", "{ended}");
+            let payload = series_payload("not-all-settled", &records, None);
+            assert_eq!(payload["ended"], 0);
+            assert_eq!(payload["other"], 1);
+            assert_eq!(payload["per_boot"][1]["ended"], ended);
+            assert_eq!(payload["per_boot"][1]["exit_witness"], "loaded");
+        }
+    }
+
+    #[test]
+    fn another_signal_is_an_end_the_app_made_itself() {
+        let records = [unsettled(2, "boot-failed", "signal 11 (SEGV)", "loaded")];
+        assert_eq!(class_of(&records[0]), BootClass::Ended);
+        assert_eq!(decide_series(&records), "self-ended");
+    }
+
+    #[test]
+    fn no_exit_record_is_other_with_null_members() {
+        assert!(!ended_by_itself(None));
+        let records = [boot(2, "boot-failed", None)];
+        assert_eq!(class_of(&records[0]), BootClass::Other);
+        assert_eq!(decide_series(&records), "not-all-settled");
+        let entry = boot_entry(2, "boot-failed", None, None);
+        for member in [
+            "verdict",
+            "ended",
+            "app_exit_record",
+            "windows_settled",
+            "exit_witness",
+        ] {
+            assert_eq!(entry[member], Value::Null, "{member}");
+        }
+    }
+
+    #[test]
+    fn a_settle_verdict_outranks_what_the_data_dir_held() {
+        let record = BootRecord {
+            end: Some(EndRead {
+                ended: "exit 1".to_string(),
+                exit_witness: "exit-call",
+            }),
+            ..boot(2, "complete", Some("settled"))
+        };
+        assert_eq!(class_of(&record), BootClass::Settled);
+        let entry = boot_entry(2, "complete", record.settle.as_ref(), record.end.as_ref());
+        assert_eq!(entry["verdict"], "settled");
+        assert_eq!(entry["ended"], Value::Null);
+        assert_eq!(entry["exit_witness"], "loaded");
+    }
+
+    #[test]
+    fn a_boot_dir_is_read_to_its_exit_record_and_witness_label() {
+        let dir = left_by_a_boot(true, "exit 1", &witness_of_an_exit_call());
+        assert_eq!(
+            read_end(dir.path()),
+            Some(EndRead {
+                ended: "exit 1".to_string(),
+                exit_witness: "exit-call",
+            })
+        );
+
+        let no_spawn_record = left_by_a_boot(false, "exit 1", &witness_of_an_exit_call());
+        assert_eq!(
+            read_end(no_spawn_record.path()),
+            Some(EndRead {
+                ended: "exit 1".to_string(),
+                exit_witness: "unreadable",
+            })
+        );
+
+        std::fs::remove_file(dir.path().join("run").join("andromeda-pulse.exit")).expect("remove");
+        assert_eq!(read_end(dir.path()), None);
+    }
+
+    #[test]
+    fn a_witness_file_outside_the_grammar_reads_unreadable_and_the_boot_is_still_ended() {
+        let dir = left_by_a_boot(true, "exit 1", "not a witness line\n");
+        let end = read_end(dir.path()).expect("an exit record");
+        assert_eq!(end.exit_witness, "unreadable");
+        let record = BootRecord {
+            ordinal: 2,
+            cycle: "boot-failed",
+            settle: None,
+            end: Some(end),
+        };
+        assert_eq!(class_of(&record), BootClass::Ended);
+        assert_eq!(decide_series(&[record]), "self-ended");
     }
 
     #[test]
@@ -606,7 +867,7 @@ mod tests {
     #[test]
     fn the_smoke_is_listed_as_ordinal_1_and_stays_out_of_the_counts() {
         let records = [boot(2, "complete", Some("settled"))];
-        let smoke = settle("ended");
+        let smoke = boot(1, SMOKE_CYCLE, Some("ended"));
         let payload = series_payload("all-settled", &records, Some(&smoke));
         assert_eq!(payload["boots"], 1);
         assert_eq!(payload["settled"], 1);
@@ -621,6 +882,68 @@ mod tests {
     }
 
     #[test]
+    fn the_smokes_own_end_is_listed_as_ordinal_1_and_stays_out_of_the_counts() {
+        let top = left_by_a_boot(true, "exit 1", &witness_of_an_exit_call());
+        let smoke = smoke_record(top.path()).expect("the smoke's own end");
+        assert_eq!(smoke.ordinal, 1);
+        assert_eq!(smoke.cycle, "smoke");
+
+        let records = [boot(2, "complete", Some("settled"))];
+        assert_eq!(decide_series(&records), "all-settled");
+        let payload = series_payload("all-settled", &records, Some(&smoke));
+        assert_eq!(payload["boots"], 1);
+        assert_eq!(payload["settled"], 1);
+        assert_eq!(payload["ended"], 0);
+        assert_eq!(payload["other"], 0);
+        let per_boot = payload["per_boot"].as_array().expect("per_boot");
+        assert_eq!(per_boot.len(), 2);
+        assert_eq!(
+            keys(&per_boot[0]),
+            BTreeSet::from([
+                "ordinal",
+                "cycle",
+                "verdict",
+                "ended",
+                "app_exit_record",
+                "windows_settled",
+                "exit_witness",
+            ])
+        );
+        assert_eq!(per_boot[0]["ordinal"], 1);
+        assert_eq!(per_boot[0]["cycle"], "smoke");
+        assert_eq!(per_boot[0]["ended"], "exit 1");
+        assert_eq!(per_boot[0]["exit_witness"], "exit-call");
+        assert_eq!(per_boot[0]["verdict"], Value::Null);
+        assert_eq!(per_boot[1]["ordinal"], 2);
+    }
+
+    #[test]
+    fn a_top_dir_is_listed_from_its_settle_verdict_and_not_from_the_verbs_own_term() {
+        let settled = left_by_a_boot(true, "exit 1", &witness_of_an_exit_call());
+        std::fs::write(
+            settled.path().join("logs").join(SETTLE_VERDICT_FILE),
+            settle("settled").to_string(),
+        )
+        .expect("settle verdict");
+        let smoke = smoke_record(settled.path()).expect("the smoke's settle verdict");
+        assert_eq!(smoke.end, None);
+        let entry = boot_entry(
+            smoke.ordinal,
+            smoke.cycle,
+            smoke.settle.as_ref(),
+            smoke.end.as_ref(),
+        );
+        assert_eq!(entry["verdict"], "settled");
+        assert_eq!(entry["ended"], Value::Null);
+        assert_eq!(entry["exit_witness"], "loaded");
+
+        let ended_by_the_verb = left_by_a_boot(true, "signal 15 (TERM)", "");
+        assert!(smoke_record(ended_by_the_verb.path()).is_none());
+        let empty = tempfile::TempDir::new().expect("tmp");
+        assert!(smoke_record(empty.path()).is_none());
+    }
+
+    #[test]
     fn an_entry_takes_bounded_labels_and_a_count_and_nothing_else() {
         let wide = json!({
             "verdict": "settled",
@@ -629,7 +952,7 @@ mod tests {
             "windows_settled": "four",
             "exit_witness": {"path": "/somewhere"},
         });
-        let entry = boot_entry(2, "complete", Some(&wide));
+        let entry = boot_entry(2, "complete", Some(&wide), None);
         assert_eq!(entry["verdict"], "settled");
         assert_eq!(entry["ended"], Value::Null);
         assert_eq!(entry["app_exit_record"], Value::Null);
@@ -637,9 +960,16 @@ mod tests {
         assert_eq!(entry["exit_witness"], Value::Null);
         let at_the_bound = json!({"ended": "x".repeat(LABEL_MAX_BYTES)});
         assert_eq!(
-            boot_entry(2, "complete", Some(&at_the_bound))["ended"],
+            boot_entry(2, "complete", Some(&at_the_bound), None)["ended"],
             "x".repeat(LABEL_MAX_BYTES)
         );
+        let read_wide = EndRead {
+            ended: "x".repeat(LABEL_MAX_BYTES + 1),
+            exit_witness: "exit-call",
+        };
+        let unsettled_entry = boot_entry(2, "boot-failed", None, Some(&read_wide));
+        assert_eq!(unsettled_entry["ended"], Value::Null);
+        assert_eq!(unsettled_entry["exit_witness"], "exit-call");
     }
 
     #[test]

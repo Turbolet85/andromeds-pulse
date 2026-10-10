@@ -158,5 +158,45 @@
 "lines": 2501,
 "bytes": 2550327
 }
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "9d4071c3",
+"ts": "2026-10-10T03:59:32Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2501→2502 · bytes 2550327→2551736 · term lf",
+"ts 2026-10-10T03:59:20Z · clock 2026-10-10T03:59:32Z · bound 2026-10-10T03:53:11Z (line 2501)",
+"ids 2026-10-10T03:59:20Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2501,
+"bytes": 2550327,
+"terminator": "LF",
+"bound": "2026-10-10T03:53:11Z"
+},
+"after": {
+"lines": 2502,
+"bytes": 2551736
+}
 }
 ]
