@@ -1,0 +1,284 @@
+[
+{
+"tool": "planlint",
+"v": "1.8",
+"sha8": "d8f55cea",
+"ts": "2026-10-10T02:32:10Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-56-46Z-phase",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"fence: 36 entries · plan: andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run/plan.md · rese…",
+"check 9 · CI-outcome reads: 8 · leg operator exempt: 8 · Platform issues consulted: filled · `- Fetched `https://raw.g…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: filled · ``.claude/rules/verification-harness.md` — r…`",
+"check 4 (5) · leg entries with a content atom: 1 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 8 · not ci.py conclusion: 4 → HIT",
+"  gate 25 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/attempts/1/jobs?per_page=100\" --j…",
+"  gate 28 · leg operator · gh run rerun <id> -R Turbolet85/andromeds-pulse --job \"$(gh run view <id> -R Turbolet85/andr…",
+"  gate 31 · leg operator · gh run rerun <id> -R Turbolet85/andromeds-pulse --job \"$(gh run view <id> -R Turbolet85/andr…",
+"  gate 34 · leg operator · gh run rerun <id> -R Turbolet85/andromeds-pulse --job \"$(gh run view <id> -R Turbolet85/andr…",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 4 (15) · grep → wc -l counts asserting exit 0 and last line 0: 0",
+"check 4 (16) · guards whose exclusions leave a new file in: 0 of 1 with an exclusion",
+"check 4 (17) · entries reading a path the wrap writes: 0 of 21 asserting — listed, P5's read",
+"check 4 (17) · a path the wrap writes, read from inside a program an entry runs (a suite, the ledger's tool): not read",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 4 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13)–(16)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "filled",
+"ci_reads": 8,
+"operator": 8,
+"hit": false
+},
+"harness": {
+"slot": "filled",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 1,
+"bare": []
+},
+"tool": {
+"operator": 8,
+"hand": [
+25,
+28,
+31,
+34
+]
+},
+"base": {
+"operator": 15,
+"reads": []
+},
+"count": {
+"hits": [],
+"unsplit": []
+},
+"newfiles": {
+"operator": 15,
+"guards": 1,
+"hits": [],
+"abstain": []
+},
+"wrap": {
+"asserting": 21,
+"listed": []
+},
+"check2": {
+"entries": 25,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 4
+}
+},
+{
+"tool": "planlint",
+"v": "1.8",
+"sha8": "d8f55cea",
+"ts": "2026-10-10T02:34:56Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-56-46Z-phase",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"fence: 37 entries · plan: andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run/plan.md · rese…",
+"check 9 · CI-outcome reads: 8 · leg operator exempt: 8 · Platform issues consulted: filled · `- Fetched `https://raw.g…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: filled · ``.claude/rules/verification-harness.md` — r…`",
+"check 4 (5) · leg entries with a content atom: 1 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 8 · not ci.py conclusion: 4 → HIT",
+"  gate 26 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/attempts/1/jobs?per_page=100\" --j…",
+"  gate 29 · leg operator · gh run rerun <id> -R Turbolet85/andromeds-pulse --job \"$(gh run view <id> -R Turbolet85/andr…",
+"  gate 32 · leg operator · gh run rerun <id> -R Turbolet85/andromeds-pulse --job \"$(gh run view <id> -R Turbolet85/andr…",
+"  gate 35 · leg operator · gh run rerun <id> -R Turbolet85/andromeds-pulse --job \"$(gh run view <id> -R Turbolet85/andr…",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 4 (15) · grep → wc -l counts asserting exit 0 and last line 0: 0",
+"check 4 (16) · guards whose exclusions leave a new file in: 0 of 1 with an exclusion",
+"check 4 (17) · entries reading a path the wrap writes: 0 of 22 asserting — listed, P5's read",
+"check 4 (17) · a path the wrap writes, read from inside a program an entry runs (a suite, the ledger's tool): not read",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 4 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13)–(16)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "filled",
+"ci_reads": 8,
+"operator": 8,
+"hit": false
+},
+"harness": {
+"slot": "filled",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 1,
+"bare": []
+},
+"tool": {
+"operator": 8,
+"hand": [
+26,
+29,
+32,
+35
+]
+},
+"base": {
+"operator": 15,
+"reads": []
+},
+"count": {
+"hits": [],
+"unsplit": []
+},
+"newfiles": {
+"operator": 15,
+"guards": 1,
+"hits": [],
+"abstain": []
+},
+"wrap": {
+"asserting": 22,
+"listed": []
+},
+"check2": {
+"entries": 25,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 4
+}
+},
+{
+"tool": "planlint",
+"v": "1.8",
+"sha8": "d8f55cea",
+"ts": "2026-10-10T02:35:46Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-56-46Z-phase",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"fence: 37 entries · plan: andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run/plan.md · rese…",
+"check 9 · CI-outcome reads: 8 · leg operator exempt: 8 · Platform issues consulted: filled · `- Fetched `https://raw.g…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: filled · ``.claude/rules/verification-harness.md` — r…`",
+"check 4 (5) · leg entries with a content atom: 1 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 8 · not ci.py conclusion: 4 → HIT",
+"  gate 26 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/attempts/1/jobs?per_page=100\" --j…",
+"  gate 29 · leg operator · gh run rerun <id> -R Turbolet85/andromeds-pulse --job \"$(gh run view <id> -R Turbolet85/andr…",
+"  gate 32 · leg operator · gh run rerun <id> -R Turbolet85/andromeds-pulse --job \"$(gh run view <id> -R Turbolet85/andr…",
+"  gate 35 · leg operator · gh run rerun <id> -R Turbolet85/andromeds-pulse --job \"$(gh run view <id> -R Turbolet85/andr…",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 4 (15) · grep → wc -l counts asserting exit 0 and last line 0: 0",
+"check 4 (16) · guards whose exclusions leave a new file in: 0 of 1 with an exclusion",
+"check 4 (17) · entries reading a path the wrap writes: 0 of 22 asserting — listed, P5's read",
+"check 4 (17) · a path the wrap writes, read from inside a program an entry runs (a suite, the ledger's tool): not read",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 4 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13)–(16)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "filled",
+"ci_reads": 8,
+"operator": 8,
+"hit": false
+},
+"harness": {
+"slot": "filled",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 1,
+"bare": []
+},
+"tool": {
+"operator": 8,
+"hand": [
+26,
+29,
+32,
+35
+]
+},
+"base": {
+"operator": 15,
+"reads": []
+},
+"count": {
+"hits": [],
+"unsplit": []
+},
+"newfiles": {
+"operator": 15,
+"guards": 1,
+"hits": [],
+"abstain": []
+},
+"wrap": {
+"asserting": 22,
+"listed": []
+},
+"check2": {
+"entries": 25,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 4
+}
+}
+]

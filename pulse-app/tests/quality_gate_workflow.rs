@@ -561,6 +561,101 @@ fn ci_workflow_boot_smoke_carries_no_soft_fail() {
     }
 }
 
+const BOOT_SMOKE_STEP: &str = "Boot pulse-app smoke";
+const EXIT_WITNESS_STEP: &str = "Build the exit witness";
+const BOOT_SERIES_STEP: &str = "Boot series (equal source)";
+
+// Where a named step of the boot job starts, and its lines up to the next
+// step without comment lines, each trimmed.
+fn boot_job_step(content: &str, name: &str) -> (usize, Vec<String>) {
+    let boot = workflow_job_block(content, "boot");
+    let lines: Vec<&str> = boot.lines().collect();
+    let name_line = format!("      - name: {name}");
+    let start = lines
+        .iter()
+        .position(|line| *line == name_line)
+        .unwrap_or_else(|| panic!("the boot job MUST hold the step `{name_line}`"));
+    let step = lines[start + 1..]
+        .iter()
+        .take_while(|line| !line.starts_with("      - name: "))
+        .filter(|line| !line.trim_start().starts_with('#'))
+        .map(|line| line.trim().to_string())
+        .collect();
+    (start, step)
+}
+
+#[test]
+fn ci_workflow_boot_job_builds_the_exit_witness_before_the_smoke() {
+    let content = read_workflow();
+    let (build, step) = boot_job_step(&content, EXIT_WITNESS_STEP);
+    let (smoke, _) = boot_job_step(&content, BOOT_SMOKE_STEP);
+    assert!(
+        build < smoke,
+        "the library MUST be built before the smoke step that loads it (test-plan §9 \
+         Pipeline structure, Boot smoke row)"
+    );
+    assert!(
+        step.iter().any(|line| line.starts_with("cc ")
+            && line.contains("-shared")
+            && line.contains("scripts/exit-witness.c")),
+        "the step MUST build the library from `scripts/exit-witness.c` with the runner's own \
+         compiler; step:\n{}",
+        step.join("\n")
+    );
+    assert!(
+        step.iter()
+            .any(|line| line.contains("ANDROMEDA_PULSE_EXIT_WITNESS_LIB=")
+                && line.ends_with(r#">> "$GITHUB_ENV""#)),
+        "the step MUST name the built library to the harness through `$GITHUB_ENV` as \
+         `ANDROMEDA_PULSE_EXIT_WITNESS_LIB`; step:\n{}",
+        step.join("\n")
+    );
+    assert!(
+        !step.iter().any(|line| line.contains("LD_PRELOAD")),
+        "the library is loaded on the boot verb's one spawn line, never through the job's \
+         environment; step:\n{}",
+        step.join("\n")
+    );
+}
+
+#[test]
+fn ci_workflow_boot_series_runs_after_the_smoke_whatever_it_returned_and_before_ci_gates() {
+    let content = read_workflow();
+    let (series, step) = boot_job_step(&content, BOOT_SERIES_STEP);
+    let (smoke, _) = boot_job_step(&content, BOOT_SMOKE_STEP);
+    let (ci_gates, _) = boot_job_step(&content, "cargo xtask ci-gates");
+    assert!(
+        smoke < series && series < ci_gates,
+        "the series MUST sit after the smoke and before `ci-gates` (test-plan §9 Pipeline \
+         structure, Boot smoke row)"
+    );
+    assert!(
+        step.iter().any(|line| line == "if: always()"),
+        "the series MUST run when the smoke is red too (`if: always()`); step:\n{}",
+        step.join("\n")
+    );
+    assert!(
+        step.iter()
+            .any(|line| line == "run: cargo xtask harness:boot-series --count 7"),
+        "the series MUST be the plain step `run: cargo xtask harness:boot-series --count 7`; \
+         step:\n{}",
+        step.join("\n")
+    );
+}
+
+#[test]
+fn ci_workflow_boot_series_carries_no_soft_fail() {
+    let (_, step) = boot_job_step(&read_workflow(), BOOT_SERIES_STEP);
+    for banned in ["continue-on-error", "retry", "|| true"] {
+        assert!(
+            !step.iter().any(|line| line.contains(banned)),
+            "the boot series step MUST hold no `{banned}`: a boot that ends by itself fails the \
+             job (test-plan §11 Test Anti-Patterns); step:\n{}",
+            step.join("\n")
+        );
+    }
+}
+
 fn read_named_workflow(name: &str) -> String {
     let full_path = project_root().join(".github/workflows").join(name);
     std::fs::read_to_string(&full_path)

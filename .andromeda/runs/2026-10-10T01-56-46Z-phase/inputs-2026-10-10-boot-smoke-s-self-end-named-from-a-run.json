@@ -1,0 +1,210 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T01:57:25Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-phase-boot-smoke-self-end-named-2026-10-10.md",
+"--kind",
+"relay",
+"--why",
+"the operator phase directive for this chunk: what named from a run rules out, two research questions, what the chunk must not do, its boundaries and scope edge",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-56-46Z-phase",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-boot-smoke-self-end-named-2026-10-10.md",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-pulse-phase-boot-smoke-self-end-named-2026-10-10.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-phase-boot-smoke-self-end-named-2026-10-10.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "6fb35ac778fe59c2b6a63a873b28c31deb737dc788788278a82208d9e6592951",
+"copy": "I1-pulse-phase-boot-smoke-self-end-named-2026-10-10.md.txt",
+"link": false,
+"read_at": "2026-10-10T01:57:25Z",
+"step": "phase:P1",
+"why": "the operator phase directive for this chunk: what named from a run rules out, two research questions, what the chunk must not do, its boundaries and scope edge"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T01:57:28Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run",
+"--message-file",
+".andromeda/runs/2026-10-10T01-56-46Z-phase/relay-1.md",
+"--origin",
+"the operator, in the /andromeda-phase invocation message, 2026-10-10",
+"--kind",
+"relay",
+"--why",
+"the invocation directive: fold the relay file as an input; at P5 print the plan card and stop for the operator yes",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-56-46Z-phase",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: the operator, in the /andromeda-phase invocation message, 2026-10-10",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator, in the /andromeda-phase invocation message, 2026-10-10",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "7f66a0873ef37c320a4b8cc307c4fd6d985fd4c94601e4e1d2fe1ce699e9f556",
+"copy": "I2-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-10T01:57:28Z",
+"step": "phase:P1",
+"why": "the invocation directive: fold the relay file as an input; at P5 print the plan card and stop for the operator yes"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T02:26:54Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run",
+"--message-file",
+".andromeda/runs/2026-10-10T01-56-46Z-phase/relay-2.md",
+"--origin",
+"the operator, answering the P4 fork round here, 2026-10-10",
+"--kind",
+"relay",
+"--why",
+"the three P4 rulings: the witness file is the exit record, routine, the operator reading and not the founder word, with two conditions; a gating series of eight boots with each ordinal recorded; this plan names and the closing is the next entry, with at most three re-runs of the boot job alone",
+"--step",
+"phase:P4",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-56-46Z-phase",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I3 · copy message · message: the operator, answering the P4 fork round here, 2026-10-10",
+"cite: inputs#I3"
+],
+"stderr": null,
+"wrote": [
+"inputs/I3-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I3",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator, answering the P4 fork round here, 2026-10-10",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "b9fbdbf595c1147b8a4182db2e92030e9d2cae64d9081a1f9f2c37c1e0b7258f",
+"copy": "I3-relay-2.md.txt",
+"link": false,
+"read_at": "2026-10-10T02:26:54Z",
+"step": "phase:P4",
+"why": "the three P4 rulings: the witness file is the exit record, routine, the operator reading and not the founder word, with two conditions; a gating series of eight boots with each ordinal recorded; this plan names and the closing is the next entry, with at most three re-runs of the boot job alone"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T02:35:46Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-56-46Z-phase",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-boot-smoke-self-end-named-2026-10-10.md",
+"I1 cited scope.md:18 · scope.md:28 · scope.md:37 · scope.md:46 · scope.md:50 · scope.md:53 · scope.md:106 · scope.md:115 · scope.md:119 · scope.md:122 · scope.md:124 · scope.md:132 · scope.md:133 · research.md:10 · research.md:101 · plan.md:40 · plan.md:514 · plan.md:543 · plan.md:551 · plan.md:553 · plan.md:563",
+"I2 n/a — a message has no live source · copy message · message: the operator, in the /andromeda-phase invocation message, 2026-10-10",
+"I2 cited scope.md:18 · scope.md:133 · research.md:10 · plan.md:543",
+"I3 n/a — a message has no live source · copy message · message: the operator, answering the P4 fork round here, 2026-10-10",
+"I3 cited scope.md:56 · plan.md:16 · plan.md:26 · plan.md:174 · plan.md:189 · plan.md:387 (in fence) · plan.md:394 (in fence) · plan.md:418 (in fence) · plan.md:442 (in fence) · plan.md:463 · plan.md:472 · plan.md:477 · plan.md:485 · plan.md:499 · plan.md:509 · plan.md:527 · plan.md:543 · plan.md:547 · plan.md:567 · plan.md:572 · plan.md:625",
+"inputs: 3 entries — unchanged 1 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 3,
+"counts": {
+"unchanged": 1,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]

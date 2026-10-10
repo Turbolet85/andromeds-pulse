@@ -11,7 +11,9 @@ mod discovery;
 mod external_resolve;
 mod gap_resume;
 mod harness_ready;
+mod harness_series;
 mod harness_status;
+mod harness_witness;
 mod hue_shift;
 mod ingest_progress;
 #[cfg(test)]
@@ -57,11 +59,19 @@ enum Cmd {
     HarnessReady,
     #[command(
         name = "harness:settled",
-        about = "Wait, bounded, until the app's log family holds an app.boot.window.navigation record for each of its four windows with the app alive (settled), or the app's pid is gone (ended), or the timeout passes (not-settled). One JSON verdict with the pid, the exit record, whether the log holds an app.exit record, the count of settled windows, and whether the display and the session bus are reachable (labels only, never a variable's value); the same object is written to logs/harness-settled.json under the data dir. Exit 0 settled, 1 ended or not-settled, 2 cannot-evaluate (no pid, or a timeout below 8 s, which could never read settled)"
+        about = "Wait, bounded, until the app's log family holds an app.boot.window.navigation record for each of its four windows with the app alive (settled), or the app's pid is gone (ended), or the timeout passes (not-settled). One JSON verdict with the pid, the exit record, whether the log holds an app.exit record, the count of settled windows, whether the display and the session bus are reachable (labels only, never a variable's value), and what the exit witness recorded of the app's end (one label: unset, unreadable, loaded, exit-call, runtime-exit, no-record); the same object is written to logs/harness-settled.json under the data dir. Exit 0 settled, 1 ended or not-settled, 2 cannot-evaluate (no pid, or a timeout below 8 s, which could never read settled)"
     )]
     HarnessSettled {
         #[arg(long, value_name = "SECONDS", default_value_t = 30)]
         timeout_seconds: u64,
+    },
+    #[command(
+        name = "harness:boot-series",
+        about = "Boot the release app N more times after the CI boot smoke (ordinals 2 to N+1), each boot on its own data dir series/boot-{ordinal}/ under the resolved data dir, its own display server (xvfb-run) and empty XDG_DATA_HOME and XDG_CACHE_HOME, through the smoke's cycle: boot, harness:settled, status, cleanup. Each boot's log family, boot.log, harness-settled.json, xvfb.log and exit-witness.jsonl are copied to logs/series/boot-{ordinal}/; nothing of a boot's run/ is. One JSON verdict (all-settled, self-ended, not-all-settled, cannot-evaluate) with a per-boot entry of ordinal, cycle, settle verdict, exit record and exit-witness label, also written to logs/boot-series.json. Exit 0 all-settled, 1 self-ended (a boot's settle verdict read ended) or not-all-settled, 2 cannot-evaluate (a count outside 1 to 16, not Linux, no data dir or one that already holds a series, no xvfb-run, or a boot whose cleanup did not read clean)"
+    )]
+    HarnessBootSeries {
+        #[arg(long, value_name = "N")]
+        count: u32,
     },
     #[command(
         name = "test",
@@ -272,6 +282,7 @@ async fn main() -> ExitCode {
         Cmd::HarnessStatus => harness_status::run(),
         Cmd::HarnessReady => harness_ready::run_ready(),
         Cmd::HarnessSettled { timeout_seconds } => harness_ready::run_settled(timeout_seconds),
+        Cmd::HarnessBootSeries { count } => harness_series::run(count).await,
         Cmd::Test { extra } => run_cargo_nextest(extra).await,
         Cmd::TestCoverage { extra } => run_cargo_llvm_cov(extra).await,
         Cmd::CheckIngestProgress => run_check_ingest_progress(),

@@ -6,7 +6,8 @@
 //! and both OTLP receivers accept a TCP connection on loopback.
 //! `harness:settled` reads the app once its windows have settled, by the
 //! app's own `app.boot.window.navigation` records, or at its end, and says
-//! what it saw of the display and the session bus the app depends on.
+//! what it saw of the display and the session bus the app depends on, and
+//! what the exit witness recorded of the app's end (`harness_witness`).
 //!
 //! Both follow the `harness:status` shape, with one pretty-JSON verdict
 //! object on stdout and exit 0 / 1 / 2. The three system variables read here
@@ -108,6 +109,9 @@ pub(crate) fn run_settled(timeout_seconds: u64) -> Result<ExitCode> {
         env("XDG_RUNTIME_DIR").as_deref(),
     ));
 
+    let exit_witness =
+        crate::harness_witness::label(resolve_data_dir().as_deref(), pid, ended.as_deref());
+
     let text = serde_json::to_string_pretty(&settled_payload(
         verdict,
         pid,
@@ -115,6 +119,7 @@ pub(crate) fn run_settled(timeout_seconds: u64) -> Result<ExitCode> {
         evidence,
         display,
         session_bus,
+        exit_witness,
     ))?;
     println!("{text}");
     keep_verdict(&text);
@@ -351,6 +356,7 @@ fn settled_payload(
     evidence: LogEvidence,
     display: &str,
     session_bus: &str,
+    exit_witness: &str,
 ) -> Value {
     json!({
         "verdict": verdict,
@@ -360,6 +366,7 @@ fn settled_payload(
         "windows_settled": evidence.windows_settled,
         "display": display,
         "session_bus": session_bus,
+        "exit_witness": exit_witness,
     })
 }
 
@@ -632,6 +639,7 @@ mod tests {
             },
             "gone",
             "unset",
+            "exit-call",
         );
         let keys: BTreeSet<&str> = payload
             .as_object()
@@ -649,6 +657,7 @@ mod tests {
                 "windows_settled",
                 "display",
                 "session_bus",
+                "exit_witness",
             ])
         );
         assert_eq!(payload["verdict"], "ended");
@@ -656,5 +665,6 @@ mod tests {
         assert_eq!(payload["app_exit_record"], "absent");
         assert_eq!(payload["windows_settled"], 2);
         assert_eq!(payload["display"], "gone");
+        assert_eq!(payload["exit_witness"], "exit-call");
     }
 }

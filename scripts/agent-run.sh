@@ -41,6 +41,19 @@ case "${1:-}" in
     export ANDROMEDA_PULSE_LOG_LEVEL="${ANDROMEDA_PULSE_LOG_LEVEL:-debug}"
     export RUST_LOG="${RUST_LOG:-debug}"
 
+    # The exit witness (scripts/exit-witness.c): when the harness names a
+    # built library, the app alone is spawned with it loaded. A name that is
+    # no regular file ends boot here, so a mistyped path cannot run a job
+    # without its witness.
+    WITNESS_LIB="${ANDROMEDA_PULSE_EXIT_WITNESS_LIB:-}"
+    WITNESS_LIB="${WITNESS_LIB#"${WITNESS_LIB%%[![:space:]]*}"}"
+    WITNESS_LIB="${WITNESS_LIB%"${WITNESS_LIB##*[![:space:]]}"}"
+    if [ -n "$WITNESS_LIB" ] && [ ! -f "$WITNESS_LIB" ]; then
+      echo "boot: exit witness library not found" >&2
+      exit 1
+    fi
+    WITNESS_FILE="$DATA_DIR/logs/exit-witness.jsonl"
+
     # Pre-build OUTSIDE the timed readiness window, under the same exported
     # env the app runs with — the env participates in cargo's fingerprint, so
     # a warm binary can still cost a full thin-LTO relink (measured
@@ -74,9 +87,16 @@ case "${1:-}" in
     # reads this record as `ended`).
     EXIT_FILE="$(dirname "$PIDFILE")/andromeda-pulse.exit"
     SPAWN_FILE="$(dirname "$PIDFILE")/andromeda-pulse.spawn"
-    rm -f "$EXIT_FILE" "$SPAWN_FILE"
+    rm -f "$EXIT_FILE" "$SPAWN_FILE" "$WITNESS_FILE"
     (
-      "$APP_BIN" > "$DATA_DIR/logs/boot.log" 2>&1 &
+      # The preload is set on this one command, never exported: the builds
+      # above and the verbs after it run without it.
+      if [ -n "$WITNESS_LIB" ]; then
+        LD_PRELOAD="$WITNESS_LIB" ANDROMEDA_PULSE_EXIT_WITNESS_FILE="$WITNESS_FILE" \
+          "$APP_BIN" > "$DATA_DIR/logs/boot.log" 2>&1 &
+      else
+        "$APP_BIN" > "$DATA_DIR/logs/boot.log" 2>&1 &
+      fi
       app=$!
       echo "$app" > "$SPAWN_FILE"
       rc=0

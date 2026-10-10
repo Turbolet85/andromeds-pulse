@@ -372,6 +372,14 @@ jobs:
       - name: cargo build --features mcp-server (feature-gated binary build smoke)
         run: cargo build --workspace --release --features mcp-server
 
+      # scripts/exit-witness.c records the call that ends the app process,
+      # with its caller. The boot verb loads the built library onto the app
+      # alone, on its one spawn line; here it is only built and named.
+      - name: Build the exit witness
+        run: |
+          cc -shared -fPIC -O2 -o "$RUNNER_TEMP/exit-witness.so" scripts/exit-witness.c
+          echo "ANDROMEDA_PULSE_EXIT_WITNESS_LIB=$RUNNER_TEMP/exit-witness.so" >> "$GITHUB_ENV"
+
       - name: Boot pulse-app smoke
         # The runner is headless: without a display tao panics initialising
         # GTK. One xvfb-run spans the whole sequence so the X server outlives
@@ -388,6 +396,14 @@ jobs:
             bash scripts/agent-run.sh cleanup; c=$?
             test "$a$b$c" = 000
           '
+
+      # Seven more boots of the same build, so one run reads eight. Each has
+      # its own data dir, display server and per-user data and cache dirs,
+      # and is recorded with its ordinal in logs/boot-series.json. A boot
+      # that ends by itself fails the step; it runs when the smoke is red too.
+      - name: Boot series (equal source)
+        if: always()
+        run: cargo xtask harness:boot-series --count 7
 
       # Reads the log the boot smoke above wrote under ANDROMEDA_PULSE_DATA_DIR.
       - name: cargo xtask ci-gates

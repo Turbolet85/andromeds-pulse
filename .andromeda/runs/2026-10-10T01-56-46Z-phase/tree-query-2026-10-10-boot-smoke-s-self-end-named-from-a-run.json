@@ -1,0 +1,256 @@
+[
+{
+"sql": "SELECT caller_name, callee_name, file, line FROM calls WHERE callee_name IN ('settled_payload','run_settled','read_exit_record','keep_verdict','read_ended','resolve_data_dir','end_file','decide_settled','read_log_evidence','cargo_command') AND callee_kind = 'fn' AND callee_file LIKE '%xtask/src/%' ORDER BY callee_name, file, line",
+"rows": 41,
+"result": [
+{
+"caller_name": "build_injector",
+"callee_name": "cargo_command",
+"file": "xtask/src/external_resolve.rs",
+"line": 581
+},
+{
+"caller_name": "build_injector",
+"callee_name": "cargo_command",
+"file": "xtask/src/gap_resume.rs",
+"line": 539
+},
+{
+"caller_name": "cargo_command_drops_the_inherited_package_variables",
+"callee_name": "cargo_command",
+"file": "xtask/src/main.rs",
+"line": 414
+},
+{
+"caller_name": "run_cargo",
+"callee_name": "cargo_command",
+"file": "xtask/src/main.rs",
+"line": 434
+},
+{
+"caller_name": "run_cargo_nextest",
+"callee_name": "cargo_command",
+"file": "xtask/src/main.rs",
+"line": 444
+},
+{
+"caller_name": "run_cargo_llvm_cov",
+"callee_name": "cargo_command",
+"file": "xtask/src/main.rs",
+"line": 475
+},
+{
+"caller_name": "run_perf_slo_load",
+"callee_name": "cargo_command",
+"file": "xtask/src/main.rs",
+"line": 753
+},
+{
+"caller_name": "run_perf_load_profiles",
+"callee_name": "cargo_command",
+"file": "xtask/src/main.rs",
+"line": 783
+},
+{
+"caller_name": "build_injector",
+"callee_name": "cargo_command",
+"file": "xtask/src/webview_drive.rs",
+"line": 729
+},
+{
+"caller_name": "wait_for_settle",
+"callee_name": "decide_settled",
+"file": "xtask/src/harness_ready.rs",
+"line": 194
+},
+{
+"caller_name": "a_dead_pid_is_ended_even_after_every_window_settled",
+"callee_name": "decide_settled",
+"file": "xtask/src/harness_ready.rs",
+"line": 466
+},
+{
+"caller_name": "a_dead_pid_is_ended_even_after_every_window_settled",
+"callee_name": "decide_settled",
+"file": "xtask/src/harness_ready.rs",
+"line": 469
+},
+{
+"caller_name": "four_settled_windows_and_a_live_pid_is_settled",
+"callee_name": "decide_settled",
+"file": "xtask/src/harness_ready.rs",
+"line": 475
+},
+{
+"caller_name": "a_live_pid_short_of_four_windows_polls_until_the_timeout",
+"callee_name": "decide_settled",
+"file": "xtask/src/harness_ready.rs",
+"line": 482
+},
+{
+"caller_name": "a_live_pid_short_of_four_windows_polls_until_the_timeout",
+"callee_name": "decide_settled",
+"file": "xtask/src/harness_ready.rs",
+"line": 484
+},
+{
+"caller_name": "an_absent_or_unprobeable_pid_cannot_be_evaluated",
+"callee_name": "decide_settled",
+"file": "xtask/src/harness_ready.rs",
+"line": 492
+},
+{
+"caller_name": "an_absent_or_unprobeable_pid_cannot_be_evaluated",
+"callee_name": "decide_settled",
+"file": "xtask/src/harness_ready.rs",
+"line": 496
+},
+{
+"caller_name": "harness_ready",
+"callee_name": "end_file",
+"file": "xtask/src/harness_ready.rs",
+"line": 25
+},
+{
+"caller_name": "run_ready",
+"callee_name": "end_file",
+"file": "xtask/src/harness_ready.rs",
+"line": 63
+},
+{
+"caller_name": "run_settled",
+"callee_name": "end_file",
+"file": "xtask/src/harness_ready.rs",
+"line": 98
+},
+{
+"caller_name": "run",
+"callee_name": "end_file",
+"file": "xtask/src/harness_status.rs",
+"line": 44
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "end_file",
+"file": "xtask/src/harness_status.rs",
+"line": 365
+},
+{
+"caller_name": "run_settled",
+"callee_name": "keep_verdict",
+"file": "xtask/src/harness_ready.rs",
+"line": 119
+},
+{
+"caller_name": "harness_ready",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_ready.rs",
+"line": 25
+},
+{
+"caller_name": "run_ready",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_ready.rs",
+"line": 63
+},
+{
+"caller_name": "read_exit_record",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_ready.rs",
+"line": 209
+},
+{
+"caller_name": "run",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 44
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 367
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 369
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 371
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 373
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 375
+},
+{
+"caller_name": "run_settled",
+"callee_name": "read_exit_record",
+"file": "xtask/src/harness_ready.rs",
+"line": 98
+},
+{
+"caller_name": "run_settled",
+"callee_name": "read_log_evidence",
+"file": "xtask/src/harness_ready.rs",
+"line": 101
+},
+{
+"caller_name": "wait_for_settle",
+"callee_name": "read_log_evidence",
+"file": "xtask/src/harness_ready.rs",
+"line": 192
+},
+{
+"caller_name": "harness_ready",
+"callee_name": "resolve_data_dir",
+"file": "xtask/src/harness_ready.rs",
+"line": 26
+},
+{
+"caller_name": "keep_verdict",
+"callee_name": "resolve_data_dir",
+"file": "xtask/src/harness_ready.rs",
+"line": 368
+},
+{
+"caller_name": "resolve_paths",
+"callee_name": "resolve_data_dir",
+"file": "xtask/src/harness_status.rs",
+"line": 123
+},
+{
+"caller_name": "main",
+"callee_name": "run_settled",
+"file": "xtask/src/main.rs",
+"line": 273
+},
+{
+"caller_name": "run_settled",
+"callee_name": "settled_payload",
+"file": "xtask/src/harness_ready.rs",
+"line": 110
+},
+{
+"caller_name": "settled_payload_carries_the_closed_field_set",
+"callee_name": "settled_payload",
+"file": "xtask/src/harness_ready.rs",
+"line": 624
+}
+],
+"db_state": "regenerated",
+"plane": "rust"
+}
+]
