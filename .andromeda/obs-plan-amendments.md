@@ -441,3 +441,14 @@ Owner moves to the working-route entry "Duplicate-span replay fails loudly" (mod
 **Why:** The end with no `app.exit` is now named from a run. It is not closed: the cause's owner is the route's closing entry, and the witness is a harness surface, not a product record.
 **Kept:** `app.exit` stays at four fields and gains no new record for this end.
 **Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/
+
+## 2026-10-10-boot-smoke-s-self-end-closed — the CI boot job's self-end: cause measured, end closed
+**Section:** §7 Error classes captured (Process-end cause) · §10 Performance budgets (the WebGPU canvas frame row) · §10 CI gates (the perf-budget bullet)
+**Change:**
+- Process-end cause: "Not measured: why the X connection's read failed, and the runner's own library build" retired. Now, as measured: no read failed (at the stop in `_XIOError` the connection reports no error; one capture of one ending); Xlib raised the I/O error because its own bookkeeping held no reply while a second thread, `tao` 0.35.0's device-event thread, was inside Xlib and the app had not initialised Xlib's thread support; Xlib 1.7.5 (the runner) does not do it at load, 1.8.13 (the dev host) does. The variation shows the cause: 26 of 32 boots self-ended without the initialisation, 0 of 8 with it, under the runner's Xlib on the dev host. The builds are read from Ubuntu's packages (`libx11-6 1.7.5-1ubuntu0.3`; `gdk_x_io_error` in `libgtk-3-0 3.24.33-1ubuntu2.2`). Not traced: the step inside Xlib by which the reply is lost.
+- `errno` 11 on the `end` line is a stale value, not a member of the ending call. Was: "`_exit(1)` with `errno` 11".
+- "The end is named, not closed; its owner is the route's closing entry" retired. Now: closed; `main` calls `pulse_app::xlib_threads::init()` second, before any thread, inert where the library or symbol is not found, no log record. `ci#38026637514`, attempts 1 to 3: 24 boots, 0 self-ended, against 12 of 16 before. No route entry owns it. The builds published before keep the defect on a host whose Xlib is older than 1.8; none was booted; what is done about them is the founder's.
+- §10 frame row and CI gates: the smoke-and-series-both-pass case is measured (`ci#38026637514`, attempts 1 to 3, the frame line `… no WebGPU adapter (no_navigator_gpu)` in each boot job log); was expected from the step order. A series boot fails the job when it ended by itself: a settle verdict of `ended`, or no settle verdict and an own exit record (any but `signal 15 (TERM)` / `signal 9 (KILL)`).
+**Why:** Phase research measured the mechanism the paragraph listed as unmeasured, and the chunk closed the end on the runner; the narrative still named it open with a route owner.
+**Kept:** §9's log-file row stands: its `ci#38019133294` reading is dated and its description of `boot-series.json` still holds.
+**Ref:** .andromeda/runs/2026-10-10T06-10-23Z-wrap/

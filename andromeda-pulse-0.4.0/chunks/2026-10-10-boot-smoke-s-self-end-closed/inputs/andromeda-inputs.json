@@ -70,5 +70,23 @@
     "read_at": "2026-10-10T04:48:53Z",
     "step": "phase:P5",
     "why": "the P5 review: the render-posture step stays the first statement of main and the XInitThreads call is the second, before any thread and before Xlib; the word first thing of the P4 note is withdrawn; no amendment of the ratified wording and no reworded comments; card points 2 to 5 accepted, point 6 carried to the founder"
+  },
+  {
+    "id": "I5",
+    "kind": "relay",
+    "repo": null,
+    "path": "../additional/pc-overseer/relays/pulse-wrap-boot-smoke-self-end-closed-2026-10-10.md",
+    "form": "copy",
+    "state": "no-repo",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "42dd268f28f689f6ed2c6452b6ae83f252f747598a0af4ac131cfb7c627cc38e",
+    "copy": "I5-pulse-wrap-boot-smoke-self-end-closed-2026-10-10.md.txt",
+    "link": false,
+    "read_at": "2026-10-10T06:10:39Z",
+    "step": "wrap",
+    "why": "the operator wrap directive: the pass stands; the standing red rule is consumed; leaving owners pinned; the series first boot builds again, for disposition at the card; three limits stated; the defect is in the app as published; an escalate halts at the card; the two stops"
   }
 ]
