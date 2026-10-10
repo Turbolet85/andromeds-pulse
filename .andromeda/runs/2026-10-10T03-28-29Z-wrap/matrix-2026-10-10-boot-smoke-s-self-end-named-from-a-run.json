@@ -1,0 +1,75 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-10T03:58:21Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--chunk",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-10-boot-smoke-s-self-end-named-from-a-run)",
+"pool: unclaimed 45 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-121 P-122 P-123 P-124 P-125 P-126 P-127 P-128 P-129]"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-10T03:58:21Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-129",
+"--text-file",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap/note-P-129.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-129: +1992 chars (total 8008) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-129",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The cause of the early exit is named from evidence a run produced, not inferred; with it closed, the boot smoke reads gr… (253 chars)",
+"notes_chars": 6014
+},
+"after": {
+"id": "P-129",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The cause of the early exit is named from evidence a run produced, not inferred; with it closed, the boot smoke reads gr… (253 chars)",
+"notes_chars": 8008
+}
+}
+]

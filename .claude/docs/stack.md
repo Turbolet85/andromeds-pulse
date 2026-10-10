@@ -7,6 +7,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **Async runtime:** `tokio` (current stable) — single multi-threaded runtime serving both OTLP ports + IPC.
 - **Frontend runtime:** WebView2 (Windows) / WKWebView (macOS) / GTK WebKit (Linux) via Tauri 2.x; React 19.x for UI.
 - **Package manager:** Cargo (workspace).
+- **Boot-smoke exit witness (harness-only, Linux):** one C file, `scripts/exit-witness.c`, built by the host's `cc -shared -fPIC -O2` with no dependency beyond the C library (dev-host `cc` read at GCC 16.2.1 20260810, as measured on 2026-10-10; the runner's version not read). `scripts/agent-run.sh boot` preloads it into the app's spawn alone to record which call ended the process. Built in the ci.yml `boot` job and by the xtask tests, whose controls on the built library FAIL on a missing `cc`. Never in the shipped binary; no Cargo dependency.
 
 ## Core Frameworks
 - **Desktop shell:** Tauri 2.x — native window + webview, OS bundlers, updater, tray, notifications. Bundle id `com.andromeda.pulse`.

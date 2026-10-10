@@ -1,0 +1,101 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T03:28:43Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-wrap-boot-smoke-self-end-named-2026-10-10.md",
+"--kind",
+"relay",
+"--why",
+"the operator wrap directive: the pass stands as it stopped and the red is the closing entry own; the closing entry minted first in the tail with its freight, three research questions and the series undercount as its first repair; a carry on the window gates entry naming what leaves; the standing red rule; an escalate halts at the card; the two stops",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I4 · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-boot-smoke-self-end-named-2026-10-10.md",
+"cite: inputs#I4"
+],
+"stderr": null,
+"wrote": [
+"inputs/I4-pulse-wrap-boot-smoke-self-end-named-2026-10-10.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I4",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-wrap-boot-smoke-self-end-named-2026-10-10.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "b6f42a25ad9aaa410a02918f88605c7b58afae65d7a5a39529acd8f2d0a04fbd",
+"copy": "I4-pulse-wrap-boot-smoke-self-end-named-2026-10-10.md.txt",
+"link": false,
+"read_at": "2026-10-10T03:28:43Z",
+"step": "wrap",
+"why": "the operator wrap directive: the pass stands as it stopped and the red is the closing entry own; the closing entry minted first in the tail with its freight, three research questions and the series undercount as its first repair; a carry on the window gates entry naming what leaves; the standing red rule; an escalate halts at the card; the two stops"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T03:28:48Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-boot-smoke-self-end-named-2026-10-10.md",
+"I1 cited scope.md:18 · scope.md:28 · scope.md:37 · scope.md:46 · scope.md:50 · scope.md:53 · scope.md:106 · scope.md:115 · scope.md:119 · scope.md:122 · scope.md:124 · scope.md:132 · scope.md:133 · research.md:10 · research.md:101 · plan.md:40 · plan.md:514 · plan.md:543 · plan.md:551 · plan.md:553 · plan.md:563",
+"I2 n/a — a message has no live source · copy message · message: the operator, in the /andromeda-phase invocation message, 2026-10-10",
+"I2 cited scope.md:18 · scope.md:133 · research.md:10 · plan.md:543",
+"I3 n/a — a message has no live source · copy message · message: the operator, answering the P4 fork round here, 2026-10-10",
+"I3 cited scope.md:56 · plan.md:16 · plan.md:26 · plan.md:174 · plan.md:189 · plan.md:387 (in fence) · plan.md:394 (in fence) · plan.md:418 (in fence) · plan.md:442 (in fence) · plan.md:463 · plan.md:472 · plan.md:477 · plan.md:485 · plan.md:499 · plan.md:509 · plan.md:527 · plan.md:543 · plan.md:547 · plan.md:567 · plan.md:572 · plan.md:625",
+"I4 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-boot-smoke-self-end-named-2026-10-10.md",
+"I4 UNCITED",
+"inputs: 4 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 1 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 4,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 1,
+"unparsed": 0
+}
+}
+]

@@ -775,3 +775,23 @@ The load suite found and fixed in-chunk 3 pipeline defects: retention-sweep conn
 **Why:** The stage the clause named by hand is now a stage of the verb. The line claim was measured false on the first run whose settle verdict read `ended`: a failed smoke step skips the step that prints the line.
 **Kept:** the `--success-output immediate` / `lacks [skip]` rule; "the boot smoke reads the app past its adapter request on every run that reaches the settle verdict", which held on that run; the `ipc-rejection-wire-coverage` pending-trigger row's statement that the boot job's log holds the adapter record.
 **Ref:** .andromeda/runs/2026-10-10T01-19-03Z-wrap/
+
+## 2026-10-10-boot-smoke-s-self-end-named-from-a-run — the boot job's two added steps, the series verb and the boot verb's witness arm
+**Section:** §9 CI Integration → Pipeline structure → Boot smoke (harness); §9 → Build failure conditions; §3 → 5-command implementation (`boot` Command body, Readiness signal, Exit code; key file)
+**Change:**
+- Boot smoke row: the job was release build → smoke → `ci-gates` → upload; now release build → `Build the exit witness` → smoke → `Boot series (equal source)` → `ci-gates` (skipped when the smoke or the series fails) → upload. `cargo xtask harness:boot-series --count N` stated (1 to 16; one cycle per boot; `all-settled` 0 · `self-ended` 1 · `not-all-settled` 1 · `cannot-evaluate` 2; a cycle bounded at 1200 s). `harness:settled` prints eight members, was seven (`exit_witness`, six closed labels). The artifact was "five files"; now those five plus `exit-witness.jsonl`, `boot-series.json` and `series/boot-{2..8}/`. Three more workflow pins beside the four. The measured limit (a boot that ends before ready is counted `other`) and the reading of `ci#38019133294` (red, seven of eight boots ended, the series step 4 min 27 s).
+- Build failure conditions: the job also fails when the witness build fails or the series is non-zero.
+- §3 `boot` Command body: the sh-only exit-witness arm (`ANDROMEDA_PULSE_EXIT_WITNESS_LIB` → `LD_PRELOAD` + `ANDROMEDA_PULSE_EXIT_WITNESS_FILE` on the spawn command only; a stale witness file removed); ps1 unchanged; no sixth verb. Exit code: a second non-zero path, exit 1 `boot: exit witness library not found` before the pre-build.
+- §3 `boot` Readiness signal: was "the cause of the app ending by itself shortly after ready on a runner is not named"; now the ending call as measured on `ci#38019133294` (`_exit(1)`, `errno` 11, from `libgdk-3.so.0` under Xlib's `_XIOError`; three boots ended after ready, four before), with what is not measured (why the X read failed; the runner's GTK build; the instrument's share of the rate). P-129 is not claimed.
+**Why:** The chunk names who ends the app and does not close the cause. The step sequence and the failure conditions are what a later chunk's operator pass reads the `boot` job by.
+**Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/
+
+## 2026-10-10-boot-smoke-s-self-end-named-from-a-run — the witness arm's missing shell test, the series' unexercised path, the second shell-out
+**Section:** §1 Pending coverage triggers → `harness-cleanup-verdict-and-boot-spawn-shell-coverage`; §1 Coverage triggers → performance-budget: WebGPU canvas throughput; §4 Unit Test Strategy → Framework (Rust crates); §9 Pipeline structure → Lint + tests
+**Change:**
+- The trigger row widened: the sh `boot` verb's exit-witness arm ships with no committed shell-level test (the set arm driven by three local legs and CI, the refusal arm once by hand); the Rust side is pinned (14 reader and decision pins, seven controls on the built library, the member pin). `harness:boot-series`: 16 unit pins, one local leg, one CI run; its `timed-out` path never ran live; its verdict under-reads a boot that ends before ready (`ci#38019133294`: `ended` 2, `other` 4 for seven self-ends). Owed: an assertion per witness-arm branch, the before-ready boot recorded with its exit record and label, a live `timed-out` reading.
+- The WebGPU row: the boot job's `ci-gates` frame line was conditioned on the smoke step passing; now on the smoke step and the series step both passing.
+- §4 Framework: was "One unit binary shells out to a non-Rust runtime"; now two, the second the `xtask` unit binary building `scripts/exit-witness.c` with `cc` (Linux only; a missing `cc` fails the controls).
+- §9 lint-test row: the workspace tests need `cc` on the runner beside Python 3; green on `ci#38019133294`.
+**Why:** Each records what this chunk shipped untested or newly required. The before-ready undercount is owned by the route's closing entry, as its first repair.
+**Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/

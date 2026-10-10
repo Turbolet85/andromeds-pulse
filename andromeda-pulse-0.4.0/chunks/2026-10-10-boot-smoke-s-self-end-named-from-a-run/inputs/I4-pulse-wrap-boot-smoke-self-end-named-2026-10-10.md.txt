@@ -1,0 +1,33 @@
+# Wrap directive — Pulse 0.4.0, chunk `2026-10-10-boot-smoke-s-self-end-named-from-a-run` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on.
+
+1. **The operator pass stands as it stopped.** measured: HEAD = the remote = `925be35f`; `ci#38019133294` on it is red
+   in `boot smoke (ubuntu-22.04)` alone. This red IS the chunk's subject, read by the chunk's own instrument: its
+   outcome line names the closing entry of item 2 as owner. P-129 is not claimed; its dated note says which clause this
+   run showed and for which boots.
+2. **The closing entry is minted now, FIRST in the markerless tail.** Present its card at route-resolve. Its freight
+   carries, as measured and no further: the witness line (the call, its code, `errno`, the chain of callers); seven of
+   eight boots ended, the seven `end` lines equal but for the process and thread ids; the display read `reachable`
+   after each end and every `xvfb.log` is 0 B; and the limits your report lists, each as a limit. What it must NOT say
+   is why the connection's read failed: that is not measured.
+3. **Three questions the closing entry carries for its own research, each answerable by measurement, none a
+   direction.** (a) Which side ended this one client's connection while the display server went on accepting others —
+   the server, another client, or the app's own side. (b) Is the self-end a property of the runner a run lands on —
+   read from the per-boot verdicts of the runs that follow (one more exists already: the wrap commit's). (c) Do boots 2
+   to 8 run the binary boot 1 ran — boot 2 took 3 min 27 s to reach ready.
+4. **The series undercounts, and that is an instrument defect with an owner.** A boot that ends before ready takes no
+   settle verdict, so `boot-series.json` gives it no label although its witness file holds the line. Pin it on the
+   closing entry as the first thing it repairs: every self-end is counted with its label.
+5. **Nothing built here outlives the window.** `scripts/exit-witness.c`, the two xtask modules, the boot verb's
+   loading of the library and the two workflow steps exist for the boot job, which leaves at `Window's gates retired`.
+   Pin on that entry a carry that names each of them as leaving with it, or says which later gate takes one over.
+6. **Until the cause is closed the boot job reads red on most runs.** Say so where a later chunk's operator pass will
+   read it (the route line or the handoff), with the rule: that red is read by its per-boot verdicts and is the
+   closing entry's, never a later chunk's to fix.
+7. **A proposal a detector grades `escalate` halts at the card for my word.** It is not settled by a line of this
+   directive.
+8. **For the main overseer, one line each if they occur:** `REFUSED id:` in a trail, with what the session did next;
+   `held 3` at the citation sweep; what `planlint` check 4 listed at this plan's P5.
+9. **Stops.** The route-resolve card; then before the flip and the commit with `git status --short`. The 85 % and 90 %
+   context alarms are expected: finish; stop only at 95 %.
