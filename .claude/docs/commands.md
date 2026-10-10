@@ -104,7 +104,7 @@ cargo xtask harness:boot-series --count N                      # Linux: N more b
 cargo xtask pre-push:linux                                     # Linux dev host, native: six Linux-reachable stages (script-modes, source-lint, npm, clippy, test, ci-gates) in the working tree under a constructed environment; needs ci.yml's Node major first on PATH (dev host: d="$(mise where node@24)" && PATH="$d/bin:$PATH" …); exit 0 green / 1 red / 2 cannot-evaluate
 cargo xtask check:english-sources                              # English-only source lint (crates, pulse-app/src+tests+ui/src, xtask/src); ASCII ::error annotations; exit 0 clean / 1 findings / 2 cannot-evaluate
 cargo xtask check:staged-artifacts                             # Staged git-index bindings + capability grants vs EXPECTED_PROCEDURES/EXPECTED_GRANTS; exit 0 staged-clean / 1 staged-drift / 2 cannot-evaluate
-cargo nextest run --workspace --profile perf-samples           # The in-process perf-sample producer (writes target/tmp/perf-budget-samples/)
+cargo nextest run --workspace --profile perf-samples --no-tests=fail   # The in-process perf-sample producer; CI's spelling: a selection that matches no test fails (writes target/tmp/perf-budget-samples/)
 cargo xtask perf:budget --data-dir target/tmp/perf-budget-samples --require memory,snapshot  # Perf-budget grader over <DIR>/logs/agent-latest.jsonl*; exit 0 PASS / 1 FAIL / 2 cannot-evaluate
 cargo xtask perf:frame-sample                                  # Windows dev host only: frame p99 ≤ 33 ms under a software WebGPU adapter; exit 0 PASS / 1 FAIL / 2 INCONCLUSIVE (opens a window)
 

@@ -1,0 +1,12 @@
+
+## 2026-10-10-no-gate-stands-while-reading-nothing — ci-gates and quarantine-tracking contracts registered; the grader keeps one no-arm caller; a bash and awk test-time row
+**Section:** §Occupied Resources → xtask CLI surfaces (dev/CI gates) · §Stack and Technologies · §Infrastructure Patterns → CI/CD approach
+**Change:**
+- xtask CLI surfaces: was "`cargo xtask ci-gates` and `perf:load-profiles` run the same grader in-process with no arm required", with the lines `ci-gates: perf-budget PASS|FAIL|NEUTRAL` and `perf-budget NEUTRAL (no log file to grade)`; now `cargo xtask perf:load-profiles` alone runs the grader with no arm required, and `ci-gates` runs no grader and prints no perf-budget, frame or heartbeat line.
+- New entry `cargo xtask ci-gates` (`xtask/src/ci_gates.rs`): two arms over the `agent-latest.jsonl*` family under the resolved log dir, zero-spans (at least one record; a non-empty line counts whether or not it parses) and zero-panic (no `app.panic.fatal` record at ERROR). Exit 0 PASS with exactly the two PASS lines · 1 FAIL (zero records, or a panic record named by member file name and line) · 2 cannot-evaluate (log dir absent or holding no member); before, an absent log read exit 0 with four NEUTRAL lines. Output holds closed labels, counts, a file name and a line number, never a record's text or a path. Run by the `boot` job and by `pre-push:linux`'s sixth stage.
+- New entry `cargo xtask quarantine-tracking` (`xtask/ci/quarantine-tracking-check.{sh,ps1}`): a missing search dir, a scan of zero `.rs` files, or an untracked `#[ignore]` exits 1; otherwise exit 0 with a PASS line that states the file count; no NEUTRAL arm. The `.sh` is held by five pins; the `.ps1` was parsed and never run.
+- §Stack: a test-time row for `bash` and `awk` on PATH (four thresholds-witness tests and five quarantine pins run the gates' own scripts; a missing tool fails them, never skips them).
+- CI/CD approach key file: the perf-samples nextest line spells `--no-tests=fail`.
+**Why:** The chunk narrowed `ci-gates` to the two arms that read the boot log and made an absent input an exit of its own for it and for the quarantine check; a verb that carries a formal exit contract has its own registry entry. The workspace tests gained two host-tool needs.
+**Kept:** The key file names the coverage job by its key `coverage`, never by its display name, so the job's rename changes no sentence there.
+**Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/

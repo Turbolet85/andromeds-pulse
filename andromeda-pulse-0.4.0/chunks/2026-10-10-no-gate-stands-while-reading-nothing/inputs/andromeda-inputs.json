@@ -34,5 +34,41 @@
     "read_at": "2026-10-10T09:21:26Z",
     "step": "phase:P4",
     "why": "the four P4 answers: an empty coverage report fails and the branch arm is retired (PROVISIONAL for the founder); all five empty selections fail; ci-gates is narrowed to its two reading arms; the quarantine check is repaired, the a11y upload and the pre-push stage keep an owner and a stated reading"
+  },
+  {
+    "id": "I3",
+    "kind": "relay",
+    "repo": null,
+    "path": "../additional/pc-overseer/relays/pulse-wrap-no-gate-reads-nothing-2026-10-10.md",
+    "form": "copy",
+    "state": "no-repo",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "13c499c0c3670a2c8c8f4024bcf6f0428b2a9621c56b1a9b6b6e0689315fdec1",
+    "copy": "I3-pulse-wrap-no-gate-reads-nothing-2026-10-10.md.txt",
+    "link": false,
+    "read_at": "2026-10-10T10:27:38Z",
+    "step": "wrap",
+    "why": "the operator wrap directive: the pass stands; the retired branch threshold is PROVISIONAL and how its sentence reads; the two kept readings pinned as carries; three unowned sightings for disposition at the card; expected amendments as measured; three lines for the main overseer; the two stops"
+  },
+  {
+    "id": "I4",
+    "kind": "relay",
+    "repo": null,
+    "path": "message: the operator (the pc overseer), typed into the session, 2026-10-10",
+    "form": "copy",
+    "state": "message",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "6fd5c9718c8489bfe7a7838f71f5c6aa19fabae92872a7fd0d9b4199de587bf5",
+    "copy": "I4-relay-1.md.txt",
+    "link": false,
+    "read_at": "2026-10-10T10:27:38Z",
+    "step": "wrap",
+    "why": "the operator accepted the implement deviations as recorded, gave the word for the operator pass and the P-128 ref, and set the two stops of this wrap"
   }
 ]

@@ -40,7 +40,7 @@ Co-Authored-By footer when AI-assisted: `Co-Authored-By: Claude Opus 4.7 (1M con
 - `cargo fmt --check` clean
 - `cargo clippy --workspace --all-targets --all-features -- -D warnings` clean
 - `cargo nextest run --workspace --profile ci` passes (zero failures, zero flakes — flake = real bug per Standard tier)
-- Coverage ≥75% line / ≥70% branch / ≥85% function (`cargo llvm-cov`)
+- Coverage ≥75% line / ≥85% function (`cargo llvm-cov`); a report that tracks nothing fails; the ≥70% branch threshold is retired as never measured, PROVISIONAL until the founder's word
 - Performance budgets respected (snapshot p99 ≤500ms, memory max ≤512 MB, WebGPU frame p99 ≤33ms — graded by `cargo xtask perf:budget`, which CI runs on lint-test Linux with memory + snapshot required; the frame arm by `cargo xtask perf:frame-sample` on a GPU dev host, since hosted runners expose no WebGPU adapter; no bench suite exists, so nothing covers regression against an earlier run)
 - `cargo audit` zero findings above warning
 - `cargo deny check bans licenses sources` clean (catches `tonic` 0.14/0.13 duplicate)

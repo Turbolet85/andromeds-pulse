@@ -826,3 +826,36 @@ The load suite found and fixed in-chunk 3 pipeline defects: retention-sweep conn
 **Why:** The pull-request run builds the tip merged with `main` and the local pre-push check builds the tip alone; at this chunk a tip that was green locally met a merge that did not compile. The operator ruled a check that runs over a sentence that is remembered, placed where the push entry sits (the operator, the pc overseer, at this wrap's route-resolve card, 2026-10-10).
 **Kept:** No Tier-1 line was written for it: phase builds each plan's Test Commands from this section, so the probe reaches plans from here, and the two leaves that restate the gate set carry it. The probe is not a member of the fenced standard gate set that /implement runs; it is the operator's, like the push.
 **Ref:** .andromeda/runs/2026-10-10T08-04-06Z-wrap/
+
+## 2026-10-10-no-gate-stands-while-reading-nothing — the 70 % branch threshold retired (PROVISIONAL); an empty coverage report fails
+**Section:** §4 Unit Test Strategy → Coverage target · §9 → Pipeline structure (Quality gates row) · §9 → Build failure conditions · §10 → Coverage thresholds table · §10 → Build failure conditions · §3 → Bootstrap phases (item 8)
+**Change:**
+- Was three thresholds, line ≥ 75 % · branch ≥ 70 % · function ≥ 85 %; now two, line ≥ 75 % and function ≥ 85 %, at all six sites. The branch threshold is RETIRED as never measured, PROVISIONAL: retired on the operator's reading (the pc overseer, 2026-10-10), awaiting the founder's own word.
+- §4 states the cause and the return condition: the arm read `Branch: 0/0 = 100.0%` on every run read, because branch instrumentation is a nightly-only compiler feature (`-Z coverage-options=branch`, `cargo llvm-cov --branch`), the project pins `1.95.0`, and `cargo xtask test:coverage` asks for no branch count (144 `BRF:0` and 144 `BRH:0` records, no `BRDA:` line, in the `coverage-linux` artifact of `ci#38038281709`). The arm returns when that feature is stable on the pinned channel, or when the founder admits a second channel for the `coverage` job, with a measured first reading before any threshold is stated.
+- The Quality gates row and both Build failure conditions lists gain: a report tracking 0 lines or 0 functions fails the step (exit 1), and an absent `lcov.info` fails it. Before, a report tracking nothing exited 0.
+- The table's branch cell reads "not enforced"; the key file's item 8 names function ≥ 85 % as the second enforced threshold.
+**Why:** A threshold that has never read a number is a false statement, and a second unpinned toolchain is not its repair (the operator's answer at the plan's dialog). The coverage step passed over an empty report; the chunk made that an exit 1, pinned by four witness tests that run the step's own script.
+**Kept:** The §11 ban "NEVER lower coverage threshold to pass build" stands unedited: no measured threshold was lowered. The TEMPORARY `xtask/` exclusion stands as the founder ruled it on 2026-09-29.
+**Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/
+
+## 2026-10-10-no-gate-stands-while-reading-nothing — every nextest invocation fails on an empty selection; bash and awk as runner needs; the untested .ps1 quarantine mirror
+**Section:** §9 → Pipeline structure (MCP-feature tests row · Lint + tests row) · §1 → Pending coverage triggers
+**Change:**
+- MCP-feature tests row: was `… --profile ci --no-tests=pass`; now `--no-tests=fail`, a selection that matches no test fails the job, pinned by `ci_workflow_nextest_runs_fail_on_an_empty_selection`; the runner's cargo-nextest 0.9.133 took the flag and ran 2946 tests on `ci#38042949735`.
+- Lint + tests row: the perf-samples line spells `--no-tests=fail`; `cargo xtask test` and `cargo xtask perf:slo-load` pass nextest the same flag from argument lists a pin reads (with `test:coverage` and `perf:load-profiles`); nextest's own exit is 4 and the verb maps a failed status to exit 1; the three steps ran 2908, 1 and 1 tests on that run; the step is named `cargo xtask test`.
+- The same row's list of what the workspace tests need on the runner gains `bash` and `awk` on PATH: four witness tests run the `Enforce coverage thresholds` step's script with `bash -e`, five xtask pins run `xtask/ci/quarantine-tracking-check.sh` with `bash`; a missing tool fails them, never skips them; green in the `lint / test` job of `ci#38042949735`, neither version read.
+- New pending-trigger row `quarantine-tracking-ps1-mirror-coverage`: the `.ps1` mirror gained the absent-input arms with no committed test (parsed by `pwsh` 7.6.6, 0 parse errors, never run); owed a pin per arm, or the mirror leaves with the PowerShell scripts.
+**Why:** Five invocations passed a run that selected no test; the chunk made each fail and spelled the behaviour instead of leaning on a default the runner's older nextest was not read for. The new pins run the gates' own scripts, which is what makes the two tools a runner need.
+**Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/
+
+## 2026-10-10-no-gate-stands-while-reading-nothing — ci-gates narrowed: the Boot smoke row, the two frame-line rows of §1, the boot job's failure conditions, the pre-push paragraph
+**Section:** §9 → Pipeline structure (Boot smoke row) · §9 → Build failure conditions · §1 → Coverage triggers (the WebGPU canvas throughput row) · §1 → Pending coverage triggers (`perf-slo-check-arm-coverage`) · §3 → Per-chunk gate discipline
+**Change:**
+- Boot smoke row: `cargo xtask ci-gates` over the log the smoke wrote now states what it reads and returns: two arms over the `agent-latest.jsonl*` family, zero-spans and zero-panic; exit 0 PASS with exactly `ci-gates: zero-spans PASS ({n} log records across {k} file(s))` and `ci-gates: zero-panic PASS` · 1 FAIL · 2 cannot-evaluate on an absent log family; no heartbeat, perf-budget or frame line; no CI step makes the heartbeat gap check; 110 records on `ci#38042949735`.
+- Build failure conditions: where `ci-gates` runs, the boot job also fails on its exit 1 or exit 2; an absent log no longer reads exit 0.
+- §1 WebGPU canvas throughput row: was "the boot job's line reads `no WebGPU adapter (no_navigator_gpu)`" on a run whose smoke and series pass; now the frame arm's `cannot-evaluate` line on CI is the `lint-test` `perf:budget` step's alone, the boot job prints no frame line on any run, and the earlier boot-job readings are dated.
+- §1 `perf-slo-check-arm-coverage` row: the same boot-job reading bounded to before this chunk.
+- Per-chunk gate discipline key, the `pre-push:linux` paragraph: the `ci-gates` stage reads two lines over its seed and makes no heartbeat or perf-budget read; it reads a record it wrote itself, a reading carried on the working route; the `test` stage's `cargo xtask test` exits non-zero on a selection that matches no test.
+**Why:** The chunk narrowed the verb to the arms that read the boot log and gave an absent log its own exit; four master sentences still described the arms that left or the line they printed.
+**Kept:** "`ci-gates` is skipped when the smoke or the series fails" and "runs in this job only" stand. The pre-push stage is outside P-128, which is about what a CI job does (the operator's answer at the plan's dialog).
+**Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/

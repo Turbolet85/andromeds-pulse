@@ -64,7 +64,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 | Security anti-patterns (Universal / Input / API / Code / Secrets / Logging) | `.andromeda/security-plan.md` §Security Anti-Patterns |
 | Test plan (Standard tier) + 5-command harness | `.andromeda/test-plan.md` §3 (keyed: `.andromeda/registries/test-plan-contracts.toml`, one file per key) |
 | E2E P1–P7 critical paths | `.andromeda/test-plan.md` §6 |
-| Quality gates (≥75% line / ≥70% branch / ≥85% function) + perf budgets | `.andromeda/test-plan.md` §10 |
+| Quality gates (≥75% line / ≥85% function; the branch threshold is retired, PROVISIONAL) + perf budgets | `.andromeda/test-plan.md` §10 |
 | Observability plan + tracing self-observation harness (NO OTel SDK) | `.andromeda/obs-plan.md` §3 (keyed: `.andromeda/registries/obs-plan-contracts.toml`) |
 | SLO invariants + perf budgets (snapshot p99 ≤500ms / WebGPU frame p99 ≤33ms) | `.andromeda/obs-plan.md` §10 |
 | A11y plan (WCAG 2.1 AA + SC 2.3.3 AAA) + harness (axe / Lighthouse / pa11y / Playwright / colorjs.io) | `.andromeda/a11y-plan.md` §3 (keyed: `.andromeda/registries/a11y-plan-contracts.toml`) |
@@ -86,7 +86,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 **Key commands:**
 - `cargo fmt --check` + `cargo clippy --workspace --all-targets --all-features -- -D warnings` — lint gate
 - `cargo nextest run --workspace --profile ci` — test suite (per-process isolation)
-- `cargo llvm-cov nextest --workspace --lcov` — coverage gate (≥75% line / ≥70% branch / ≥85% function)
+- `cargo llvm-cov nextest --workspace --lcov` — coverage gate (≥75% line / ≥85% function; a report that tracks nothing fails; the ≥70% branch threshold is retired as never measured, PROVISIONAL until the founder's word)
 - `cargo tauri build` (or `cargo xtask release`) — produce `.msi` / `.dmg` / `.AppImage` / `.deb` bundles
 - `cargo audit` + `cargo deny check bans licenses sources` — Rust supply-chain gates (catches `tonic 0.14 ↔ 0.13` duplicate); `cargo xtask check:npm-supply-chain` — the npm-channel gate (policy: `pulse-app/ui/npm-policy.json`)
 
