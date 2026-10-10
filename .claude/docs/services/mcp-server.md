@@ -13,7 +13,7 @@ Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 
 ### Publishes to
 - stdout: JSON-RPC 2.0 framing (initialize / tools/list / tools/call / notifications/*).
 - stderr: forced JSON `tracing` output (TTY check disabled — stdout reserved for protocol).
-- TauRPC routers (visible from app side): `mcp.status`, `mcp.start`, `mcp.stop`.
+- TauRPC routers (visible from the window app only — the console program `andromeda-pulse-engine` mounts no TauRPC router): `mcp.status`, `mcp.start`, `mcp.stop`. The sidecar's `run/workspace-key` is published at boot by either engine program through the shared `engine_boot::start`.
 - `tracing` events: `mcp.session`, `mcp.tools.call.request`, `mcp.tools.call.response`, `mcp.feature.gate.check`.
 
 ### Dependencies
@@ -43,7 +43,7 @@ Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 
 - **Tool method definitions:** ALL tools — the 4 telemetry tools and the incident/report tools (`query_incident_list` / `retrieve_report` / `retrieve_telemetry_slice` / `mark_incident_resolved` from chunk #94, `retrieve_incident_events` from chunk 2026-10-02-incident-events-readable-through-mcp) — are name-dispatch fns in `crates/mcp-server/src/tools.rs` (`ALL_TOOL_NAMES` + `dispatch_tool`; no macro annotations), the incident tools corpus-backed (read/write `corpus/corpus.db` cross-process)
 - **JSON-RPC framing:** `crates/mcp-server/src/jsonrpc.rs` (hand-rolled serde; MCP protocol `2024-11-05` — measured 2026-08-29, nothing rmcp-provided)
 - **Feature gate check:** `crates/mcp-server/src/feature_gate.rs` (compile-time + runtime double-gate)
-- **TauRPC router:** `crates/mcp-server/src/router.rs` (mcp.status / mcp.start / mcp.stop visible from main app)
+- **TauRPC router:** `pulse-app/src/mcp_router.rs` (`McpApiImpl`: mcp.status / mcp.start / mcp.stop; compiled only with `--features mcp-server`, mounted by the window app's `main.rs`)
 - **Tests:** colocated + `tests/integration/mcp/` for E2E P3
 
 ## Testing this service

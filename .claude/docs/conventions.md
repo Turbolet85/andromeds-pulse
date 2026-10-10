@@ -18,7 +18,7 @@ _Extracted from `.andromeda/architecture.md` Conventions section by `/setup-proj
 - **OTLP receivers:** spec-fixed paths — `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`. NO project-specific URL versioning prefix beyond OTLP spec.
 - **Tauri IPC procedures:** two authorized shapes:
   - **Top-level bare `snake_case` verbs** (cross-cutting envelope): `app_info`, `health`, `ready`, `get_settings`, `update_settings`
-  - **`<router>.<verb>` dotted namespaces** (per-crate routers): `traces.query`, `metrics.query`, `logs.query`, `snapshot.generate`, `snapshot.list_recent`, `snapshot.copy_to_clipboard`, `plugins.list`, `plugins.reload`, `plugins.invoke`, `mcp.status`, `mcp.start`, `mcp.stop`, `workspace.detect`, `workspace.list`, `telemetry.frontend.record_frame_ms`
+  - **`<router>.<verb>` dotted namespaces** (per-crate routers): `traces.query`, `metrics.query`, `logs.query`, `snapshot.generate`, `plugins.list`, `plugins.reload`, `plugins.invoke`, `mcp.status`, `mcp.start`, `mcp.stop`, `workspace.detect`, `telemetry.frontend.record_frame_ms` (`snapshot.list_recent`, `snapshot.copy_to_clipboard` and `workspace.list` are deferred — no runtime emitter)
   - Both segments are `snake_case`. The canonical procedure list is in arch §Occupied Resources Tauri IPC routes.
 - **MCP server:** spec-fixed JSON-RPC 2.0 method names — `initialize`, `tools/list`, `tools/call`, `notifications/*`. Tool methods (9): `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot`, `query_incident_list`, `retrieve_report`, `retrieve_telemetry_slice`, `mark_incident_resolved` (these 4 chunk #94), `retrieve_incident_events` (chunk 2026-10-02-incident-events-readable-through-mcp).
 

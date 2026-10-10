@@ -27,7 +27,7 @@ Owns the two OTLP receiver surfaces (`:4317` gRPC + `:4318` HTTP) bound `127.0.0
 - Post-`prost` invariant checks REQUIRED before handoff to `buffer::Appender`: `span_id` is 8 bytes, `trace_id` is 16 bytes, attribute keys/values bounded.
 - Body size cap: `axum::DefaultBodyLimit::max(8 * 1024 * 1024)` on each route + `tonic` `.max_decoding_message_size(8 * 1024 * 1024)` per `*ServiceServer` builder.
 - Host-header allowlist middleware on `:4318` (reject non-`{127.0.0.1, localhost, [::1]}:configured-port`) — DNS rebinding mitigation.
-- Loopback-only bind ENFORCED in startup config — env var override `ANDROMEDA_PULSE_OTLP_*_PORT` parses as `u16` via `TryFrom<u16>` but bind address is hardcoded `127.0.0.1`.
+- Loopback-only bind ENFORCED in startup config — env var override `ANDROMEDA_PULSE_OTLP_*_PORT` parses as `u16` via `TryFrom<u16>` but bind address is hardcoded `127.0.0.1`: the engine config holds two validated ports and `engine_boot::start` builds `127.0.0.1:{port}` itself; a rejected port variable records the bind as failed (`reason = "invalid_port"`) and starts no receiver, never a default.
 - Errors collapse to `AppError::Ingest { message }` at the bridge; OTLP receiver returns standard `tonic::Status` codes / OTLP `Status` proto in body.
 - `ingest.tick` heartbeat every 15s with `span_count`, `buffer_capacity_pct`, `broadcast_subscribers`.
 
@@ -48,7 +48,7 @@ Owns the two OTLP receiver surfaces (`:4317` gRPC + `:4318` HTTP) bound `127.0.0
 - **Negative tests REQUIRED:** post-`prost` invariant rejection, oversized body 413, `0.0.0.0` bind rejection, Host-header allowlist miss, CORS rejection, rate-limit hit.
 
 ## Local development
-- **Run locally:** `cargo run --bin pulse-app` (the receiver crate is library-only; the binary wires it).
+- **Run locally:** `cargo run --bin pulse-app` (window app) or `cargo run --bin andromeda-pulse-engine -- run` (console engine, no window). The receiver crate is library-only; the shared engine boot `pulse_app::engine_boot::start` wires and binds both receivers for either program, both defaulting to 4317 / 4318.
 - **Override ports:** `ANDROMEDA_PULSE_OTLP_GRPC_PORT=14317 ANDROMEDA_PULSE_OTLP_HTTP_PORT=14318 cargo run --bin pulse-app`
 - **Send test span:** `grpcurl -plaintext -d @ 127.0.0.1:4317 opentelemetry.proto.collector.trace.v1.TraceService/Export < test-span.json` or `curl -X POST -H "Content-Type: application/x-protobuf" --data-binary @test-span.bin http://127.0.0.1:4318/v1/traces`
 

@@ -909,3 +909,17 @@ exit is not; the gap is recorded so that it is not read as covered by the 36 pin
 **Why:** The chunk moved the engine boot out of `main.rs` and added a second program with its own tests; rows naming `main.rs` as the wiring site, the single `[[bin]]` and the file count were stale, and the new witness form had no record.
 **Kept:** The two narrowed rows keep their dated original statements above the narrowing.
 **Ref:** .andromeda/runs/2026-10-10T14-17-29Z-wrap/
+
+## 2026-10-10-agent-harness-drives-the-console-engine — `boot` and `status` reach the console engine; the engine cycle is a gate form and a boot-job step
+**Section:** §1 (Surfaces under test: the console engine row; Test harness requirements; Coverage triggers: the WebGPU throughput row; Pending coverage triggers: `harness-cleanup-verdict-and-boot-spawn-shell-coverage`, `perf-slo-check-arm-coverage`, `exit-hook-main-composition-coverage`, a new row) · §3 → 5-command implementation (`boot`, `status`) · §3 → PID file (Lifecycle) · §3 → Per-chunk gate discipline (Direct-binary smoke variant; Spawned-program witness form; a new Engine cycle gate form) · §9 (the Boot smoke row; two failure-condition bullets)
+**Change:**
+- `boot` and `status` take the word `engine` in the sh script: `boot engine` builds and spawns `target/release/andromeda-pulse-engine run` and polls `harness:ready --program console`. Was: `boot` builds and spawns `pulse-app` alone; "no harness verb boots" the console engine.
+- The status object has seven members (`program`) and five verdicts (`wrong-program`, exit 1); the readiness object six and five. Was six and four; five and four. §1's summary reads `exits 0/1/1/1/2`.
+- PID file: the harness verbs are aimed at either program; `check:engine-log` reads the exit record.
+- New label "Engine cycle gate form (runtime, console engine)": `cargo xtask harness:engine-cycle`, its refusals, order, verdict and gate reading, with `harness:engine-settled` and `check:engine-log`; as measured, 19 to 41 s on the dev host and 100 s for the step on `ci#38065768197`, where the cycle's cleared child environment compiled the engine and the injector again.
+- §9: the `boot` job's chain continues past `ci-gates` with `Console engine cycle` and a second upload, `logs-engine-…`; the job also fails on a non-zero cycle; seven uploads carry `if-no-files-found: error`. Was six, and "no CI step makes the heartbeat gap check".
+- Pending rows: the shell-coverage row widened to the `engine` word; `exit-hook-main-composition-coverage` records where the console program's panic and at-exit witness is made and why no trigger is built; new row `engine-log-arm-mutation-and-engine-cycle-glue-coverage`.
+- "The boot job prints no frame line" is narrowed to the perf-budget `frame:` line; the pending row's "the one spawn command" names the window app's.
+**Why:** The chunk aimed the harness at the console engine, put one whole engine run in the gate block and in the `boot` job, and left three readings uncommitted that the new pending row names.
+**Kept:** `engine-boot-rejected-port-and-socket-census-coverage` is not discharged: its readings were cut to the entry minted at this wrap. The reason no trigger is built is carried as read at the chunk's research, not driven.
+**Ref:** .andromeda/runs/2026-10-10T16-47-34Z-wrap/

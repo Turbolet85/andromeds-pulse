@@ -10,8 +10,8 @@ Component-specific known issues. Grows over time via `/wrap-session`. Read on de
 ### `rmcp` version reconciliation — CLOSED by measurement (2026-08-29)
 The old "rmcp 1.5.0 vs published 0.3.x" open question is resolved: the published line reached 3.x and the workspace pins requirement `"3"` (lockfile-resolved 3.1.4, chunk 2026-08-29-advisory-backlog). Note the measured mechanism while touching rmcp: the crate is a feature-gated ANCHOR dependency (`use rmcp as _;` is the sole source contact) — the MCP protocol itself is the hand-rolled serde JSON-RPC 2.0 layer at `crates/mcp-server/src/jsonrpc.rs`.
 
-### `rust-toolchain.toml` 1.84 → 1.85 bump
-Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 cannot parse below `1.85.0`. **Bump `rust-toolchain.toml` to `1.85.0` minimum** — the security-positive defaults (`unsafe_op_in_unsafe_fn`, `unsafe extern`, `static mut` reference denial, tightened `if let` temporary scopes) require this. CLAUDE.md universal warnings list the bump as a hard requirement.
+### `rust-toolchain.toml` pin — CLOSED (1.95.0)
+The toolchain is pinned to rustc 1.95.0 and the workspace declares `rust-version = "1.95"` once in `[workspace.package]`, equal to the pin and set by the resolved dependency graph (wasmtime 48.0.5 and its internal crates, cranelift and pulley declare 1.95.0) — no toolchain below 1.95.0 builds the product, though the workspace's own code needs only rustc ≥ 1.89. The xtask test `declared_floor_equals_the_pinned_channel` holds the declared floor equal to the pin. Edition 2024 itself cannot parse below 1.85.0 (security-plan keeps that as the floor never to drift below); wasmtime 49.x is out of reach while the pin is 1.95 (it needs Rust 1.96).
 
 ## DuckDB encryption
 - Do NOT enable DuckDB encryption-at-rest on the in-memory ring buffer — CVE-2025-64429 is documented against the encryption feature. The in-memory `:memory:` connection avoids the entire surface; an unnecessary feature flip would re-introduce it.
@@ -28,7 +28,7 @@ Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 c
 
 ## Self-observation recursion
 - Product IS the local OTLP observer. Pointing the product's own OTel exporter at `:4317`/`:4318` creates an infinite loop AND bypasses the loopback authorization model.
-- The chosen architecture eliminates this concern by construction: NO OTel SDK is linked into the self-observation runtime. `tracing` ecosystem only — the JSON file at `~/.andromeda-pulse/logs/agent-latest.jsonl` IS the agent surface.
+- The chosen architecture eliminates this concern by construction: NO OTel SDK is linked into the self-observation runtime. `tracing` ecosystem only — the JSON log family `~/.andromeda-pulse/logs/agent-latest.jsonl*` (date-suffixed daily, `agent-latest.jsonl.YYYY-MM-DD`; a bare-name read finds nothing) IS the agent surface.
 - Any future `ANDROMEDA_OBSERVER_URL`-shaped variable MUST explicitly distinguish "outbound observer" (we ARE the observer — do not dial) from "inbound receivers" (the OTLP ports we listen on).
 
 ## Tauri capability silent rejections

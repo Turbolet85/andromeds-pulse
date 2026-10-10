@@ -23,7 +23,7 @@ Owns the in-memory DuckDB ring buffer (5–10 min retention, configurable) + Apa
 - **Schema name:** `pulse_buffer` (single in-memory `:memory:` DuckDB connection, schema `main`).
 - **Reserved tables (canonical OTLP entities):** `spans`, `span_events`, `metrics_points`, `log_records` (+ `log_templates`) — the producer-less `span_links`/`resources`/`instrumentation_scopes` CREATEs were deleted at chunk 2026-08-30-diagnostics-un-muting-harness-truth-sweep; retention DELETEs 7 → 4.
 - **Schema creation:** on startup; no migrations (per arch §Established Decisions ORM/Migrations None).
-- **Primary keys:** OTLP-native — spans use `(trace_id BLOB(16), span_id BLOB(8))` composite; metric points + log records use `(timestamp, resource_hash, name)`.
+- **Primary keys:** OTLP-native — spans use `(trace_id BLOB(16), span_id BLOB(8))` composite; metric points use `(metric_name, ts_unix_nano, resource_hash, seq)` and log records `(ts_unix_nano, resource_hash, severity_number, seq)` — a LogRecord has no `name` column; `seq` is the one declared surrogate exception (an internal per-table ordinal, one block per batch, never an observable), and `metrics_points.labels` sits outside the key.
 - **Timestamps:** `TIMESTAMPTZ` (microsecond precision, UTC-stored) + sibling `BIGINT ts_unix_nano` when nanosecond precision required.
 - **Nullable patterns:** reserved for OTLP-spec-optional fields (`parent_span_id`, optional resource attrs); required spec fields are `NOT NULL`.
 - **Retention enforcement:** `DELETE FROM <table> WHERE ts < now() - INTERVAL '<retention> seconds'` on periodic timer (configured via `ANDROMEDA_PULSE_RETENTION_SECONDS`, default range 300–600).
@@ -37,7 +37,7 @@ Owns the in-memory DuckDB ring buffer (5–10 min retention, configurable) + Apa
 - **Arrow IPC size cap:** plugin-returned Arrow IPC must be size-bounded (8 MB) at host boundary before re-emit on Tauri Channel API.
 
 ## Entry points for modification
-- **Schema definitions:** `crates/buffer/src/schema.rs` (DDL for the 7 reserved tables)
+- **Schema definitions:** `crates/buffer/src/schema.rs` (DDL for the 5 reserved tables)
 - **Appender pipeline:** `crates/buffer/src/appender.rs` (Arrow zero-copy ingest path)
 - **Retention task:** `crates/buffer/src/retention.rs` (periodic DELETE)
 - **Broadcast fan-out:** `crates/buffer/src/broadcast.rs` (tokio broadcast → channel emit)

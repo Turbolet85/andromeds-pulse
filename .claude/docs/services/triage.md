@@ -8,12 +8,13 @@ L1 streaming distillation layer (chunk #60 scaffold; chunks #61+ fill the implem
 ### Consumes from
 - `ingest::observer::SpanObserver` trait via `buffer::run_consumer` 5th parameter — receives every decoded OTLP span post-buffer-append.
 - `buffer::fingerprint::FingerprintObserver` for exception fingerprint stream (chunk #66 retry-storm detector).
-- `corpus::CorpusReader` for baseline-state bootstrap on cold start + persistence on tick (chunks #61 / #64 / #66 / etc. write through corpus).
+- Persistence ports declared in `triage::contract` and implemented at the `pulse-app` binary boundary over `CorpusWriter` (`IncidentPersistence`, `DurableActiveIncidents`, the lifecycle and storm persistence traits) — `triage` sits below `corpus` in the DAG and names no `corpus` type. Baseline state is not in the corpus: `baseline_state` was dropped after its only writer moved to the file-based `baseline_persistence` at chunk #72.
 
 ### Publishes to
 - `pulse://stream/attention-cues` broadcast topic (`triage::cue::AttentionCueBroadcast`; chunk #62)
 - `pulse://stream/restart-events` broadcast topic (`triage::pattern::RestartEventBroadcast`; chunk #63)
 - `pulse://stream/service-lifecycle` broadcast topic (`triage::lifecycle::ServiceLifecycleBroadcast`; chunk #67)
+- `pulse://stream/incidents` (chunk #78; producer-only — no consumer subscribes), `pulse://stream/cadence-events` (chunk #80, `crates/triage/src/cadence/broadcast.rs`), `pulse://stream/digests` (chunk #81)
 - `tracing` events at `triage.{baseline,cue,pattern,lifecycle}.*` targets (registered in `pulse-app/src/observability.rs::AllowList`).
 
 ### Dependencies
@@ -21,13 +22,14 @@ L1 streaming distillation layer (chunk #60 scaffold; chunks #61+ fill the implem
 - Internal: `crates/security` (PII scrubber consumed at cue emission boundary, deferred to chunk #70+).
 
 ## Internal conventions
-- **Module layout:** 7 sub-modules per chunk #60 scaffold:
+- **Module layout:** 8 sub-modules (7 from the chunk #60 scaffold, `cadence` since chunk #80):
   - `baseline/` — `BaselineState` + `ServiceBaseline` + `OperationBaseline` per-service streaming trackers (chunk #61); `ActivityFloor` 24h rolling histogram (chunk #64)
   - `pattern/` — `RestartDetector` (chunk #63), `RetryStormDetector` + `storm.rs` (chunk #66), `suppression.rs` (P-057 magnitude bypass — chunk #63)
   - `cue/` — `evaluate_thresholds` + `classify_priority` + `dual_condition_bypass` + emitter loop (chunk #62); `evaluate_service_went_silent` gate (chunk #64)
   - `digest/` — the L3 digest assembler (`assembler.rs`: `render_payload` renders `payload_summary` — WINDOW / PROJECT / OVERALL, a `TRIGGER: {cue_cause_label}` line keyed on the first cue (the kind label only, never the `scope_id`), SERVICES, ATTENTION CUES, and CORPUS MATCHES under a static "other or past incidents" framing note), corpus retrieval (`retrieval.rs`: `select_corpus_matches` keeps scope or fingerprint matches, newest first, capped at five; since chunk 2026-10-07-l4-probe-reproduces-the-canary-history-miss it takes the triggering cue's `scope_id` from `assemble`, and under one its scope arm keeps that scope's candidates only — the fingerprint arm unchanged, the narrowing before the cap, no cue selecting as before — so a cue-bearing digest's CORPUS MATCHES block holds the triggering service's own incidents and the fingerprint matches, and is absent when none is left), the LWW queue, the generation damper and the digest broadcast
-  - `interpretation/` — empty skeleton (future chunks)
-  - `incident/` — empty skeleton (future chunks)
+  - `interpretation.rs` — empty skeleton (a file, not a directory)
+  - `incident/` — incident registry + status state machine + persistence port + lifecycle broadcast + `tier_effective_at` (chunk #78 onward)
+  - `cadence/` — the cadence coordinator, its config and the `pulse://stream/cadence-events` broadcast (chunk #80)
   - `lifecycle/` — Service registry + 7-state FSM (chunk #67)
 - **`contract` module:** the ONLY `pub` surface; 10+ contract types (`AttentionCue`, `CueKind`, `CueScope`, `PriorityTier`, `Severity`, `Incident`, `IncidentStatus`, `EvidenceRefs`, `Digest`, `DigestKind`, plus chunk-specific exports). `cue_cause_label(CueKind)` gives the closed ASCII cause label (`Retry storm` …) the L4 producer prefixes onto incident titles and the digest renders as its `TRIGGER:` line — distinct from the snake_case tracing label `cue::classify::cue_kind_label`, which is not re-exported. `#[doc(hidden)]` dev-probe re-exports (not a stable API): `render_payload`, `cue_summary`, `TRIGGER_LINE_PREFIX`, `CORPUS_MATCHES_FRAMING_NOTE`.
 - **Cross-crate state delivery:** `Arc<dyn Trait>` injection at the binary boundary per session-learnings 2026-05-16 trait-in-lower-crate pattern (e.g., `Arc<dyn ServiceRegistry>` threaded through `start_lifecycle_heartbeat`).
@@ -36,11 +38,11 @@ L1 streaming distillation layer (chunk #60 scaffold; chunks #61+ fill the implem
 ## Service-specific gotchas
 - **`#[cfg(feature = "taurpc-runtime")]` gate on `specta::Type` derives** — chunk #67 added taurpc-runtime feature to triage crate for `ServiceLifecycleState` / `ServiceLifecycleEvent` etc.; the derive only fires when pulse-app enables the feature flag.
 - **Service cap enforcement** — `ACTIVITY_FLOOR_SERVICE_CAP = 1024` (chunk #64); evicted services emit `triage.baseline.service_cap_exceeded` aggregate counter, not per-service.
-- **Heartbeat loops are tokio::spawn** — chunks #61 (persist) / #62 (cue emitter) / #63 (restart detector) / #67 (lifecycle FSM) each spawn a long-running async task. Coordinate cadence per Cadence Coordinator design (chunk #72 future scope).
+- **Heartbeat loops are tokio::spawn** — chunks #61 (persist) / #62 (cue emitter) / #63 (restart detector) / #67 (lifecycle FSM) each spawn a long-running async task. All are spawned from the shared engine boot `engine_boot::start` (both programs). The cadence coordinator is built (chunk #80, `crates/triage/src/cadence/`, topic `pulse://stream/cadence-events`).
 
 ## Entry points for modification
 - **Public contract:** `crates/triage/src/contract.rs`
 - **Per-module impl:** `crates/triage/src/{baseline,pattern,cue,digest,interpretation,incident,lifecycle}/`
-- **Boot wiring:** `pulse-app/src/main.rs` (constructs broadcasts, spawns heartbeats, threads Arc<dyn Trait> into resolvers)
+- **Boot wiring:** `pulse-app/src/engine_boot.rs` (`engine_boot::start`, the one shared engine boot both programs call — constructs broadcasts, builds the baseline state, spawns heartbeats; `main.rs` wires no engine part itself and only threads the returned `Arc<dyn Trait>` handles into the window app's resolvers; the console program mounts no resolver)
 - **Resolvers:** `pulse-app/src/{services_router,storm_observer,baseline_observer,restart_observer}.rs` (chunk-specific TauRPC routers + observer adapters)
 - **Tests:** unit tests inline per sub-module; integration via boot-smoke + cue emission scenarios.

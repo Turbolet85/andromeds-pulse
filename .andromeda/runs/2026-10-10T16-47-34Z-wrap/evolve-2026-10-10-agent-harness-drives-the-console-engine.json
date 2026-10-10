@@ -1,0 +1,162 @@
+[
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "d54f9254",
+"ts": "2026-10-10T16:52:22Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2648→2649 · bytes 2716424→2718376 · term lf",
+"ts 2026-10-10T16:51:55Z · clock 2026-10-10T16:52:22Z · bound 2026-10-10T15:54:09Z (line 2648)",
+"ids 2026-10-10T16:51:55Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2648,
+"bytes": 2716424,
+"terminator": "LF",
+"bound": "2026-10-10T15:54:09Z"
+},
+"after": {
+"lines": 2649,
+"bytes": 2718376
+}
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "d54f9254",
+"ts": "2026-10-10T17:31:38Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"5",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 5 record(s) · friction-log.ndjson lines 2649→2654 · bytes 2718376→2724874 · term lf",
+"ts 2026-10-10T17:31:11Z · clock 2026-10-10T17:31:38Z · bound 2026-10-10T16:51:55Z (line 2649)",
+"ids 2026-10-10T17:31:11Z-a … 2026-10-10T17:31:11Z-e (5)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2649,
+"bytes": 2718376,
+"terminator": "LF",
+"bound": "2026-10-10T16:51:55Z"
+},
+"after": {
+"lines": 2654,
+"bytes": 2724874
+}
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "d54f9254",
+"ts": "2026-10-10T17:32:53Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2654→2655 · bytes 2724874→2725999 · term lf",
+"ts 2026-10-10T17:32:35Z · clock 2026-10-10T17:32:53Z · bound 2026-10-10T17:31:11Z (line 2654)",
+"ids 2026-10-10T17:32:35Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2654,
+"bytes": 2724874,
+"terminator": "LF",
+"bound": "2026-10-10T17:31:11Z"
+},
+"after": {
+"lines": 2655,
+"bytes": 2725999
+}
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "d54f9254",
+"ts": "2026-10-10T17:37:55Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"3",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 3 record(s) · friction-log.ndjson lines 2655→2658 · bytes 2725999→2728963 · term lf",
+"ts 2026-10-10T17:37:55Z · clock 2026-10-10T17:37:55Z · bound 2026-10-10T17:32:35Z (line 2655)",
+"ids 2026-10-10T17:37:55Z-a … 2026-10-10T17:37:55Z-c (3)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2655,
+"bytes": 2725999,
+"terminator": "LF",
+"bound": "2026-10-10T17:32:35Z"
+},
+"after": {
+"lines": 2658,
+"bytes": 2728963
+}
+}
+]

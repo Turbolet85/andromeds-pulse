@@ -679,3 +679,20 @@ _Records key decisions during plan generation + manual additions between phase l
 **Why:** The chunk built a second program over the shared engine boot, and sentences true of one app named the wrong actor or count. The command-line row is classified a bounded input, not a boundary widening, by the operator (the pc overseer, 2026-10-10, given here at the wrap): P-086, approved by the founder with the route on 2026-10-09, rules a console program driven by commands, and these two words are its first closed members. A later command that takes a value, a path or a network address is a new question each time.
 **Kept:** No paragraph declares `app.boot.engine` a no-scrub boundary here; its leaf is registered in obs-plan §6 and §8, as for `app.boot.render.posture`.
 **Ref:** .andromeda/runs/2026-10-10T14-17-29Z-wrap/
+
+## 2026-10-10-agent-harness-drives-the-console-engine — the console-engine harness joins the harness-only class; the exit witness is the window program's alone
+**Section:** §Threat Model Summary → Attack surface → CLI input (Trust boundary) · §Input Validation (the CLI / env var inputs row) · §Security Anti-Patterns → Input (the harness-only class; the exit-witness arm, item (a))
+**Change:**
+- A new member of the harness-only class, read as routine harness evidence on the operator's own reading of 2026-10-10 (the pc overseer, at the chunk's plan dialog; not the founder's word): the `engine` word of `agent-run.sh boot` / `status`, the `--program` flag of `harness:status` / `harness:ready`, `check:engine-log`, `harness:engine-settled`, `harness:engine-cycle` with its cleared child environment and pinned set, its per-cycle data dir under `target/engine-cycle/`, the `logs-engine-Linux` upload, and `inject_demo`'s read of the gRPC port variable.
+- §Input Validation gains "a fifth harness-only boundary" stating each of those inputs' validation; the Threat Model's carve-out enumeration names the same members.
+- The exit-witness arm: "read by `scripts/agent-run.sh boot` alone" and "the one spawn command" are narrowed to bare `boot`, the window program's boot, and the window app's spawn command, in all three sections; `boot engine` never reads the variable and sets no preload; `harness:engine-cycle` is named as a reader that passes the variable on by value and fails on a witness file.
+- The upload's contents are stated whole: the engine's log family plus `boot.log` and `build.log`, the last holding the runner's checkout paths and passing no scrubber, as the boot upload's does.
+**Why:** The chunk added harness inputs and a kept artifact for the console engine, and a second spawn line to the boot script; the plan enumerated the harness-only class as a closed list that ended before them.
+**Kept:** The exit-witness arm's classification is unchanged and PROVISIONAL, the founder's; the cycle verb's read of its variable is named under that item with no classification of its own. Whether the class covers the two harness files in `logs-engine-Linux` was not said by the operator's reading; the body states that as the operator's word at this wrap's card.
+**Ref:** .andromeda/runs/2026-10-10T16-47-34Z-wrap/
+
+## 2026-10-10-agent-harness-drives-the-console-engine — the engine log upload's class covers its two harness files (the operator's reading at the wrap card)
+**Section:** §Security Anti-Patterns → Input (the harness-only class, the member of this chunk, item (d))
+**Change:** Was "whether the class covers the two harness files is the operator's word at that chunk's wrap card"; now the class covers `boot.log` and `build.log` in `logs-engine-Linux` as it does in the boot job's upload — the operator's own reading, given at the wrap's route-resolve card (the pc overseer, 2026-10-10; not the founder's word). The reading at the plan dialog had named the engine's own log family alone.
+**Why:** The detector raised the upload's `build.log` (the runner's checkout paths, no scrubber) at escalate severity; the operator answered it at the card, where the wrap directive had routed it.
+**Ref:** .andromeda/runs/2026-10-10T16-47-34Z-wrap/

@@ -6,15 +6,16 @@ Owns the TauRPC bridge between Rust and webview. Hosts the cross-cutting envelop
 ## Key integrations
 
 ### Consumes from
-- All other library crates expose router modules mounted by `pulse-app` via `ui-bridge`'s contract.
-- `health` polls subsystem state from `ingest` / `buffer` / `viz` / `plugins` / `mcp-server`.
-- `ready` polls duckdb_connection / ingest_mpsc_capacity_pct / broadcast_subscribers / plugins_loaded / mcp_server_enabled.
+- Router modules are mounted by the window app alone (`pulse-app/src/main.rs` builds the one `taurpc::Router`); the console program `andromeda-pulse-engine` mounts no TauRPC router — its state is read from its log records.
+- `health` reports the subsystems of arch §Standard Contracts: `otlp_grpc_receiver` / `otlp_http_receiver` / `buffer` / `ingest_channel`.
+- `ready` reports eight checks: duckdb_connection / ingest_mpsc_capacity_pct / broadcast_subscribers / plugins_loaded / mcp_server_enabled / rows_ingested / buffer_used_seconds / retention_seconds.
 
 ### Publishes to
 - TauRPC procedure surface (per arch §Occupied Resources Tauri IPC routes):
   - Top-level: `app_info`, `health`, `ready`, `get_settings`, `update_settings`
-  - Routers (mounted from sibling crates): `traces.*`, `metrics.*`, `logs.*`, `snapshot.*`, `plugins.*`, `mcp.*`, `workspace.*`, `telemetry.frontend.*`
-- Auto-generated TypeScript bindings: `pulse-app/ui/src/bindings/*.d.ts` (per crate router).
+  - Own routers: `telemetry.frontend.*` (six methods, `telemetry.rs`), `workspace.detect` (`workspace_ipc.rs`)
+  - Routers mounted beside them by the window app: `traces.*`, `metrics.*`, `logs.*`, `streams.*`, `snapshot.generate`, `plugins.*`, `mcp.*` (feature-gated), `connection.*`, `services.*`, `storage.*`, `diagnostics.*`, `config.*`, `incidents.*`, `model.*`, `investigate.*` — Occupied Resources is the canonical list (`EXPECTED_PROCEDURES` 44)
+- Auto-generated TypeScript bindings: `pulse-app/ui/src/bindings/index.ts` (one tracked file for the whole procedure surface).
 
 ### Dependencies
 - `taurpc` derive macro (router-level type-safe IPC).
@@ -39,8 +40,8 @@ Owns the TauRPC bridge between Rust and webview. Hosts the cross-cutting envelop
 ## Entry points for modification
 - **AppError enum:** `crates/ui-bridge/src/error.rs`
 - **Cross-cutting envelope:** `crates/ui-bridge/src/{app_info,health,ready,settings}.rs`
-- **TauRPC type generation:** `pulse-app/build.rs` invokes taurpc generation for each router crate
-- **Capability JSON:** `pulse-app/capabilities/{pulse-default,pulse-tray,pulse-notification,pulse-updater,pulse-plugin-fs}.json`
+- **TauRPC type generation:** the `emit_taurpc_bindings` test in `pulse-app/src/main.rs` rewrites the tracked `pulse-app/ui/src/bindings/index.ts` when the workspace tests run (`pulse-app/build.rs` is `tauri_build::build()` only)
+- **Capability JSON:** `pulse-app/capabilities/{default,tray,notification,updater,plugin-fs,clipboard}.json` (six files; identifiers `pulse:default` … `pulse:clipboard`)
 - **Tests:** colocated per module
 
 ## Testing this service
@@ -49,7 +50,7 @@ Owns the TauRPC bridge between Rust and webview. Hosts the cross-cutting envelop
 - **Capability drift CI gate:** `cargo xtask capability-drift` diffs procedures (worktree + staged git-index bindings) vs `EXPECTED_PROCEDURES` and asserts the staged capability grants vs `staged_gate::EXPECTED_GRANTS`; fails on mismatch.
 
 ## Local development
-- **Regenerate TypeScript bindings:** `cargo build` triggers taurpc codegen as part of the build pipeline.
+- **Regenerate TypeScript bindings:** a test run does it, not the build — the `emit_taurpc_bindings` test rewrites the tracked `pulse-app/ui/src/bindings/index.ts` (run it with `--features mcp-server` last, so the committed mcp shape stands).
 - **Inspect IPC traffic:** Tauri webview DevTools (Cmd+Opt+I macOS / F12 Windows / Ctrl+Shift+I Linux) shows all `invoke()` calls; backend log file `agent-latest.jsonl` shows handler spans.
 
 ## References

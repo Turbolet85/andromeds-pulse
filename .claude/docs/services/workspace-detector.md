@@ -1,7 +1,7 @@
 # `workspace-detector` — Host Project Context Detection
 
 ## Responsibility
-Detects host project context for telemetry correlation: `.andromeda/` marker + VCS metadata (git root, project name, cargo manifest). Hosts `workspace.detect` / `workspace.list` TauRPC routers. Used by `snapshot` for snapshot path resolution.
+Detects host project context for telemetry correlation: `.andromeda/` marker + VCS metadata (git root, project name, cargo manifest). Backs the one implemented procedure `workspace.detect` (resolver at `crates/ui-bridge/src/workspace_ipc.rs`; `workspace.list` is deferred — no runtime emitter). Used by the shared engine boot (`engine_boot::start` detects the host workspace and publishes `run/workspace-key` for both programs) and read cross-process by the `andromeda-pulse-mcp` sidecar.
 
 ## Key integrations
 
@@ -10,7 +10,7 @@ Detects host project context for telemetry correlation: `.andromeda/` marker + V
 - VCS metadata (`git rev-parse --show-toplevel`, `Cargo.toml` package.name).
 
 ### Publishes to
-- TauRPC routers: `workspace.detect`, `workspace.list`.
+- TauRPC procedure: `workspace.detect` (resolver in `crates/ui-bridge/src/workspace_ipc.rs`); `workspace.list` deferred — no runtime emitter.
 - `tracing` events: `workspace.detect`, `app.boot.workspace.detect`, `filesystem.scan.gitroot`, `workspace.marker.check`.
 
 ### Dependencies
@@ -44,7 +44,7 @@ struct Workspace {
 - **Detection logic:** `crates/workspace-detector/src/detect.rs`
 - **Path canonicalization:** `workspace_detector::contract::publish_workspace_key` (std both-sides-canonicalize + `starts_with` confinement)
 - **VCS metadata:** `crates/workspace-detector/src/vcs.rs`
-- **TauRPC router:** `crates/workspace-detector/src/router.rs`
+- **TauRPC resolver:** `crates/ui-bridge/src/workspace_ipc.rs` (`WorkspaceApiImpl`, `workspace.detect`)
 - **Tests:** colocated per module + `tests/fixtures/workspaces/` for fixture project structures
 
 ## Testing this service
