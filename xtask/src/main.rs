@@ -7,10 +7,17 @@
 #![allow(clippy::items_after_test_module)]
 
 mod bundle_format;
+mod capability_record;
+mod ci_gates;
 mod discovery;
+mod engine_cycle;
+mod engine_log;
 mod external_resolve;
 mod gap_resume;
+mod harness_ready;
+mod harness_series;
 mod harness_status;
+mod harness_witness;
 mod hue_shift;
 mod ingest_progress;
 #[cfg(test)]
@@ -47,11 +54,66 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Cmd {
-    #[command(name = "harness:status")]
-    HarnessStatus,
+    #[command(
+        name = "harness:status",
+        about = "The real-process status verdict from the pid file, that pid's liveness and the log family's last write: one JSON verdict (running-healthy, stale, wrong-program, not-running, cannot-evaluate) with the pid, the exit record when not healthy, the program the log's last app.boot.engine record names (window, console, unknown), the newest log member's name and its age. With --program the verdict is wrong-program when the log records another program or none; not-running and cannot-evaluate stand whatever was asked. Exit 0 running-healthy, 1 stale, wrong-program or not-running, 2 cannot-evaluate"
+    )]
+    HarnessStatus {
+        #[arg(long, value_enum, value_name = "PROGRAM")]
+        program: Option<harness_status::Program>,
+    },
+    #[command(
+        name = "harness:ready",
+        about = "The boot verb's readiness verdict: the harness:status verdict reads running-healthy AND both OTLP receivers accept a TCP connection on 127.0.0.1 at the ports resolved from ANDROMEDA_PULSE_OTLP_GRPC_PORT / _HTTP_PORT (defaults 4317 / 4318), each attempt bounded at one second. One JSON verdict (ready, not-ready, wrong-program, ended, cannot-evaluate) with the pid, the exit record when the app ended, the program the log records (window, console, unknown) and one label per receiver (accepting, refusing). With --program the verdict is wrong-program when the log records another program or none. Exit 0 ready, 1 not-ready, wrong-program or ended, 2 cannot-evaluate"
+    )]
+    HarnessReady {
+        #[arg(long, value_enum, value_name = "PROGRAM")]
+        program: Option<harness_status::Program>,
+    },
+    #[command(
+        name = "harness:engine-settled",
+        about = "Wait, bounded, until the console engine's log family holds what check:engine-log reads with the engine alive: an app.boot.engine record reading console, at least two records of each of ingest.tick, buffer.tick and connection.tick, and one metric.buffer.memory_bytes sample with a non-zero value (settled); or the pid is gone (ended); or the boot record reads window (wrong-program); or the timeout passes (not-settled). One JSON verdict with the pid, the program, the three tick counts and the count of populated memory samples; writes no file. Exit 0 settled, 1 ended, wrong-program or not-settled, 2 cannot-evaluate (no pid, or a timeout below 20 s, which could never hold a second tick)"
+    )]
+    HarnessEngineSettled {
+        #[arg(long, value_name = "SECONDS", default_value_t = 60)]
+        timeout_seconds: u64,
+    },
+    #[command(
+        name = "harness:engine-cycle",
+        about = "One cycle of the harness verbs on the console engine, on a data dir and ports of its own: build the injector, agent-run.sh boot engine, a healthy feed over OTLP (inject_demo --sustained --error-pct=0, by path), harness:engine-settled, the injector ended, agent-run.sh status engine, agent-run.sh cleanup, check:engine-log. Cleanup runs whatever the verbs before it returned; after a failed boot the two verbs between are skipped. Every child gets a cleared environment plus a fixed set (HOME, PATH, the data dir, the two ports, a 60 s retention, a corpus passphrase made for the run, and the exit-witness variable only when this verb's own environment holds it). One JSON verdict (pass, fail, cannot-evaluate) with each verb's exit (null when skipped), the count of ERROR records in the log family and whether a witness file exists (absent, present); the children's output goes to stderr. Exit 0 pass (five exits 0, no ERROR record, no witness file), 1 fail, 2 cannot-evaluate (not Linux, port 4317 or 4318, a data dir that already holds a log family, or a verb that could not evaluate)"
+    )]
+    HarnessEngineCycle {
+        #[arg(long, value_name = "DIR")]
+        data_dir: Option<PathBuf>,
+        #[arg(long, value_name = "N", default_value_t = engine_cycle::DEFAULT_GRPC_PORT)]
+        grpc_port: u16,
+        #[arg(long, value_name = "N", default_value_t = engine_cycle::DEFAULT_HTTP_PORT)]
+        http_port: u16,
+    },
+    #[command(
+        name = "check:engine-log",
+        about = "Grade the console engine's log family under the resolved data dir after the run has ended, one line per arm: family (a member exists and holds a record), program (exactly one app.boot.engine record, reading console), panic (no app.panic.fatal record at ERROR), heartbeat-gap (no gap over 45000 ms between two consecutive records of ingest.tick, buffer.tick or connection.tick; viz.tick and plugins.tick are not graded), progress (no buffer.consumer.stalled record that is not a recovery, and a largest rows_ingested above 0), process-end (exactly one app.exit record, the last of the family; with none, unloggable-end when the harness's exit record reads signal 9, else end-not-recorded), budget (metric.buffer.memory_bytes max at most 512000000 B over at least one non-zero sample; frame and snapshot are not graded). The last line is engine-log: PASS, FAIL or cannot-evaluate. Lines hold labels, counts, a member's file name and a line number, never a record's text, a path or an environment value. Exit 0 PASS, 1 FAIL on any arm, 2 cannot-evaluate (no FAIL and an arm that cannot be graded: no log family, no or several boot records, fewer than two ticks of a target, no buffer.tick)"
+    )]
+    CheckEngineLog,
+    #[command(
+        name = "harness:settled",
+        about = "Wait, bounded, until the app's log family holds an app.boot.window.navigation record for each of its four windows with the app alive (settled), or the app's pid is gone (ended), or the timeout passes (not-settled). One JSON verdict with the pid, the exit record, whether the log holds an app.exit record, the count of settled windows, whether the display and the session bus are reachable (labels only, never a variable's value), and what the exit witness recorded of the app's end (one label: unset, unreadable, loaded, exit-call, runtime-exit, no-record); the same object is written to logs/harness-settled.json under the data dir. Exit 0 settled, 1 ended or not-settled, 2 cannot-evaluate (no pid, or a timeout below 8 s, which could never read settled)"
+    )]
+    HarnessSettled {
+        #[arg(long, value_name = "SECONDS", default_value_t = 30)]
+        timeout_seconds: u64,
+    },
+    #[command(
+        name = "harness:boot-series",
+        about = "Boot the release app N more times after the CI boot smoke (ordinals 2 to N+1), each boot on its own data dir series/boot-{ordinal}/ under the resolved data dir, its own display server (xvfb-run) and empty XDG_DATA_HOME and XDG_CACHE_HOME, through the smoke's cycle: boot, harness:settled, status, cleanup. Each boot's log family, boot.log, harness-settled.json, xvfb.log and exit-witness.jsonl are copied to logs/series/boot-{ordinal}/; nothing of a boot's run/ is. One JSON verdict (all-settled, self-ended, not-all-settled, cannot-evaluate) with a per-boot entry of ordinal, cycle, settle verdict, exit record and exit-witness label, also written to logs/boot-series.json. Exit 0 all-settled, 1 self-ended (a boot's settle verdict read ended) or not-all-settled, 2 cannot-evaluate (a count outside 1 to 16, not Linux, no data dir or one that already holds a series, no xvfb-run, or a boot whose cleanup did not read clean)"
+    )]
+    HarnessBootSeries {
+        #[arg(long, value_name = "N")]
+        count: u32,
+    },
     #[command(
         name = "test",
-        about = "cargo nextest run --workspace --profile ci --no-tests=pass"
+        about = "cargo nextest run --workspace --profile ci --no-tests=fail"
     )]
     Test {
         #[arg(trailing_var_arg = true)]
@@ -59,7 +121,7 @@ enum Cmd {
     },
     #[command(
         name = "test:coverage",
-        about = "cargo llvm-cov nextest --workspace --lcov --no-tests=pass (writes lcov.info)"
+        about = "cargo llvm-cov nextest --workspace --lcov --no-tests=fail (writes lcov.info)"
     )]
     TestCoverage {
         #[arg(trailing_var_arg = true)]
@@ -122,7 +184,7 @@ enum Cmd {
     CheckEnglishSources,
     #[command(
         name = "ci-gates",
-        about = "obs SLO gates: zero-spans + zero-panic + heartbeat-gap + perf-budget (NEUTRAL over a log carrying no perf samples, never PASS)"
+        about = "Read the app's obs-log family (agent-latest.jsonl* under the resolved log dir): zero-spans (the family holds at least one record) and zero-panic (no app.panic.fatal record at ERROR). Exit 0 PASS, 1 FAIL, 2 cannot-evaluate (no log family to read)"
     )]
     CiGates,
     #[command(
@@ -210,33 +272,13 @@ enum Cmd {
     )]
     PerfSloLoad,
     #[command(
-        name = "coverage-regression",
-        about = "Chunk #55 — compare current lcov.info against base-branch baseline; fail on any line/branch/function regression > +0.0pp default (test-plan §10 + §11)"
-    )]
-    CoverageRegression {
-        #[arg(long, value_name = "PATH")]
-        current: PathBuf,
-        #[arg(long, value_name = "PATH")]
-        baseline: PathBuf,
-    },
-    #[command(
         name = "quarantine-tracking",
         about = "Chunk #55 — assert every #[ignore] in Rust source carries a GitHub issue URL in surrounding 5-line window (test-plan §11)"
     )]
     QuarantineTracking,
     #[command(
-        name = "criterion-regression",
-        about = "Chunk #56 — compare current target/criterion/<bench>/new/estimates.json mean.point_estimate against baseline; fail on +10% regression default (obs-plan §10 row 4)"
-    )]
-    CriterionRegression {
-        #[arg(long, value_name = "PATH")]
-        current: PathBuf,
-        #[arg(long, value_name = "PATH")]
-        baseline: PathBuf,
-    },
-    #[command(
         name = "verify:capability-matrix",
-        about = "Chunk #99 — validate docs/v0_2_0/capability-verification-matrix.json: all 60 P-001..P-060 ids present exactly once, every scenario file ref exists, every `contains` anchor greps non-empty, by-construction entries carry justification notes"
+        about = "Validate docs/capability-record.json against andromeda-pulse-0.4.0/working-route.md: P-001..P-082 present exactly once, each claimed or retired; a claimed id names its carrying requirement and its proofs (every file ref exists, every `contains` anchor is found); a retired id names its surface, a route entry that removes it and its guard, and carries no proof (exit 0 clean / 1 findings / 2 cannot-evaluate)"
     )]
     VerifyCapabilityMatrix,
     #[command(
@@ -246,7 +288,7 @@ enum Cmd {
     PerfLoadProfiles,
     #[command(
         name = "pre-push:linux",
-        about = "Run the Linux-reachable CI gates (script modes, the English-only source lint, npm build, clippy, xtask test, ci-gates) in a WSL Ubuntu clone synced to HEAD + the working tree, before a push. One JSON verdict; exit 0 green / 1 red / 2 cannot-evaluate (not Windows, no distro, or a pinned tool or apt package missing — the remediation command is printed). Never binds a port"
+        about = "Run the Linux-reachable CI gates (script modes, the English-only source lint, npm build, clippy, xtask test, ci-gates) on the Linux dev host, in the working tree, before a push: six stages in order, first failure stops, each under a constructed environment. One JSON verdict; exit 0 green / 1 red / 2 cannot-evaluate (not Linux, or a pin read from the repo is unmet: the Rust channel, ci.yml's Node major, a missing tool). Installs nothing, puts the generated bindings back as found, never binds a port"
     )]
     PrePushLinux,
 }
@@ -255,7 +297,21 @@ enum Cmd {
 async fn main() -> ExitCode {
     let cli = Cli::parse();
     let result: Result<ExitCode> = match cli.command {
-        Cmd::HarnessStatus => harness_status::run(),
+        Cmd::HarnessStatus { program } => harness_status::run(program),
+        Cmd::HarnessReady { program } => harness_ready::run_ready(program),
+        Cmd::HarnessEngineSettled { timeout_seconds } => engine_log::run_settled(timeout_seconds),
+        Cmd::HarnessEngineCycle {
+            data_dir,
+            grpc_port,
+            http_port,
+        } => engine_cycle::run(&engine_cycle::Options {
+            data_dir,
+            grpc_port,
+            http_port,
+        }),
+        Cmd::CheckEngineLog => Ok(engine_log::run_check()),
+        Cmd::HarnessSettled { timeout_seconds } => harness_ready::run_settled(timeout_seconds),
+        Cmd::HarnessBootSeries { count } => harness_series::run(count).await,
         Cmd::Test { extra } => run_cargo_nextest(extra).await,
         Cmd::TestCoverage { extra } => run_cargo_llvm_cov(extra).await,
         Cmd::CheckIngestProgress => run_check_ingest_progress(),
@@ -298,7 +354,7 @@ async fn main() -> ExitCode {
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
         Cmd::CheckNpmSupplyChain => npm_gate::run_npm_gate().await,
         Cmd::CheckEnglishSources => source_lint::run(),
-        Cmd::CiGates => run_ci_gates().await,
+        Cmd::CiGates => Ok(run_ci_gates()),
         Cmd::PerfBudget { data_dir, require } => perf_budget::run_perf_budget(&data_dir, &require),
         Cmd::PerfFrameSample => perf_frame::run_perf_frame_sample().await,
         Cmd::Lint { extra } => run_npm_script("lint", extra).await,
@@ -314,14 +370,8 @@ async fn main() -> ExitCode {
             no_inject,
         } => webview_drive::run_webview_drive(expect_absent, no_inject).await,
         Cmd::PerfSloLoad => run_perf_slo_load().await,
-        Cmd::CoverageRegression { current, baseline } => {
-            run_coverage_regression(&current, &baseline).await
-        }
         Cmd::QuarantineTracking => run_quarantine_tracking().await,
-        Cmd::CriterionRegression { current, baseline } => {
-            run_criterion_regression(&current, &baseline).await
-        }
-        Cmd::VerifyCapabilityMatrix => verify_capability_matrix().await,
+        Cmd::VerifyCapabilityMatrix => verify_capability_matrix(),
         Cmd::PerfLoadProfiles => run_perf_load_profiles().await,
         Cmd::PrePushLinux => pre_push::run(),
     };
@@ -425,21 +475,23 @@ async fn run_cargo(subcommand: &str, args: &[&str]) -> Result<ExitCode> {
     Ok(status_to_code(status))
 }
 
+const TEST_ARGS: [&str; 8] = [
+    "nextest",
+    "run",
+    "--workspace",
+    "--profile",
+    "ci",
+    "--no-tests=fail",
+    "--message-format",
+    "libtest-json",
+];
+
 async fn run_cargo_nextest(extra: Vec<String>) -> Result<ExitCode> {
     let mut cmd = cargo_command();
     // libtest-json is gated behind an experimental flag in cargo-nextest 0.9.x;
     // set the env var unconditionally so the message-format parses agent-side.
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
-    cmd.args([
-        "nextest",
-        "run",
-        "--workspace",
-        "--profile",
-        "ci",
-        "--no-tests=pass",
-        "--message-format",
-        "libtest-json",
-    ]);
+    cmd.args(TEST_ARGS);
     for arg in extra {
         cmd.arg(arg);
     }
@@ -456,19 +508,21 @@ async fn run_cargo_nextest(extra: Vec<String>) -> Result<ExitCode> {
 /// above 85 % and xtask's inclusion (test-plan §10).
 const COVERAGE_IGNORE_FILENAME_REGEX: &str = r"(^|[/\\])xtask[/\\]";
 
+const TEST_COVERAGE_ARGS: [&str; 9] = [
+    "llvm-cov",
+    "nextest",
+    "--workspace",
+    "--lcov",
+    "--output-path",
+    "lcov.info",
+    "--no-tests=fail",
+    "--ignore-filename-regex",
+    COVERAGE_IGNORE_FILENAME_REGEX,
+];
+
 async fn run_cargo_llvm_cov(extra: Vec<String>) -> Result<ExitCode> {
     let mut cmd = cargo_command();
-    cmd.args([
-        "llvm-cov",
-        "nextest",
-        "--workspace",
-        "--lcov",
-        "--output-path",
-        "lcov.info",
-        "--no-tests=pass",
-        "--ignore-filename-regex",
-        COVERAGE_IGNORE_FILENAME_REGEX,
-    ]);
+    cmd.args(TEST_COVERAGE_ARGS);
     for arg in extra {
         cmd.arg(arg);
     }
@@ -479,94 +533,8 @@ async fn run_cargo_llvm_cov(extra: Vec<String>) -> Result<ExitCode> {
     Ok(status_to_code(status))
 }
 
-async fn run_ci_gates() -> Result<ExitCode> {
-    let log_files = collect_log_files();
-    if log_files.is_empty() {
-        // INACTIVE state: no harness boot in this CI run; gate trivially passes.
-        // Activates organically when integration tests boot pulse-app (chunks #15+).
-        println!(
-            "ci-gates: zero-spans NEUTRAL (no `agent-latest.jsonl*` under {} — pre-integration-test state)",
-            resolve_log_dir().display()
-        );
-        println!("ci-gates: zero-panic NEUTRAL (no log file to scan)");
-        println!("ci-gates: heartbeat-gap NEUTRAL (no log file to scan)");
-        println!("ci-gates: perf-budget NEUTRAL (no log file to grade)");
-        return Ok(ExitCode::SUCCESS);
-    }
-
-    let mut total_lines = 0usize;
-    let mut panic_violation: Option<String> = None;
-    for path in &log_files {
-        let content = match fs::read_to_string(path) {
-            Ok(c) => c,
-            Err(e) => {
-                eprintln!("ci-gates: skipping {} ({e})", path.display());
-                continue;
-            }
-        };
-        for (idx, raw) in content.lines().enumerate() {
-            if raw.trim().is_empty() {
-                continue;
-            }
-            total_lines += 1;
-            let v: Value = match serde_json::from_str(raw) {
-                Ok(v) => v,
-                Err(_) => continue,
-            };
-            let target = v.get("target").and_then(Value::as_str).unwrap_or("");
-            let level = v.get("level").and_then(Value::as_str).unwrap_or("");
-            if target == "app.panic.fatal" && level == "ERROR" && panic_violation.is_none() {
-                let preview: String = raw.chars().take(240).collect();
-                panic_violation = Some(format!("{}:{} — {}", path.display(), idx + 1, preview));
-            }
-        }
-    }
-
-    if total_lines == 0 {
-        eprintln!("::error::ci-gates: zero-spans FAIL (log files present but contain no events)");
-        return Ok(ExitCode::FAILURE);
-    }
-    println!(
-        "ci-gates: zero-spans PASS ({total_lines} log records across {} file(s))",
-        log_files.len()
-    );
-
-    if let Some(violation) = panic_violation {
-        eprintln!("::error::ci-gates: zero-panic FAIL — app.panic.fatal at {violation}");
-        return Ok(ExitCode::FAILURE);
-    }
-    println!("ci-gates: zero-panic PASS");
-
-    // Heartbeat-gap gate: shell out to xtask/ci/heartbeat-gap-check.{sh,ps1}
-    match invoke_heartbeat_check(&log_files).await {
-        Ok(true) => println!("ci-gates: heartbeat-gap PASS"),
-        Ok(false) => {
-            eprintln!("::error::ci-gates: heartbeat-gap FAIL");
-            return Ok(ExitCode::FAILURE);
-        }
-        Err(e) => {
-            eprintln!(
-                "ci-gates: heartbeat-gap script unavailable ({e:#}) — treating as NEUTRAL at chunk #5/#6"
-            );
-        }
-    }
-
-    // No arm is required here: the boot-smoke log and pre-push:linux's seeded
-    // record legitimately carry no perf samples. The gates that expect samples
-    // run `perf:budget --require` over their own producer's log.
-    let perf_results = perf_budget::grade(&perf_budget::read_family(&resolve_log_dir())?);
-    for line in perf_budget::arm_lines(&perf_results, &[]) {
-        println!("ci-gates: {line}");
-    }
-    match perf_budget::evaluate(&perf_results, &[]) {
-        perf_budget::Verdict::Fail => {
-            eprintln!("::error::ci-gates: perf-budget FAIL");
-            return Ok(ExitCode::FAILURE);
-        }
-        verdict => println!("ci-gates: perf-budget {}", verdict.word()),
-    }
-
-    Ok(ExitCode::SUCCESS)
+fn run_ci_gates() -> ExitCode {
+    ci_gates::run(&resolve_log_dir())
 }
 
 // Progress gate. The existing obs gates key on tick PRESENCE (obs-plan §3/§10
@@ -729,26 +697,28 @@ async fn invoke_heartbeat_check(log_files: &[PathBuf]) -> Result<bool> {
     Ok(status.success())
 }
 
+const PERF_SLO_LOAD_ARGS: [&str; 10] = [
+    "nextest",
+    "run",
+    "--workspace",
+    "-E",
+    "binary(perf_slo_10k_spans)",
+    "--profile",
+    "ci",
+    "--no-tests=fail",
+    "--message-format",
+    "libtest-json",
+];
+
 async fn run_perf_slo_load() -> Result<ExitCode> {
     // 10k spans/sec sustained-load test runs the perf_slo_10k_spans
-    // integration test via cargo-nextest; post-test p99 / max gates fire
-    // via run_ci_gates() (invoked as a separate xtask step in CI).
+    // integration test via cargo-nextest; the test asserts its own throughput
+    // bound and emits no perf sample, so no verb grades a log after it.
     // Narrowed with -E under --workspace, never -p: a -p selection unifies
     // features differently and recompiles the graph `cargo xtask test` built.
     let mut cmd = cargo_command();
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
-    cmd.args([
-        "nextest",
-        "run",
-        "--workspace",
-        "-E",
-        "binary(perf_slo_10k_spans)",
-        "--profile",
-        "ci",
-        "--no-tests=pass",
-        "--message-format",
-        "libtest-json",
-    ]);
+    cmd.args(PERF_SLO_LOAD_ARGS);
     let status = cmd
         .status()
         .await
@@ -763,23 +733,25 @@ async fn run_perf_slo_load() -> Result<ExitCode> {
 // heartbeat-gap + perf-slo gates run over harness logs when present (the
 // booted-app ACTIVE window flow); absent logs map to NEUTRAL — the
 // in-process suite does not write agent-latest.jsonl itself.
+const PERF_LOAD_PROFILES_ARGS: [&str; 11] = [
+    "nextest",
+    "run",
+    "-p",
+    "pulse-app",
+    "--test",
+    "perf_load_profiles",
+    "--profile",
+    "load-profiles",
+    "--no-tests=fail",
+    "--message-format",
+    "libtest-json",
+];
+
 async fn run_perf_load_profiles() -> Result<ExitCode> {
     let run_start_utc19 = chrono::Utc::now().format("%Y-%m-%dT%H:%M:%S").to_string();
     let mut cmd = cargo_command();
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
-    cmd.args([
-        "nextest",
-        "run",
-        "-p",
-        "pulse-app",
-        "--test",
-        "perf_load_profiles",
-        "--profile",
-        "load-profiles",
-        "--no-tests=pass",
-        "--message-format",
-        "libtest-json",
-    ]);
+    cmd.args(PERF_LOAD_PROFILES_ARGS);
     let status = cmd
         .status()
         .await
@@ -839,181 +811,38 @@ async fn run_perf_load_profiles() -> Result<ExitCode> {
     Ok(ExitCode::SUCCESS)
 }
 
-// Chunk #99 — capability verification matrix validator (the v0.2.0 tag
-// gate's "every P-XXX has at least one named scenario" enforcement).
-// Validates docs/v0_2_0/capability-verification-matrix.json structurally:
-// exactly P-001..P-060 present once each, every file-kind scenario ref
-// exists on disk, every `contains` anchor greps non-empty in its ref,
-// xtask-gate refs name known subcommands, and by-construction entries
-// carry a justification note. Mirrors capability_drift's report shape at
-// target/capability-matrix/report.json + obs §3 structured event line.
-async fn verify_capability_matrix() -> Result<ExitCode> {
+// The capability record's gate (test-plan 9, Capability verification matrix):
+// reads the record and the working route through `capability_record`, both
+// at fixed in-repo paths. Exit 0 clean, 1 findings, 2 cannot-evaluate.
+// Report twin at target/capability-matrix/report.json + one structured event
+// line on stdout.
+fn verify_capability_matrix() -> Result<ExitCode> {
     let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .context("xtask manifest has no workspace parent")?
         .to_path_buf();
-    let matrix_path = workspace_root
-        .join("docs")
-        .join("v0_2_0")
-        .join("capability-verification-matrix.json");
-    let content = fs::read_to_string(&matrix_path)
-        .with_context(|| format!("read capability matrix at {}", matrix_path.display()))?;
-    let doc: Value = serde_json::from_str(&content).context("parse capability matrix JSON")?;
-
-    const FILE_KINDS: &[&str] = &[
-        "nextest-file",
-        "ui-test",
-        "a11y-spec",
-        "ci-script",
-        "source-evidence",
-    ];
-    const ALL_KINDS: &[&str] = &[
-        "nextest-file",
-        "ui-test",
-        "a11y-spec",
-        "ci-script",
-        "source-evidence",
-        "xtask-gate",
-        "by-construction",
-    ];
-    const MODES: &[&str] = &[
-        "automated-nextest",
-        "automated-a11y",
-        "automated-e2e",
-        "xtask-gate",
-        "env-gated-runtime",
-        "manual-sr-supplemental",
-        "by-construction",
-    ];
-    const XTASK_GATES: &[&str] = &[
-        "capability-drift",
-        "capability-widening-check",
-        "test:a11y",
-        "perf:slo-load",
-        "perf:load-profiles",
-        "verify:capability-matrix",
-        "ci-gates",
-        "quarantine-tracking",
-    ];
-
-    let mut violations: Vec<String> = Vec::new();
-    let mut mode_counts: BTreeMap<String, usize> = BTreeMap::new();
-    let mut seen_ids: BTreeSet<String> = BTreeSet::new();
-
-    let capabilities = doc
-        .get("capabilities")
-        .and_then(Value::as_array)
-        .context("matrix JSON missing `capabilities` array")?;
-
-    for entry in capabilities {
-        let id = entry.get("id").and_then(Value::as_str).unwrap_or("");
-        if id.is_empty() {
-            violations.push("entry with missing/empty `id`".to_string());
-            continue;
-        }
-        if !seen_ids.insert(id.to_string()) {
-            violations.push(format!("{id}: duplicate id"));
-        }
-        let mode = entry
-            .get("verification_mode")
-            .and_then(Value::as_str)
-            .unwrap_or("");
-        if !MODES.contains(&mode) {
-            violations.push(format!("{id}: unknown verification_mode `{mode}`"));
-        }
-        *mode_counts.entry(mode.to_string()).or_insert(0) += 1;
-        let notes = entry.get("notes").and_then(Value::as_str).unwrap_or("");
-
-        let scenarios = entry
-            .get("scenarios")
-            .and_then(Value::as_array)
-            .cloned()
-            .unwrap_or_default();
-        if scenarios.is_empty() {
-            violations.push(format!("{id}: zero scenarios (every capability needs ≥1)"));
-            continue;
-        }
-        let mut has_verifying_scenario = false;
-        for scenario in &scenarios {
-            let kind = scenario.get("kind").and_then(Value::as_str).unwrap_or("");
-            let reference = scenario.get("ref").and_then(Value::as_str).unwrap_or("");
-            if !ALL_KINDS.contains(&kind) {
-                violations.push(format!("{id}: unknown scenario kind `{kind}`"));
-                continue;
-            }
-            match kind {
-                "by-construction" => {
-                    if notes.trim().is_empty() {
-                        violations.push(format!(
-                            "{id}: by-construction scenario requires a justification in `notes`"
-                        ));
-                    }
-                    has_verifying_scenario = true;
-                }
-                "xtask-gate" => {
-                    if !XTASK_GATES.contains(&reference) {
-                        violations.push(format!(
-                            "{id}: xtask-gate ref `{reference}` is not a known subcommand"
-                        ));
-                    }
-                    has_verifying_scenario = true;
-                }
-                kind if FILE_KINDS.contains(&kind) => {
-                    let path = workspace_root.join(reference);
-                    if !path.is_file() {
-                        violations.push(format!(
-                            "{id}: scenario ref `{reference}` does not exist on disk"
-                        ));
-                        continue;
-                    }
-                    if let Some(anchor) = scenario.get("contains").and_then(Value::as_str) {
-                        let file_content = fs::read_to_string(&path)
-                            .with_context(|| format!("read scenario ref `{reference}` for {id}"))?;
-                        if !file_content.contains(anchor) {
-                            violations.push(format!(
-                                "{id}: anchor `{anchor}` not found in `{reference}`"
-                            ));
-                            continue;
-                        }
-                    }
-                    if kind != "source-evidence" {
-                        has_verifying_scenario = true;
-                    }
-                }
-                _ => unreachable!("kind membership checked above"),
-            }
-        }
-        if !has_verifying_scenario && notes.trim().is_empty() {
-            violations.push(format!(
-                "{id}: only source-evidence scenarios and no `notes` justification"
-            ));
-        }
-    }
-
-    let expected_ids: BTreeSet<String> = (1..=60).map(|n| format!("P-{n:03}")).collect();
-    for missing in expected_ids.difference(&seen_ids) {
-        violations.push(format!("{missing}: capability missing from matrix"));
-    }
-    for unexpected in seen_ids.difference(&expected_ids) {
-        violations.push(format!("{unexpected}: id outside P-001..P-060 range"));
-    }
-
-    let state = if violations.is_empty() {
-        "clean"
-    } else {
-        "violations"
+    let verdict = capability_record::evaluate(&workspace_root);
+    let state = verdict.state();
+    let (reading, reason) = match &verdict {
+        capability_record::Verdict::Read(reading) => (Some(reading), None),
+        capability_record::Verdict::CannotEvaluate(reason) => (None, Some(reason.as_str())),
     };
+    let violations: &[String] = reading.map_or(&[], |reading| &reading.findings);
+    let counts = serde_json::json!({
+        "state": state,
+        "capability_count": reading.map(|reading| reading.ids),
+        "claimed_count": reading.map(|reading| reading.claimed),
+        "retired_count": reading.map(|reading| reading.retired),
+        "violation_count": reading.map(|reading| reading.findings.len()),
+        "reason": reason,
+    });
+
     let report_dir = workspace_root.join("target").join("capability-matrix");
     fs::create_dir_all(&report_dir).context("create capability-matrix report dir")?;
     let report_path = report_dir.join("report.json");
-    let report = serde_json::json!({
-        "state": state,
-        "capability_count": seen_ids.len(),
-        "violation_count": violations.len(),
-        "violations": violations,
-        "verification_mode_counts": mode_counts,
-        "generated_at": chrono::Utc::now().to_rfc3339(),
-    });
+    let mut report = counts.clone();
+    report["violations"] = serde_json::json!(violations);
+    report["generated_at"] = serde_json::json!(chrono::Utc::now().to_rfc3339());
     fs::write(&report_path, serde_json::to_string_pretty(&report)?)
         .context("write capability-matrix report")?;
 
@@ -1021,79 +850,18 @@ async fn verify_capability_matrix() -> Result<ExitCode> {
         "timestamp": chrono::Utc::now().to_rfc3339(),
         "level": if state == "clean" { "INFO" } else { "WARN" },
         "target": "xtask.verify_capability_matrix",
-        "message": "capability verification matrix check complete",
-        "fields": {
-            "state": state,
-            "capability_count": seen_ids.len(),
-            "violation_count": violations.len(),
-        },
+        "message": "capability record check complete",
+        "fields": counts,
     });
     println!("{}", serde_json::to_string(&event)?);
 
-    eprintln!(
-        "verify:capability-matrix: {state} ({}/60 capabilities, {} violation(s))",
-        seen_ids.len(),
-        violations.len()
-    );
-    for v in &violations {
+    eprintln!("{}", verdict.line());
+    for v in violations {
         eprintln!("  violation: {v}");
     }
     eprintln!("  report: {}", report_path.display());
 
-    if state == "clean" {
-        Ok(ExitCode::SUCCESS)
-    } else {
-        Ok(ExitCode::FAILURE)
-    }
-}
-
-async fn invoke_coverage_regression_check(current: &Path, baseline: &Path) -> Result<bool> {
-    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .context("xtask manifest has no workspace parent")?
-        .to_path_buf();
-    let script = if cfg!(target_os = "windows") {
-        workspace_root
-            .join("xtask")
-            .join("ci")
-            .join("coverage-regression-check.ps1")
-    } else {
-        workspace_root
-            .join("xtask")
-            .join("ci")
-            .join("coverage-regression-check.sh")
-    };
-    if !script.exists() {
-        bail!(
-            "coverage-regression-check script missing at {}",
-            script.display()
-        );
-    }
-    let status = if cfg!(target_os = "windows") {
-        tokio::process::Command::new("pwsh")
-            .args(["-NoProfile", "-File"])
-            .arg(&script)
-            .arg(current)
-            .arg(baseline)
-            .status()
-            .await?
-    } else {
-        tokio::process::Command::new("bash")
-            .arg(&script)
-            .arg(current)
-            .arg(baseline)
-            .status()
-            .await?
-    };
-    Ok(status.success())
-}
-
-async fn run_coverage_regression(current: &Path, baseline: &Path) -> Result<ExitCode> {
-    if invoke_coverage_regression_check(current, baseline).await? {
-        Ok(ExitCode::SUCCESS)
-    } else {
-        Ok(ExitCode::FAILURE)
-    }
+    Ok(ExitCode::from(verdict.exit_code()))
 }
 
 async fn invoke_quarantine_tracking_check() -> Result<bool> {
@@ -1143,52 +911,118 @@ async fn run_quarantine_tracking() -> Result<ExitCode> {
     }
 }
 
-async fn invoke_criterion_regression_check(current: &Path, baseline: &Path) -> Result<bool> {
-    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .context("xtask manifest has no workspace parent")?
-        .to_path_buf();
-    let script = if cfg!(target_os = "windows") {
-        workspace_root
-            .join("xtask")
+#[cfg(test)]
+mod empty_input_tests {
+    use super::*;
+
+    #[test]
+    fn every_nextest_argument_list_fails_on_an_empty_selection() {
+        for (verb, args) in [
+            ("test", &TEST_ARGS[..]),
+            ("test:coverage", &TEST_COVERAGE_ARGS[..]),
+            ("perf:slo-load", &PERF_SLO_LOAD_ARGS[..]),
+            ("perf:load-profiles", &PERF_LOAD_PROFILES_ARGS[..]),
+        ] {
+            let flags: Vec<&str> = args
+                .iter()
+                .copied()
+                .filter(|arg| arg.starts_with("--no-tests"))
+                .collect();
+            assert_eq!(
+                flags,
+                ["--no-tests=fail"],
+                "`cargo xtask {verb}` MUST fail a run that selects no test"
+            );
+        }
+    }
+
+    const QUARANTINE_SEARCH_DIRS: [&str; 4] =
+        ["crates", "pulse-app/src", "pulse-app/tests", "xtask/src"];
+
+    fn quarantine_root(sources: &[(&str, &str)]) -> tempfile::TempDir {
+        let root = tempfile::TempDir::new().expect("tmp");
+        for dir in QUARANTINE_SEARCH_DIRS {
+            fs::create_dir_all(root.path().join(dir)).expect("create a search dir");
+        }
+        for (path, text) in sources {
+            fs::write(root.path().join(path), text).expect("write a source file");
+        }
+        root
+    }
+
+    // The check's exit code and everything it printed.
+    fn quarantine_check(root: &Path) -> (Option<i32>, String) {
+        let script = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("ci")
-            .join("criterion-regression-check.ps1")
-    } else {
-        workspace_root
-            .join("xtask")
-            .join("ci")
-            .join("criterion-regression-check.sh")
-    };
-    if !script.exists() {
-        bail!(
-            "criterion-regression-check script missing at {}",
-            script.display()
+            .join("quarantine-tracking-check.sh");
+        let output = std::process::Command::new("bash")
+            .arg(&script)
+            .arg(root)
+            .output()
+            .expect("`bash` MUST be on PATH: the quarantine check is a bash script");
+        let printed = format!(
+            "{}{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        (output.status.code(), printed)
+    }
+
+    #[test]
+    fn quarantine_check_fails_when_no_search_dir_exists() {
+        let root = tempfile::TempDir::new().expect("tmp");
+        let (code, printed) = quarantine_check(root.path());
+        assert_eq!(code, Some(1), "printed:\n{printed}");
+        assert!(
+            printed.contains("::error::") && printed.contains("xtask/src"),
+            "the check MUST name the missing dir relative to the root; printed:\n{printed}"
+        );
+        assert!(!printed.contains("PASS"), "printed:\n{printed}");
+    }
+
+    #[test]
+    fn quarantine_check_fails_on_a_scan_of_no_source_file() {
+        let root = quarantine_root(&[]);
+        let (code, printed) = quarantine_check(root.path());
+        assert_eq!(code, Some(1), "printed:\n{printed}");
+        assert!(printed.contains("::error::"), "printed:\n{printed}");
+        assert!(!printed.contains("PASS"), "printed:\n{printed}");
+    }
+
+    #[test]
+    fn quarantine_check_says_how_many_files_it_scanned() {
+        let root = quarantine_root(&[("xtask/src/lib.rs", "fn plain() {}\n")]);
+        let (code, printed) = quarantine_check(root.path());
+        assert_eq!(code, Some(0), "printed:\n{printed}");
+        assert!(
+            printed.contains("quarantine-tracking-check: PASS (0 quarantine(s) across 1 file(s))"),
+            "printed:\n{printed}"
+        );
+        assert!(!printed.contains("NEUTRAL"), "printed:\n{printed}");
+    }
+
+    #[test]
+    fn quarantine_check_fails_an_ignore_without_an_issue_url() {
+        let source = "#[test]\n#[ignore]\nfn quarantined() {}\n";
+        let root = quarantine_root(&[("crates/lib.rs", source)]);
+        let (code, printed) = quarantine_check(root.path());
+        assert_eq!(code, Some(1), "printed:\n{printed}");
+        assert!(
+            printed.contains("lacks GitHub issue URL"),
+            "printed:\n{printed}"
         );
     }
-    let status = if cfg!(target_os = "windows") {
-        tokio::process::Command::new("pwsh")
-            .args(["-NoProfile", "-File"])
-            .arg(&script)
-            .arg(current)
-            .arg(baseline)
-            .status()
-            .await?
-    } else {
-        tokio::process::Command::new("bash")
-            .arg(&script)
-            .arg(current)
-            .arg(baseline)
-            .status()
-            .await?
-    };
-    Ok(status.success())
-}
 
-async fn run_criterion_regression(current: &Path, baseline: &Path) -> Result<ExitCode> {
-    if invoke_criterion_regression_check(current, baseline).await? {
-        Ok(ExitCode::SUCCESS)
-    } else {
-        Ok(ExitCode::FAILURE)
+    #[test]
+    fn quarantine_check_passes_an_ignore_with_its_issue_url() {
+        let source = "// https://github.com/example/example/issues/1\n#[test]\n#[ignore]\nfn quarantined() {}\n";
+        let root = quarantine_root(&[("crates/lib.rs", source)]);
+        let (code, printed) = quarantine_check(root.path());
+        assert_eq!(code, Some(0), "printed:\n{printed}");
+        assert!(
+            printed.contains("PASS (1 quarantine(s)") && printed.contains("across 1 file(s))"),
+            "printed:\n{printed}"
+        );
     }
 }
 

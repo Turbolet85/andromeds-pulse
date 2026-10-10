@@ -1,0 +1,46 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-10T06:46:04Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-10T06-45-10Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 76 of 82 entries · freight blocks 21 · rows are an INDEX, not the text",
+"23 · CARRY: · 722 chars · CARRY: measured 2026-10-09 on ci#37934330231 and ci#37945548047 (record: 2026-10-09-ci-on-lin…",
+"23 · CARRY: · 871 chars · CARRY: the self-lint guard ci_workflow_test_gates_no_continue_on_error reads 16 of ci.yml's 5…",
+"33 · CARRY: · 130 chars · CARRY: this entry's owner-only is P-126's — until another host can reach the door, another ac…",
+"39 · CARRY: · 391 chars · CARRY: the credential-store legs this entry removes are the ones cargo xtask pre-push:linux's…",
+"41 · CARRY: · 485 chars · CARRY: the lint-test job's logs-Linux upload finds no file, and no logs-Linux artifact exists…",
+"46 · CARRY: · 378 chars · CARRY: the a11y job's pull-request download a11y-violations-base has no producer in any workf…",
+"46 · CARRY: · 539 chars · CARRY: the boot CI job this entry removes was the subject of P-129, closed at 2026-10-10-boot…",
+"46 · CARRY: · 341 chars · CARRY: cargo xtask pre-push:linux keeps a script-modes stage whose only subject is CI's by-pa…",
+"46 · CARRY: · 756 chars · CARRY: built for the boot job at 2026-10-10-boot-smoke-s-self-end-named-from-a-run and leavin…",
+"46 · CARRY: · 734 chars · CARRY: the series' first boot builds the app again on the runner (boot 2 took 3 min 27 s and …",
+"48 · CARRY: · 306 chars · CARRY: no workflow runs an ESLint step (measured 2026-10-09; record: 2026-10-09-ci-on-linux-a…",
+"48 · CARRY: · 399 chars · CARRY: two stages of cargo xtask pre-push:linux exist for what this entry removes (record: 20…",
+"48 · CARRY: · 688 chars · CARRY: built at 2026-10-10-boot-smoke-s-self-end-closed and leaving with the window here: pul…",
+"50 · CARRY: · 252 chars · CARRY: the card names the release environment and every secret name the two workflows read (P…",
+"50 · CARRY: · 393 chars · CARRY: the npm tree this entry removes is what cargo xtask pre-push:linux's npm stage install…",
+"60 · CARRY: · 328 chars · CARRY: shipped unwitnessed at 2026-10-09-boot-smoke-s-early-exit-found-and-closed and leaving…",
+"88 · CARRY: · 142 chars · CARRY: the renewal this entry states is P-124's — who renews the channel's private key and by…",
+"114 · CARRY: · 378 chars · CARRY: a test comment in crates/buffer/src/schema.rs, above the metrics_points key test, sti…",
+"116 · CARRY: · 59 chars · CARRY: this entry's rule is P-125's — P-091's text has none",
+"132 · CARRY: · 218 chars · CARRY: the restart between the two readings is done on the engine's host by whoever runs the…",
+"165 · CARRY: · 103 chars · CARRY: the record each raise leaves is read through the door (P-123); this entry's check rea…"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

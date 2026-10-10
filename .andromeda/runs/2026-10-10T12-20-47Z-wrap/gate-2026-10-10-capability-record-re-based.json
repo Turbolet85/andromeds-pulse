@@ -1,0 +1,770 @@
+[
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T12:22:40Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base 279a477e (the parent of the oldest pre-CI commit 923a0dad) · lists new 2 · modify 3 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 5 · listed 5 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 70"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "279a477e9e12a1e76bae3bab3c64e42db9949a8f",
+"base_why": "the parent of the oldest pre-CI commit 923a0dad",
+"counts": {
+"changed": 5,
+"listed": 5,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 70,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T12:41:40Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root . · marker 2026-10-10-capability-record-re-based · entries 25",
+"logs $TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z · bound: GNU timeout",
+"delta docs 45 · unmapped 3",
+"walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 48",
+"prose L162-165: The chunk's own probes come first, then the standard gate set in test-plan §3 order: `capa… (357 chars)",
+"prose L167-176: Absences, each with its reason: - No boot-smoke entry: no file of the chunk is on the boot… (754 chars)",
+"prose L178-181: **The operator pass, in this order.** The hygiene entry, the pre-CI commit, the local pre-… (435 chars)",
+"prose L183-184: Evidence files are written by /implement and by the operator pass from the entries' record… (122 chars)",
+"  1 lint        green · exit 0 · 0.63s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 0.57s · 72 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 probe       green · exit 0 · 0.01s · 0 B → 3.log · git diff --name-only 279a477e9e12a1e76bae3bab3c64e42db9949… (358 chars)",
+"  4 probe       green · exit 0 · 0.04s · 51 B → 4.log · python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.… (139 chars)",
+"  5 probe       green · exit 0 · 0.07s · 73 B → 5.log · python -X utf8 -c \"import subprocess, yaml; b = yaml.safe_… (797 chars)",
+"  6 probe       green · exit 0 · 0.0s · 2 B → 6.log · grep -c 'run: cargo xtask verify:capability-matrix' .githu… (76 chars)",
+"  7 probe       green · exit 1 · 0.01s · 2 B → 7.log · git diff 279a477e9e12a1e76bae3bab3c64e42db9949a8f -- .gith… (200 chars)",
+"  8 probe       green · exit 0 · 0.02s · 19 B → 8.log · python -X utf8 -c \"import json; c = json.load(open('docs/c… (370 chars)",
+"  9 probe       green · exit 0 · 0.02s · 16 B → 9.log · python -X utf8 -c \"import json; c = json.load(open('docs/c… (456 chars)",
+" 10 lint        green · exit 0 · 0.43s · 100 B → 10.log · cargo xtask check:english-sources",
+" 11 probe       green · exit 0 · 0.28s · 394 B → 11.log · cargo xtask capability-widening-check",
+" 12 probe       green · exit 0 · 0.28s · 99 B → 12.log · cargo xtask check:ingest-progress",
+" 13 probe       green · exit 0 · 0.31s · 342 B → 13.log · cargo xtask check:staged-artifacts",
+" 14 probe       green · exit 0 · 0.31s · 714 B → 14.log · cargo xtask capability-drift",
+" 15 probe       green · exit 0 · 0.29s · 447 B → 15.log · cargo xtask verify:capability-matrix",
+" 16 unit        green · exit 0 · 14.73s · 708805 B → 16.log · cargo nextest run --workspace --profile ci",
+" 17 build       green · exit 0 · 2.75s · 513 B → 17.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 18 probe       green · exit 0 · 0.01s · 0 B → 18.log · git diff --quiet 279a477e9e12a1e76bae3bab3c64e42db9949a8f … (95 chars)",
+" 19 integration green · exit 0 · 86.17s · 1557554 B → 19.log · d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xta… (75 chars)",
+" 20 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)",
+" 21 probe       not run — leg operator (the letter drives it) · m=\"$(git ls-remote origin refs/heads/main | cut -f1)\" && t… (111 chars)",
+" 22 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (92 chars)",
+" 23 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)",
+" 24 probe       not run — leg operator (the letter drives it) · f=\"$(mktemp)\" && gh api --allow-escape-sequences \"repos/Tu… (365 chars)",
+" 25 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>… (159 chars)",
+"entries 25 · green 19 · red 0 · recorded 0 · timeout 0 · not-run 6"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-10-capability-record-re-based",
+"plan": "./andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/plan.md",
+"root": ".",
+"shell": "/usr/bin/bash",
+"out_dir": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z",
+"delta": {
+"docs": [
+".andromeda/architecture-amendments.md",
+".andromeda/architecture.md",
+".andromeda/friction-log.ndjson",
+".andromeda/state.yaml",
+".andromeda/test-plan-amendments.md",
+".andromeda/test-plan.md",
+".claude/docs/commands.md",
+".claude/docs/session-learnings.md",
+".claude/docs/tests-summary.md",
+".claude/rules/security.md",
+".claude/rules/testing.md",
+".claude/session-handoff.md",
+"CLAUDE.md",
+"andromeda-pulse-0.4.0/working-route.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/.raw-fanout-a11y-plan.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/.raw-fanout-design-system.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/.raw-fanout-layout-templates.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/.raw-fanout-obs-plan.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/.raw-fanout-security-plan.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/a11y-plan-contracts.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/architecture-contracts.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/architecture-entry-1.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/architecture-entry-2.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/cascade-2026-10-10-capability-record-re-based.json",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/cascade-dispositions.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/cascade-patterns.toml",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/citation-dispositions.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/cites-2026-10-10-capability-record-re-based.json",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/curation.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/evolve-2026-10-10-capability-record-re-based.json",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/fanout-results.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/gate-2026-10-10-capability-record-re-based.json",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/health-2026-10-10-capability-record-re-based.json",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/inputs-2026-10-10-capability-record-re-based.json",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/new-text.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/obs-plan-contracts.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/registry-2026-10-10-capability-record-re-based.json",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/route-card.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/route-no-marker.json",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/splice-2026-10-10-capability-record-re-based.json",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/test-plan-contracts.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/test-plan-entry-1.md",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/test-plan-entry-2.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/evidence/operator-pass.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/report.md"
+]
+},
+"unmapped": [
+"andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/inputs/andromeda-inputs.json",
+"docs/capability-record.json",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/inputs/I11-pulse-wrap-capability-record-re-based-2026-10-10.md.txt"
+],
+"walk_class": {
+"marked": {
+"rust": [
+"xtask/src/source_lint.rs",
+"xtask/src/staged_gate.rs"
+]
+},
+"uncommitted": 48,
+"problem": null
+},
+"prose": [
+{
+"from": 162,
+"to": 165,
+"text": "The chunk's own probes come first, then the standard gate set in test-plan §3 order: `capability-drift` before the default-features workspace nextest, the `--features mcp-server` bindings regen as the last cargo-adjacent step, and the base-identity bindings close, since the chunk adds no procedure. The local pre-push check follows, then the operator pass."
+},
+{
+"from": 167,
+"to": 176,
+"text": "Absences, each with its reason: - No boot-smoke entry: no file of the chunk is on the boot-smoke trigger list, and the chunk boots no app. - No webview gates and no headful self-verify: no `pulse-app/ui/**` path changes. The `a11y` job is read on the CI   run. - No liveness probe and no live leg: the chunk drives no external process and binds no port. - No entry runs the verb over an absent record: the verb reads a fixed in-repo path and takes no path argument or   variable (a new input would be a boundary question). The absent-record and absent-route arms are held by the   pins of step 3, which the workspace nextest entry runs. - Step 0's red reading is a one-shot run at implement; the workspace nextest entry guards the arms on every   re-run."
+},
+{
+"from": 178,
+"to": 181,
+"text": "**The operator pass, in this order.** The hygiene entry, the pre-CI commit, the local pre-push entry again, the merge-base probe, the push; then the whole pull-request run of the pushed tip is read. One read by that run's id, as `<id>`, follows: the gate's own line in the `lint-test` job log. The last entry lists every job, report-only. A red merge-base probe goes to the operator before any push. No run is re-run to obtain a green."
+},
+{
+"from": 183,
+"to": 184,
+"text": "Evidence files are written by /implement and by the operator pass from the entries' recorded outputs; no entry writes one."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.63,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/2.log",
+"bytes": 72,
+"log_sha8": "7a7c5f33",
+"exit": 0,
+"seconds": 0.57,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "git diff --name-only 279a477e9e12a1e76bae3bab3c64e42db9949a8f -- crates pulse-app xtask scripts docs andromeda-pulse-0.3.0 Cargo.toml Cargo.lock deny.toml rust-toolchain.toml .github .cargo .config ':!.github/workflows/ci.yml' ':!pulse-app/tests/a11y_perf_workflow.rs' ':!xtask/src/main.rs' ':!xtask/src/capability_record.rs' ':!docs/capability-record.json' ",
+"run_sha8": "e1e153b1",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/3.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.github/workflows/ci.yml', encoding='utf-8')); print(' '.join(sorted(d['jobs'])))\"",
+"run_sha8": "45c4bfe9",
+"expect": [
+"exit 0",
+"last line a11y boot coverage lint-test mcp-test supply-chain"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/4.log",
+"bytes": 51,
+"log_sha8": "1cc58ec9",
+"exit": 0,
+"seconds": 0.04,
+"readings": [
+"exit 0 ✓",
+"last line 'a11y boot coverage lint-test mcp-test supply-chain' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "python -X utf8 -c \"import subprocess, yaml; b = yaml.safe_load(subprocess.run(['git', 'show', '279a477e9e12a1e76bae3bab3c64e42db9949a8f:.github/workflows/ci.yml'], capture_output=True, text=True, encoding='utf-8', check=True).stdout); w = yaml.safe_load(open('.github/workflows/ci.yml', encoding='utf-8')); rest = lambda d, k: {a: v for a, v in d.items() if a != k}; ch = sorted(j + '/' + s['name'] for j in b['jobs'] for s, t in zip(b['jobs'][j]['steps'], w['jobs'][j]['steps']) if s != t); print(' | '.join(ch)); print(len(ch), all(len(b['jobs'][j]['steps']) == len(w['jobs'][j]['steps']) for j in b['jobs']), sorted(b['jobs']) == sorted(w['jobs']), rest(b, 'jobs') == rest(w, 'jobs'), ' '.join(sorted(j for j in b['jobs'] if rest(b['jobs'][j], 'steps') != rest(w['jobs'][j], 'steps'))) or '-')\"",
+"run_sha8": "af5f7c7e",
+"expect": [
+"exit 0",
+"last line 1 True True True -",
+"contains lint-test/cargo xtask verify:capability-matrix (chunk"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/5.log",
+"bytes": 73,
+"log_sha8": "90ae72e3",
+"exit": 0,
+"seconds": 0.07,
+"readings": [
+"exit 0 ✓",
+"last line '1 True True True -' ✓",
+"contains 'lint-test/cargo xtask verify:capability-matrix (chunk' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "grep -c 'run: cargo xtask verify:capability-matrix' .github/workflows/ci.yml",
+"run_sha8": "e7bd0e52",
+"expect": [
+"exit 0",
+"last line 1"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/6.log",
+"bytes": 2,
+"log_sha8": "4355a46b",
+"exit": 0,
+"seconds": 0.0,
+"readings": [
+"exit 0 ✓",
+"last line '1' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "git diff 279a477e9e12a1e76bae3bab3c64e42db9949a8f -- .github/workflows/ci.yml | grep -c -E '^\\+.*(uses:|permissions:|secrets\\.|continue-on-error|needs:|if:|retry|node-version|apt-get|toolchain|run:)' ",
+"run_sha8": "b7c0267d",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/7.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.01,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "python -X utf8 -c \"import json; c = json.load(open('docs/capability-record.json', encoding='utf-8'))['capabilities']; ids = [x['id'] for x in c]; d = [x['disposition'] for x in c]; print(len(ids), len(set(ids)), ids == ['P-%03d' % n for n in range(1, 83)], d.count('claimed'), d.count('retired'), sum(1 for x in c if x['disposition'] == 'retired' and 'scenarios' in x))\"",
+"run_sha8": "c8845848",
+"expect": [
+"exit 0",
+"last line 82 82 True 36 46 0"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/8.log",
+"bytes": 19,
+"log_sha8": "23630d3f",
+"exit": 0,
+"seconds": 0.02,
+"readings": [
+"exit 0 ✓",
+"last line '82 82 True 36 46 0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "python -X utf8 -c \"import json; c = json.load(open('docs/capability-record.json', encoding='utf-8'))['capabilities']; r = [x for x in c if x['disposition'] == 'retired']; g = [x['guard']['state'] for x in r]; print(g.count('none'), g.count('part'), g.count('runs'), sum(1 for x in r if x['surfaces'] and x['removed_by']), sum(1 for x in c if x.get('provisional')), sum(1 for x in c if x['disposition'] == 'claimed' and (x['carried_by'] or x.get('note'))))\"",
+"run_sha8": "d1dbf8b2",
+"expect": [
+"exit 0",
+"last line 6 15 25 46 4 36"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/9.log",
+"bytes": 16,
+"log_sha8": "8658d9ea",
+"exit": 0,
+"seconds": 0.02,
+"readings": [
+"exit 0 ✓",
+"last line '6 15 25 46 4 36' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "lint",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/10.log",
+"bytes": 100,
+"log_sha8": "4e3449a6",
+"exit": 0,
+"seconds": 0.43,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/11.log",
+"bytes": 394,
+"log_sha8": "f75400da",
+"exit": 0,
+"seconds": 0.28,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/12.log",
+"bytes": 99,
+"log_sha8": "09869944",
+"exit": 0,
+"seconds": 0.28,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/13.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/14.log",
+"bytes": 714,
+"log_sha8": "adb7df70",
+"exit": 0,
+"seconds": 0.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": [
+"exit 0",
+"contains verify:capability-matrix: clean (82 ids: 36 claimed, 46 retired, 0 violation(s))"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/15.log",
+"bytes": 447,
+"log_sha8": "2f34d963",
+"exit": 0,
+"seconds": 0.29,
+"readings": [
+"exit 0 ✓",
+"contains 'verify:capability-matrix: clean (82 ids: 36 claimed, 46 retired, 0 violation(s))' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/16.log",
+"bytes": 708805,
+"log_sha8": "d91d0732",
+"exit": 0,
+"seconds": 14.73,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/17.log",
+"bytes": 513,
+"log_sha8": "3204d841",
+"exit": 0,
+"seconds": 2.75,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 18,
+"role": "probe",
+"run": "git diff --quiet 279a477e9e12a1e76bae3bab3c64e42db9949a8f -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "7bfb401c",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/18.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 19,
+"role": "integration",
+"run": "d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xtask pre-push:linux",
+"run_sha8": "9f639d67",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"green\"",
+"contains \"reason\": \"all-stages-ok\"",
+"lacks \"ok\": false"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-capability-record-re-based/wrap-2026-10-10T12-20-47Z/19.log",
+"bytes": 1557554,
+"log_sha8": "da5cd28c",
+"exit": 0,
+"seconds": 86.17,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"green\"' ✓",
+"contains '\"reason\": \"all-stages-ok\"' ✓",
+"lacks '\"ok\": false' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "3c62df70",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "m=\"$(git ls-remote origin refs/heads/main | cut -f1)\" && test -n \"$m\" && git merge-base --is-ancestor \"$m\" HEAD",
+"run_sha8": "4c1e4d3b",
+"expect": [
+"exit 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin build/andromeda-pulse-0.4.0",
+"run_sha8": "aa77c2b4",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 23,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2700",
+"run_sha8": "d04716c7",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 24,
+"role": "probe",
+"run": "f=\"$(mktemp)\" && gh api --allow-escape-sequences \"repos/Turbolet85/andromeds-pulse/actions/jobs/$(gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | select(.name | startswith(\"lint\")) | .id')/logs\" > \"$f\" && test -s \"$f\" && grep -c -F 'verify:capability-matrix: clean (82 ids: 36 claimed, 46 retired, 0 violation(s))' \"$f\"",
+"run_sha8": "afcefd6f",
+"expect": [
+"exit 0",
+"last line 1"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 25,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | \"\\(.name) · \\(.conclusion) · \\(.started_at) · \\(.completed_at)\"' ",
+"run_sha8": "a907566f",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T12:41:55Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base 279a477e (the parent of the oldest pre-CI commit 923a0dad)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 93 (runs 83 · evidence 3 · inputs 7) · trails 24 not read · copies 5 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 83,
+"evidence": 3,
+"inputs": 7,
+"trails": 24,
+"copies": 5,
+"kept": 0,
+"binary": 0,
+"in_root": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T12:41:55Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base 279a477e (the parent of the oldest pre-CI commit 923a0dad) · lists new 2 · modify 3 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 5 · listed 5 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 113"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "279a477e9e12a1e76bae3bab3c64e42db9949a8f",
+"base_why": "the parent of the oldest pre-CI commit 923a0dad",
+"counts": {
+"changed": 5,
+"listed": 5,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 113,
+"unparsed": 0,
+"widening_without_word": 0
+}
+}
+]

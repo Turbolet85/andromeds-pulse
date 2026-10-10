@@ -1,0 +1,647 @@
+[
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-10T00:47:51Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T00-36-34Z-implement",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root . · marker 2026-10-09-pre-push-check-native-on-linux · entries 23",
+"logs $TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z · bound: GNU timeout",
+"delta docs 43 · rust 2 · unmapped 4",
+"walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 49",
+"prose L136-140: The standard gate set comes first, in test-plan §3 order: `capability-drift` before the de… (484 chars)",
+"prose L142-145: The two live runs come after the regen on purpose. The green run executes the `test` stage… (373 chars)",
+"prose L147-155: Absences, each with its reason: - No webview gate and no headful self-verify: no `pulse-ap… (700 chars)",
+"prose L157-159: On the untouched tree the chunk's own asserting entries read red, the scope guard aside: t… (227 chars)",
+"prose L161-164: **The operator pass, in this order.** The hygiene entry; the pre-CI commit; the green live… (422 chars)",
+"  1 lint        green · exit 0 · 0.63s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 2.13s · 150 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 lint        green · exit 0 · 1.55s · 100 B → 3.log · cargo xtask check:english-sources",
+"  4 probe       green · exit 0 · 0.3s · 394 B → 4.log · cargo xtask capability-widening-check",
+"  5 probe       green · exit 0 · 0.31s · 99 B → 5.log · cargo xtask check:ingest-progress",
+"  6 probe       green · exit 0 · 0.35s · 342 B → 6.log · cargo xtask check:staged-artifacts",
+"  7 probe       green · exit 0 · 0.34s · 714 B → 7.log · cargo xtask capability-drift",
+"  8 probe       green · exit 0 · 0.31s · 396 B → 8.log · cargo xtask verify:capability-matrix",
+"  9 unit        green · exit 0 · 17.36s · 681267 B → 9.log · cargo nextest run --workspace --profile ci",
+" 10 build       green · exit 0 · 1.09s · 427 B → 10.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 11 probe       green · exit 0 · 0.01s · 0 B → 11.log · git diff --quiet 8f655caef468e90844fef54dcc33cef7bd4e426c … (95 chars)",
+" 12 probe       green · exit 1 · 0.0s · 2 B → 12.log · cat xtask/src/pre_push.rs xtask/src/main.rs | grep -i -c w… (60 chars)",
+" 13 probe       green · exit 0 · 0.03s · 9 B → 13.log · d=\"$(mise where node@24)\" && \"$d/bin/node\" --version",
+" 14 integration green · exit 2 · 0.38s · 182 B → 14.log · env PATH=\"$HOME/.cargo/bin:/usr/bin:/bin\" cargo xtask pre-… (68 chars)",
+" 15 probe       recorded · exit 0 · 0.0s · 30 B → 15.log · cat /proc/loadavg",
+" 16 integration green · exit 0 · 90.25s · 1500025 B → 16.log · d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xta… (75 chars)",
+" 17 probe       recorded · exit 0 · 0.0s · 31 B → 17.log · cat /proc/loadavg",
+" 18 probe       green · exit 0 · 0.02s · 119 B → 18.log · python -X utf8 -c \"import json; raw = open('target/pre-pus… (233 chars)",
+" 19 probe       green · exit 0 · 0.01s · 0 B → 19.log · git diff --quiet 8f655caef468e90844fef54dcc33cef7bd4e426c … (95 chars)",
+" 20 probe       green · exit 0 · 0.01s · 0 B → 20.log · git diff --name-only 8f655caef468e90844fef54dcc33cef7bd4e4… (224 chars)",
+" 21 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)",
+" 22 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (92 chars)",
+" 23 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)",
+"entries 23 · green 18 · red 0 · recorded 2 · timeout 0 · not-run 3"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-09-pre-push-check-native-on-linux",
+"plan": "./andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/plan.md",
+"root": ".",
+"shell": "/usr/bin/bash",
+"out_dir": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z",
+"delta": {
+"docs": [
+".andromeda/friction-log.ndjson",
+".andromeda/master-route.md",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap/evolve-2026-10-09-boot-smoke-s-early-exit-found-and-closed.json",
+".claude/session-handoff.md",
+"andromeda-pulse-0.4.0/working-route.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/a11y-contracts.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/a11y-history.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/a11y.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/acceptance-P-103.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/arch-contracts.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/arch-history-index.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/arch-history.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/arch.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/ci-2026-10-09-pre-push-check-native-on-linux.json",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/ci-no-marker.json",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/design.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/evolve-2026-10-09-pre-push-check-native-on-linux.json",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/gate-2026-10-09-pre-push-check-native-on-linux.json",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/inputs-2026-10-09-pre-push-check-native-on-linux.json",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/layouts.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/master-record.txt",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/matrix-2026-10-09-pre-push-check-native-on-linux.json",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/obs-contracts.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/obs-history.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/obs.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/planlint-2026-10-09-pre-push-check-native-on-linux.json",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/registry-2026-10-09-pre-push-check-native-on-linux.json",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/route-2026-10-09-pre-push-check-native-on-linux.json",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/security-history-index.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/security-history.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/security.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/sidecar-2026-10-09-pre-push-check-native-on-linux.json",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/tests-contracts.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/tests-history-index.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/tests-history.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/tests.md",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/tree-query-2026-10-09-pre-push-check-native-on-linux.json",
+".andromeda/runs/2026-10-10T00-36-34Z-implement/evolve-2026-10-09-pre-push-check-native-on-linux.json",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/evidence/mutation-checks.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/evidence/node-24-install.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/plan.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/research.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/scope.md"
+],
+"rust": [
+"xtask/src/main.rs",
+"xtask/src/pre_push.rs"
+]
+},
+"unmapped": [
+"andromeda-pulse-0.4.0/verification-matrix.json",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/inputs/.gitattributes",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/inputs/I1-pulse-phase-pre-push-native-linux-2026-10-09.md.txt",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/inputs/andromeda-inputs.json"
+],
+"walk_class": {
+"marked": {
+"rust": [
+"xtask/src/source_lint.rs",
+"xtask/src/staged_gate.rs"
+]
+},
+"uncommitted": 49,
+"problem": null
+},
+"prose": [
+{
+"from": 136,
+"to": 140,
+"text": "The standard gate set comes first, in test-plan §3 order: `capability-drift` before the default-features workspace nextest, the `--features mcp-server` bindings regen after it, and the base-identity bindings close, since the chunk adds no procedure. The chunk's own entries follow: a source census, a probe that Node 24 is installed, the two live runs of the verb with the load average read around the green one, a read of the report twin, a second bindings close and the scope guard."
+},
+{
+"from": 142,
+"to": 145,
+"text": "The two live runs come after the regen on purpose. The green run executes the `test` stage, which rewrites the bindings and must put them back; the bindings close after it and the scope guard after that are what show the check left the working tree as it found it. The green run costs a browser download of about 1 GB and a full workspace test run; its timeout is one hour."
+},
+{
+"from": 147,
+"to": 155,
+"text": "Absences, each with its reason: - No webview gate and no headful self-verify: no `pulse-app/ui/**` path is in the file lists. The `npm` stage's   writes there (`node_modules`, `dist`) are gitignored. - No boot smoke: no boot or setup path is touched (test-plan §3 Per-chunk gate discipline). - No targeted nextest entry: the workspace entry runs the new pins on every re-run. - No entry for the folded boot-smoke watch: it is an observation, read by the wrap from the CI run the operator   pass reads. - The mutation controls of step 13 change source and revert it, so they are one-shot runs at /implement with both   readings in `evidence/`; the workspace entry guards the same pins on every re-run."
+},
+{
+"from": 157,
+"to": 159,
+"text": "On the untouched tree the chunk's own asserting entries read red, the scope guard aside: the verb answers `not-windows`, the two files still name the hop, and Node 24 is not installed. Each reading is in its entry's `baseline`."
+},
+{
+"from": 161,
+"to": 164,
+"text": "**The operator pass, in this order.** The hygiene entry; the pre-CI commit; the green live entry once more on the committed tree (the local pre-push gate before a push); the build-branch push; the CI read of the pushed tip. A CI red whose only failed check is the boot smoke is the watch's recurrence: it is read by the watch's own terms (`harness-settled.json`, `xvfb.log`), brought to the operator, and not fixed on top."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.63,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/2.log",
+"bytes": 150,
+"log_sha8": "c2713541",
+"exit": 0,
+"seconds": 2.13,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "lint",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/3.log",
+"bytes": 100,
+"log_sha8": "f59f89c7",
+"exit": 0,
+"seconds": 1.55,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/4.log",
+"bytes": 394,
+"log_sha8": "35ba2b5e",
+"exit": 0,
+"seconds": 0.3,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/5.log",
+"bytes": 99,
+"log_sha8": "09869944",
+"exit": 0,
+"seconds": 0.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/6.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.35,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/7.log",
+"bytes": 714,
+"log_sha8": "fa040228",
+"exit": 0,
+"seconds": 0.34,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/8.log",
+"bytes": 396,
+"log_sha8": "6771e4f7",
+"exit": 0,
+"seconds": 0.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/9.log",
+"bytes": 681267,
+"log_sha8": "86e963d8",
+"exit": 0,
+"seconds": 17.36,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/10.log",
+"bytes": 427,
+"log_sha8": "c7dc86ff",
+"exit": 0,
+"seconds": 1.09,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "git diff --quiet 8f655caef468e90844fef54dcc33cef7bd4e426c -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "19fd1188",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/11.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cat xtask/src/pre_push.rs xtask/src/main.rs | grep -i -c wsl",
+"run_sha8": "637c89b0",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/12.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.0,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "d=\"$(mise where node@24)\" && \"$d/bin/node\" --version",
+"run_sha8": "a9e49994",
+"expect": [
+"exit 0",
+"contains v24."
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/13.log",
+"bytes": 9,
+"log_sha8": "f2ec5681",
+"exit": 0,
+"seconds": 0.03,
+"readings": [
+"exit 0 ✓",
+"contains 'v24.' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "integration",
+"run": "env PATH=\"$HOME/.cargo/bin:/usr/bin:/bin\" cargo xtask pre-push:linux",
+"run_sha8": "5a3f66ae",
+"expect": [
+"exit 2",
+"contains \"verdict\": \"cannot-evaluate\"",
+"contains \"reason\": \"provisioning-missing\"",
+"contains node:24 (found",
+"lacks \"verdict\": \"green\""
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/14.log",
+"bytes": 182,
+"log_sha8": "65f76b87",
+"exit": 2,
+"seconds": 0.38,
+"readings": [
+"exit 2 ✓",
+"contains '\"verdict\": \"cannot-evaluate\"' ✓",
+"contains '\"reason\": \"provisioning-missing\"' ✓",
+"contains 'node:24 (found' ✓",
+"lacks '\"verdict\": \"green\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "probe",
+"run": "cat /proc/loadavg",
+"run_sha8": "53df5fb2",
+"expect": [],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/15.log",
+"bytes": 30,
+"log_sha8": "e2e4f360",
+"exit": 0,
+"seconds": 0.0,
+"readings": [
+"report-only (expect = [])"
+],
+"survivors": [],
+"outcome": "recorded"
+},
+{
+"n": 16,
+"role": "integration",
+"run": "d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xtask pre-push:linux",
+"run_sha8": "9f639d67",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"green\"",
+"contains \"reason\": \"all-stages-ok\"",
+"contains ci-gates: zero-panic PASS",
+"contains ci-gates: heartbeat-gap PASS",
+"contains ci-gates: perf-budget NEUTRAL",
+"lacks \"ok\": false"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/16.log",
+"bytes": 1500025,
+"log_sha8": "6954d5e5",
+"exit": 0,
+"seconds": 90.25,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"green\"' ✓",
+"contains '\"reason\": \"all-stages-ok\"' ✓",
+"contains 'ci-gates: zero-panic PASS' ✓",
+"contains 'ci-gates: heartbeat-gap PASS' ✓",
+"contains 'ci-gates: perf-budget NEUTRAL' ✓",
+"lacks '\"ok\": false' ✓",
+"artifact fresh (target/pre-push/report.json)"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "cat /proc/loadavg",
+"run_sha8": "53df5fb2",
+"expect": [],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/17.log",
+"bytes": 31,
+"log_sha8": "f7994ead",
+"exit": 0,
+"seconds": 0.0,
+"readings": [
+"report-only (expect = [])"
+],
+"survivors": [],
+"outcome": "recorded"
+},
+{
+"n": 18,
+"role": "probe",
+"run": "python -X utf8 -c \"import json; raw = open('target/pre-push/report.json', encoding='utf-8').read(); d = json.loads(raw); print(' '.join(sorted(d)), [s['name'] for s in d['stages']], all(s['ok'] for s in d['stages']), '/' not in raw)\"",
+"run_sha8": "eaee0e1a",
+"expect": [
+"exit 0",
+"last line head missing reason stages tree verdict ['script-modes', 'source-lint', 'npm', 'clippy', 'test', 'ci-gates'] True True"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/18.log",
+"bytes": 119,
+"log_sha8": "a0ca5f49",
+"exit": 0,
+"seconds": 0.02,
+"readings": [
+"exit 0 ✓",
+"last line \"head missing reason stages tree verdict ['script-modes', 'source-lint', 'npm', 'clippy', 'test', 'ci-gates'] True True\" ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "git diff --quiet 8f655caef468e90844fef54dcc33cef7bd4e426c -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "19fd1188",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/19.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "git diff --name-only 8f655caef468e90844fef54dcc33cef7bd4e426c -- crates pulse-app xtask scripts docs Cargo.toml Cargo.lock deny.toml rust-toolchain.toml .github .cargo .config ':!xtask/src/pre_push.rs' ':!xtask/src/main.rs' ",
+"run_sha8": "b5109f78",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-pre-push-check-native-on-linux/implement-2026-10-10T00-36-34Z/20.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "3c62df70",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin build/andromeda-pulse-0.4.0",
+"run_sha8": "aa77c2b4",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 23,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2700",
+"run_sha8": "d04716c7",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-10T00:49:52Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux",
+"--run-dir",
+".andromeda/runs/2026-10-10T00-36-34Z-implement",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base HEAD (no pre-CI commit) · lists new 0 · modify 2 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 2 · listed 2 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 50"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "HEAD",
+"base_why": "no pre-CI commit",
+"counts": {
+"changed": 2,
+"listed": 2,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 50,
+"unparsed": 0,
+"widening_without_word": 0
+}
+}
+]

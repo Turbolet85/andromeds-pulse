@@ -1,0 +1,47 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T09:02:24Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-10T09-01-44Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 76 of 83 entries · freight blocks 22 · rows are an INDEX, not the text",
+"25 · CARRY: · 1232 chars · CARRY: five gates of the ci workflow pass while reading nothing and are neither a comparison…",
+"25 · CARRY: · 289 chars · CARRY: seen and not measured at 2026-10-10-no-ci-step-reads-nothing: two further --no-tests=p…",
+"25 · CARRY: · 268 chars · CARRY: the a11y job's a11y-violations upload has three path members and its if-no-files-found…",
+"25 · CARRY: · 273 chars · CARRY: the reading for P-128's claim, the operator's word (the pc overseer, 2026-10-10; 2026-…",
+"35 · CARRY: · 130 chars · CARRY: this entry's owner-only is P-126's — until another host can reach the door, another ac…",
+"41 · CARRY: · 391 chars · CARRY: the credential-store legs this entry removes are the ones cargo xtask pre-push:linux's…",
+"43 · CARRY: · 612 chars · CARRY: obs-plan §11 bans losing the log file and the snapshot on a test failure (\"NEVER lose …",
+"48 · CARRY: · 539 chars · CARRY: the boot CI job this entry removes was the subject of P-129, closed at 2026-10-10-boot…",
+"48 · CARRY: · 341 chars · CARRY: cargo xtask pre-push:linux keeps a script-modes stage whose only subject is CI's by-pa…",
+"48 · CARRY: · 756 chars · CARRY: built for the boot job at 2026-10-10-boot-smoke-s-self-end-named-from-a-run and leavin…",
+"48 · CARRY: · 734 chars · CARRY: the series' first boot builds the app again on the runner (boot 2 took 3 min 27 s and …",
+"50 · CARRY: · 306 chars · CARRY: no workflow runs an ESLint step (measured 2026-10-09; record: 2026-10-09-ci-on-linux-a…",
+"50 · CARRY: · 399 chars · CARRY: two stages of cargo xtask pre-push:linux exist for what this entry removes (record: 20…",
+"50 · CARRY: · 688 chars · CARRY: built at 2026-10-10-boot-smoke-s-self-end-closed and leaving with the window here: pul…",
+"52 · CARRY: · 252 chars · CARRY: the card names the release environment and every secret name the two workflows read (P…",
+"52 · CARRY: · 393 chars · CARRY: the npm tree this entry removes is what cargo xtask pre-push:linux's npm stage install…",
+"62 · CARRY: · 328 chars · CARRY: shipped unwitnessed at 2026-10-09-boot-smoke-s-early-exit-found-and-closed and leaving…",
+"90 · CARRY: · 142 chars · CARRY: the renewal this entry states is P-124's — who renews the channel's private key and by…",
+"116 · CARRY: · 378 chars · CARRY: a test comment in crates/buffer/src/schema.rs, above the metrics_points key test, sti…",
+"118 · CARRY: · 59 chars · CARRY: this entry's rule is P-125's — P-091's text has none",
+"134 · CARRY: · 218 chars · CARRY: the restart between the two readings is done on the engine's host by whoever runs the…",
+"167 · CARRY: · 103 chars · CARRY: the record each raise leaves is read through the door (P-123); this entry's check rea…"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

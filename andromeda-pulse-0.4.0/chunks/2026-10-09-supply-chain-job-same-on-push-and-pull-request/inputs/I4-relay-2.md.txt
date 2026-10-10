@@ -1,0 +1,1 @@
+review - a FOUNDER RULING changes the plan: main is repaired now by a separate pull request he merges, and the witness is the push run on main; the push-witness trigger is not added. Read ~/dev/projects/additional/pc-overseer/relays/pulse-phase-p5-review-main-now-2026-10-09.md whole, revise the plan to it, and stop at P5 again for my yes.

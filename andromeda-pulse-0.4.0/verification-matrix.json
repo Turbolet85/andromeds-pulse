@@ -1,0 +1,631 @@
+{
+  "schema_version": 1,
+  "version": "andromeda-pulse-0.4.0",
+  "source": "intent",
+  "id_scheme": "P-NNN",
+  "capabilities": [
+    {
+      "id": "P-083",
+      "title": "The window is gone",
+      "requirement": "no crate depends on the window toolkit; the tree holds no webview interface, no IPC router and no gate that boots a window, audits one or samples its frames; the tests that drive them leave with them and the remaining gate is green; the masters say in plain words that this version has no interface and which later version brings a minimal one on another toolkit; the 0.3.0 capabilities that were about the window are recorded as retired with the surface, not as regressed",
+      "observed_gap": "a Tauri shell and a webview interface (`pulse-app/ui`, 243 tracked files), ten IPC router files (`pulse-app/src/*_router.rs`), the tray, the window and its geometry, the updater and the notification plugin; the gates that exist for it (`a11y` and `boot` CI jobs, the webview suite, and in `xtask` the webview drive, staged gate, smoke, npm gate, hue shift, discovery, self-verify, frame sampling and bundle format); three masters whose subject it is (design-system, layout-templates, a11y-plan). Most of 0.3.0's 22 verified capabilities are about it; the route names which, id by id.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "No crate's dependency graph holds the window toolkit; the tree holds no webview interface, no IPC router and no gate that boots, audits or frame-samples a window; the engine's own gate is green without them and everything it detected before is still detected; the three interface masters state that this version has no interface and which later version brings one; each 0.3.0 capability that was about the window reads retired with the surface in the capability record.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-084",
+      "title": "The local model is gone from the engine, with everything that served it",
+      "requirement": "the engine starts, detects and reports with no model present and none configured; no gate needs a GPU; no crate, example, script, environment variable, vendored runtime or experiment that exists for a local model remains, and their tests leave with them; the experiments directory is gone from the dev host, shown by a listing because no commit can show it; the words of a report come from the engine's own facts (P-099); a large model reads through the door (P-092) and is not part of the engine",
+      "observed_gap": "`crates/interpretation` (10 tracked files, about 3700 lines: runner trait, prompt builders, the `L4Output` schema, degraded mode); in `pulse-app` the inference runtimes, the model router, the hardware profile, the grammar file; the decision probe (three files under `pulse-app/examples/`, about 10,500 lines) and the latency grader; six `ANDROMEDA_PULSE_*` environment variables for the model, one of which `xtask` still sets; `experiments/` (git-ignored, no tracked file: a directory on the dev host) and a vendored `llama-cpp`.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "On a host with no model and no GPU, and none configured, the engine starts, detects a planted fault and reports it in words drawn from its own facts; no gate needs a GPU; the tree holds no crate, example, script, environment variable, vendored runtime or experiment that exists for a local model, and their tests are gone with them; a listing shows the experiments directory gone from the dev host.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-085",
+      "title": "The corpus is stored unencrypted, for this first stage",
+      "requirement": "the engine keeps its stores readable on its own node with no credential store, and no code or dependency for one remains; the secret scrubber at ingest stays as it is; the security master records the decision, its date and that it is to be looked at again",
+      "observed_gap": "the incident corpus is encrypted per cell with a key from the desktop's credential store (`crates/corpus/src/keychain.rs`, `encryption.rs`; the `keyring` and `aes-gcm` dependencies); a server has no such store (a CI runner already read `KeyringUnavailable`); the buffer is not encrypted.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "On a node with no credential store the engine opens, writes and reads back its stores across a restart; the dependency graph and the tree hold no code for a credential store or for encrypting the corpus; a secret planted in telemetry is still scrubbed before anything is stored; the security master records the decision, its date and that it is to be looked at again.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-086",
+      "title": "A program without a window",
+      "requirement": "the engine is a console program that runs in the background on a Linux server and is driven by commands; nothing in it needs a display, a GPU or a desktop session; everything 0.3.0 detected is still detected",
+      "observed_gap": "one application binary that is a Tauri process; no headless mode.",
+      "verification": {
+        "method": "e2e",
+        "acceptance": "The engine starts as a console program on a Linux server with no display, no GPU and no desktop session, runs in the background and answers its commands; every kind of finding 0.3.0 detected, one incident for a sustained storm and automatic resolution are each still observed on the same telemetry.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-10 (2026-10-10-console-engine-entry-point, phase P5): advanced by this chunk, not claimed. The chunk plans the first half of the acceptance: a second program, andromeda-pulse-engine, boots the two loopback receivers, the buffer, the detectors and the corpus with no display variable, no GPU probe and no session bus in its environment, stays up until signalled and answers the commands run and version. The second half is not provable by this chunk: \"runs in the background\" as a service, every kind of finding 0.3.0 detected, one incident for a sustained storm and automatic resolution on the same telemetry are carried by the five other working entries that name this id (\"Agent harness drives the console engine\", \"Scenario legs driven against the console engine\", \"Engine end-to-end gate reachable\", \"Detection baseline through the console engine\", \"Detection parity after the removals\"). On the operator's answer at P4 (the pc overseer, 2026-10-10) the console program forms an incident only with ANDROMEDA_PULSE_L4_DETERMINISTIC set; unset it forms none, and \"Incident is the engine's own record\" owns that arm.\n\n2026-10-10 (chunk 2026-10-10-console-engine-entry-point; advanced, not claimed): the first half of the acceptance is shown — the engine starts as a console program (andromeda-pulse-engine run) with no display variable, no session bus, no GPU probe and no model runner, stays up, takes telemetry over its gRPC receiver and answers run and version (integration_console_engine, green in lint / test of ci#38056942758). Not shown, and carried by the entries that name P-086: runs in the background as a service; every kind of finding 0.3.0 detected; one incident for a sustained storm; automatic resolution on the same telemetry (Agent harness drives the console engine · Scenario legs driven against the console engine · Engine end-to-end gate reachable · Detection baseline through the console engine, and the route's later P-086 entry). On the operator's wrap directive (the pc overseer, 2026-10-10, relayed in a file).\n\n2026-10-10 (2026-10-10-agent-harness-drives-the-console-engine, phase P5): advanced by this chunk, not claimed. The chunk plans a further part of the first half of the acceptance: started by a harness verb (boot engine) with no display variable and no session bus, the console engine runs detached from its starter, is found by its pid file, answers a state read (status engine), takes telemetry over its gRPC receiver on ports the leg picks and is ended by signal (cleanup), and its own log is graded on every push by a check whose arms are each pinned red on a constructed log (panic, heartbeat gap, process end, memory budget, drain progress). Not provable by this chunk, and carried by the four other working entries that name this id and are not yet taken up (\"Scenario legs driven against the console engine\", \"Engine end-to-end gate reachable\", \"Detection baseline through the console engine\", \"Detection parity after the removals\"): running in the background as a service; every kind of finding 0.3.0 detected; one incident for a sustained storm; automatic resolution on the same telemetry. On the operator's answer at P4 (the pc overseer, 2026-10-10) the freight was cut in two; the second entry, minted at this chunk's wrap, holds test readings of the engine's boot and shell-level pins of the verbs, and claims nothing in this ledger.\n\n2026-10-10 (chunk 2026-10-10-agent-harness-drives-the-console-engine; advanced, not claimed): shown by this chunk — started by a harness verb (agent-run.sh boot engine) with no display variable and no session bus in its environment, the console engine runs detached from its starter, is found by its pid file, answers a state read (status engine reads running-healthy for the program asked; a verb asked for the other program reads wrong-program), takes telemetry over its gRPC receiver on ports the cycle picks (24317 / 24318) and is ended by signal (cleanup: clean); its own log is graded on every push by cargo xtask check:engine-log in the boot job's Console engine cycle step (panic, heartbeat gap, drain progress, process end, memory budget): \"verdict\": \"pass\" on the dev host and on ci#38065768197, whose logs-engine-Linux artifact graded again as engine-log: PASS. Limits: each arm of the check is pinned red against stubs, not by a mutation of the written code; the cycle ran once on a runner. Not shown, and carried by the four entries that name P-086 and are not yet taken up (Scenario legs driven against the console engine · Engine end-to-end gate reachable · Detection baseline through the console engine · Detection parity after the removals): running in the background as a service; every kind of finding 0.3.0 detected; one incident for a sustained storm; automatic resolution on the same telemetry. The entry minted at this chunk's wrap, Engine harness proofs completed, holds test readings of the engine's boot and shell-level pins of the verbs and claims nothing in this ledger. On the operator's wrap directive (the pc overseer, 2026-10-10, relayed in a file; inputs#I4 item 5)."
+    },
+    {
+      "id": "P-087",
+      "title": "Telemetry arrives over a network",
+      "requirement": "a service on another host sends OTLP to the engine with a token over an encrypted channel; a request without the token is refused; connecting a service takes an address and a token and installs nothing beside it",
+      "observed_gap": "the receivers bind `127.0.0.1`, the HTTP one admits only localhost `Host` values (`crates/ingest/src/http.rs:113-117`), and neither asks for a credential.",
+      "verification": {
+        "method": "e2e",
+        "acceptance": "A service on another host, given only an address and a token and with nothing installed beside it, sends OTLP to the engine over an encrypted channel and its telemetry is received; the same request without the token is refused.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-088",
+      "title": "What the network receiver refuses",
+      "requirement": "a request with a missing or wrong token is refused before its body is read, and the refusal is recorded without the token's value; the token is made, shown once, replaced and revoked by an engine command and is never written to a log or a report; it is stated who terminates the encrypted channel and where its private key lives — never in a store the door reads, never in a log; a sender that exceeds its rate is slowed or refused without starving another; the existing size and count invariants apply to a remote sender; a plain unencrypted connection from another host is refused; everything the scrubber removes today is still removed before anything is stored",
+      "observed_gap": "the receiver's only guards today are its localhost bind, a `Host` allow-list, size and count invariants and a global rate limit; none of them assumes a sender it does not trust.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A request with a missing or wrong token is refused before its body is read and the refusal is recorded without the token's value; the token is made, shown once, replaced and revoked by an engine command and appears in no log and no report; who terminates the encrypted channel and where its private key lives are stated, and the key lies in no store the door reads and in no log; a sender over its rate is slowed or refused while another sender is still served; a request beyond the size or count limits is rejected from a remote sender as from a local one; a plain unencrypted connection from another host is refused; a secret in accepted telemetry is scrubbed before storage.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-089",
+      "title": "The watcher counts by event time",
+      "requirement": "every check reasons by the time stamped inside the record, with a stated allowance for lateness; a batch that arrives late is counted where it belongs, and a recorded stream can be played again and give the same result; a record stamped in the future beyond a stated allowance cannot move what the checks take for the present, and what is done with such a record is stated",
+      "observed_gap": "windows, the restart detector and the retention cutoff read the system clock; the restart cue keys on a gap in ARRIVAL of more than 20 s.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "Each check gives the same answer for a stream however its batches arrive within the stated lateness allowance: a late batch is counted in the window its stamps belong to; a recorded stream played twice yields identical findings; a record stamped in the future beyond the stated allowance does not move what the checks take for the present, and what is done with such a record is stated and observed.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-090",
+      "title": "The node is small",
+      "requirement": "the engine fits a 1 GB node under a long run; the figure is measured, and the database file does not grow without bound under constant insert and delete; the engine's own log is bounded in total size, so neither can fill the node",
+      "observed_gap": "the engine's memory use with a database on disk has never been measured. The engine's log rotates daily (`pulse-app/src/observability.rs:2645`) and nothing removes an old file.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "Under a long run on a node with 1 GB of memory the engine's measured memory stays inside the node and the figure is recorded; under constant insert and delete the database file stops growing; the engine's own log stays under a stated total size however long the engine runs, so neither can fill the node.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-091",
+      "title": "What was received is still there tomorrow",
+      "requirement": "raw telemetry is kept 7 days by default, the term configurable, with a ceiling on the store's size beside it at which the oldest goes first, and survives a restart; what the watcher has learned survives a restart; a gap while the engine was down is not read as the service's silence; whether a week fits the node's disk under a real stream is measured, and the ceiling's figure is set from that reading",
+      "observed_gap": "raw telemetry lives 600 s in an in-memory database; only incidents persist; the learned baseline is discarded at start when older than an hour.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "Telemetry received is still readable the next day and after a restart; with default settings it is kept 7 days, the term can be changed, and at the store's size ceiling the oldest goes first; what the watcher had learned before a restart is in use after it; time the engine was down is not reported as the service's silence; a week of a real stream on the node's disk is measured and the ceiling's figure is set from that reading.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-092",
+      "title": "The agent's door opens onto the real data, from the engine's first step",
+      "requirement": "the door lives inside the engine's process and replaces the stdio sidecar as soon as the console engine exists, ahead of the removals the sidecar is built on (the credential store, the resolver, the incident it parses, the model's renderer, the workspace key), so that those chunks change the door, which stays, and never the sidecar, which goes; every reading from outside the process — the engine's own end-to-end gate, the external harness at each theme — goes through the door; an agent on the developer's machine reaches the engine's tools and reads the telemetry the engine holds, filtered by service, time range, trace and text, with aggregates; it reaches one incident whole, with its evidence, and the incidents like it from the past; it can ask for the curated snapshot — a narrow, budgeted view of recent telemetry made for a large model — which is that code's consumer from now on; the same door serves the test harness and the status widget",
+      "observed_gap": "the MCP sidecar's four telemetry tools read their own empty in-memory database and accept only a time window and a limit; the curated snapshot and the curation crates (about 3200 lines) have the window's toast and that empty database as their only outlets. The sidecar is a second process built on what this version removes: it opens the corpus through the desktop's credential store (`crates/mcp-server/src/bin/andromeda-pulse-mcp.rs:6`), reads the published workspace key (`:78`), and renders an incident by parsing the model's answer with the model's renderer (`crates/mcp-server/src/tools.rs:25-28`, `:380`). Until a door exists it is the only way anything outside the process reads a finding.",
+      "verification": {
+        "method": "e2e",
+        "acceptance": "From the first step in which a console engine exists, every reading from outside its process goes through a door inside that process: the engine's own end-to-end gate and the external harness at each theme read through it, no stdio sidecar exists, and no later removal has a sidecar to change; an agent on the developer's machine reads through it the telemetry the engine holds, filtered by service, time range, trace and text, with aggregates, one incident whole with its evidence and the incidents like it from the past, and the curated snapshot of recent telemetry; the test harness and the status command use the same door.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-093",
+      "title": "What the door may do",
+      "requirement": "until the engine accepts connections from another host, the door answers on the engine's own host only; from the moment it can be reached from another host it answers only a party the node's owner has admitted, and admission has a lifecycle: how a party is admitted and how it is revoked, as the token has; it is stated where an admitted party's credential lives on the developer's machine — never in a repository, never in a log; the door is encrypted in transit; it reads the engine's stores (telemetry, incidents, reports, the engine's own state) and nothing else on the node: not the token, not configuration secrets, not files outside those stores; every answer is bounded in size and time, so no question can exhaust the node; what it returns was scrubbed at ingest; the one write it keeps (resolving an incident) is named as a write and can be switched off",
+      "observed_gap": "the sidecar's tools are local, unauthenticated, and one of them writes (it marks an incident resolved).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "Before the engine accepts connections from another host the door answers on the engine's own host only; once it can be reached from another host it answers only an admitted party, a party is admitted and revoked in a stated way and a revoked party is refused; where an admitted party's credential lives on the developer's machine is stated, outside any repository and any log; the door's traffic is encrypted in transit; a request for the token, a configuration secret or a file outside the stores is refused; an answer too large or too slow is cut at a stated bound; what it returns was scrubbed at ingest; resolving an incident is named as a write and can be switched off.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-094",
+      "title": "A span keeps its meaning",
+      "requirement": "the stored span keeps its name, kind and parent, the service's version and environment, and the attributes that say which route, which status code, which database or peer it touched, under both generations of the semantic-convention names; who calls whom can be answered from what is stored",
+      "observed_gap": "a span is stored as seven fields; its name, kind, parent, status message, every attribute and every resource attribute but `service.name` are dropped at ingest.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A stored span, read back, carries its name, kind and parent, the service's version and environment, and the attributes naming the route, the status code, the database or the peer, whichever generation of the semantic-convention names the sender used; for a stream with known callers the question who calls whom is answered correctly from what is stored.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-095",
+      "title": "Metrics and logs keep theirs",
+      "requirement": "a percentile can be computed from stored metrics; a log line and a metric point name their service; exception type, message and stack are readable through the door",
+      "observed_gap": "histogram-family points are stored as the value 0; a log row and a metric row carry no service identity; stored exception text has no reader.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A percentile computed from stored metrics matches the distribution that was sent; every stored log line and metric point names its service; an exception's type, message and stack are read back through the door.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-096",
+      "title": "A new kind of error is news",
+      "requirement": "the first appearance of an error for a service is a finding, in whichever of the three encodings it arrives (a span's error status, an exception on a span, a high-severity log), and so is the return of one that had gone away",
+      "observed_gap": "the fingerprint feeds the retry-storm detector and the search for similar past incidents; nothing says \"this error was never seen before\". An error reaches the engine in three encodings — a span's error status, an exception on a span, a high-severity log — and only the second is fingerprinted.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The first time an error appears for a service a finding is raised, whether it arrives as a span's error status, an exception on a span or a high-severity log; a repeat of a known error raises none; an error that had gone away and returns raises one.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-097",
+      "title": "A release is compared with the one before",
+      "requirement": "when a new version of a service appears, the engine compares it with the previous one (error rate, new error kinds, latency, per operation where the operation is known) and says when the new one is worse, naming the version and the moment it appeared",
+      "observed_gap": "the service version is dropped at ingest; nothing knows a release happened.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "When a new version of a service appears the engine records the version and the moment it appeared, compares it with the previous one on error rate, new error kinds and latency, per operation where the operation is known, and says so when the new one is worse; a release that is no worse raises nothing.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-098",
+      "title": "Silence is told apart from \"nothing arrived\"",
+      "requirement": "\"the service went quiet\", \"no data reached the engine\" and \"the check could not be evaluated\" are three different states, and a recovery is announced",
+      "observed_gap": "a vanished stream and an engine that could not receive look alike.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A service that stops sending, an engine that no data reached and a check that could not be evaluated are reported as three different states, and the recovery from each is announced.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-099",
+      "title": "The engine says it, in one line and in a report",
+      "requirement": "a command of the engine prints the current state in one line a desktop panel can show; a change of state raises a system notification; the notification carries a short report (what, where, since when, after which version, which errors are new) written without a model; this is the one report form (P-112)",
+      "observed_gap": "findings are visible only inside the window.",
+      "verification": {
+        "method": "manual",
+        "acceptance": "A command of the engine prints the current state in one line and a panel on the founder's desktop shows it; a change of state raises a system notification carrying a short report that says what, where, since when, after which version and which errors are new, written with no model in its path; no second report form exists.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-100",
+      "title": "The report is enough for a large model",
+      "requirement": "given the report and the door, a large model names the cause that was planted; the report is narrow and names its evidence by identifier; \"not enough data\" is an honest answer the engine can give",
+      "observed_gap": "no measurement exists of whether a large model can work from a report of the engine's.",
+      "verification": {
+        "method": "manual",
+        "acceptance": "Given only the engine's report and the door, a large model names the planted cause, measured over a set of planted faults; the report is narrow and names its evidence by identifier; where the data cannot support a finding the engine answers that there is not enough data.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-101",
+      "title": "A real service is watched too",
+      "requirement": "one real service of the founder's sends its telemetry to the engine for days; what the engine reported and what it stayed silent on is read against what actually happened to that service; he names the service together with the personal data its telemetry carries, and before its first send each kind he names is either scrubbed before storage or its keeping is decided and recorded; until then the security master's \"Compliance triggers: None\" keeps its present basis",
+      "observed_gap": "every reading of Pulse so far was taken on telemetry a test tool composed.",
+      "verification": {
+        "method": "manual",
+        "acceptance": "The founder names one real service and the personal data its telemetry carries; before its first send each named kind is either scrubbed before storage or its keeping is decided and recorded; the service then sends for days, and what the engine reported and what it stayed silent on is read against what actually happened to it; until the naming, the security master's statement that there are no compliance triggers stands on its present basis.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-102",
+      "title": "The bad-version scenario, end to end (dynamic-external)",
+      "requirement": "Conductor rolls out a \"bad version\" of one service in its simulated world, over the network, to an engine on another host; within minutes the panel module and a system notification carry a message naming the service, the version and the new error; a large model, given the report and the door, names the planted cause; the engine did this on a 1 GB node and stayed silent through the healthy hours before it",
+      "observed_gap": null,
+      "verification": {
+        "method": "dynamic-external",
+        "acceptance": "Conductor rolls out a bad version of one service in its simulated world, over the network, to an engine on another host with 1 GB of memory; within minutes the panel line and a system notification name the service, the version and the new error; a large model given the report and the door names the planted cause; through the healthy hours before the rollout the engine raised nothing; after each theme the harness's reading of that theme, taken through the door from input to output, is recorded.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-103",
+      "title": "The check before a push runs on Linux",
+      "requirement": "the check a developer runs before a push runs natively on the Linux dev host over the stages that survive this version's removals",
+      "observed_gap": "`cargo xtask pre-push:linux` needs `wsl.exe`; on the Linux dev host its stages are run by hand.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "On the Linux dev host `cargo xtask pre-push:linux`, started with Node 24 (the major ci.yml pins) first on PATH, exits 0 and prints one JSON verdict reading `green` / `all-stages-ok`, whose stages are `script-modes`, `source-lint`, `npm`, `clippy`, `test`, `ci-gates` in that order, each `ok`; the same document stands at `target/pre-push/report.json`. The two files that held the hop to a second operating system, `xtask/src/pre_push.rs` and `xtask/src/main.rs`, contain no `wsl` in any letter case. The six stages are every stage standing at the claim, so they include every stage that survives this version's removals; a later entry that removes a surface removes its stage with it and does not reopen this reading.",
+        "ref": "plan.md ## Test Commands entry 16 (d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xtask pre-push:linux) · read at /implement 2026-10-10 on the Linux dev host: exit 0, verdict green / all-stages-ok, stages script-modes, source-lint, npm, clippy, test, ci-gates in that order, each ok; the printed verdict equal to target/pre-push/report.json · entry 18 (the report-twin read) green · entry 12 (cat xtask/src/pre_push.rs xtask/src/main.rs | grep -i -c wsl) exit 1, last line 0 · per-decision pins: xtask/src/pre_push.rs::tests (20, in cargo nextest run --workspace --profile ci) · record: chunks/2026-10-09-pre-push-check-native-on-linux/evidence/live-readings.md",
+        "status": "verified"
+      },
+      "chunk": "2026-10-09-pre-push-check-native-on-linux"
+    },
+    {
+      "id": "P-104",
+      "title": "The plugin host is gone",
+      "requirement": "the workspace depends on no WebAssembly runtime; no plugin host or example is in the tree; the critical path that drove the plugin lifecycle is recorded as retired, not regressed",
+      "observed_gap": "`crates/plugins`, the `wasmtime` dependency, `plugins-examples/`, and the critical path that drives the plugin lifecycle.",
+      "verification": {
+        "method": "by-construction",
+        "acceptance": "The workspace's dependency graph holds no WebAssembly runtime; the tree holds no plugin host and no example plugin; the capability record reads the plugin-lifecycle critical path as retired with the surface, not regressed; the engine's gate is green without it.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-105",
+      "title": "Workspace detection is gone",
+      "requirement": "the engine reads no project folder; one engine watches one product: its incidents live in its one store and are told apart by the check and the service alone; nothing takes the workspace key's place, and in this version a sender's token is not an incident key — the same storm sent under two tokens forms one incident; incidents are formed, kept, listed and resolved the same from wherever the engine is started",
+      "observed_gap": "`crates/workspace-detector` reads the directory the application was started in; incidents are keyed by the workspace it detects (the registry's cooldown key, `incidents.workspace` and three `WHERE workspace` queries, a key file published for the sidecar).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The engine reads no project folder; started from two different directories against the same stores it forms, keeps, lists and resolves the same incidents; storms that differ by check or by service form separate incidents, and the same storm sent under two tokens forms one; nothing stands where the workspace key stood.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-106",
+      "title": "The training export is gone",
+      "requirement": "no export exists and nothing the engine writes lands outside its own stores",
+      "observed_gap": "`pulse-app/src/training_export.rs` and its route write incidents to the user's Downloads folder for model training.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "No export of incidents exists among the engine's commands or the door's answers; after a full run every file the engine wrote lies inside its own stores.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-107",
+      "title": "The engine reaches a node",
+      "requirement": "the engine is delivered as one Linux binary with a documented way to run it as a service; on a clean node the documented steps give an engine that runs, comes back after a restart and receives telemetry; the binary comes with a checksum, and the documented steps verify it",
+      "observed_gap": "the only delivery is the desktop bundle R8 removes, and its signing goes with it.",
+      "verification": {
+        "method": "e2e",
+        "acceptance": "On a clean Linux node the documented steps verify the binary's checksum, put the one binary in place and run it as a service; the engine runs, comes back after the node restarts and receives telemetry.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-108",
+      "title": "The bridge leaves the engine's crates",
+      "requirement": "no engine crate carries a feature, a derive or a dependency that exists for an IPC bridge; the engine's configuration is the engine's own and holds no key about an interface; the bridge crate is gone",
+      "observed_gap": "`tauri` itself is declared only by `pulse-app` and optionally by `crates/ui-bridge` (5 files, about 4800 lines), but the bridge's types reach into the engine: the ingest and triage crates carry a default-on `taurpc-runtime` feature with `specta` derives, `crates/viz` depends on `specta` unconditionally, and the engine's own configuration schema (`Settings`) lives in the bridge crate, read by `crates/config-watcher`, with keys for a theme, a widget position, always-on-top and a snapshot preset. R1's first clause would be met without touching any of this.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "No engine crate carries a feature, a type derive or a dependency that exists for an IPC bridge, and the bridge crate is absent; the engine reads its configuration from its own definition, which holds no key about an interface, and a configuration change still takes effect while the engine runs.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-109",
+      "title": "What was computed only to be shown is gone",
+      "requirement": "the engine does no work whose only reader was the window: no stream topic, no per-batch encode for a subscriber that does not exist, no display state; the service registry's liveness truth stays engine state",
+      "observed_gap": "the buffer encodes every batch to Arrow IPC and broadcasts it on thirteen `pulse://stream/*` topics whose only production subscriber is the window's channel (`pulse-app/src/streams.rs:36-48`); triage computes state for display alone — the effective tier for the halo (`crates/triage/src/incident/tier_effective.rs`), the constellation metrics, the discovery observer.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "With telemetry flowing, the engine publishes no stream topic, encodes no batch for a subscriber that does not exist and computes no display state; the service registry still tells a live service from one that went quiet, and detection is unchanged.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-110",
+      "title": "The digest is gone",
+      "requirement": "the engine builds with no network access and no tokenizer; it assembles no prompt, counts no tokens and archives no digest; the digest archive table is gone; the search for similar past incidents is kept and lives where incidents live; the half-hour rate defect is closed by the code's removal, not carried",
+      "observed_gap": "`crates/triage/src/digest/` (6 files, about 2800 lines) assembles a token-budgeted text — budgets of 500, 2000 and 3000 tokens, an embedded Llama-3 tokenizer, a last-write-wins queue, a damper against standing GPU load — and broadcasts it. Its subscribers are the model and a persister that writes every digest to the corpus table `digest_archive`, which nothing reads. The triage crate downloads that tokenizer from a third-party host at first build (`crates/triage/build.rs`). The recorded defect \"the half-hour digest's rate is divided by a literal 60\" (`.andromeda/residuals.md:27`) lives in this code.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The engine builds with no network access and no tokenizer; while running it assembles no prompt, counts no tokens and archives no digest, and its incident store holds no digest archive; an incident still comes with the incidents like it from the past, found where incidents live; the half-hour rate defect cannot occur because the code that computed it is gone.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-111",
+      "title": "The cadence coordinator is gone",
+      "requirement": "nothing in the engine decides when a model should run; no hardware profile, tier or reflection cadence remains, no configuration key for one, and no handle to one in the cue emitter",
+      "observed_gap": "`crates/triage/src/cadence/` (4 files, about 1600 lines) has four modes — three tiers and a 1800 s \"reflection\" — and a gate on a GPU/CPU hardware profile. A cycle runs seven aggregation queries, keeps only whether each succeeded (`coordinator.rs:190`), and sends a trigger for the digest. None of it serves detection, but the cue emitter is handed its trigger channel (`crates/triage/src/cue/emitter.rs:399-402`).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "Nothing in the running engine decides when a model should run: no hardware profile, tier or reflection cadence exists, no configuration key names one and the cue emitter holds no handle to one; every check still fires on its own evidence as before.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-112",
+      "title": "An incident is the engine's own record",
+      "requirement": "an incident stores what the engine knows (which check found it, in which service, since when, after which version, which errors, which evidence by identifier) and nothing shaped as a model's answer; one report form exists, the one P-099 describes, and the old renderer is gone; a store written by 0.3.0 is not read: the engine on a node starts from its own empty stores",
+      "observed_gap": "an incident's content is a field holding the model's `L4Output` as JSON (`crates/triage/src/contract.rs:462`); its title and detail are the model's; the report an agent retrieves renders the model's sections — hypotheses, investigation steps, project context, a resolution summary — and a `degraded_mode` flag that would read true for every incident once no model runs (`crates/interpretation/src/markdown.rs`, `crates/mcp-server/src/tools.rs:366-392`).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A newly formed incident, read back, states which check found it, in which service, since when, after which version, with which errors and which evidence by identifier, and carries nothing shaped as a model's answer; exactly one report form exists and the old renderer is gone; an engine started beside a store written by 0.3.0 does not read it and starts from its own empty stores.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-113",
+      "title": "The other operating systems are gone from the code",
+      "requirement": "the tree builds, tests and runs on Linux alone and holds no branch, script, link hint or workaround for another operating system; CI has no leg for one",
+      "observed_gap": "seven `.ps1` files (754 lines); the `wsl.exe` hop in `xtask/src/pre_push.rs`; five `pwsh`/`powershell` spawns in `xtask`; Windows path handling (`\\\\?\\`) in `crates/config-watcher`; `rstrtmgr` link hints in three build scripts; an MSVC linker override in `.cargo/config.toml`; `[lib] test = false` in `pulse-app/Cargo.toml`, a WebView2 workaround; data-directory names for Windows and macOS in five source files; Windows and macOS legs in three CI jobs.",
+      "verification": {
+        "method": "by-construction",
+        "acceptance": "The tree builds, tests and runs on Linux alone; it holds no branch, script, link hint or workaround for another operating system; every CI job runs on Linux only and is green.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 (2026-10-09-ci-on-linux-alone, phase P5): not claimed by this chunk — not provable by it alone. The chunk makes the CI clause true (every job of the `ci` workflow runs on `ubuntu-22.04`; the `release` job, which had no Linux leg, leaves) and leaves the cap pooled. The rest of the acceptance, a tree with no branch, script, link hint or workaround for another operating system, is carried by three later entries: `Pre-push check native on Linux`, `One place on a node` and `Other operating systems retired from the code`. Read at this chunk's P3: 61 conditional-compilation lines in 24 Rust files still name Windows or macOS, and after this chunk no CI job compiles their other-system arms. `release.yml` still runs a three-system matrix; it leaves at `Desktop distribution retired` (P-114).\n\n2026-10-10 (2026-10-09-pre-push-check-native-on-linux, wrap P7.3): one item of the observed gap is removed — the `wsl.exe` hop in `xtask/src/pre_push.rs`. The two files that held it contain no `wsl` in any letter case (`cat xtask/src/pre_push.rs xtask/src/main.rs | grep -i -c wsl`: exit 1, last line 0, at implement and again at this wrap's light gate). The capability stays pooled on the operator's word (the pc overseer, 2026-10-10, the chunk's inputs#I2 item 7); the rest of its acceptance is carried by `One place on a node` and `Other operating systems retired from the code`."
+    },
+    {
+      "id": "P-114",
+      "title": "The desktop's distribution is gone",
+      "requirement": "no workflow, runbook, test or bot configuration for a desktop bundle, an updater, a package channel or an npm tree remains; the two external channel repositories, `turbolet85/homebrew-andromeda-pulse` and `turbolet85/scoop-andromeda-pulse`, are the founder's to retire by hand and are named on the card",
+      "observed_gap": "`release.yml` builds desktop bundles for three systems; `update-channels.yml` (411 lines) publishes to a Homebrew tap and a Scoop bucket; two runbooks describe the release environment and the updater's key rotation; a test pins the channel manifests; the dependency bot watches an npm tree.",
+      "verification": {
+        "method": "by-construction",
+        "acceptance": "The tree holds no workflow, runbook, test or bot configuration for a desktop bundle, an updater, a package channel or an npm tree; the removing chunk's card names the two external channel repositories for the founder to retire by hand; the engine's own gate is green without them.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-115",
+      "title": "The log allowlist describes this engine",
+      "requirement": "every allowed log target is one the engine can emit; none names a window, a model, a digest, a tray or a plugin",
+      "observed_gap": "`pulse-app/src/observability.rs` allows 215 log targets by name; by their names at least 35 are the window's and 42 the model's or the digest's; eighteen tests pin them.",
+      "verification": {
+        "method": "unit",
+        "acceptance": "Every log target the allowlist admits is one the running engine emits, and none names a window, a model, a digest, a tray or a plugin.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-116",
+      "title": "The records say what the product is",
+      "requirement": "every record a newcomer or an agent reads first describes a console engine on its own node, for one developer with one product; no rule instructs what this version removes or forbids what it adds; what describes 0.2–0.3 is either gone or marked as the history of those versions; the security master's tier, auth model and attack surface are restated for a networked engine with stores on disk, no later than the chunk that opens the network receiver, and what follows is built to the restated tier",
+      "observed_gap": "`.andromeda/input.md`, `andromeda-pulse-product-description.md`, `.andromeda/project.yaml` and architecture §Project Intent call the product a cross-platform desktop dashboard — \"Not a web app, not a CLI\"; `CLAUDE.md` opens \"Cross-platform Tauri 2 desktop dashboard\"; three `.claude/rules` files are scoped to the webview; the security rule an agent always loads says the receivers \"MUST bind to 127.0.0.1 only … no auth model\", which contradicts F2; `docs/v0_2_0/` (seven files, about 5200 lines) describes the local-model product as current. The security master rests its tier, `Minimal (0)`, on \"no persistent user data store\", \"no internet-exposed network surface\" and \"no user authentication surface\" (`.andromeda/security-plan.md:22-24`), and calls that tier the single source of truth for how much rigor later work carries (`:109`); F2, F2b and F5 end all three.",
+      "verification": {
+        "method": "manual",
+        "acceptance": "Each record a newcomer or an agent reads first describes a console engine on its own node, for one developer with one product; no rule instructs what this version removes or forbids what it adds; what describes 0.2 and 0.3 is gone or marked as the history of those versions; the security master states its tier, auth model and attack surface for a networked engine with stores on disk, restated no later than the chunk that opens the network receiver, and the work after it is built to that tier.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-117",
+      "title": "The capability record is re-based",
+      "requirement": "one current record says, id by id for all 82, whether the engine still claims the capability or it was retired with the window, the model or the desktop; the old gate carries no retired id; that record is what the external harness syncs its accepted set to",
+      "observed_gap": "82 capabilities stand as claimed, in two records: P-001…P-060 in `docs/v0_2_0/pulse-capability-spec.md` with a gate over `capability-verification-matrix.json`, P-061…P-082 in `andromeda-pulse-0.3.0/verification-matrix.json`; many of the first sixty are about the window (the halo, the constellation, the report's render surface, the findings counter) or the model (the severity tiers, the hypotheses, the degraded mode, the project context). The external harness pins its accepted set to these 82.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "One current record lists all 82 capabilities, each either still claimed by the engine or retired with the window, the model or the desktop; the old gate passes while carrying no retired id; the external harness's accepted set equals that record.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-10 (2026-10-10-capability-record-re-based, phase P5): advanced by this chunk, not claimed. The chunk plans the first two clauses of the acceptance: one current record, docs/capability-record.json, for all 82 ids (36 claimed, 46 retired), and the old gate reading it while validating the proofs of claimed ids only. The third clause, \"the external harness's accepted set equals that record\", is not provable by this chunk: Conductor's pin still names all 82 and its entry \"Accepted capability set re-based\" runs after this one (read in Conductor at 321dc8f); the working entry \"Version close on Linux\" carries that leg. On the operator's answer at P4 (the pc overseer, 2026-10-10) the record names six surface words where this acceptance names three: workspace, training-export and corpus-encryption are added for P-043, P-046, P-049 and half of P-079, and \"desktop\" has no member among the 82. Four ids (P-030, P-040, P-048, P-050) are claimed in a changed form, PROVISIONAL until the founder's own word."
+    },
+    {
+      "id": "P-118",
+      "title": "The engine has one place on a node",
+      "requirement": "the operator says where the engine keeps its stores, its log and its pid, and there is one documented default for a service; one piece of code resolves it; the stores, the log, the pid and any token material are readable by the engine's owner alone",
+      "observed_gap": "stores, log and pid resolve under the user's home or configuration directory, by a resolver written more than once (five source files carry its directory names; the sidecar has its own, `crates/mcp-server/src/bin/andromeda-pulse-mcp.rs:28`). Nothing states who may read them.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The engine keeps its stores, its log and its pid where the operator says, and at one documented default when run as a service; every part of the engine finds that place through one piece of code; another account on the node cannot read the stores, the log, the pid or any token material.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-119",
+      "title": "Every aggregation has a consumer",
+      "requirement": "at the end of this version each of the seven aggregation queries either feeds a check, a report or a door answer the intent names (per-operation for P-097, high-severity logs for P-096, caller→callee and critical path for P-094) or is gone; none runs for nothing",
+      "observed_gap": "seven aggregation queries exist (`crates/triage/src/baseline/sql.rs`: per-service rate/errors/latency, per-operation, exception fingerprints, caller→callee, cardinality, high-severity logs, critical path). Their only production callers are the coordinator, which discards the rows, and the digest assembler, which uses two; two of them reference a parent column the table does not have.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "At the version's close each of the seven aggregation queries is traced to a check, a report or a door answer the intent names, or is absent from the tree; none executes without a reader of its result.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-120",
+      "title": "A push to `main` reads green",
+      "requirement": "the supply-chain job ends the same on a push as on a pull request; it fails on a finding and never on its own reporting; the repair is witnessed where the defect shows",
+      "observed_gap": "CI run `37907730264` on `60ef43c`, the push the merge of PR #39 made, ended failure in the `supply-chain` job: `rustsec/audit-check` is denied a check run under `permissions: contents: read` (`ci.yml:8-9`, `:493-496`); on a pull request the same denial prints \"Unable to publish audit check!\" and passes, so a green pull-request run does not witness a repair.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The push run on `main` that the founder's merge of the repair's pull request makes reads green in the `supply-chain` check, its `cargo audit (RustSec advisory DB)` step `success`, and its job log holds cargo audit's own scan line and no `Resource not accessible by integration`; on the pull-request run of the build branch the `supply-chain` check is green on the same repair, its audit step `success`; both runs are named by id. The step is `run: cargo audit` with no action, no token input and no soft-fail, and the job carries no `permissions:` key, held by a probe over the parsed workflow and by the test `ci_workflow_audit_step_is_a_plain_run_step`, so nothing the step does depends on the event or on publishing a report. `cargo audit --file` on a control lockfile naming a crate with a published vulnerability ends 1 and names a distinct `RUSTSEC-` id, on the dev host with the cargo-audit version the runner image lists; that is the witness that the step still fails on a finding.",
+        "ref": "pulse-app/tests/quality_gate_workflow.rs::ci_workflow_audit_step_is_a_plain_run_step · witness: push run ci#37964887106 on main 178ebac (the founder's merge of pull request #41) — supply-chain check green, audit step success, job 113936654152 log holds the scan line 1x and the check-run denial 0x (read with --allow-escape-sequences; plan entries 40-41 as written read an empty stream) · build-branch pull-request run ci#37961031489 on f36a2ac — supply-chain job and audit step success, the run as a whole RED in boot smoke alone (the watch), so \"green\" holds for the repaired check, not for the run · red control: cargo audit --file evidence/audit-control.lock ends 1 naming RUSTSEC-2020-0071, dev host, cargo-audit 0.22.2 · record: andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/evidence/operator-pass.md",
+        "status": "verified"
+      },
+      "chunk": "2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+      "notes": "2026-10-09 (2026-10-09-supply-chain-job-same-on-push-and-pull-request, phase P5): concretized at the claim. The witness is read on `main` itself, on the founder's ruling of 2026-10-09 (by dialog; relayed verbatim by the pc overseer; the chunk's inputs#I3): a separate pull request carries the repair to `main`, he merges it, and the push run his merge makes is the witness. A plan first read at P5 placed the witness on a side ref through a new trigger; it was withdrawn before approval. The red control is local to the dev host, accepted by the operator at the same review. The coordinate `ci.yml:493-496` in `observed_gap` is the step's place on `main` (`60ef43c`); on the build branch it stood at `ci.yml:426-429` at `b3e5859`. Plan approved by the operator's `yes` in the session, 2026-10-09.\n\n2026-10-09 (2026-10-09-supply-chain-job-same-on-push-and-pull-request, wrap P7.3): PREMISE-CORRECTION, an individually ratified refinement. The concrete form written at P5 said \"the pull-request run of the build branch is green on the same repair\". Measured: `ci#37961031489` on `f36a2ac` (the build branch, event `pull_request`) is red in `boot smoke (ubuntu-22.04)` alone; its `supply-chain` check and its `cargo audit (RustSec advisory DB)` step are `success`. The clause now reads on the supply-chain check of that run, as the requirement does (its subject is the supply-chain job) — ratified by the operator (the pc overseer, founder-delegated), 2026-10-09, relayed by the pc overseer (the chunk's inputs#I5 item 2): not a weakening, and the run's red is not hidden by it — it is owned by the route entry \"Boot smoke's early exit found and closed\" (P-129). The witness stands unchanged: `ci#37964887106`, event `push`, on `main` at `178ebac` (the founder's own merge of pull request #41), green in `supply-chain`, audit step `success`, twelve of twelve jobs `success`. The two log clauses were read with `gh api --allow-escape-sequences …/logs` saved to a file (scan line 1, denial 0): the plan's own log-read entries read an empty stream and are not the evidence."
+    },
+    {
+      "id": "P-121",
+      "title": "No survivor",
+      "requirement": "at the close, the question the intent was assembled from is asked again of the tree (what stands that exists only for the window, the local model, the desktop, another operating system, the plugins, the workspace or the training export, and what runs with no consumer) and the answer is nothing",
+      "observed_gap": null,
+      "verification": {
+        "method": "manual",
+        "acceptance": "At the close the audit question is asked of the tree again: what stands only for the window, the local model, the desktop, another operating system, the plugins, the workspace or the training export, and what runs with no consumer; the recorded answer is nothing.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-122",
+      "title": "The door answers the engine's memory use and the size of its stores",
+      "requirement": "the door answers, as part of the engine's own state, the engine's current memory use and the current size of its stores; the answer is read-only and bounded like every other answer of the door, so a reader outside the engine's process needs no file and no process of the engine's to learn either figure",
+      "observed_gap": "P-093 lets the door read \"the engine's own state\" and P-092 lists telemetry, one incident whole and the curated snapshot; no route entry says the door offers the engine's memory use or the size of its stores — `Engine memory measured` and `Disk store measured under load` are the engine's own readings — while the external harness's long run reads both figures through the door over hours (Conductor `v4-21`).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A reader that has only the door asks for the engine's own state and is answered the engine's current memory use and the current size of its stores; the figures agree with what the engine measures of itself; the answer changes nothing and is bounded in size and time like every other answer of the door.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item A.1: the external harness's long run reads the engine's memory use and its database's size through the door, Conductor `v4-21`). Read as inside P-093's own list of what the door reads (\"the engine's own state\"), not a widening. The acceptance clause \"the figures agree with what the engine measures of itself\" is the wrap's wording beyond the relay, kept on the word. Taken by the new Epoch 6 route entry `Engine's own state through the door`. word: \"write it. 1 P-122 as the new entry in Epoch 6, as you recommend. […] Your three added clauses stay.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-123",
+      "title": "Each raised notification's record is read through the door",
+      "requirement": "the record each raised notification leaves is readable through the door, as part of the engine's own state: one record per raise, read-only and bounded like every other answer of the door",
+      "observed_gap": "`System notification on a change of state` says each raise \"leaves a record a check reads\" and does not say through what; no entry says the door offers that record, while the external harness's check of Theme 5 reads the status line, the report and that record through the door (Conductor `v4-12`).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "After the engine has raised notifications, a reader that has only the door obtains exactly one record for each notification raised; each record tells which change of state it was raised for and when; the answer changes nothing and is bounded in size and time like every other answer of the door.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item A.2: the external harness's check of Theme 5 reads the status line, the report and the record of each notification through the door, Conductor `v4-12`). P-093's list of what the door reads (telemetry, incidents, reports, the engine's own state) does not name the notification record; that the record is the engine's own state is recorded PROVISIONAL on the operator's word and was not halted on — a boundary widening, if the founder reads it as one, is ratified only by his own word. The acceptance clause \"which change of state it was raised for and when\" is the wrap's wording beyond the relay, kept on the word. Taken by the route entry `System notification on a change of state` (a `CARRY:` naming this id). word: \"2 P-123 recorded PROVISIONAL on the operator word; do not halt. […] Your three added clauses stay.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-124",
+      "title": "The channel's private key is renewed in a stated way",
+      "requirement": "how the encrypted channel's private key is renewed is stated beside who terminates the channel and where the key lives: who renews it and by what steps; a renewed key lives where P-088 says the key lives — never in a store the door reads, never in a log — and telemetry is received over the encrypted channel after a renewal as before it",
+      "observed_gap": "`Network OTLP receiver behind the token` says \"termination, key custody, renewal stated\"; P-088 states the channel's termination and the key's custody only.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The way the channel's private key is renewed is stated, with who does it; a renewal carried out by those steps leaves a sender on another host still delivering over the encrypted channel, and the renewed key appears in no store the door reads and in no log.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item B.1: the route entry `Network OTLP receiver behind the token` says \"termination, key custody, renewal stated\" while P-088 states termination and custody only). It rests on P-088, whose text beyond its token and its channel is PROVISIONAL until the founder's own word. The clause \"telemetry is received over the encrypted channel after a renewal as before it\" is the wrap's wording beyond the relay, kept on the word. Taken by that route entry (a `CARRY:` naming this id). word: \"write it. […] Your three added clauses stay. All six ids, the seven route edits and the watch as on the card.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-125",
+      "title": "A telemetry store written by another build is recognised",
+      "requirement": "a telemetry store written by another build of the engine is recognised as such when it is opened, and is then carried forward or refused by a stated rule; it is never read as if the running build had written it",
+      "observed_gap": "the route entry `Disk store opened across builds` cites P-091, whose text has no such rule.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "An engine that opens a telemetry store another build wrote recognises it; by the stated rule it either carries the store forward, and what was received before is still readable, or refuses it and says so; in neither case is the store's content misread.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item B.2: the route entry `Disk store opened across builds` cites P-091, whose text has no rule for a store written by another build). Taken by that route entry (a `CARRY:` naming this id); the entry's own id list still reads `(P-091)`. word: \"write it. […] All six ids, the seven route edits and the watch as on the card.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-126",
+      "title": "Only the engine's owner calls the door's first form",
+      "requirement": "until the door can be reached from another host, only the engine's owner on the engine's host can call it; a call by another account on that host is refused",
+      "observed_gap": "`Door inside the engine's process` carries \"owner only\" on P-118's authority; P-093 says \"on the engine's own host only\".",
+      "verification": {
+        "method": "integration",
+        "acceptance": "Before the door can be reached from another host, a call by the engine's owner on the engine's host is answered and a call by another account on the same host is refused.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item B.3: the route entry `Door inside the engine's process` carries \"owner only\" on P-118's authority while P-093 says \"on the engine's own host only\"). It rests on P-093, PROVISIONAL until the founder's own word, and on P-118, where who may read the engine's place is PROVISIONAL the same way. Taken by that route entry (a `CARRY:` naming this id). word: \"write it. […] All six ids, the seven route edits and the watch as on the card.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-127",
+      "title": "The release environment and its secrets are named for the founder",
+      "requirement": "the card of the chunk that retires the desktop's distribution names the release environment and every secret name the two distribution workflows read, for the founder to retire by hand; the chunk deletes nothing outside the tree",
+      "observed_gap": "`Desktop distribution retired` ends \"release environment, secret names listed for the founder\"; P-114's acceptance names the two channel repositories only. Measured 2026-10-09 at `b3ac58a`: both workflows run under the environment `production-release`; `release.yml` reads 14 secret names and `update-channels.yml` two push tokens beside the automatic `GITHUB_TOKEN`.",
+      "verification": {
+        "method": "manual",
+        "acceptance": "The removing chunk's card names the release environment and every secret name the bundle workflow and the channel workflow read, none missing against the two workflows as they stood before the removal; the founder retires them by hand; the chunk deletes nothing outside the tree.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item B.4: the route entry `Desktop distribution retired` ends \"release environment, secret names listed for the founder\" while P-114's acceptance names the two channel repositories only). Measured 2026-10-09 at `b3ac58a`: `release.yml` and `update-channels.yml` both run under the environment `production-release`; `release.yml` reads 14 secret names, `update-channels.yml` two push tokens beside the automatic `GITHUB_TOKEN` — a count for the claiming chunk to re-read, not the list. Taken by that route entry (a `CARRY:` naming this id). word: \"write it. […] All six ids, the seven route edits and the watch as on the card.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-128",
+      "title": "No CI step reads nothing",
+      "requirement": "every comparison a CI job makes has a producer for the baseline it compares against, or the comparison is gone; every upload a CI job makes finds its file, or the upload is gone",
+      "observed_gap": "The three pull-request baseline downloads have no producer in any workflow, and the `logs-Linux`, `nextest-Linux` and `criterion-Linux` uploads find no file (the operator's wrap directive of 2026-10-09; read on `ci#37934330231` and `ci#37945548047`).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "On the pull-request CI run of the tree's final pushed commit for chunk 2026-10-10-no-gate-stands-while-reading-nothing, named by its run id in that chunk's evidence/operator-pass.md: (a) every comparison against a baseline reads a baseline produced by a workflow or committed in the tree, or the workflow no longer makes that comparison: `ci.yml` holds no download step and the `a11y` job's comparison is green over the baseline committed in the tree; (b) every upload uploads a file, or the workflow no longer makes that upload: the run holds exactly the six artifacts `a11y-violations-Linux`, `capability-drift-Linux`, `coverage-linux`, `logs-boot-Linux`, `logs-perf-samples-Linux` and `playwright-a11y-report-Linux`; (c) no gate stands while reading nothing: the run's verdict is green; across its six job logs no line reads NEUTRAL, \"trivially passes\", a `Branch:` percentage or a pass-on-empty test flag; the coverage step prints a line percentage and a function percentage, each over a non-zero total; each nextest step of the `lint-test` job runs at least one test; in the `boot` job `cargo xtask ci-gates` prints its record-count PASS line over at least one record and its panic PASS line, and no heartbeat or perf-budget line; the quarantine check prints PASS with the count of files it scanned. And in the tree at that commit each gate that is kept has a committed pin that is red on an empty or absent input and green on a full one: a coverage report tracking no line or no function, a test selection that is empty, a log family that is absent, a search root that is absent (the workspace suite passes with them, and the chunk's evidence holds the red reading of each).",
+        "ref": "ci#38042949735 (pull_request, attempt 1) on the pushed tip d99d2dcb, merge commit 45ea78a7eb66, read at the operator pass 2026-10-10 (andromeda-pulse-0.4.0/chunks/2026-10-10-no-gate-stands-while-reading-nothing/evidence/operator-pass.md; every gating step with its line in evidence/gate-census.md): the CI read printed `verdict: green · checks 7/7` · plan entry 29: exactly the six artifacts · entry 30: `6 0` (six job logs, no line reading NEUTRAL, \"trivially passes\", a `Branch:` percentage or the pass-on-empty flag; control `6 9` on ci#38038281709) · entry 31: `1 1` (Line 33992/38252, Function 3565/4055) · entry 32: `1 1 0` (`ci-gates: zero-spans PASS (110 log records across 1 file(s))`, `ci-gates: zero-panic PASS`, no heartbeat or perf-budget line) · entry 33: `1 1 3` (`quarantine-tracking-check: PASS (0 quarantine(s) across 312 file(s))`; the three lint-test nextest steps ran 2908, 1 and 1 tests) · `ci.yml` holds 0 download steps and the a11y job read `no new violations vs baseline (0/0)` over the tree baseline · pins in the tree at that commit, green in the run's 2908-test suite and each read red on an empty or absent input (evidence/red-before.md, evidence/mutation-checks.md): pulse-app/tests/quality_gate_workflow.rs::coverage_thresholds_step_fails_on_a_report_tracking_nothing · pulse-app/tests/quality_gate_workflow.rs::ci_workflow_nextest_runs_fail_on_an_empty_selection · xtask/src/main.rs::empty_input_tests::every_nextest_argument_list_fails_on_an_empty_selection · xtask/src/ci_gates.rs::tests::an_absent_log_dir_cannot_be_evaluated · xtask/src/main.rs::empty_input_tests::quarantine_check_fails_when_no_search_dir_exists",
+        "status": "verified"
+      },
+      "chunk": "2026-10-10-no-gate-stands-while-reading-nothing",
+      "notes": "2026-10-09 — added at the 2026-10-09-ci-on-linux-alone wrap, on the operator's ruling at its route-resolve card: \"MINT one entry in Foundation directly after Pre-push check native on Linux - every CI comparison has a producer for its baseline or is gone, every upload finds its file or is gone - with a new requirement by the letter requirement-add path (operator word, pc overseer, founder-delegated), since no id fits: a gate that reads nothing must not stand while two epochs of removals lean on it\" — the pc overseer as operator, founder-delegated, 2026-10-09. A new requirement is a fork the operator owns, so this entry is PROVISIONAL until the founder's own word. Its route entry is \"No CI step reads nothing\" (Epoch 1, directly after \"Pre-push check native on Linux\"). Two findings of the same kind are carried by other entries on the same ruling: the a11y job's baseline download on \"Window's gates retired\" and the `logs-Linux` upload on \"Engine end-to-end gate reachable\".\n\n2026-10-10 (2026-10-10-no-ci-step-reads-nothing, phase P5): not claimed by this chunk — not provable by THIS chunk. The chunk settles every baseline comparison and every upload of the ci workflow: the criterion and coverage comparisons are gone with their downloads; the a11y download is gone and its comparison stays, reading the baseline committed in the tree and failing when that file is absent; the three uploads that found no file are gone, and the six that stay fail their step on no file. The acceptance's closing sentence, \"No gate stands while reading nothing\", stands as written and reaches five gates that are neither comparisons nor uploads, read on ci#38031822696 and ci#38026637514 attempt 1: the coverage branch arm passing over 0/0; the thresholds step's zero-line arm; `--no-tests=pass` on three test invocations; `ci-gates` in the boot job reading `perf-budget NEUTRAL` and a 0 ms heartbeat gap; and no zero-span check in the lint-test job. At this chunk's wrap the entry that closes the sentence is minted first in the tail, carrying those five gates each with its measured reading, and P-128 is claimed there. For that claim, the operator's reading: a baseline committed in the tree at the commit under test has a producer, the tree, and the comparison reads it; the acceptance is concretized to \"produced by a workflow or committed in the tree\", its wording having been narrower than the requirement line. Word: the operator, the pc overseer, 2026-10-10, at this chunk's P4 dialog (its inputs#I2 items 3 and 4).\n\n2026-10-10 (2026-10-10-no-gate-stands-while-reading-nothing, phase P5): claimed by this chunk, on the operator's `yes` at its P5 review (the operator, the pc overseer, 2026-10-10, given in the session). The acceptance was concretized, its three clauses unchanged in outcome: all three are read on one named pull-request run; clause (a) takes the operator's reading \"produced by a workflow or committed in the tree\" (the pc overseer, 2026-10-10; 2026-10-10-no-ci-step-reads-nothing's inputs#I2 item 3); clause (c) is read as every step of `ci.yml` whose exit decides a job reading a non-empty input on that run, with a committed pin per kept gate that is red on an empty or absent input. What the chunk does to make (c) true, on the operator's answers at its P4 dialog (its inputs#I2): an empty coverage report fails and the coverage step's branch arm is retired (the 70 % branch threshold read 0/0 on every run read, the pinned toolchain writing no branch count; the retirement is PROVISIONAL until the founder's own word, like this capability); every nextest invocation fails on an empty selection; `cargo xtask ci-gates` keeps its record-count and panic arms, exits 2 on an absent log, and no longer runs the heartbeat and perf-budget arms that could not fail on the boot job's log; the quarantine check fails on an absent input. Outside the sentence, each with an owner and a stated reading: the a11y upload's three path members (5 files on ci#38038281709; one member missing beside a matching one never read on a runner; owner `Window's gates retired`), and the sixth stage of `cargo xtask pre-push:linux`, which runs `ci-gates` over one record it wrote itself and is not a step of a CI job, which is what P-128 is about (the operator's word, inputs#I2 item 4; owner `Agent harness drives the console engine`)."
+    },
+    {
+      "id": "P-129",
+      "title": "The boot smoke's verdict follows the tree, not the run",
+      "requirement": "the CI boot smoke ends the same on equal source: the cause of the app ending by itself shortly after ready on the runner is found and closed, and the job no longer reads red where nothing it builds changed",
+      "observed_gap": "boot smoke (ubuntu-22.04) read red on 2 of 7 runs of 2026-10-09 on source its job does not distinguish (ci#37924991598 on b3ac58a, ci#37961031489 on f36a2ac): boot printed ready and status read the app ended with exit 1 within 0.7 s; the two red application logs hold no record the green logs lack and no app.exit record",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The cause of the early exit is named from what two runs kept: every `end` line of `ci#38019133294` and `ci#38022477393` (twelve, equal in every member but `pid` and `tid`) resolves, in Ubuntu's `libx11-6 1.7.5-1ubuntu0.3`, to Xlib's exit for a request that got neither a reply nor an X error, reached from GDK on the main thread; the cause behind it, Xlib used from two threads with its thread support never initialised, is shown by a variation on that same Xlib build (without the initialisation the boots self-end, with it none does), recorded in the chunk's evidence. It is closed by `XInitThreads()` called as the second statement of `main` on Linux, after the render-posture step and before any thread exists. With it closed, the boot smoke reads green on three consecutive attempts of one pull-request run of equal source (one merge commit): each attempt's CI read prints `verdict: green`, its kept `boot-series.json` reads `all-settled` with `\"settled\": 7`, its smoke's settle verdict reads `settled`, no kept witness file holds an `end` line, and its `boot` job log holds the `ci-gates` frame line; 24 boots in all, against 12 of 16 boots self-ended on the two runs before the change. A run in which the app ends by itself says why in what the job keeps: after ready by the settle verdict's `exit_witness` label, and before ready by the series entry's exit record and `exit_witness` label, pinned per arm in `harness_series::tests` and read on a boot with no display. A self-end in any of the three attempts leaves this unmet.",
+        "ref": "ci#38026637514 (pull_request) on the pushed tip 4e61553b, merge commit 69c81cb339a9, attempts 1, 2 and 3 consecutive, read at the operator pass 2026-10-10: each CI read printed `verdict: green` (attempts 2 and 3 with their attempt number); each kept boot-series.json reads `all-settled` with `\"settled\": 7` and its smoke's harness-settled.json reads `settled` — 24 boots, 24 settled, 0 self-ended; 24 witness files read whole, 24 lines, each file one `loaded` line, no `end` line, 0 beyond the shape; each boot job log (114138761520 · 114143085253 · 114145791548) holds the ci-gates frame line; artifacts logs-boot-Linux 11660322584 · 11660874804 · 11660978789 (expire 2026-10-24) · against 12 of 16 boots self-ended on ci#38019133294 and ci#38022477393 · record: chunks/2026-10-10-boot-smoke-s-self-end-closed/evidence/operator-pass.md · the variation on the runner's Xlib build (26 of 32 self-ended at the base, 0 of 8 on the change): evidence/swapped-library.md, plan.md ## Test Commands entry 11 · the call's place: pulse-app/tests/unit_xlib_threads.rs::main_calls_it_second_after_the_render_posture_step_and_before_the_runtime · a self-end before ready says why: xtask/src/harness_series.rs::tests::a_boot_that_ended_by_itself_before_ready_is_ended_with_its_record_and_label and the per-arm pins beside it (25, in cargo nextest run --workspace --profile ci), read on a boot with no display by plan.md ## Test Commands entry 12 · mutation checks: evidence/mutation-checks.md · not read on the runner: the before-ready read (all 24 boots reached ready)",
+        "status": "verified"
+      },
+      "chunk": "2026-10-10-boot-smoke-s-self-end-closed",
+      "notes": "2026-10-09 (2026-10-09-supply-chain-job-same-on-push-and-pull-request, wrap P5): added on the operator's word at the route-resolve card — \"P-129 approved as you wrote it (operator word, pc overseer, founder-delegated; provisional)\" — the operator, 2026-10-09 (the chunk's inputs#I7). PROVISIONAL until the founder's own word. It owns the boot-smoke watch that recurred at this chunk (red on `ci#37924991598` and `ci#37961031489`, two of seven readings) and the open gap that the boot verb reports ready before the receivers bind. Route entry: \"Boot smoke's early exit found and closed\", first in the markerless tail. Outcome-level; its claiming chunk concretizes it.\n\n2026-10-09 (2026-10-09-boot-smoke-s-early-exit-found-and-closed, phase P5): not claimed by this chunk. Its acceptance asks for a cause named from evidence a run produced and closed; no run has named one (the early exit did not reproduce on the dev host, 0 self-ends in 51 boots across three arms; the chunk's research.md). The operator ruled at P4 (the pc overseer; the chunk's inputs#I3): three consecutive green runs count only once a cause is named from a run and closed; with no named cause P-129 is not claimed whatever the count, the entry stays open, and the count of consecutive green boot-smoke runs goes on as runs come, to eleven. The chunk builds one clause without claiming it: a run in which the app ends by itself says why in what the job keeps (the settle verdict of `cargo xtask harness:settled` and the display server's own output kept in the boot job's artifact). Readings at this note: two reds in eight (`ci#37924991598`, `ci#37961031489`); `ci#37971913620` on `277d65d` green. Still PROVISIONAL until the founder's own word.\n\n2026-10-09 (2026-10-09-boot-smoke-s-early-exit-found-and-closed, wrap P7): not claimed at this wrap; no run has named a cause. The chunk landed the one clause it built, without a claim: `boot` reports ready only after both OTLP receivers accept (`cargo xtask harness:ready`), the CI smoke reads the app past its settle (`cargo xtask harness:settled`), and a run in which the app ends by itself says what the job saw in `harness-settled.json` and `xvfb.log` of the `logs-boot-Linux` artifact (read on a dev-host control with the display stopped: `ended`, `exit 1`, no `app.exit` record, display `gone`). Readings: nine of 2026-10-09, two red (`ci#37924991598`, `ci#37961031489`); the ninth, `ci#37979648967` on `e2931127`, green, its settle verdict `settled` with the app alive 5.05 s past its webview's first record — green reading 1 of a count to eleven. A pull-request run builds the branch merged with `main` (`88d5ed30` on that run; the merged tree equalled the tip's), so \"equal source\" across such runs means both tips unchanged (architecture §Infrastructure Patterns → CI/CD approach). Owner of the closing, by the operator's word at the route-resolve card (the pc overseer, 2026-10-09; the chunk's inputs#I7): a `WATCH:` on the next markerless entry, retiring at eleven consecutive green readings counted from `e2931127` or at a recurrence; on a recurrence what the job kept is read and an entry that closes the named cause is minted; its retirement by count puts this capability to the operator at that wrap's card; if \"Window's gates retired\" is taken up first, its card dispositions the watch and this capability. Still PROVISIONAL until the founder's own word.\n\n2026-10-10 (2026-10-09-pre-push-check-native-on-linux, wrap P5 and P7.3): the boot-smoke `WATCH:` retired at a recurrence. `ci#38010977166` on the pushed tip `cb8cc4d` read red in `boot smoke (ubuntu-22.04)` alone: settle verdict `ended`, `exit 1`, no `app.exit` record, the application log ending 0.072 s after the webview's first call; the third red of twelve runs of the `ci` workflow since `b3ac58a`, after three green readings from the watch's count. The run was not re-run. Owner of the closing from this wrap: the markerless entry \"Boot smoke's self-end named from a run\", minted first in the tail on the operator's word (the pc overseer, 2026-10-10, given in the chunk's inputs#I2 item 2 and again at the route-resolve card); the watch does not go on counting beside it. Its freight holds what the red job kept and what the job still does not keep. Still PROVISIONAL until the founder's own word.\n\n2026-10-10 (2026-10-10-boot-smoke-s-self-end-named-from-a-run, phase P5): not claimed by this chunk. Its acceptance asks for a cause named from evidence a run produced and closed, then a stated number of consecutive green runs of equal source. The plan names and does not close: a run can name the cause only after the operator's pre-CI commit, past which no plan revision is offered, so the operator ruled at P4 (the pc overseer, 2026-10-10; the chunk's inputs#I3) that this chunk names the cause and its closing is the next entry, minted at the wrap from the run that names it. The chunk builds one clause without claiming it: a run in which the app ends by itself says why in what the job keeps. It adds an exit witness (a library loaded into the app process alone, recording the ending call with its caller, or a named verdict for an end it cannot see), one member `exit_witness` on the `cargo xtask harness:settled` verdict, and a gating series of seven further boots per run (`cargo xtask harness:boot-series`), each recorded with its ordinal. On the dev host the instrument named `_exit(1)`, called from `libgdk-3.so.0` under Xlib's `_XIOError`, on a control with the display stopped, 2 of 2; that is a control and names nothing on the runner. Readings at this note: twelve pull-request runs of the build branch since `b3ac58a`, four red (`ci#37924991598`, `ci#37961031489`, `ci#38010977166`, and `ci#38014971549` on this chunk's base `8936f976`); under the present smoke step six readings, two red. The operator classified the kept witness file as the app's exit record, routine harness evidence, as the operator's reading and not the founder's word (inputs#I3). Still PROVISIONAL until the founder's own word.\n\n2026-10-10 (2026-10-10-boot-smoke-s-self-end-named-from-a-run, wrap P7.3): not claimed at this wrap; the cause is not closed. One clause of the acceptance was shown by a run, and for some boots only: \"a run in which the app ends by itself says why in what the job keeps\". On `ci#38019133294` (attempt 1, pushed tip `925be35f`, the merge it built `ab6a1ae6`; red in `boot smoke (ubuntu-22.04)` alone, not re-run) seven of eight boots ended by themselves and one settled. For ordinals 1, 2 and 8 the settle verdict reads `ended`, `exit 1`, `exit_witness` `exit-call`. For all seven the kept witness file names the ending call: `_exit(1)`, `errno` 11, on the main thread, from a static function of `libgdk-3.so.0` entered from Xlib's `_XIOError`, under `_XReply`, `XGetWindowProperty` and `gdk_x11_screen_supports_net_wm_hint`; the seven lines are equal but for the process and thread ids. For ordinals 3, 4, 5 and 7, which ended before the boot verb read ready, the series verdict carries no label (it counted them `other`); the line is in each boot's own file. Not shown: why the X connection's read failed, so the acceptance's first clause, a cause named from a run, is met only as far as the ending call and its callers; the closing; any count of green runs of equal source. Limits: the instrument's reading on green boots on the runner is one boot; seven of eight under the instrument against four of twelve first boots before it is not attributed. Readings at this note: thirteen pull-request runs of the build branch since `b3ac58a`, five red. Owner of the closing from this wrap: the markerless entry \"Boot smoke's self-end closed\", minted first in the tail on the operator's word (the pc overseer, 2026-10-10; the chunk's inputs#I4 item 2, and at the route-resolve card); its first step is to count every self-end with its label. The classification of the exit-witness arm is PROVISIONAL in security-plan, awaiting the founder's own word. Still PROVISIONAL until the founder's own word.\n\n2026-10-10 (2026-10-10-boot-smoke-s-self-end-closed, phase P5): claimed by this chunk on the operator's `yes` (the pc overseer). The acceptance was outcome-level and is concretized here. What research measured: both red runs hold the same ending line (`ci#38019133294`, 7 of 8 boots; `ci#38022477393` on `95d17008`, 5 of 8), and its three Xlib frames are exact return addresses in Ubuntu's `libx11-6 1.7.5-1ubuntu0.3`, at Xlib's no-reply exit. The cause behind it is in the app: it uses Xlib from two threads (GTK's main thread and the device-event thread `tao 0.35.0` starts on X11) and never initialises Xlib's thread support; the runner's Xlib 1.7.5 does not do that at load and the dev host's 1.8.13 does. On the dev host with the runner's Xlib package swapped in, 26 of 32 boots self-ended with the runner's call chain across four series; with `XInitThreads()` called first in the app process, 0 of 8; under a debugger the connection reports no error at the stop, so no side ended it and `errno` 11 is stale. The operator ruled at P4 that the close lands in the app's start (the chunk's inputs#I3) and at the P5 review that the render-posture step stays the first statement of `main` and the call is the second (inputs#I4). The close is read on three consecutive attempts of one pull-request run, 24 boots; at the two red runs' rate (12 of 16) an unclosed job passes that count at 3.6e-15. Its evidence is the operator pass's, after /implement; a self-end in any attempt leaves the capability unverified. Not measured: the step inside Xlib by which the reply is lost; why the series' first boot relinks the app on the runner. Still PROVISIONAL until the founder's own word, as is the classification of the exit-witness arm."
+    }
+  ]
+}

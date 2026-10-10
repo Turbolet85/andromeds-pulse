@@ -1,0 +1,3 @@
+boot	kill_x_at	rc	exit_record	verdict	records	last_target	app_exit	boot_log_lines	load1
+1	5	1	exit 1	not-running	107	triage.cue.tick	none	20	27.97
+2	5	1	exit 1	not-running	107	triage.cue.tick	none	20	26.87

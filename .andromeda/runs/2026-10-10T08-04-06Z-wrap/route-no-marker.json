@@ -1,0 +1,110 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-10T08:11:31Z",
+"argv": [
+"route.py",
+"epoch",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-10T08-04-06Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"working-route.md · 10 epoch headers · 82 entries · freeze state joined to 90 master records",
+"10 · Epoch 1 — Foundation: base CI, the capabili… · entries 17 · markerless 10 · frozen complete 6 · pending 1",
+"45 · Epoch 2 — What leaves: the window, its brid… · entries 8 · markerless 8 · frozen complete 0 · pending 0",
+"62 · Epoch 3 — What leaves: the local model, wha… · entries 10 · markerless 10 · frozen complete 0 · pending 0",
+"83 · Epoch 4 — The engine is reached over a netw… · entries 7 · markerless 7 · frozen complete 0 · pending 0",
+"98 · Epoch 5 — The engine lives on a small node · entries 7 · markerless 7 · frozen complete 0 · pending 0",
+"113 · Epoch 6 — Memory on disk and the door's ful… · entries 10 · markerless 10 · frozen complete 0 · pending 0",
+"134 · Epoch 7 — Keep what OpenTelemetry sends · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"147 · Epoch 8 — Comparisons that work from the fi… · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"160 · Epoch 9 — The voice · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"173 · Epoch 10 — Polish & ship · entries 5 · markerless 5 · frozen complete 0 · pending 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-10T08:11:31Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-10T08-04-06Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 75 of 82 entries · freight blocks 19 · rows are an INDEX, not the text",
+"33 · CARRY: · 130 chars · CARRY: this entry's owner-only is P-126's — until another host can reach the door, another ac…",
+"39 · CARRY: · 391 chars · CARRY: the credential-store legs this entry removes are the ones cargo xtask pre-push:linux's…",
+"41 · CARRY: · 485 chars · CARRY: the lint-test job's logs-Linux upload finds no file, and no logs-Linux artifact exists…",
+"46 · CARRY: · 378 chars · CARRY: the a11y job's pull-request download a11y-violations-base has no producer in any workf…",
+"46 · CARRY: · 539 chars · CARRY: the boot CI job this entry removes was the subject of P-129, closed at 2026-10-10-boot…",
+"46 · CARRY: · 341 chars · CARRY: cargo xtask pre-push:linux keeps a script-modes stage whose only subject is CI's by-pa…",
+"46 · CARRY: · 756 chars · CARRY: built for the boot job at 2026-10-10-boot-smoke-s-self-end-named-from-a-run and leavin…",
+"46 · CARRY: · 734 chars · CARRY: the series' first boot builds the app again on the runner (boot 2 took 3 min 27 s and …",
+"48 · CARRY: · 306 chars · CARRY: no workflow runs an ESLint step (measured 2026-10-09; record: 2026-10-09-ci-on-linux-a…",
+"48 · CARRY: · 399 chars · CARRY: two stages of cargo xtask pre-push:linux exist for what this entry removes (record: 20…",
+"48 · CARRY: · 688 chars · CARRY: built at 2026-10-10-boot-smoke-s-self-end-closed and leaving with the window here: pul…",
+"50 · CARRY: · 252 chars · CARRY: the card names the release environment and every secret name the two workflows read (P…",
+"50 · CARRY: · 393 chars · CARRY: the npm tree this entry removes is what cargo xtask pre-push:linux's npm stage install…",
+"60 · CARRY: · 328 chars · CARRY: shipped unwitnessed at 2026-10-09-boot-smoke-s-early-exit-found-and-closed and leaving…",
+"88 · CARRY: · 142 chars · CARRY: the renewal this entry states is P-124's — who renews the channel's private key and by…",
+"114 · CARRY: · 378 chars · CARRY: a test comment in crates/buffer/src/schema.rs, above the metrics_points key test, sti…",
+"116 · CARRY: · 59 chars · CARRY: this entry's rule is P-125's — P-091's text has none",
+"132 · CARRY: · 218 chars · CARRY: the restart between the two readings is done on the engine's host by whoever runs the…",
+"165 · CARRY: · 103 chars · CARRY: the record each raise leaves is read through the door (P-123); this entry's check rea…"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-10T08:32:07Z",
+"argv": [
+"route.py",
+"epoch",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-10T08-04-06Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"working-route.md · 10 epoch headers · 83 entries · freeze state joined to 90 master records",
+"10 · Epoch 1 — Foundation: base CI, the capabili… · entries 18 · markerless 11 · frozen complete 6 · pending 1",
+"47 · Epoch 2 — What leaves: the window, its brid… · entries 8 · markerless 8 · frozen complete 0 · pending 0",
+"64 · Epoch 3 — What leaves: the local model, wha… · entries 10 · markerless 10 · frozen complete 0 · pending 0",
+"85 · Epoch 4 — The engine is reached over a netw… · entries 7 · markerless 7 · frozen complete 0 · pending 0",
+"100 · Epoch 5 — The engine lives on a small node · entries 7 · markerless 7 · frozen complete 0 · pending 0",
+"115 · Epoch 6 — Memory on disk and the door's ful… · entries 10 · markerless 10 · frozen complete 0 · pending 0",
+"136 · Epoch 7 — Keep what OpenTelemetry sends · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"149 · Epoch 8 — Comparisons that work from the fi… · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"162 · Epoch 9 — The voice · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"175 · Epoch 10 — Polish & ship · entries 5 · markerless 5 · frozen complete 0 · pending 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

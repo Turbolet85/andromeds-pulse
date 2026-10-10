@@ -1,0 +1,110 @@
+[
+{
+"tool": "ci",
+"v": "1.1",
+"sha8": "71405e44",
+"ts": "2026-10-09T14:05:25Z",
+"argv": [
+"conclusion",
+"--sha",
+"0b61bfbef575eeb56909ea5e31bdcb8cc66ee74b",
+"--sha",
+"b3ac58a9ef5f2c04b4c1649e47b7e00d1dd3aaae",
+"--sha",
+"7f99c38009738e66cc797a19ddcf0234567d68dd",
+"--sha",
+"39edd11529b57a9d0d180239fddc4005146cae10",
+"--sha",
+"60ef43c6859cb35a9f9ee5664ab892339cffdf4f",
+"--sha",
+"0e45d5883b64f8f43fef6b97930d48e2978aa766",
+"--sha",
+"18a872d0e4496b292f8bc10472da835bec0406c4",
+"--sha",
+"f18c631bd545c50466c6177c5ae658dc61f7d2e7",
+"--run-dir",
+".andromeda/runs/2026-10-09T14-05-04Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"0b61bfbef575 verdict: green · checks 13/13 · wall 1463 s · runs secret-scan#37934330233 completed/success ci#3793433023…",
+"b3ac58a9ef5f verdict: red · checks 13/13 · first-fail +568 s boot smoke (ubuntu-22.04) · wall 1754 s · runs secret-scan…",
+"7f99c3800973 verdict: green · checks 13/13 · wall 1123 s · runs ci#37916373451 completed/success secret-scan#3791637345…",
+"39edd11529b5 verdict: green · checks 13/13 · wall 1091 s · runs secret-scan#37914412865 completed/success ci#3791441285…",
+"60ef43c6859c verdict: red · checks 13/13 · first-fail +47 s supply-chain (audit + deny + auditable) · wall 1923 s · run…",
+"0e45d5883b64 verdict: green · checks 13/13 · wall 1293 s · runs secret-scan#37904682926 completed/success ci#3790468291…",
+"18a872d0e449 verdict: green · checks 13/13 · wall 1763 s · runs secret-scan#37731002566 completed/success ci#3773100246…",
+"f18c631bd545 verdict: green · checks 13/13 · wall 1855 s · runs ci#37686027609 completed/success secret-scan#3768602763…"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "0b61bfbef575eeb56909ea5e31bdcb8cc66ee74b",
+"word": "green",
+"polls": [
+"green"
+]
+},
+{
+"sha": "b3ac58a9ef5f2c04b4c1649e47b7e00d1dd3aaae",
+"word": "red",
+"polls": [
+"red"
+]
+},
+{
+"sha": "7f99c38009738e66cc797a19ddcf0234567d68dd",
+"word": "green",
+"polls": [
+"green"
+]
+},
+{
+"sha": "39edd11529b57a9d0d180239fddc4005146cae10",
+"word": "green",
+"polls": [
+"green"
+]
+},
+{
+"sha": "60ef43c6859cb35a9f9ee5664ab892339cffdf4f",
+"word": "red",
+"polls": [
+"red"
+]
+},
+{
+"sha": "0e45d5883b64f8f43fef6b97930d48e2978aa766",
+"word": "green",
+"polls": [
+"green"
+]
+},
+{
+"sha": "18a872d0e4496b292f8bc10472da835bec0406c4",
+"word": "green",
+"polls": [
+"green"
+]
+},
+{
+"sha": "f18c631bd545c50466c6177c5ae658dc61f7d2e7",
+"word": "green",
+"polls": [
+"green"
+]
+}
+]
+}
+}
+]

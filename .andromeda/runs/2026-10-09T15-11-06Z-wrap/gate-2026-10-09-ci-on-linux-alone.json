@@ -1,0 +1,850 @@
+[
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T15:11:31Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base 0b61bfbe (the parent of the oldest pre-CI commit 569604be) · lists new 0 · modify 2 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 2 · listed 2 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 51"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "0b61bfbef575eeb56909ea5e31bdcb8cc66ee74b",
+"base_why": "the parent of the oldest pre-CI commit 569604be",
+"counts": {
+"changed": 2,
+"listed": 2,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 51,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T15:44:42Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root . · marker 2026-10-09-ci-on-linux-alone · entries 22",
+"logs $TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z · bound: GNU timeout",
+"delta docs 60 · python 1 · unmapped 4",
+"walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 65",
+"prose L91-93: The chunk's own probes come first, then the standard gate set in test-plan §3 order: `capa… (326 chars)",
+"prose L95-107: Absences, each with its reason: - No boot-smoke entry: neither file is on the boot-smoke t… (1154 chars)",
+"prose L109-113: Evidence files are written by /implement and by the operator pass from the entries' record… (473 chars)",
+"prose L115-117: The CI read asserts green. If `boot smoke (ubuntu-22.04)` reads red on a tree whose source… (282 chars)",
+"  1 lint        green · exit 0 · 1.42s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 2.66s · 72 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 probe       green · exit 0 · 0.02s · 0 B → 3.log · git diff --name-only 0b61bfbef575eeb56909ea5e31bdcb8cc66ee… (250 chars)",
+"  4 probe       green · exit 0 · 0.1s · 51 B → 4.log · python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.… (139 chars)",
+"  5 probe       green · exit 0 · 0.09s · 7 B → 5.log · python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.… (251 chars)",
+"  6 probe       green · exit 1 · 0.01s · 2 B → 6.log · grep -c -i -E 'macos|windows|matrix\\.os|runner\\.os ==' .gi… (79 chars)",
+"  7 probe       green · exit 1 · 0.01s · 2 B → 7.log · git diff 0b61bfbef575eeb56909ea5e31bdcb8cc66ee74b -- .gith… (185 chars)",
+"  8 lint        green · exit 0 · 1.36s · 100 B → 8.log · cargo xtask check:english-sources",
+"  9 probe       green · exit 0 · 0.76s · 394 B → 9.log · cargo xtask capability-widening-check",
+" 10 probe       green · exit 0 · 0.74s · 99 B → 10.log · cargo xtask check:ingest-progress",
+" 11 probe       green · exit 0 · 0.83s · 342 B → 11.log · cargo xtask check:staged-artifacts",
+" 12 probe       green · exit 0 · 0.84s · 714 B → 12.log · cargo xtask capability-drift",
+" 13 probe       green · exit 0 · 0.83s · 396 B → 13.log · cargo xtask verify:capability-matrix",
+" 14 unit        green · exit 0 · 20.17s · 672091 B → 14.log · cargo nextest run --workspace --profile ci",
+" 15 build       green · exit 0 · 2.59s · 427 B → 15.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 16 probe       green · exit 0 · 0.02s · 0 B → 16.log · git diff --quiet 0b61bfbef575eeb56909ea5e31bdcb8cc66ee74b … (95 chars)",
+" 17 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)",
+" 18 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (92 chars)",
+" 19 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)",
+" 20 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>… (159 chars)",
+" 21 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>… (191 chars)",
+" 22 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>… (108 chars)",
+"entries 22 · green 16 · red 0 · recorded 0 · timeout 0 · not-run 6"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-09-ci-on-linux-alone",
+"plan": "./andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/plan.md",
+"root": ".",
+"shell": "/usr/bin/bash",
+"out_dir": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z",
+"delta": {
+"docs": [
+".andromeda/a11y-plan-amendments.md",
+".andromeda/a11y-plan.md",
+".andromeda/architecture-amendments.md",
+".andromeda/architecture.md",
+".andromeda/friction-log.ndjson",
+".andromeda/obs-plan-amendments.md",
+".andromeda/obs-plan.md",
+".andromeda/registries/contracts/a11y-plan/ci-integration.md",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md",
+".andromeda/security-plan-amendments.md",
+".andromeda/security-plan.md",
+".andromeda/state.yaml",
+".andromeda/test-plan-amendments.md",
+".andromeda/test-plan.md",
+".claude/docs/session-learnings.md",
+".claude/docs/tests-summary.md",
+".claude/rules/testing.md",
+".claude/rules/verification-harness.md",
+".claude/session-handoff.md",
+"CLAUDE.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/evidence/ci-wall-clock.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/evidence/operator-pass.md",
+"andromeda-pulse-0.4.0/working-route.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/.raw-fanout-a11y-plan.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/.raw-fanout-design-system.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/.raw-fanout-layout-templates.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/.raw-fanout-security-plan.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/a11y-plan-contracts.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/a11y-plan-entry.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/add-no-ci-step-reads-nothing.json",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/architecture-contracts.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/architecture-entry.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/cascade-2026-10-09-ci-on-linux-alone.json",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/cascade-dispositions.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/cascade-patterns.toml",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/citation-dispositions.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/cites-2026-10-09-ci-on-linux-alone.json",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/curation.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/evolve-2026-10-09-ci-on-linux-alone.json",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/fanout-results.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/first-sweep-read.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/first-sweep-withheld.txt",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/gate-2026-10-09-ci-on-linux-alone.json",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/inputs-2026-10-09-ci-on-linux-alone.json",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/matrix-2026-10-09-ci-on-linux-alone.json",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/new-text.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/note-P-128.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/obs-plan-contracts.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/obs-plan-entry.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/registry-2026-10-09-ci-on-linux-alone.json",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/relay-1.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/route-entry-P-128.txt",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/route-no-marker.json",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/security-plan-entry.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/splice-2026-10-09-ci-on-linux-alone.json",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/test-plan-contracts.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/test-plan-entry-2.md",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/test-plan-entry.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/report.md"
+],
+"python": [
+"andromeda-pulse-0.4.0/requirements.md"
+]
+},
+"unmapped": [
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/inputs/andromeda-inputs.json",
+"andromeda-pulse-0.4.0/verification-matrix.json",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/inputs/I3-pulse-wrap-ci-on-linux-alone-2026-10-09.md.txt",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/inputs/I4-relay-1.md.txt"
+],
+"walk_class": {
+"marked": {
+"rust": [
+"xtask/src/source_lint.rs",
+"xtask/src/staged_gate.rs"
+]
+},
+"uncommitted": 65,
+"problem": null
+},
+"prose": [
+{
+"from": 91,
+"to": 93,
+"text": "The chunk's own probes come first, then the standard gate set in test-plan §3 order: `capability-drift` before the default-features workspace nextest, the `--features mcp-server` bindings regen as the last cargo-adjacent step, and the base-identity bindings close, since the chunk adds no procedure. The operator pass follows."
+},
+{
+"from": 95,
+"to": 107,
+"text": "Absences, each with its reason: - No boot-smoke entry: neither file is on the boot-smoke trigger list (test-plan §3 Per-chunk gate discipline), and   the chunk boots no app. The boot smoke that matters here is the CI job's, read in the operator pass. - No webview gate and no headful self-verify: no `pulse-app/ui/**` path is touched. - No local pre-push gate: `cargo xtask pre-push:linux` needs `wsl.exe` and cannot run on this host (test-plan   amendment `2026-10-02-incident-events-readable-through-mcp`); CI's `lint-test` job is the gate the push meets. - No liveness probe and no live leg: the chunk drives no external process. research.md's harness slot reads `none`   for that reason. - No targeted nextest entry: Steps 2 and 4 run the one test binary as implement's red-before-green pair, both   readings in `evidence/red-before.md`; the workspace nextest entry runs the same tests on every re-run. - Step 5's mutation edits source and reverts, so it is a one-shot at implement, both readings in   `evidence/mutation-checks.md`; `ci_workflow_keeps_the_linux_release_build_witnesses` in the workspace nextest   entry guards the property on re-run."
+},
+{
+"from": 109,
+"to": 113,
+"text": "Evidence files are written by /implement and by the operator pass from the entries' recorded outputs; no entry writes one. The three reads of the after-run take the run id the CI read prints for the `ci` workflow, as `<id>`. The jobs read is report-only: its rows are the after-reading's table and assert nothing by themselves. The steps read asserts that no step of any job reads other than `success`, which is how the before-run reads on its six Linux jobs (research.md)."
+},
+{
+"from": 115,
+"to": 117,
+"text": "The CI read asserts green. If `boot smoke (ubuntu-22.04)` reads red on a tree whose source it does not exercise differently, that is the folded watch's recurrence: it is recorded with its job id and log reading, the run is not re-run to obtain a green, and the wrap dispositions it."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 1.42,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/2.log",
+"bytes": 72,
+"log_sha8": "01fe90b9",
+"exit": 0,
+"seconds": 2.66,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "git diff --name-only 0b61bfbef575eeb56909ea5e31bdcb8cc66ee74b -- crates pulse-app xtask scripts docs Cargo.toml Cargo.lock deny.toml rust-toolchain.toml .github .cargo .config ':!.github/workflows/ci.yml' ':!pulse-app/tests/quality_gate_workflow.rs' ",
+"run_sha8": "d1a0c82b",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/3.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.02,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.github/workflows/ci.yml', encoding='utf-8')); print(' '.join(sorted(d['jobs'])))\"",
+"run_sha8": "45c4bfe9",
+"expect": [
+"exit 0",
+"last line a11y boot coverage lint-test mcp-test supply-chain"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/4.log",
+"bytes": 51,
+"log_sha8": "1cc58ec9",
+"exit": 0,
+"seconds": 0.1,
+"readings": [
+"exit 0 ✓",
+"last line 'a11y boot coverage lint-test mcp-test supply-chain' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.github/workflows/ci.yml', encoding='utf-8')); print(sum(1 for v in d['jobs'].values() if v.get('runs-on') == 'ubuntu-22.04' and 'strategy' not in v and 'needs' not in v), 'of', len(d['jobs']))\"",
+"run_sha8": "b1a952dd",
+"expect": [
+"exit 0",
+"last line 6 of 6"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/5.log",
+"bytes": 7,
+"log_sha8": "c1ae8e5b",
+"exit": 0,
+"seconds": 0.09,
+"readings": [
+"exit 0 ✓",
+"last line '6 of 6' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "grep -c -i -E 'macos|windows|matrix\\.os|runner\\.os ==' .github/workflows/ci.yml",
+"run_sha8": "e145561f",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/6.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.01,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "git diff 0b61bfbef575eeb56909ea5e31bdcb8cc66ee74b -- .github/workflows/ci.yml | grep -c -E '^\\+.*(uses:|permissions:|secrets\\.|continue-on-error|needs:|if:|retry|node-version|apt-get)' ",
+"run_sha8": "ecc1fe42",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/7.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.01,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "lint",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/8.log",
+"bytes": 100,
+"log_sha8": "4c25a869",
+"exit": 0,
+"seconds": 1.36,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/9.log",
+"bytes": 394,
+"log_sha8": "be62bac6",
+"exit": 0,
+"seconds": 0.76,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/10.log",
+"bytes": 99,
+"log_sha8": "09869944",
+"exit": 0,
+"seconds": 0.74,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/11.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.83,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/12.log",
+"bytes": 714,
+"log_sha8": "88877c4e",
+"exit": 0,
+"seconds": 0.84,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/13.log",
+"bytes": 396,
+"log_sha8": "4a5bd581",
+"exit": 0,
+"seconds": 0.83,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/14.log",
+"bytes": 672091,
+"log_sha8": "6647dd09",
+"exit": 0,
+"seconds": 20.17,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/15.log",
+"bytes": 427,
+"log_sha8": "bb6c9a78",
+"exit": 0,
+"seconds": 2.59,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "probe",
+"run": "git diff --quiet 0b61bfbef575eeb56909ea5e31bdcb8cc66ee74b -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "61014d13",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-ci-on-linux-alone/wrap-2026-10-09T15-11-06Z/16.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.02,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "3c62df70",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 18,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin build/andromeda-pulse-0.4.0",
+"run_sha8": "aa77c2b4",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2700",
+"run_sha8": "d04716c7",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | \"\\(.name) · \\(.conclusion) · \\(.started_at) · \\(.completed_at)\"' ",
+"run_sha8": "a907566f",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | .name as $j | .steps[] | select(.conclusion != \"success\") | \"\\($j) · \\(.name) · \\(.conclusion)\"' ",
+"run_sha8": "cee04b58",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/artifacts?per_page=100\" --jq '.artifacts[].name' ",
+"run_sha8": "98b3981c",
+"expect": [
+"exit 0",
+"contains logs-boot-Linux",
+"contains logs-perf-samples-Linux",
+"contains a11y-violations-Linux",
+"contains playwright-a11y-report-Linux",
+"contains capability-drift-Linux",
+"contains coverage-linux",
+"lacks macOS",
+"lacks Windows"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T15:45:01Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base 0b61bfbe (the parent of the oldest pre-CI commit 569604be)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"P1 .andromeda/runs/2026-10-09T15-11-06Z-wrap/.raw-fanout-security-plan.md:20 ×1 · in-root",
+"in-root: a home path under the root in 1 files — respell: gate.py respell --file {path} (the root prefix dropped, never ~/)",
+"hygiene: refused 1 files — P1 1 · P2 0 · P3 0 · read 79 (runs 69 · evidence 4 · inputs 6) · trails 22 not read · copies 4 not read by P1 — 1 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [
+"P1 .andromeda/runs/2026-10-09T15-11-06Z-wrap/.raw-fanout-security-plan.md:20 ×1 · in-root"
+],
+"counts": {
+"P1": 1,
+"P2": 0,
+"P3": 0,
+"runs": 69,
+"evidence": 4,
+"inputs": 6,
+"trails": 22,
+"copies": 4,
+"kept": 1,
+"binary": 0,
+"in_root": 1
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T15:45:07Z",
+"argv": [
+"respell",
+"--file",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/.raw-fanout-security-plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"respelled .andromeda/runs/2026-10-09T15-11-06Z-wrap/.raw-fanout-security-plan.md ×1 · −44 B · d76dbe03→938f5b48"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"path": ".andromeda/runs/2026-10-09T15-11-06Z-wrap/.raw-fanout-security-plan.md",
+"occurrences": 1,
+"bytes": 44,
+"before": "d76dbe03",
+"after": "938f5b48"
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T15:45:07Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base 0b61bfbe (the parent of the oldest pre-CI commit 569604be)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 79 (runs 69 · evidence 4 · inputs 6) · trails 22 not read · copies 4 not read by P1 — 1 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 69,
+"evidence": 4,
+"inputs": 6,
+"trails": 22,
+"copies": 4,
+"kept": 1,
+"binary": 0,
+"in_root": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T15:45:08Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base 0b61bfbe (the parent of the oldest pre-CI commit 569604be) · lists new 0 · modify 2 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 2 · listed 2 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 108"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "0b61bfbef575eeb56909ea5e31bdcb8cc66ee74b",
+"base_why": "the parent of the oldest pre-CI commit 569604be",
+"counts": {
+"changed": 2,
+"listed": 2,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 108,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T15:46:53Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base 0b61bfbe (the parent of the oldest pre-CI commit 569604be)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 82 (runs 72 · evidence 4 · inputs 6) · trails 24 not read · copies 4 not read by P1 — 1 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 72,
+"evidence": 4,
+"inputs": 6,
+"trails": 24,
+"copies": 4,
+"kept": 1,
+"binary": 0,
+"in_root": 0
+},
+"indeterminate": 0
+}
+}
+]

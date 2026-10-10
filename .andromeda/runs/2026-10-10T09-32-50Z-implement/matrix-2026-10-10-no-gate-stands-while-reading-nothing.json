@@ -1,0 +1,49 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "a0f3749c",
+"ts": "2026-10-10T10:26:28Z",
+"argv": [
+"implement",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--chunk",
+"2026-10-10-no-gate-stands-while-reading-nothing",
+"--id",
+"P-128",
+"--ref-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T09-32-50Z-implement"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"implement P-128 · status planned → implemented · ref ci#38042949735 (pull_request, attempt 1) on the pushed tip d99d2dcb, merge commi… (1650 chars)",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-128",
+"chunk": "2026-10-10-no-gate-stands-while-reading-nothing",
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "On the pull-request CI run of the tree's final pushed commit for chunk 2026-10-10-no-gate-stands-while-reading-nothing, … (1680 chars)",
+"notes_chars": 4334
+},
+"after": {
+"id": "P-128",
+"chunk": "2026-10-10-no-gate-stands-while-reading-nothing",
+"status": "implemented",
+"method": "integration",
+"ref": "ci#38042949735 (pull_request, attempt 1) on the pushed tip d99d2dcb, merge commit 45ea78a7eb66, read at the operator pas… (1650 chars)",
+"acceptance": "On the pull-request CI run of the tree's final pushed commit for chunk 2026-10-10-no-gate-stands-while-reading-nothing, … (1680 chars)",
+"notes_chars": 4334
+}
+}
+]

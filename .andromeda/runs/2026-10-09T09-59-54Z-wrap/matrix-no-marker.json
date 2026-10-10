@@ -1,0 +1,828 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:04:39Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/add-plugin-host-gone.json",
+"--dry-run",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-104 · planned · chunk null · ref null · method integration",
+"title: The plugin host is gone",
+"requirement: The engine has no plugin host: no crate hosts WebAssembly plugins, the workspace depends o… (272 chars)",
+"observed_gap: A plugin host crate built on a WebAssembly runtime (crates/plugins, the wasmtime dependenc… (199 chars)",
+"acceptance: A build of the whole workspace on Linux succeeds with no WebAssembly runtime anywhere in i… (355 chars)",
+"requirements.md: 21 capability lines · `- **id** · ` 0 · `- id · ` 21",
+"(dry-run) requirements.md carries no line for P-104 — the id is assigned there first (contract §ID scheme) — the write refuses until one line stands",
+"dry-run: nothing written",
+"pool: unclaimed 22 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104]",
+"version: verified 0/22"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": {
+"id": "P-104",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A build of the whole workspace on Linux succeeds with no WebAssembly runtime anywhere in its dependency graph; the tree … (355 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:04:39Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/add-workspace-detection-gone.json",
+"--dry-run",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-104 · planned · chunk null · ref null · method integration",
+"title: Workspace detection is gone",
+"requirement: The engine detects no workspace and reads no project folder; an incident belongs to the en… (359 chars)",
+"observed_gap: Incidents are stamped with, filtered by and cooled down per the workspace the detector res… (292 chars)",
+"acceptance: A build of the whole workspace on Linux succeeds with no workspace detection anywhere in i… (464 chars)",
+"requirements.md: 21 capability lines · `- **id** · ` 0 · `- id · ` 21",
+"(dry-run) requirements.md carries no line for P-104 — the id is assigned there first (contract §ID scheme) — the write refuses until one line stands",
+"dry-run: nothing written",
+"pool: unclaimed 22 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104]",
+"version: verified 0/22"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": {
+"id": "P-104",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A build of the whole workspace on Linux succeeds with no workspace detection anywhere in it; an engine started from any … (464 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:04:39Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/add-training-export-gone.json",
+"--dry-run",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-104 · planned · chunk null · ref null · method integration",
+"title: The training export is gone",
+"requirement: The engine has no export of its incidents for model training, and nothing it writes lands … (121 chars)",
+"observed_gap: A training export (pulse-app/src/training_export.rs, the storage.export_for_training route… (208 chars)",
+"acceptance: The tree contains no training export and no command or route of the engine produces one; a… (267 chars)",
+"requirements.md: 21 capability lines · `- **id** · ` 0 · `- id · ` 21",
+"(dry-run) requirements.md carries no line for P-104 — the id is assigned there first (contract §ID scheme) — the write refuses until one line stands",
+"dry-run: nothing written",
+"pool: unclaimed 22 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104]",
+"version: verified 0/22"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": {
+"id": "P-104",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The tree contains no training export and no command or route of the engine produces one; a run of the full remaining gat… (267 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:04:39Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/add-engine-reaches-a-node.json",
+"--dry-run",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-104 · planned · chunk null · ref null · method manual",
+"title: The engine reaches a node",
+"requirement: The engine is delivered as one Linux binary with a documented way to run it as a service o… (246 chars)",
+"observed_gap: The product is delivered as signed desktop bundles with an updater; the route retires them… (139 chars)",
+"acceptance: On a clean Linux node, following the documented steps with the one published binary and no… (272 chars)",
+"requirements.md: 21 capability lines · `- **id** · ` 0 · `- id · ` 21",
+"(dry-run) requirements.md carries no line for P-104 — the id is assigned there first (contract §ID scheme) — the write refuses until one line stands",
+"dry-run: nothing written",
+"pool: unclaimed 22 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104]",
+"version: verified 0/22"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": {
+"id": "P-104",
+"chunk": null,
+"status": "planned",
+"method": "manual",
+"ref": "null",
+"acceptance": "On a clean Linux node, following the documented steps with the one published binary and nothing else, the engine runs as… (272 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:07:41Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/add-plugin-host-gone.json",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-104 · planned · chunk null · ref null · method integration",
+"title: The plugin host is gone",
+"requirement: The engine has no plugin host: no crate hosts WebAssembly plugins, the workspace depends o… (272 chars)",
+"observed_gap: A plugin host crate built on a WebAssembly runtime (crates/plugins, the wasmtime dependenc… (199 chars)",
+"acceptance: A build of the whole workspace on Linux succeeds with no WebAssembly runtime anywhere in i… (355 chars)",
+"requirements.md: 22 capability lines · `- **id** · ` 0 · `- id · ` 22",
+"requirements.md: line 19 carries P-104",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 22 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104]",
+"version: verified 0/22"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": null,
+"after": {
+"id": "P-104",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A build of the whole workspace on Linux succeeds with no WebAssembly runtime anywhere in its dependency graph; the tree … (355 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:07:41Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-104",
+"--text-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/note-P-104.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-104: +506 chars (total 506) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-104",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A build of the whole workspace on Linux succeeds with no WebAssembly runtime anywhere in its dependency graph; the tree … (355 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-104",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A build of the whole workspace on Linux succeeds with no WebAssembly runtime anywhere in its dependency graph; the tree … (355 chars)",
+"notes_chars": 506
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:07:49Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/add-workspace-detection-gone.json",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-105 · planned · chunk null · ref null · method integration",
+"title: Workspace detection is gone",
+"requirement: The engine detects no workspace and reads no project folder; one engine watches one produc… (474 chars)",
+"observed_gap: Incidents are stamped with, filtered by and cooled down per the workspace the detector res… (292 chars)",
+"acceptance: A build of the whole workspace on Linux succeeds with no workspace detection anywhere in i… (540 chars)",
+"requirements.md: 23 capability lines · `- **id** · ` 0 · `- id · ` 23",
+"requirements.md: line 20 carries P-105",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 23 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105]",
+"version: verified 0/23"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": null,
+"after": {
+"id": "P-105",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A build of the whole workspace on Linux succeeds with no workspace detection anywhere in it; an engine started from any … (540 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:07:49Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-105",
+"--text-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/note-P-105.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-105: +1209 chars (total 1209) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-105",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A build of the whole workspace on Linux succeeds with no workspace detection anywhere in it; an engine started from any … (540 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-105",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A build of the whole workspace on Linux succeeds with no workspace detection anywhere in it; an engine started from any … (540 chars)",
+"notes_chars": 1209
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:08:00Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/add-training-export-gone.json",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-106 · planned · chunk null · ref null · method integration",
+"title: The training export is gone",
+"requirement: The engine has no export of its incidents for model training, and nothing it writes lands … (121 chars)",
+"observed_gap: A training export (pulse-app/src/training_export.rs, the storage.export_for_training route… (208 chars)",
+"acceptance: The tree contains no training export and no command or route of the engine produces one; a… (267 chars)",
+"requirements.md: 25 capability lines · `- **id** · ` 0 · `- id · ` 25",
+"requirements.md: line 21 carries P-106",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 24 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106]",
+"version: verified 0/24"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": null,
+"after": {
+"id": "P-106",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The tree contains no training export and no command or route of the engine produces one; a run of the full remaining gat… (267 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:08:00Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/add-engine-reaches-a-node.json",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-107 · planned · chunk null · ref null · method manual",
+"title: The engine reaches a node",
+"requirement: The engine is delivered as one Linux binary with a documented way to run it as a service o… (246 chars)",
+"observed_gap: The product is delivered as signed desktop bundles with an updater; the route retires them… (139 chars)",
+"acceptance: On a clean Linux node, following the documented steps with the one published binary and no… (272 chars)",
+"requirements.md: 25 capability lines · `- **id** · ` 0 · `- id · ` 25",
+"requirements.md: line 29 carries P-107",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 25 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107]",
+"version: verified 0/25"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": null,
+"after": {
+"id": "P-107",
+"chunk": null,
+"status": "planned",
+"method": "manual",
+"ref": "null",
+"acceptance": "On a clean Linux node, following the documented steps with the one published binary and nothing else, the engine runs as… (272 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:08:00Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-106",
+"--text-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/note-P-106.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-106: +406 chars (total 406) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-106",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The tree contains no training export and no command or route of the engine produces one; a run of the full remaining gat… (267 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-106",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The tree contains no training export and no command or route of the engine produces one; a run of the full remaining gat… (267 chars)",
+"notes_chars": 406
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:08:00Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-107",
+"--text-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/note-P-107.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-107: +527 chars (total 527) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-107",
+"chunk": null,
+"status": "planned",
+"method": "manual",
+"ref": "null",
+"acceptance": "On a clean Linux node, following the documented steps with the one published binary and nothing else, the engine runs as… (272 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-107",
+"chunk": null,
+"status": "planned",
+"method": "manual",
+"ref": "null",
+"acceptance": "On a clean Linux node, following the documented steps with the one published binary and nothing else, the engine runs as… (272 chars)",
+"notes_chars": 527
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:08:01Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-083",
+"--text-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/note-P-083.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-083: +655 chars (total 655) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-083",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A build of the whole workspace on Linux succeeds with no window toolkit anywhere in its dependency graph; the tree conta… (467 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-083",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A build of the whole workspace on Linux succeeds with no window toolkit anywhere in its dependency graph; the tree conta… (467 chars)",
+"notes_chars": 655
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:08:01Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-091",
+"--text-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/note-P-091.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-091: +683 chars (total 683) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-091",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "Telemetry received before a restart is readable after it, and is still readable days later; after a restart the watcher … (286 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-091",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "Telemetry received before a restart is readable after it, and is still readable days later; after a restart the watcher … (286 chars)",
+"notes_chars": 683
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:08:01Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-087",
+"--text-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/note-P-087.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-087: +662 chars (total 662) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-087",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A service on a second host, given only the engine's address and a token, delivers traces, metrics and logs to the engine… (256 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-087",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A service on a second host, given only the engine's address and a token, delivers traces, metrics and logs to the engine… (256 chars)",
+"notes_chars": 662
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:08:01Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-088",
+"--text-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/note-P-088.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-088: +451 chars (total 451) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-088",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A request with a missing or wrong token is refused before its body is read, and the record of the refusal does not conta… (578 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-088",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A request with a missing or wrong token is refused before its body is read, and the record of the refusal does not conta… (578 chars)",
+"notes_chars": 451
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:08:01Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-093",
+"--text-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/note-P-093.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-093: +775 chars (total 775) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-093",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A party the node's owner has not admitted gets no answer; an admitted party can read telemetry, incidents, reports and t… (475 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-093",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A party the node's owner has not admitted gets no answer; an admitted party can read telemetry, incidents, reports and t… (475 chars)",
+"notes_chars": 775
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T10:08:01Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-101",
+"--text-file",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap/note-P-101.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-101: +673 chars (total 673) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-101",
+"chunk": null,
+"status": "planned",
+"method": "manual",
+"ref": "null",
+"acceptance": "One real service of the founder's, named by him, sends its telemetry to the engine for several days; for that period, wh… (261 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-101",
+"chunk": null,
+"status": "planned",
+"method": "manual",
+"ref": "null",
+"acceptance": "One real service of the founder's, named by him, sends its telemetry to the engine for several days; for that period, wh… (261 chars)",
+"notes_chars": 673
+}
+}
+]

@@ -1,0 +1,22 @@
+fix(ci): cargo audit runs as a plain step
+
+The audit step of the supply-chain job was the rustsec/audit-check
+action, handed the workflow token. When the audit has something to
+report, the action tries to create a check run. The token is
+contents: read, so the call is denied. On a pull request the action
+swallows the denial and prints its report; on a push it fails the
+step. The tree carries 10 informational warnings, so there is always
+something to report and the push to main went red: run 37907730264
+on 60ef43c, "Resource not accessible by integration".
+
+The step is now `run: cargo audit`. It publishes nothing, receives no
+token and reads no event, so it ends the same on a push and on a pull
+request: exit 0 when clean, 1 on a vulnerability, 2 when it could not
+evaluate. No permission is widened, and ci.yml no longer names a
+secret. Informational warnings still do not fail the job.
+
+pulse-app/tests/quality_gate_workflow.rs pins the step
+(ci_workflow_audit_step_is_a_plain_run_step) and adds cargo audit to
+the gates that may not carry continue-on-error.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

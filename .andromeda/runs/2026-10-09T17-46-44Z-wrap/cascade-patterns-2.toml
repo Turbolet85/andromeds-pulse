@@ -1,0 +1,7 @@
+[[pattern]]
+id = "handshake"
+regex = 'TCP handshake|handshake succeeds'
+
+[[pattern]]
+id = "ready-signal"
+regex = 'Readiness signal|readiness poll|reports? ready'

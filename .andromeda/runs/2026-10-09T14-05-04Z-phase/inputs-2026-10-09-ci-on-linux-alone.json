@@ -1,0 +1,111 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T14:07:06Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-phase-ci-on-linux-alone-2026-10-09.md",
+"--kind",
+"relay",
+"--why",
+"the operator names the owner of each of the two reds since the last flip, the scope edge against P-120 and the release workflows, and the per-job wall-clock record",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-09T14-05-04Z-phase",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-ci-on-linux-alone-2026-10-09.md",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-pulse-phase-ci-on-linux-alone-2026-10-09.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-phase-ci-on-linux-alone-2026-10-09.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "0c9272a67a73028f3025b355a6e65e9f9df0f678c49dc96d7510c6a4516ada79",
+"copy": "I1-pulse-phase-ci-on-linux-alone-2026-10-09.md.txt",
+"link": false,
+"read_at": "2026-10-09T14:07:06Z",
+"step": "phase:P1",
+"why": "the operator names the owner of each of the two reds since the last flip, the scope edge against P-120 and the release workflows, and the per-job wall-clock record"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T14:07:06Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone",
+"--message-file",
+".andromeda/runs/2026-10-09T14-05-04Z-phase/relay-1.md",
+"--origin",
+"the operator (pc overseer), in the /andromeda-phase invocation, 2026-10-09",
+"--kind",
+"relay",
+"--why",
+"the operator says the founder gave the word to start code and that the two reds are owned as the relay file says",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-09T14-05-04Z-phase",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: the operator (pc overseer), in the /andromeda-phase invocation, 2026-10-09",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (pc overseer), in the /andromeda-phase invocation, 2026-10-09",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "cf7f656a3318283d5a2cdbfeb29e4df130c73a42c605ee3fd5d0e4fda12fdaba",
+"copy": "I2-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-09T14:07:06Z",
+"step": "phase:P1",
+"why": "the operator says the founder gave the word to start code and that the two reds are owned as the relay file says"
+}
+}
+]

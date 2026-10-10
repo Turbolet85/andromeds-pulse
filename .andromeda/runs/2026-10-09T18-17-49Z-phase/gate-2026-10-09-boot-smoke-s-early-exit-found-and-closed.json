@@ -1,0 +1,32 @@
+[
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T18:56:33Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"./andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed/research.md",
+"--run-dir",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 7 items (new 1 · modify 6 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 7,
+"unparsed": 0
+}
+}
+]

@@ -684,3 +684,242 @@ The load suite found and fixed in-chunk 3 pipeline defects: retention-sweep conn
 - A partial retirement of `2026-10-06T21-47-06Z-wrap — §1 l4-latency-p99-ps1-run-coverage: pwsh is on the dev host; only the run is owed`: the run is no longer owed; that `pwsh` is on the dev host still stands.
 **Why:** The founder closed 0.3.0 as it stands on 2026-10-09 (his own pick, relayed verbatim by the pc overseer), and the option he picked carries the pre-push entry to the next version, so the entry both passages named as owner is gone from the route. Dropping the `.ps1` run is the operator's word at this wrap: the grader grades the local model's latency and Windows is not a target host. Standing fact: the `.ps1` half of the L4 latency grader has never run on any host.
 **Ref:** .andromeda/runs/2026-10-09T08-07-22Z-wrap/
+
+## 2026-10-09-ci-on-linux-alone — §9 and its restatements: the CI runs on ubuntu-22.04 alone, no matrix, no `release` job
+**Section:** §9 CI Integration → Pipeline structure (Lint + tests · Release build · A11y suite · Boot smoke · E2E tests rows) · §9 Matrix builds · §4 Coverage tool · §1 Coverage triggers (`multi-platform-compat`) · §6 Scenario P5 · §3 → Per-chunk gate discipline (the key file `registries/contracts/test-plan/per-chunk-gate-discipline.md`)
+**Change:**
+- Lint + tests row. Was: "matrix Linux/macOS/Windows", perf steps "on Linux also", Python 3 "on all three runners", "one job per OS". Now: one job on `ubuntu-22.04` (check name `lint / test (ubuntu-22.04)`), pinned by `ci_workflow_runs_on_linux_only`; the three perf steps unconditional; Python 3 on the runner; `lint-test-${{ runner.os }}` resolves to `lint-test-Linux` alone.
+- Release build row. Was: the macOS/Windows `release` job, its `release-${{ runner.os }}` key and cache figures. Now: no `release` job; the release-profile builds are `supply-chain`'s `cargo auditable build --workspace --release` and `boot`'s `cargo build --workspace --release --features mcp-server`, pinned by `ci_workflow_keeps_the_linux_release_build_witnesses`; the cache readings live in architecture's CI/CD approach.
+- A11y suite row: its own `a11y` job on `ubuntu-22.04` alone (was a matrix job on all three OSes).
+- Boot smoke row: `ci-gates` runs in this job only; no job runs on macOS or Windows.
+- E2E tests row, Parallel cell: n/a (was "matrix per surface (tauri-driver × 3 platforms)"); §6 P5's pointer to a "tauri-driver matrix" trimmed.
+- Matrix builds: none (was a fenced three-system `matrix:` block); six jobs, each `runs-on: ubuntu-22.04`, no `strategy`, no `needs:`.
+- §4 Coverage tool: runs in the `coverage` job on `ubuntu-22.04` (was "cross-platform on all 3 CI matrix runners").
+- §1 `multi-platform-compat`: the "matrix over Windows/macOS/Linux CI runners" does not exist; the Windows and macOS arms have no CI witness and leave with the route entry `Other operating systems retired from the code` (P-113).
+- Key file, Process-end witness form: the `cfg(unix)` arms run in CI `lint-test` on `ubuntu-22.04`, with no macOS CI witness (was "CI lint-test Linux/macOS").
+**Why:** Chunk 2026-10-09-ci-on-linux-alone removed the Windows and macOS runners from the `ci` workflow. The Release build row keeps its name because the two new self-lint tests cite it.
+**Kept:** The dated run measurements in the Lint + tests row. The A11y suite row's `a11y-violations-base` wording: found standing with no producer, not amended, its owner a route matter. The §1 Surfaces row's webview-engine note (the product's systems).
+**Ref:** .andromeda/runs/2026-10-09T15-11-06Z-wrap/
+
+## 2026-10-09-ci-on-linux-alone — §4 buffer crate: the stale-comment citation corrected at the first citation sweep
+**Section:** §4 Unit Test Strategy → buffer crate bullet
+**Change:** Was: the source comment in `crates/buffer/src/schema.rs` "still states the disproved cause and is owned by its own route entry". Now: the comment above `spans_primary_key_is_composite_trace_id_span_id` states the measured behaviour since chunk 2026-08-30-diagnostics-un-muting-harness-truth-sweep, while a sibling comment above the `metrics_points` key test still states the disproved cause (read 2026-10-09). The ownership clause is dropped.
+**Why:** The first citation sweep listed the citation `changed`; the read found the cited comment rewritten and the claim false as stated. No route entry, residual or requirement names the comment that still stands. Trap for later chunks: a comment corrected above one test can leave its sibling's copy standing.
+**Ref:** .andromeda/runs/2026-10-09T15-11-06Z-wrap/
+
+## 2026-10-09-supply-chain-job-same-on-push-and-pull-request — Supply chain row gains the cargo audit step
+**Section:** §9 CI Integration → Pipeline structure, the Supply chain row
+**Change:** The row named no `cargo audit` step. It now says the job also runs `cargo audit` as the plain step `run: cargo audit` (step `cargo audit (RustSec advisory DB)`): no action, no token, no soft-fail, the runner image's own `cargo-audit`; exit 0 clean (informational advisories allowed) · 1 a vulnerability · 2 could not evaluate, red on 1 and on 2; the same on a `pull_request` run and on a `push` run (green on the push run `ci#37964887106` on `main`); pinned by `ci_workflow_audit_step_is_a_plain_run_step` and by the `cargo audit` entry of `ci_workflow_test_gates_no_continue_on_error`; its red-on-a-finding arm measured on the dev host only (a control lockfile: exit 1, `RUSTSEC-2020-0071`), not on a runner.
+**Why:** The step was an action that failed a push on its own reporting and passed on a pull request; it is now a plain step (security-plan's entry of the same marker). Standing rule this chunk met: a repair of a defect that shows only on a push is witnessed by a push run, never by a green pull-request run. Standing rule for a plan's log-read entry: fetch the job log to a file with `--allow-escape-sequences`, assert the file is not empty, then count from the file — an absence count piped from `gh api …/logs` reads `0` over an empty stream.
+**Kept:** The row's order of steps is not stated for the audit step. The rest of the row is unchanged.
+**Ref:** .andromeda/runs/2026-10-09T17-46-44Z-wrap/
+
+## 2026-10-09-supply-chain-job-same-on-push-and-pull-request — the CI boot job's log holds webview records on some runs
+**Section:** §1 Coverage triggers → `performance-budget: WebGPU canvas throughput` row · §1 Pending coverage triggers → `ipc-rejection-wire-coverage` row
+**Change:** Was: "since the boot job's log holds no webview record" (the frame arm's CI cause), and "no CI job can witness it, since the boot job stops the app before the webview issues any IPC". Now: on `ci#36765040464` the frame line read `no adapter record in this log`, that run's boot log holding no webview record; on a run whose boot log holds the adapter record it reads `no WebGPU adapter (no_navigator_gpu)` (`ci#37945548047`, `ci#37954318153`); four of seven boot-job logs of 2026-10-09 hold it. The dev-host `perf:frame-sample` leg is the wire's only dependable witness; the CI boot job is not one, its log holding webview-originated records on some runs only, by how long the app lives before `cleanup` stops it (0.57 s to 1.40 s).
+**Why:** Measured false as a rule while reading the boot smoke's application logs. The owed committed cross-boundary assertion for both telemetry procedures is unchanged: a witness that appears on four runs in seven is not coverage.
+**Kept:** The `perf-slo-check-arm-coverage` row's `ci#36765040464` reading is left: it is a dated reading of a named run and states no rule.
+**Ref:** .andromeda/runs/2026-10-09T17-46-44Z-wrap/
+
+## 2026-10-09-supply-chain-job-same-on-push-and-pull-request — boot's readiness handshake recorded as an open gap with an owner
+**Section:** §3 → 5-command implementation (`boot` → Readiness signal; key file `registries/contracts/test-plan/5-command-implementation.md`) · §1 Test Scope Summary → Test harness requirements (the one-line summary)
+**Change:** The Readiness signal label read "Poll … `cargo xtask harness:status` … until it reports `running-healthy`; confirm TCP handshake succeeds on bound ports (log parse)". The label stands as the intended contract and now records beside it a measured gap, OPEN: the shipped `scripts/agent-run.sh` `boot` reports ready on the `running-healthy` verdict alone (a live pid and a written log) and confirms no handshake; the ps1 verb was not re-read. On `ci#37964887106` ready printed 12 ms after the app's first log record, before `app.boot.otlp.grpc.bind`, and `cleanup` stopped the app having logged neither that bind nor a tick. Consequence stated: `status` and `cleanup` can run against an app whose receivers are not yet bound; in the CI boot smoke the app lives 0.57 s to 1.40 s over seven runs of 2026-10-09, so that job's log varies by run. Owner named: the route entry "Boot smoke's early exit found and closed" (P-129). §1's summary clause "confirms TCP handshake on `:4317`/`:4318`" carries the same three facts in one line.
+**Why:** Ratified at the route-resolve card by the operator (the pc overseer, founder-delegated), 2026-10-09: the clause is kept as the contract, the measured gap recorded beside it, the new entry owns it, and ready before the receivers bind is the engine's own matter too. The gap was found while reading the boot smoke's logs for a recurring red of that job; it is not shown to be that red's cause.
+**Kept:** The label was not rewritten to what the script does: the handshake is what readiness is meant to prove. The `cleanup` Verification label's handshake probes are a different claim and are untouched. obs-plan §3 states no readiness handshake, so the §3 ↔ §3 bind is not moved.
+**Ref:** .andromeda/runs/2026-10-09T17-46-44Z-wrap/
+
+## 2026-10-09-boot-smoke-s-early-exit-found-and-closed — boot's readiness is the harness:ready verdict; the handshake gap closed
+**Section:** §3 → 5-command implementation (`boot`: Command body, Readiness signal, Exit code, Timeout) · §3 → PID file · §1 Test harness requirements (the one-line summary) · §1 Pending coverage triggers (`harness-cleanup-verdict-and-boot-spawn-shell-coverage`)
+**Change:**
+- Readiness signal: was "poll the `harness:status` verdict until `running-healthy`; confirm TCP handshake … the intended contract" with a "Measured gap, OPEN" owned by P-129, per the entry "boot's readiness handshake recorded as an open gap with an owner"; now `boot` polls `cargo xtask harness:ready` until `ready` — the status verdict `running-healthy` AND a TCP connection accepted on `127.0.0.1` at both resolved OTLP ports (defaults 4317 / 4318), one second per attempt; object `{verdict, pid, ended, otlp_grpc, otlp_http}`, exit 0 `ready` · 1 `not-ready` or `ended` · 2 `cannot-evaluate`. The gap is CLOSED: ready follows both bind records, by 0.097 s on the dev host and 0.453 s on `ci#37979648967`. P-129 keeps the unnamed cause of the early exit, not readiness.
+- Exit code: non-zero when no `ready` verdict arrives inside the window; the alive arm prints `app still running (pid N) but never reported healthy`, and `the receivers never both accepted: …` only when the last verdict held a `refusing` label.
+- Command body: the `/dev/null` streams are the waiting subshell's own, the app's go to `logs/boot.log`; the ps1 poll goes through `Invoke-Ready` (parsed by `pwsh`, never run).
+- Timeout: the 1.953 s reading dated to the status-only poll; under `harness:ready`, `boot` returned 0.296 s after the app's first log record on the dev host and ready printed 0.596 s after it on the runner, inside the untouched 10 s default.
+- PID file: the exit record is the `ended` of `harness:status`, `harness:ready` and `harness:settled`.
+- The §1 summary follows. The trigger is widened: the failure line and the ps1 edit have no committed test (one hand-driven never-ready leg; the silent arm and the `app ended:` branch not driven); 20 unit pins cover the pure decisions; `not-settled` is pinned, never read live; owed assertions extended to the receivers line and `Invoke-Ready`.
+**Why:** the chunk built the readiness decision in xtask, where it is pinned, and changed the one verb each script polls. The line is conditional because an app can be alive and unready on a stale log with both receivers accepting.
+**Kept:** `cleanup`'s own handshake probes and the `status` verb, untouched; obs-plan §3 states no readiness rule, so the §3 ↔ §3 bind is not moved.
+**Ref:** .andromeda/runs/2026-10-09T19-51-29Z-wrap/
+
+## 2026-10-09-boot-smoke-s-early-exit-found-and-closed — the CI boot smoke reads the app past its settle and keeps what it saw
+**Section:** §9 CI Integration → Pipeline structure (the Boot smoke row) · §9 → Build failure conditions (the boot-smoke harness cycle) · §1 Coverage triggers (performance-budget: WebGPU canvas throughput) · §1 Pending coverage triggers (`ipc-rejection-wire-coverage`; `perf-slo-check-arm-coverage`, discharged row)
+**Change:**
+- Boot smoke row: was "`boot` → `status` → `cleanup` inside one `xvfb-run` … the three invocations share"; now the step creates `logs/`, then inside ONE `xvfb-run -e "$ANDROMEDA_PULSE_DATA_DIR/logs/xvfb.log"` runs `boot || exit 1` → `cargo xtask harness:settled; a=$?` → `status; b=$?` → `cleanup; c=$?` → `test "$a$b$c" = 000`; no `set -e`, so `cleanup` runs whatever the two before it returned. `harness:settled [--timeout-seconds N]` (default 30, below 8 refused): `settled` (exit 0: an `app.boot.window.navigation` record for each of `compact-widget`, `main`, `findings`, `report`, and a live pid) · `ended` (1) · `not-settled` (1) · `cannot-evaluate` (2); object `{verdict, pid, ended, app_exit_record, windows_settled, display, session_bus}`, also written to `logs/harness-settled.json`. `logs-boot-Linux` holds five files. Four workflow pins in `pulse-app/tests/quality_gate_workflow.rs`. Still gating.
+- Build failure conditions: the cycle also fails on a non-zero `harness:settled`; the step passes only when all three exit 0.
+- WebGPU throughput row and both pending rows: was the split reading — `no adapter record in this log` on some runs, `no WebGPU adapter (no_navigator_gpu)` on others, "four of seven boot-job logs", the app alive 0.57 s to 1.40 s — per the entry "the CI boot job's log holds webview records on some runs"; now the boot job's frame line reads `no WebGPU adapter (no_navigator_gpu)` on every run that reaches the settle verdict (one run measured, `ci#37979648967`: 2 adapter records, the app alive 5.494 s). The `ipc-rejection-wire-coverage` assertion is still owed: nothing asserts the record.
+**Why:** the old step stopped the app 0.57 s to 1.40 s in, so no run showed whether it would have stayed up; the new one reads every run past the point where both red runs ended, and a run that ends says what the job saw.
+**Kept:** the `perf-slo-check-arm-coverage` row as an audit trail, its old CI reading dated to `ci#36765040464`.
+**Ref:** .andromeda/runs/2026-10-09T19-51-29Z-wrap/
+
+## 2026-10-09-pre-push-check-native-on-linux — the pre-push:linux paragraph describes the native check and its first native readings
+**Section:** §3 → Per-chunk gate discipline (the `cargo xtask pre-push:linux` paragraph of the key file)
+**Change:** The paragraph says the verb runs on the Linux dev host itself since this chunk; was "it requires a Windows host with the WSL `Ubuntu` distro … it cannot run on the dev host", syncing a distro clone. Now:
+- Linux alone, `not-linux` elsewhere. The WSL requirement, the hand-run of the six stages from 2026-10-03 and the residual carried from 0.3.0 are kept as one dated history sentence; the port is built as P-103.
+- Order: host guard → two pins from the repository (`pins-unreadable`) → `HOME` (`home-unset`) → provisioning probes → the per-run area `target/pre-push/run/`, reset once provisioning has passed → `head` and `tree` through a temporary index → the stages in the working tree.
+- Children get a cleared environment plus `HOME`, `PATH`, `ANDROMEDA_PULSE_DATA_DIR` and, for `npm` only, `PUPPETEER_CACHE_DIR`; no session bus, runtime dir or display variable, pinned by set equality.
+- The `test` stage's rewrite of the tracked bindings is put back as found (`restore-failed:bindings`; not on a signal). `ci-gates` runs over the data dir recreated holding only a seed log.
+- The verdict has six members, `{verdict, reason, head, tree, stages[{name, ok, ms}], missing[]}`; was eight. The nine reasons are listed.
+- A missing piece is `cannot-evaluate` / `provisioning-missing`, named in `missing[]`: `rust:{channel}`, `rust:clippy`, `cargo-nextest`, `node:{pin} (found {version})`, `tool:npm`, `tool:git`, `tool:cc`, `tool:python3`; was the apt list, `jq`, `xvfb-run` and one apt remediation line.
+- Readings: the 2026-09-29 and 2026-10-01 greens are labelled readings of the WSL form. New, native, on the dev host: green 2026-10-10 on the working tree (90 s) and on the committed tree `cb8cc4dc` (89 s warm, `npm` 66.9 s, `test` 18.1 s, 2836 tests, load average 4.61 before and 11.32 after). A timing under that load, never a budget; a cold `target/` was not measured.
+- The credential-store legs are expected to clean-skip inside the `test` stage: stated, not measured.
+- Fragility: Node is the first `node` on the caller's PATH; on the dev host a user-level `mise` Node 24 beside the default Node 26. Was the other project's Node install inside the distro.
+**Why:** The chunk rebuilt the verb natively and measured it green on the dev host twice. A native timing is one reading on a shared host, so it is written with its load and never as a budget.
+**Kept:** "an xtask verb because the 5-command `agent-run` discipline admits no sixth verb"; "NOT a CI step"; the stage list; "it binds no port and starts no `pulse-app`".
+**Ref:** .andromeda/runs/2026-10-10T01-19-03Z-wrap/
+
+## 2026-10-09-pre-push-check-native-on-linux — the hand-run stage 5 is the verb's own test stage; the boot job's ci-gates line needs a passing smoke
+**Section:** §4 Unit Test Strategy (the corpus crate bullet) · §1 Test Scope Summary (the `performance-budget: WebGPU canvas throughput` trigger row)
+**Change:**
+- §4: the credential-store legs clean-skip in any run whose environment carries neither `DBUS_SESSION_BUS_ADDRESS` nor `XDG_RUNTIME_DIR`; was "any run under `env -i` … (measured at that chunk's native pre-push stage 5)". The `env -i` measurement is kept as the hand-run it was. Since this chunk that stage is `cargo xtask pre-push:linux`'s own `test` stage, whose constructed environment holds neither variable, pinned by set equality; there the clean-skip is stated, not measured.
+- §1: the boot job's line reads `no WebGPU adapter (no_navigator_gpu)` on a run whose smoke step passes; was "on every run that reaches the settle verdict, so the boot job's line reads …". On a run whose smoke step fails the job skips its `ci-gates` step and prints no such line, as measured on `ci#38010977166` (settle verdict `ended`, the step `skipped`, 2 adapter records in the log all the same).
+**Why:** The stage the clause named by hand is now a stage of the verb. The line claim was measured false on the first run whose settle verdict read `ended`: a failed smoke step skips the step that prints the line.
+**Kept:** the `--success-output immediate` / `lacks [skip]` rule; "the boot smoke reads the app past its adapter request on every run that reaches the settle verdict", which held on that run; the `ipc-rejection-wire-coverage` pending-trigger row's statement that the boot job's log holds the adapter record.
+**Ref:** .andromeda/runs/2026-10-10T01-19-03Z-wrap/
+
+## 2026-10-10-boot-smoke-s-self-end-named-from-a-run — the boot job's two added steps, the series verb and the boot verb's witness arm
+**Section:** §9 CI Integration → Pipeline structure → Boot smoke (harness); §9 → Build failure conditions; §3 → 5-command implementation (`boot` Command body, Readiness signal, Exit code; key file)
+**Change:**
+- Boot smoke row: the job was release build → smoke → `ci-gates` → upload; now release build → `Build the exit witness` → smoke → `Boot series (equal source)` → `ci-gates` (skipped when the smoke or the series fails) → upload. `cargo xtask harness:boot-series --count N` stated (1 to 16; one cycle per boot; `all-settled` 0 · `self-ended` 1 · `not-all-settled` 1 · `cannot-evaluate` 2; a cycle bounded at 1200 s). `harness:settled` prints eight members, was seven (`exit_witness`, six closed labels). The artifact was "five files"; now those five plus `exit-witness.jsonl`, `boot-series.json` and `series/boot-{2..8}/`. Three more workflow pins beside the four. The measured limit (a boot that ends before ready is counted `other`) and the reading of `ci#38019133294` (red, seven of eight boots ended, the series step 4 min 27 s).
+- Build failure conditions: the job also fails when the witness build fails or the series is non-zero.
+- §3 `boot` Command body: the sh-only exit-witness arm (`ANDROMEDA_PULSE_EXIT_WITNESS_LIB` → `LD_PRELOAD` + `ANDROMEDA_PULSE_EXIT_WITNESS_FILE` on the spawn command only; a stale witness file removed); ps1 unchanged; no sixth verb. Exit code: a second non-zero path, exit 1 `boot: exit witness library not found` before the pre-build.
+- §3 `boot` Readiness signal: was "the cause of the app ending by itself shortly after ready on a runner is not named"; now the ending call as measured on `ci#38019133294` (`_exit(1)`, `errno` 11, from `libgdk-3.so.0` under Xlib's `_XIOError`; three boots ended after ready, four before), with what is not measured (why the X read failed; the runner's GTK build; the instrument's share of the rate). P-129 is not claimed.
+**Why:** The chunk names who ends the app and does not close the cause. The step sequence and the failure conditions are what a later chunk's operator pass reads the `boot` job by.
+**Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/
+
+## 2026-10-10-boot-smoke-s-self-end-named-from-a-run — the witness arm's missing shell test, the series' unexercised path, the second shell-out
+**Section:** §1 Pending coverage triggers → `harness-cleanup-verdict-and-boot-spawn-shell-coverage`; §1 Coverage triggers → performance-budget: WebGPU canvas throughput; §4 Unit Test Strategy → Framework (Rust crates); §9 Pipeline structure → Lint + tests
+**Change:**
+- The trigger row widened: the sh `boot` verb's exit-witness arm ships with no committed shell-level test (the set arm driven by three local legs and CI, the refusal arm once by hand); the Rust side is pinned (14 reader and decision pins, seven controls on the built library, the member pin). `harness:boot-series`: 16 unit pins, one local leg, one CI run; its `timed-out` path never ran live; its verdict under-reads a boot that ends before ready (`ci#38019133294`: `ended` 2, `other` 4 for seven self-ends). Owed: an assertion per witness-arm branch, the before-ready boot recorded with its exit record and label, a live `timed-out` reading.
+- The WebGPU row: the boot job's `ci-gates` frame line was conditioned on the smoke step passing; now on the smoke step and the series step both passing.
+- §4 Framework: was "One unit binary shells out to a non-Rust runtime"; now two, the second the `xtask` unit binary building `scripts/exit-witness.c` with `cc` (Linux only; a missing `cc` fails the controls).
+- §9 lint-test row: the workspace tests need `cc` on the runner beside Python 3; green on `ci#38019133294`.
+**Why:** Each records what this chunk shipped untested or newly required. The before-ready undercount is owned by the route's closing entry, as its first repair.
+**Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/
+
+## 2026-10-10-boot-smoke-s-self-end-closed — the series reads a before-ready self-end; the self-end's cause closed; a host library the tests need
+**Section:** §1 Pending coverage triggers (`harness-cleanup-verdict-and-boot-spawn-shell-coverage`; `render-posture-main-placement-coverage`) · §3 → 5-command implementation (key file, `boot`, Readiness signal) · §4 Unit strategy (Framework) · §9 Pipeline structure (the Boot smoke (harness) row; the `lint-test` row) · §9 Build failure conditions
+**Change:**
+- Boot smoke (harness) and Build failure conditions: a boot that ended by itself fails the job (`self-ended`) in two ways: its settle verdict reads `ended`, or it ended before ready, in which case the series reads its exit record and witness label from the boot's own data dir and counts it `ended` unless the record is the verb's own `signal 15 (TERM)` / `signal 9 (KILL)` or absent. Was: only the settle verdict; a before-ready boot was counted `other` ("A measured limit"). Ordinal 1 is listed from the smoke's own end the same way. Shape unchanged. Reading added: `ci#38026637514`, attempts 1 to 3, each `all-settled` with `"settled": 7`; 24 boots, 0 self-ended.
+- `harness-cleanup-verdict-…` narrowed: the series carries 25 unit pins (was 16); the before-ready record is no longer owed (9 pins, a fixture, one local no-display leg); a limit: that read never ran on a runner and has no local leg for a series boot. Still owed: a harness-level assertion per witness-arm branch; a live `timed-out` reading.
+- `render-posture-main-placement-coverage` narrowed: a committed source-order pin over `main()` exists (`unit_xlib_threads`: the render-posture apply first, `xlib_threads::init();` second, the runtime build after both). Still owed: `emit_posture` follows `observability::init` exactly once.
+- `boot` Readiness signal: "Not measured: why the X connection's read failed, the runner's own GTK build … P-129 is not claimed, and the remainder stays with the route's closing entry" retired. Now: no read failed; a second thread inside an Xlib without thread initialisation; the builds read from Ubuntu's packages; `errno` 11 stale; the call second in `main`; P-129's ref written on three attempts. Not traced: the step inside Xlib. Not measured: whether the witness or the series contributed to the earlier runner rate.
+- §4 and the `lint-test` row: the workspace tests need the host's `libX11.so.6` (`unit_xlib_threads`'s found-arm pin); a host without it fails, never skips; no setup step.
+**Why:** The chunk repaired the series' under-count and closed the cause of the boot job's self-end; the trigger rows and the readiness narrative named both as open and owned by the route's closing entry.
+**Kept:** Both trigger rows stay open for what they still owe.
+**Ref:** .andromeda/runs/2026-10-10T06-10-23Z-wrap/
+
+## 2026-10-10-no-ci-step-reads-nothing — no JUnit report, the a11y row without its download, node as a runner need, two build-failure conditions
+**Section:** §9 Test report format · §3 → 5-command implementation (key file: `run` → Output format) · §9 Pipeline structure (the A11y suite row, two cells; the `lint-test` row) · §1 (the desktop-webview a11y tier row) · §4 Framework (Rust crates) · §9 Build failure conditions
+**Change:**
+- Test report format: was "JUnit XML via `cargo nextest --message-format junit --output-file target/nextest/junit.xml`; agent reads via `dorny/test-reporter`"; now the Rust suite writes no JUnit XML and no reporter action reads one (`cargo xtask test` asks for `libtest-json`; `.config/nextest.toml` holds no `junit` key); a run is read by its exit code and the job log, with no inline PR annotation. The vitest `target/junit-ui.xml` stands. The §3 key's Output format label says the same.
+- A11y suite row: the job's order loses the PR-only `a11y-violations-base` download; the regression detector reads the baseline committed in the tree and exits 1 when it is absent (two pins in `pulse-app/tests/a11y_perf_workflow.rs`; the absent arm not read on a runner); the two uploads fail their step on no file; the host-needs cell no longer says a base-branch summary is downloaded. §1's a11y row names the tree baseline and the failing arm.
+- §4: was "Two unit binaries shell out of Rust"; now three, the third `a11y_perf_workflow.rs` running `node` on the a11y regression detector; the binary that loads a host library without shelling out is the fourth named.
+- `lint-test` row: the workspace tests' runner needs gain `node` on PATH, provided by the job's `Setup Node` step; a missing `node` fails the pin, never skips it; green on `ci#38035474359`, the Node version not read.
+- Build failure conditions, two more: an upload step of `ci.yml` finds no file (`if-no-files-found: error` on each of the six uploads; read on a runner only where the producer did not run, `ci#38034700885`); the a11y regression baseline is absent or the run holds a tuple it lacks. And one statement: no step of `ci.yml` carries `continue-on-error` and none downloads an artifact; `ci_workflow_test_gates_no_continue_on_error` reads every step block (its listed-gate arm keeps 14 commands, `cargo audit` among them) and `ci_workflow_makes_no_download_without_a_producer` holds a later download to a producer.
+**Why:** The chunk removed every CI step that read nothing and made what stays fail on nothing; the report format and the download were claims no step ever delivered.
+**Kept:** The Supply chain row's "the `cargo audit` entry of `ci_workflow_test_gates_no_continue_on_error`" is true and unchanged. Whether the version still wants a machine-read test report was put to the operator at this wrap's route-resolve card.
+**Ref:** .andromeda/runs/2026-10-10T08-04-06Z-wrap/
+
+## 2026-10-10-no-ci-step-reads-nothing — the merge-base probe on the operator leg, directly before the push
+**Section:** §3 → Per-chunk gate discipline (key file: one new paragraph, "The merge-base probe")
+**Change:** Every plan that lists a build-branch push lists, as the entry directly before it, `m="$(git ls-remote origin refs/heads/main | cut -f1)" && test -n "$m" && git merge-base --is-ancestor "$m" HEAD`, keyed `leg = 'operator'`, `env = []`, `expect = ['exit 0']`. It reads the remote's `main` as it stands at that moment and is red when the build branch does not contain it: exit 1 when `main`'s head is not an ancestor of HEAD, exit 128 when that commit is not in the local repository, non-zero when the remote read returns nothing. A red is brought to the operator before any push; the pass never clears it by a fetch, a merge or a rebase of its own. Was: no such entry; the standard gate set held nothing that read `main`.
+**Why:** The pull-request run builds the tip merged with `main` and the local pre-push check builds the tip alone; at this chunk a tip that was green locally met a merge that did not compile. The operator ruled a check that runs over a sentence that is remembered, placed where the push entry sits (the operator, the pc overseer, at this wrap's route-resolve card, 2026-10-10).
+**Kept:** No Tier-1 line was written for it: phase builds each plan's Test Commands from this section, so the probe reaches plans from here, and the two leaves that restate the gate set carry it. The probe is not a member of the fenced standard gate set that /implement runs; it is the operator's, like the push.
+**Ref:** .andromeda/runs/2026-10-10T08-04-06Z-wrap/
+
+## 2026-10-10-no-gate-stands-while-reading-nothing — the 70 % branch threshold retired (PROVISIONAL); an empty coverage report fails
+**Section:** §4 Unit Test Strategy → Coverage target · §9 → Pipeline structure (Quality gates row) · §9 → Build failure conditions · §10 → Coverage thresholds table · §10 → Build failure conditions · §3 → Bootstrap phases (item 8)
+**Change:**
+- Was three thresholds, line ≥ 75 % · branch ≥ 70 % · function ≥ 85 %; now two, line ≥ 75 % and function ≥ 85 %, at all six sites. The branch threshold is RETIRED as never measured, PROVISIONAL: retired on the operator's reading (the pc overseer, 2026-10-10), awaiting the founder's own word.
+- §4 states the cause and the return condition: the arm read `Branch: 0/0 = 100.0%` on every run read, because branch instrumentation is a nightly-only compiler feature (`-Z coverage-options=branch`, `cargo llvm-cov --branch`), the project pins `1.95.0`, and `cargo xtask test:coverage` asks for no branch count (144 `BRF:0` and 144 `BRH:0` records, no `BRDA:` line, in the `coverage-linux` artifact of `ci#38038281709`). The arm returns when that feature is stable on the pinned channel, or when the founder admits a second channel for the `coverage` job, with a measured first reading before any threshold is stated.
+- The Quality gates row and both Build failure conditions lists gain: a report tracking 0 lines or 0 functions fails the step (exit 1), and an absent `lcov.info` fails it. Before, a report tracking nothing exited 0.
+- The table's branch cell reads "not enforced"; the key file's item 8 names function ≥ 85 % as the second enforced threshold.
+**Why:** A threshold that has never read a number is a false statement, and a second unpinned toolchain is not its repair (the operator's answer at the plan's dialog). The coverage step passed over an empty report; the chunk made that an exit 1, pinned by four witness tests that run the step's own script.
+**Kept:** The §11 ban "NEVER lower coverage threshold to pass build" stands unedited: no measured threshold was lowered. The TEMPORARY `xtask/` exclusion stands as the founder ruled it on 2026-09-29.
+**Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/
+
+## 2026-10-10-no-gate-stands-while-reading-nothing — every nextest invocation fails on an empty selection; bash and awk as runner needs; the untested .ps1 quarantine mirror
+**Section:** §9 → Pipeline structure (MCP-feature tests row · Lint + tests row) · §1 → Pending coverage triggers
+**Change:**
+- MCP-feature tests row: was `… --profile ci --no-tests=pass`; now `--no-tests=fail`, a selection that matches no test fails the job, pinned by `ci_workflow_nextest_runs_fail_on_an_empty_selection`; the runner's cargo-nextest 0.9.133 took the flag and ran 2946 tests on `ci#38042949735`.
+- Lint + tests row: the perf-samples line spells `--no-tests=fail`; `cargo xtask test` and `cargo xtask perf:slo-load` pass nextest the same flag from argument lists a pin reads (with `test:coverage` and `perf:load-profiles`); nextest's own exit is 4 and the verb maps a failed status to exit 1; the three steps ran 2908, 1 and 1 tests on that run; the step is named `cargo xtask test`.
+- The same row's list of what the workspace tests need on the runner gains `bash` and `awk` on PATH: four witness tests run the `Enforce coverage thresholds` step's script with `bash -e`, five xtask pins run `xtask/ci/quarantine-tracking-check.sh` with `bash`; a missing tool fails them, never skips them; green in the `lint / test` job of `ci#38042949735`, neither version read.
+- New pending-trigger row `quarantine-tracking-ps1-mirror-coverage`: the `.ps1` mirror gained the absent-input arms with no committed test (parsed by `pwsh` 7.6.6, 0 parse errors, never run); owed a pin per arm, or the mirror leaves with the PowerShell scripts.
+**Why:** Five invocations passed a run that selected no test; the chunk made each fail and spelled the behaviour instead of leaning on a default the runner's older nextest was not read for. The new pins run the gates' own scripts, which is what makes the two tools a runner need.
+**Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/
+
+## 2026-10-10-no-gate-stands-while-reading-nothing — ci-gates narrowed: the Boot smoke row, the two frame-line rows of §1, the boot job's failure conditions, the pre-push paragraph
+**Section:** §9 → Pipeline structure (Boot smoke row) · §9 → Build failure conditions · §1 → Coverage triggers (the WebGPU canvas throughput row) · §1 → Pending coverage triggers (`perf-slo-check-arm-coverage`) · §3 → Per-chunk gate discipline
+**Change:**
+- Boot smoke row: `cargo xtask ci-gates` over the log the smoke wrote now states what it reads and returns: two arms over the `agent-latest.jsonl*` family, zero-spans and zero-panic; exit 0 PASS with exactly `ci-gates: zero-spans PASS ({n} log records across {k} file(s))` and `ci-gates: zero-panic PASS` · 1 FAIL · 2 cannot-evaluate on an absent log family; no heartbeat, perf-budget or frame line; no CI step makes the heartbeat gap check; 110 records on `ci#38042949735`.
+- Build failure conditions: where `ci-gates` runs, the boot job also fails on its exit 1 or exit 2; an absent log no longer reads exit 0.
+- §1 WebGPU canvas throughput row: was "the boot job's line reads `no WebGPU adapter (no_navigator_gpu)`" on a run whose smoke and series pass; now the frame arm's `cannot-evaluate` line on CI is the `lint-test` `perf:budget` step's alone, the boot job prints no frame line on any run, and the earlier boot-job readings are dated.
+- §1 `perf-slo-check-arm-coverage` row: the same boot-job reading bounded to before this chunk.
+- Per-chunk gate discipline key, the `pre-push:linux` paragraph: the `ci-gates` stage reads two lines over its seed and makes no heartbeat or perf-budget read; it reads a record it wrote itself, a reading carried on the working route; the `test` stage's `cargo xtask test` exits non-zero on a selection that matches no test.
+**Why:** The chunk narrowed the verb to the arms that read the boot log and gave an absent log its own exit; four master sentences still described the arms that left or the line they printed.
+**Kept:** "`ci-gates` is skipped when the smoke or the series fails" and "runs in this job only" stand. The pre-push stage is outside P-128, which is about what a CI job does (the operator's answer at the plan's dialog).
+**Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/
+
+## 2026-10-10-capability-record-re-based — the capability gate reads the one record
+**Section:** §9 CI Integration → Capability verification matrix (CI step, runs after capability-drift)
+**Change:** The paragraph now says: `cargo xtask verify:capability-matrix` reads two fixed in-repo files, no path
+argument and no environment variable — `docs/capability-record.json`, all 82 ids P-001–P-082, each `claimed` or
+`retired` (36 claimed, 46 retired, as measured at this chunk), and `andromeda-pulse-0.4.0/working-route.md` — and
+exits 0 clean · 1 findings · 2 cannot-evaluate. It holds all 82 ids to the form and validates proofs of claimed ids
+only: `carried_by` in P-083…P-129 (empty only with a `note`), at least one scenario that is not `source-evidence`,
+eight scenario kinds (five with a file ref that must exist and its `contains` anchor found; `by-construction` ·
+`external` · `manual` needing the entry's `note`), nine verification modes (the old seven plus `dynamic-external`
+and `manual`). A retired entry carries no scenario, mode or `carried_by`; it names `surfaces` (six closed words),
+`removed_by` (working-route entry titles the route carries) and `guard` (`runs` · `part` · `none`, with `by` and
+`unrun`); no proof file of a retired entry is checked. The id set is closed in `xtask/src/capability_record.rs`, so
+a change of it lands in the module and the record in one chunk. Was: the gate validates
+`docs/v0_2_0/capability-verification-matrix.json`, all 60 ids P-001–P-060, four modes named with P-040 as the
+by-construction example, exit on dangling ids, paths or anchors, and ids from P-061 on extend the matrix JSON. The
+`xtask-gate` scenario kind is no longer known to the gate. Both older records are superseded and read by no gate.
+**Why:** The chunk made the old gate read the one current record, which gives each of the 82 ids one of two
+dispositions; the paragraph's input, id range, exits and extension rule were each measured false. Standing trap: the
+gate reads the working route, so a route-resolve that renames, retires or splits an entry the record names reddens
+the verb and the pin `the_committed_record_reads_clean_over_the_committed_route` until the record is corrected.
+**Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/
+
+## 2026-10-10-capability-record-re-based — pending trigger for the capability verb's glue
+**Section:** §1 Test Scope Summary → Pending coverage triggers (documented gaps)
+**Change:** A new row, `verify-capability-matrix-verb-glue-coverage`. The capability record's verdict is pinned
+in-crate by 36 co-located pins in `xtask/src/capability_record.rs` (one per arm over constructed records under
+`tempfile::TempDir`, plus one over the committed record and route). The verb function `verify_capability_matrix`
+in `xtask/src/main.rs` has no pin: the JSON event line (target `xtask.verify_capability_matrix`), the report twin
+`target/capability-matrix/report.json` (`state` · `capability_count` · `claimed_count` · `retired_count` ·
+`violation_count` · `reason` · `violations` · `generated_at`) and the process exit taken from
+`Verdict::exit_code`. The verb ran on one arm only, clean and exit 0 (the dev host; the `lint / test` job log of
+`ci#38049792921`); its exit 1 and exit 2 never ran through the verb, which takes no path. Owed: a pin over the
+twin's member set and the verb's exit per state. Was: no row.
+**Why:** The verdict is tested at the unit tier and the function that prints it, writes the twin and returns the
+exit is not; the gap is recorded so that it is not read as covered by the 36 pins.
+**Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/
+## 2026-10-10-console-engine-entry-point — the console program as a surface, the spawned-program witness form, five pending-coverage rows moved and one added
+**Section:** §1 Coverage scope (`pulse-app` row) · §1 Surfaces under test (new row) · §1 Pending coverage triggers (`exit-hook-main-composition-coverage`, `discovery-observer-wiring-coverage`, `damper-shared-instance-wiring-coverage`, `viz-read-connection-router-wiring-coverage`, `render-posture-main-placement-coverage`; new `engine-boot-rejected-port-and-socket-census-coverage`) · §2 Directory pattern · §4 Test file location · §3 → Per-chunk gate discipline · §3 → PID file
+**Change:**
+- `pulse-app` builds two programs over one engine boot; the window app is driven as before, the shared boot in process (`integration_engine_boot`), the console program as a spawned binary (`integration_console_engine`). New surface row for `andromeda-pulse-engine`: driver, signal (exit status, ports, its log family), boundary.
+- Spawned-program witness form recorded in §3: the built binary under a cleared environment, its own data dir and picked ports, the pid from `Child::id()`, a still-running child killed on drop, readiness and records awaited under a bound, the log read after the end. A chunk touching `console.rs` or the bin file takes it as its runtime gate. The process-end form gains two re-exec arms over `engine_boot::init_process`. `pulse-app/src/engine_boot.rs` joins the boot-smoke path list.
+- `exit-hook-main-composition-coverage` and `discovery-observer-wiring-coverage` narrowed: the process start and the three-observer composition left `main.rs` for `engine_boot` and are witnessed (re-exec children; an in-process boot). Still owed: the window's event-loop tail, the main-thread panic, the observer ORDER, the window's own `main` end to end.
+- The damper row's sole production caller is `engine_boot::start`. Was: `main.rs`. The viz row names `main.rs` without its two stale line ranges. The posture row's owed pin is anchored on the `init_process` call.
+- New row: the rejected-port arm of `engine_boot::start`, a socket census and the lock file's directory are not asserted by any test.
+- `main.rs` is one of two `[[bin]]` targets and keeps one test; the 14 resolver tests run from `unit_engine_boot_env.rs`. `pulse-app/tests/*.rs`: 109 files, 103 at the base.
+- The pid file is written by both programs through the shared boot; the harness verbs stay aimed at `pulse-app`.
+**Why:** The chunk moved the engine boot out of `main.rs` and added a second program with its own tests; rows naming `main.rs` as the wiring site, the single `[[bin]]` and the file count were stale, and the new witness form had no record.
+**Kept:** The two narrowed rows keep their dated original statements above the narrowing.
+**Ref:** .andromeda/runs/2026-10-10T14-17-29Z-wrap/
+
+## 2026-10-10-agent-harness-drives-the-console-engine — `boot` and `status` reach the console engine; the engine cycle is a gate form and a boot-job step
+**Section:** §1 (Surfaces under test: the console engine row; Test harness requirements; Coverage triggers: the WebGPU throughput row; Pending coverage triggers: `harness-cleanup-verdict-and-boot-spawn-shell-coverage`, `perf-slo-check-arm-coverage`, `exit-hook-main-composition-coverage`, a new row) · §3 → 5-command implementation (`boot`, `status`) · §3 → PID file (Lifecycle) · §3 → Per-chunk gate discipline (Direct-binary smoke variant; Spawned-program witness form; a new Engine cycle gate form) · §9 (the Boot smoke row; two failure-condition bullets)
+**Change:**
+- `boot` and `status` take the word `engine` in the sh script: `boot engine` builds and spawns `target/release/andromeda-pulse-engine run` and polls `harness:ready --program console`. Was: `boot` builds and spawns `pulse-app` alone; "no harness verb boots" the console engine.
+- The status object has seven members (`program`) and five verdicts (`wrong-program`, exit 1); the readiness object six and five. Was six and four; five and four. §1's summary reads `exits 0/1/1/1/2`.
+- PID file: the harness verbs are aimed at either program; `check:engine-log` reads the exit record.
+- New label "Engine cycle gate form (runtime, console engine)": `cargo xtask harness:engine-cycle`, its refusals, order, verdict and gate reading, with `harness:engine-settled` and `check:engine-log`; as measured, 19 to 41 s on the dev host and 100 s for the step on `ci#38065768197`, where the cycle's cleared child environment compiled the engine and the injector again.
+- §9: the `boot` job's chain continues past `ci-gates` with `Console engine cycle` and a second upload, `logs-engine-…`; the job also fails on a non-zero cycle; seven uploads carry `if-no-files-found: error`. Was six, and "no CI step makes the heartbeat gap check".
+- Pending rows: the shell-coverage row widened to the `engine` word; `exit-hook-main-composition-coverage` records where the console program's panic and at-exit witness is made and why no trigger is built; new row `engine-log-arm-mutation-and-engine-cycle-glue-coverage`.
+- "The boot job prints no frame line" is narrowed to the perf-budget `frame:` line; the pending row's "the one spawn command" names the window app's.
+**Why:** The chunk aimed the harness at the console engine, put one whole engine run in the gate block and in the `boot` job, and left three readings uncommitted that the new pending row names.
+**Kept:** `engine-boot-rejected-port-and-socket-census-coverage` is not discharged: its readings were cut to the entry minted at this wrap. The reason no trigger is built is carried as read at the chunk's research, not driven.
+**Ref:** .andromeda/runs/2026-10-10T16-47-34Z-wrap/

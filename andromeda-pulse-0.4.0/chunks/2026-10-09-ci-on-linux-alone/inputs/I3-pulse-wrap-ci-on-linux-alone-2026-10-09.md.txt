@@ -1,0 +1,31 @@
+# Wrap directive — Pulse 0.4.0, chunk `2026-10-09-ci-on-linux-alone` (2026-10-09)
+
+From the pc overseer, the operator. `measured` lines were read by me today; re-derive what you rely on.
+
+1. **The operator pass is read and stands.** measured: `ci#37945548047` on `569604b` concluded success in all six jobs
+   (my own read of the run); HEAD equals the remote; the tree holds the two evidence files you wrote after the push.
+2. **The a11y reading is a reading, not a defect of this chunk.** `a11y (ubuntu-22.04)` took 1088 s against 237 s, the
+   difference in two download steps the chunk did not change. One run is one reading: record it in the report as
+   measured, state no cause, re-run nothing. The job leaves at `Window's gates retired`.
+3. **Four things the phase found standing get an OWNER at route-resolve — present each for disposition, pre-place
+   none; "carried to the report as found" is not an owner:**
+   - the three pull-request baseline downloads with no producer in any workflow;
+   - `ci.yml` runs no ESLint step;
+   - the `logs-Linux`, `nextest-Linux` and `criterion-Linux` uploads find no file;
+   - the leaving legs' cache entries (8.5 GB of 12.2 GB, over the 10 GB cap).
+   For each the card says one of: an existing entry owns it (name the entry, as a `CARRY:`), it leaves with a named
+   entry that retires its subject, or nothing is owed and why. Nothing outside the tree is deleted by the wrap.
+4. **The watch on this entry.** The entry is now frozen; say on the card what the letters do with a `WATCH:` whose
+   entry was promoted — where the pin goes — and how the tally counts the boot-smoke readings since the red
+   (`0b61bfb` green, job `113832488437`; `569604b` green, job `113870729265`, on a tree that differs in `ci.yml` and
+   one test file). Follow the letters; where they are silent, say so and ask.
+5. **Three readings for the closing report, measured from this wrap's own artifacts** (the main overseer asked for
+   them; this is the first chunk wrap on a route that removes surfaces):
+   (a) what the wrap amended in the masters for what the chunk retires, the cascade's rows, and any halt;
+   (b) the watch's tally line as the report prints it, whether the pin moved to the next markerless entry, and what
+       `route.py compact --dry-run` printed about it;
+   (c) whether any `guard-refused` or `exact-hit` signal appears in this wrap's step records, and how the curation
+       step recorded a candidate that sat exactly on 0.6, if one did.
+6. **Stops.** The first citation sweep stops for my word, as the letter says. Stop before the commit and print
+   `git status --short` for my read of the tree. The 85 % and 90 % context alarms are expected: finish; stop only
+   at 95 %.

@@ -10,21 +10,50 @@
 //!
 //! Formalized contract (per the `check:npm-supply-chain` registry shape):
 //! one pretty-JSON verdict object on stdout; verdict arms
-//! `running-healthy` / `stale` / `not-running` / `cannot-evaluate`;
-//! exit 0 / 1 / 1 / 2. The reported `pid` is the identity a caller matches
-//! against the process it spawned (test-plan §3 status-endpoint identity).
+//! `running-healthy` / `stale` / `wrong-program` / `not-running` /
+//! `cannot-evaluate`; exit 0 / 1 / 1 / 1 / 2. The reported `pid` is the
+//! identity a caller matches against the process it spawned (test-plan §3
+//! status-endpoint identity).
+//!
+//! Two programs write the same pid file and log family, so the verdict also
+//! names the program the log itself records (`program`: the last
+//! `app.boot.engine` record's label, `window` / `console`, or `unknown`). A
+//! caller that asks for one program and reads the other gets `wrong-program`
+//! instead of a grade of the wrong run.
 
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use std::time::SystemTime;
 
 use anyhow::Result;
-use serde_json::json;
+use serde_json::{Value, json};
 
 /// Ticks emit every 15s; four missed ticks reads as a wedged or dead
 /// writer. Deliberately far below the 450s drain-stall threshold — this is
 /// liveness-of-writes, not drain progress.
 const STALE_AFTER_SECONDS: u64 = 60;
+
+pub(crate) const BOOT_ENGINE_TARGET: &str = "app.boot.engine";
+pub(crate) const PROGRAM_UNKNOWN: &str = "unknown";
+
+/// The program a verb is asked to grade.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+pub(crate) enum Program {
+    Window,
+    Console,
+}
+
+impl Program {
+    pub(crate) const ALL: [Program; 2] = [Program::Window, Program::Console];
+
+    /// The label the program's own boot record carries.
+    pub(crate) fn label(self) -> &'static str {
+        match self {
+            Program::Window => "window",
+            Program::Console => "console",
+        }
+    }
+}
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Verdict {
@@ -34,17 +63,18 @@ pub(crate) struct Verdict {
     pub(crate) last_write_age_seconds: Option<u64>,
 }
 
-pub(crate) fn run() -> Result<ExitCode> {
-    let (verdict, ended) = match resolve_paths() {
+pub(crate) fn run(asked: Option<Program>) -> Result<ExitCode> {
+    let (verdict, ended, program) = match resolve_paths() {
         Some((pidfile, log_base)) => {
             let pid = read_pid(&pidfile);
             let alive = pid.and_then(pid_alive);
             let newest = newest_family_member(&log_base);
-            let verdict = classify(pid, alive, newest);
+            let program = read_program(&log_base);
+            let verdict = for_program(classify(pid, alive, newest), asked, program);
             let ended = (verdict.arm != "running-healthy")
                 .then(|| read_ended(&end_file(&pidfile)))
                 .flatten();
-            (verdict, ended)
+            (verdict, ended, program)
         }
         None => (
             Verdict {
@@ -54,17 +84,11 @@ pub(crate) fn run() -> Result<ExitCode> {
                 last_write_age_seconds: None,
             },
             None,
+            PROGRAM_UNKNOWN,
         ),
     };
 
-    let payload = json!({
-        "verdict": verdict.arm,
-        "pid": verdict.pid,
-        "ended": ended,
-        "log_file_basename": verdict.log_file_basename,
-        "last_write_age_seconds": verdict.last_write_age_seconds,
-        "stale_after_seconds": STALE_AFTER_SECONDS,
-    });
+    let payload = status_payload(&verdict, ended, program);
     println!("{}", serde_json::to_string_pretty(&payload)?);
 
     Ok(match verdict.arm {
@@ -72,6 +96,74 @@ pub(crate) fn run() -> Result<ExitCode> {
         "cannot-evaluate" => ExitCode::from(2),
         _ => ExitCode::FAILURE,
     })
+}
+
+fn status_payload(verdict: &Verdict, ended: Option<String>, program: &str) -> Value {
+    json!({
+        "verdict": verdict.arm,
+        "pid": verdict.pid,
+        "ended": ended,
+        "program": program,
+        "log_file_basename": verdict.log_file_basename,
+        "last_write_age_seconds": verdict.last_write_age_seconds,
+        "stale_after_seconds": STALE_AFTER_SECONDS,
+    })
+}
+
+/// The program a boot record names, `unknown` when it names none of the two;
+/// `None` for any other record.
+pub(crate) fn boot_record_program(record: &Value) -> Option<&'static str> {
+    if record.get("target").and_then(Value::as_str) != Some(BOOT_ENGINE_TARGET) {
+        return None;
+    }
+    let label = record
+        .get("fields")
+        .and_then(|fields| fields.get("program"))
+        .and_then(Value::as_str);
+    Some(
+        Program::ALL
+            .into_iter()
+            .map(Program::label)
+            .find(|known| Some(*known) == label)
+            .unwrap_or(PROGRAM_UNKNOWN),
+    )
+}
+
+/// The program of the LAST `app.boot.engine` record in `lines`: a data dir
+/// booted twice is graded as what booted last.
+pub(crate) fn program_of(lines: &[String]) -> &'static str {
+    lines
+        .iter()
+        .filter_map(|line| serde_json::from_str::<Value>(line).ok())
+        .filter_map(|record| boot_record_program(&record))
+        .next_back()
+        .unwrap_or(PROGRAM_UNKNOWN)
+}
+
+/// `program_of` over the log family at `log_base`; an unreadable or absent
+/// family is `unknown`.
+pub(crate) fn read_program(log_base: &Path) -> &'static str {
+    crate::smoke::read_jsonl_lines(log_base)
+        .map(|lines| program_of(&lines))
+        .unwrap_or(PROGRAM_UNKNOWN)
+}
+
+/// The arm once the asked program is held against the one the log records.
+/// A run that is not there is not graded: `cannot-evaluate` and
+/// `not-running` stand whatever was asked.
+pub(crate) fn graded_arm(arm: &'static str, asked: Option<Program>, program: &str) -> &'static str {
+    match (arm, asked) {
+        ("cannot-evaluate" | "not-running", _) | (_, None) => arm,
+        (_, Some(asked)) if asked.label() == program => arm,
+        _ => "wrong-program",
+    }
+}
+
+pub(crate) fn for_program(verdict: Verdict, asked: Option<Program>, program: &str) -> Verdict {
+    Verdict {
+        arm: graded_arm(verdict.arm, asked, program),
+        ..verdict
+    }
 }
 
 /// The verdict core — pure so the arms are pinnable without a filesystem.
@@ -120,19 +212,24 @@ pub(crate) fn classify(
 /// Harness-only path resolution (trim + fall back; the vars are the
 /// `ANDROMEDA_PULSE_PIDFILE` / `_LOGFILE` / `_DATA_DIR` class — external
 /// tool-locator carve-out, never data-dir-confined).
-fn resolve_paths() -> Option<(PathBuf, PathBuf)> {
-    let env_path = |name: &str| {
-        std::env::var(name).ok().and_then(|v| {
-            let t = v.trim();
-            (!t.is_empty()).then(|| PathBuf::from(t))
-        })
-    };
-    let data_dir = env_path("ANDROMEDA_PULSE_DATA_DIR").or_else(default_data_dir)?;
+pub(crate) fn resolve_paths() -> Option<(PathBuf, PathBuf)> {
+    let data_dir = resolve_data_dir()?;
     let pidfile = env_path("ANDROMEDA_PULSE_PIDFILE")
         .unwrap_or_else(|| data_dir.join("run").join("andromeda-pulse.pid"));
     let log_base = env_path("ANDROMEDA_PULSE_LOGFILE")
         .unwrap_or_else(|| data_dir.join("logs").join("agent-latest.jsonl"));
     Some((pidfile, log_base))
+}
+
+fn env_path(name: &str) -> Option<PathBuf> {
+    std::env::var(name).ok().and_then(|v| {
+        let t = v.trim();
+        (!t.is_empty()).then(|| PathBuf::from(t))
+    })
+}
+
+pub(crate) fn resolve_data_dir() -> Option<PathBuf> {
+    env_path("ANDROMEDA_PULSE_DATA_DIR").or_else(default_data_dir)
 }
 
 fn default_data_dir() -> Option<PathBuf> {
@@ -151,7 +248,7 @@ fn default_data_dir() -> Option<PathBuf> {
 }
 
 /// Whether `pid` names a live process; `None` when the probe cannot run.
-fn pid_alive(pid: u32) -> Option<bool> {
+pub(crate) fn pid_alive(pid: u32) -> Option<bool> {
     #[cfg(windows)]
     {
         let out = std::process::Command::new("tasklist")
@@ -196,20 +293,20 @@ fn tasklist_lists_pid(csv: &str, pid: u32) -> bool {
 /// Where `agent-run.sh boot`'s waiting wrapper records how the app ended,
 /// beside the pidfile. The app is an orphan once boot returns, so no later
 /// verb can reap it and read its status any other way.
-fn end_file(pidfile: &Path) -> PathBuf {
+pub(crate) fn end_file(pidfile: &Path) -> PathBuf {
     pidfile.with_file_name("andromeda-pulse.exit")
 }
 
 /// The recorded end (`exit N` / `signal N (NAME)`), bounded to one short
 /// printable line; anything else reads as no record.
-fn read_ended(path: &Path) -> Option<String> {
+pub(crate) fn read_ended(path: &Path) -> Option<String> {
     let text = std::fs::read_to_string(path).ok()?;
     let line = text.trim();
     (!line.is_empty() && line.len() <= 48 && line.chars().all(|c| c.is_ascii_graphic() || c == ' '))
         .then(|| line.to_owned())
 }
 
-fn read_pid(pidfile: &Path) -> Option<u32> {
+pub(crate) fn read_pid(pidfile: &Path) -> Option<u32> {
     std::fs::read_to_string(pidfile)
         .ok()
         .and_then(|s| s.trim().parse::<u32>().ok())
@@ -218,7 +315,7 @@ fn read_pid(pidfile: &Path) -> Option<u32> {
 /// Newest rotated-family member by mtime — `tracing_appender`'s daily
 /// roller date-suffixes the sink, so a bare-name read misses a healthy
 /// boot (the same family rule as `smoke::read_jsonl_lines`).
-fn newest_family_member(log_base: &Path) -> Option<(String, u64)> {
+pub(crate) fn newest_family_member(log_base: &Path) -> Option<(String, u64)> {
     let dir = log_base.parent()?;
     let stem = log_base.file_name()?.to_string_lossy().into_owned();
     let newest = std::fs::read_dir(dir)
@@ -369,6 +466,177 @@ mod tests {
         assert_eq!(read_ended(&exit), None, "control bytes");
         std::fs::write(&exit, "x".repeat(49)).expect("write");
         assert_eq!(read_ended(&exit), None, "over the bound");
+    }
+
+    fn boot_record(program: &str) -> String {
+        json!({
+            "timestamp": "2026-10-10T00:00:00.000000Z",
+            "level": "INFO",
+            "target": BOOT_ENGINE_TARGET,
+            "fields": {"program": program, "interpretation": "none", "reason": "deterministic_gate_unset"},
+        })
+        .to_string()
+    }
+
+    #[test]
+    fn the_program_is_the_last_boot_record_of_the_family() {
+        let dir = tempfile::TempDir::new().expect("tmp");
+        let base = dir.path().join("agent-latest.jsonl");
+        std::fs::write(
+            dir.path().join("agent-latest.jsonl.2026-10-09"),
+            format!("{}\n", boot_record("window")),
+        )
+        .expect("write");
+        std::fs::write(
+            dir.path().join("agent-latest.jsonl.2026-10-10"),
+            format!(
+                "{}\n{}\n",
+                r#"{"target":"ingest.tick","fields":{}}"#,
+                boot_record("console")
+            ),
+        )
+        .expect("write");
+        assert_eq!(read_program(&base), "console");
+    }
+
+    #[test]
+    fn a_family_with_no_boot_record_reads_unknown() {
+        let dir = tempfile::TempDir::new().expect("tmp");
+        let base = dir.path().join("agent-latest.jsonl");
+        assert_eq!(read_program(&base), PROGRAM_UNKNOWN, "no family at all");
+        std::fs::write(
+            dir.path().join("agent-latest.jsonl.2026-10-10"),
+            "{\"target\":\"ingest.tick\",\"fields\":{}}\nnot json\n",
+        )
+        .expect("write");
+        assert_eq!(read_program(&base), PROGRAM_UNKNOWN);
+        assert_eq!(
+            read_program(&dir.path().join("absent").join("agent-latest.jsonl")),
+            PROGRAM_UNKNOWN,
+            "no log dir"
+        );
+    }
+
+    #[test]
+    fn a_boot_record_naming_no_known_program_reads_unknown() {
+        assert_eq!(program_of(&[boot_record("<redacted>")]), PROGRAM_UNKNOWN);
+        assert_eq!(
+            program_of(&[r#"{"target":"app.boot.engine","fields":{}}"#.to_owned()]),
+            PROGRAM_UNKNOWN
+        );
+        assert_eq!(
+            program_of(&[boot_record("console"), boot_record("tray")]),
+            PROGRAM_UNKNOWN,
+            "the last record decides, also when it names nothing known"
+        );
+    }
+
+    #[test]
+    fn a_file_beside_the_family_is_not_read_for_the_program() {
+        let dir = tempfile::TempDir::new().expect("tmp");
+        let base = dir.path().join("agent-latest.jsonl");
+        std::fs::write(
+            dir.path().join("agent-latest.jsonl.2026-10-10"),
+            format!("{}\n", boot_record("console")),
+        )
+        .expect("write");
+        // Sorts after the member, so a reader that swept the whole dir would
+        // take it as the last record.
+        std::fs::write(
+            dir.path().join("boot.log"),
+            format!("{}\n", boot_record("window")),
+        )
+        .expect("write");
+        assert_eq!(read_program(&base), "console");
+    }
+
+    #[test]
+    fn an_asked_program_that_the_log_does_not_record_is_wrong_program() {
+        for arm in ["running-healthy", "stale"] {
+            assert_eq!(
+                graded_arm(arm, Some(Program::Console), "window"),
+                "wrong-program"
+            );
+            assert_eq!(
+                graded_arm(arm, Some(Program::Window), "console"),
+                "wrong-program"
+            );
+            assert_eq!(
+                graded_arm(arm, Some(Program::Console), PROGRAM_UNKNOWN),
+                "wrong-program",
+                "a log with no boot record is a mismatch too"
+            );
+        }
+    }
+
+    #[test]
+    fn the_asked_program_matching_the_log_keeps_the_arm() {
+        assert_eq!(
+            graded_arm("running-healthy", Some(Program::Console), "console"),
+            "running-healthy"
+        );
+        assert_eq!(
+            graded_arm("stale", Some(Program::Window), "window"),
+            "stale"
+        );
+    }
+
+    #[test]
+    fn with_no_program_asked_the_arm_stands_whatever_the_log_records() {
+        for program in ["window", "console", PROGRAM_UNKNOWN] {
+            assert_eq!(
+                graded_arm("running-healthy", None, program),
+                "running-healthy"
+            );
+        }
+    }
+
+    #[test]
+    fn a_run_that_is_not_there_is_not_graded_for_its_program() {
+        for arm in ["not-running", "cannot-evaluate"] {
+            assert_eq!(graded_arm(arm, Some(Program::Console), "window"), arm);
+            assert_eq!(graded_arm(arm, Some(Program::Window), PROGRAM_UNKNOWN), arm);
+        }
+    }
+
+    #[test]
+    fn for_program_changes_the_arm_alone() {
+        let healthy = classify(Some(7), Some(true), Some(("agent-latest.jsonl".into(), 1)));
+        let graded = for_program(healthy, Some(Program::Console), "window");
+        assert_eq!(graded.arm, "wrong-program");
+        assert_eq!(graded.pid, Some(7));
+        assert_eq!(graded.last_write_age_seconds, Some(1));
+    }
+
+    #[test]
+    fn the_status_payload_carries_the_closed_member_set() {
+        let verdict = classify(Some(7), Some(true), Some(("agent-latest.jsonl".into(), 1)));
+        let payload = status_payload(&verdict, None, "console");
+        let keys: std::collections::BTreeSet<&str> = payload
+            .as_object()
+            .expect("object")
+            .keys()
+            .map(String::as_str)
+            .collect();
+        assert_eq!(
+            keys,
+            std::collections::BTreeSet::from([
+                "verdict",
+                "pid",
+                "ended",
+                "program",
+                "log_file_basename",
+                "last_write_age_seconds",
+                "stale_after_seconds",
+            ])
+        );
+        assert_eq!(payload["program"], "console");
+    }
+
+    #[test]
+    fn the_program_labels_are_the_boot_record_s_own() {
+        assert_eq!(Program::Window.label(), "window");
+        assert_eq!(Program::Console.label(), "console");
     }
 
     #[test]

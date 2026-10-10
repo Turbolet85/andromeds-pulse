@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+default-run = "pulse-app"
 
 [lib]
 name = "pulse_app"
@@ -14,6 +15,11 @@ test = false
 [[bin]]
 name = "pulse-app"
 path = "src/main.rs"
+
+# The console program: the same engine boot, no window.
+[[bin]]
+name = "andromeda-pulse-engine"
+path = "src/bin/andromeda-pulse-engine.rs"
 
 # Dev-only real-model decision probe (operator-run; its generations are never a
 # gate). `test = true`: an auto-discovered example's unit tests are never collected.

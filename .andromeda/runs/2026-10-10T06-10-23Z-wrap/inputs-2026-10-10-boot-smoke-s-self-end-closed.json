@@ -1,0 +1,151 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T06:10:39Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-closed",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-wrap-boot-smoke-self-end-closed-2026-10-10.md",
+"--kind",
+"relay",
+"--why",
+"the operator wrap directive: the pass stands; the standing red rule is consumed; leaving owners pinned; the series first boot builds again, for disposition at the card; three limits stated; the defect is in the app as published; an escalate halts at the card; the two stops",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-10T06-10-23Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I5 · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-boot-smoke-self-end-closed-2026-10-10.md",
+"cite: inputs#I5"
+],
+"stderr": null,
+"wrote": [
+"inputs/I5-pulse-wrap-boot-smoke-self-end-closed-2026-10-10.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I5",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-wrap-boot-smoke-self-end-closed-2026-10-10.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "42dd268f28f689f6ed2c6452b6ae83f252f747598a0af4ac131cfb7c627cc38e",
+"copy": "I5-pulse-wrap-boot-smoke-self-end-closed-2026-10-10.md.txt",
+"link": false,
+"read_at": "2026-10-10T06:10:39Z",
+"step": "wrap",
+"why": "the operator wrap directive: the pass stands; the standing red rule is consumed; leaving owners pinned; the series first boot builds again, for disposition at the card; three limits stated; the defect is in the app as published; an escalate halts at the card; the two stops"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T06:10:39Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-closed",
+"--run-dir",
+".andromeda/runs/2026-10-10T06-10-23Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-boot-smoke-self-end-closed-2026-10-10.md",
+"I1 cited scope.md:17 · scope.md:24 · scope.md:42 · scope.md:54 · scope.md:56 · scope.md:94 · scope.md:96 · scope.md:111 · scope.md:113 · scope.md:118 · scope.md:122 · research.md:20 · research.md:65 · research.md:77 · plan.md:29 · plan.md:538 · plan.md:549 · plan.md:551 · plan.md:552 · plan.md:558 · plan.md:562",
+"I2 n/a — a message has no live source · copy message · message: the operator, in the /andromeda-phase invocation message, 2026-10-10",
+"I2 cited scope.md:17 · research.md:22 · plan.md:538",
+"I3 n/a — a message has no live source · copy message · message: the operator (the pc overseer), answering the P4 fork round here, 2026-10-10",
+"I3 cited scope.md:67 · scope.md:134 · research.md:183 · research.md:192 · research.md:193 · plan.md:24 · plan.md:29 · plan.md:112 · plan.md:538 · plan.md:543 · plan.md:549 · plan.md:551",
+"I4 n/a — a message has no live source · copy message · message: the operator (the pc overseer), reviewing the plan card at P5 here, 2026-10-10",
+"I4 cited scope.md:73 · scope.md:134 · research.md:184 · research.md:196 · plan.md:24 · plan.md:94 · plan.md:539 · plan.md:565 · plan.md:597",
+"I5 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-boot-smoke-self-end-closed-2026-10-10.md",
+"I5 UNCITED",
+"inputs: 5 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 3 · uncited 1 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 5,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 3
+},
+"uncited": 1,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T06:13:42Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-closed",
+"--run-dir",
+".andromeda/runs/2026-10-10T06-10-23Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-boot-smoke-self-end-closed-2026-10-10.md",
+"I1 cited scope.md:17 · scope.md:24 · scope.md:42 · scope.md:54 · scope.md:56 · scope.md:94 · scope.md:96 · scope.md:111 · scope.md:113 · scope.md:118 · scope.md:122 · research.md:20 · research.md:65 · research.md:77 · plan.md:29 · plan.md:538 · plan.md:549 · plan.md:551 · plan.md:552 · plan.md:558 · plan.md:562 · report.md:126 · report.md:170",
+"I2 n/a — a message has no live source · copy message · message: the operator, in the /andromeda-phase invocation message, 2026-10-10",
+"I2 cited scope.md:17 · research.md:22 · plan.md:538",
+"I3 n/a — a message has no live source · copy message · message: the operator (the pc overseer), answering the P4 fork round here, 2026-10-10",
+"I3 cited scope.md:67 · scope.md:134 · research.md:183 · research.md:192 · research.md:193 · plan.md:24 · plan.md:29 · plan.md:112 · plan.md:538 · plan.md:543 · plan.md:549 · plan.md:551",
+"I4 n/a — a message has no live source · copy message · message: the operator (the pc overseer), reviewing the plan card at P5 here, 2026-10-10",
+"I4 cited scope.md:73 · scope.md:134 · research.md:184 · research.md:196 · plan.md:24 · plan.md:94 · plan.md:539 · plan.md:565 · plan.md:597 · report.md:73 · report.md:144",
+"I5 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-boot-smoke-self-end-closed-2026-10-10.md",
+"I5 cited report.md:103 · report.md:112 · report.md:163 · report.md:201 · report.md:279 · report.md:291",
+"inputs: 5 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 3 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 5,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 3
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]

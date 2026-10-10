@@ -1,0 +1,84 @@
+[
+{
+"tool": "ci",
+"v": "1.2",
+"sha8": "881cd498",
+"ts": "2026-10-09T18:17:55Z",
+"argv": [
+"conclusion",
+"--sha",
+"277d65dbb51a72141e092ab37c0951278ed93a74",
+"--run-dir",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"277d65dbb51a verdict: in progress · checks 7/7 · runs ci#37971913620 in_progress/- secret-scan#37971913623 completed/su…",
+"runs: ci#37971913620 pull_request in_progress/- · secret-scan#37971913623 pull_request completed/success",
+"running 6: oldest boot smoke (ubuntu-22.04) 190 s",
+"run open: ci#37971913620 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "277d65dbb51a72141e092ab37c0951278ed93a74",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+},
+{
+"tool": "ci",
+"v": "1.2",
+"sha8": "881cd498",
+"ts": "2026-10-09T18:54:37Z",
+"argv": [
+"conclusion",
+"--sha",
+"277d65dbb51a72141e092ab37c0951278ed93a74",
+"--run-dir",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"277d65dbb51a verdict: green · checks 7/7 · wall 1190 s · runs secret-scan#37971913623 completed/success ci#37971913620 …",
+"runs: secret-scan#37971913623 pull_request completed/success · ci#37971913620 pull_request completed/success",
+"checks: a11y (ubuntu-22.04) · boot smoke (ubuntu-22.04) · coverage gate (line ≥75% / branch ≥70% / function ≥85%)",
+"  gitleaks · lint / test (ubuntu-22.04) · mcp-server tests (ubuntu-22.04) · supply-chain (audit + deny + auditable)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "277d65dbb51a72141e092ab37c0951278ed93a74",
+"word": "green",
+"polls": [
+"green"
+]
+}
+]
+}
+}
+]

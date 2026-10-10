@@ -1,0 +1,101 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T14:17:38Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-console-engine-entry-point",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-wrap-console-engine-entry-point-2026-10-10.md",
+"--kind",
+"relay",
+"--why",
+"the operator wrap directive for this chunk: the operator pass stands; P-086 not claimed and its dated note; the masters describe two programs; four carries on their owning entries; the drift pin on Window retired; found-and-not-owned to the card; two stops",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap",
+"--marker",
+"2026-10-10-console-engine-entry-point"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I4 · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-console-engine-entry-point-2026-10-10.md",
+"cite: inputs#I4"
+],
+"stderr": null,
+"wrote": [
+"inputs/I4-pulse-wrap-console-engine-entry-point-2026-10-10.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I4",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-wrap-console-engine-entry-point-2026-10-10.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "20f5f98c6effcf4825d307305663c45956931a86b794d5e611787f36cfcbf5da",
+"copy": "I4-pulse-wrap-console-engine-entry-point-2026-10-10.md.txt",
+"link": false,
+"read_at": "2026-10-10T14:17:38Z",
+"step": "wrap",
+"why": "the operator wrap directive for this chunk: the operator pass stands; P-086 not claimed and its dated note; the masters describe two programs; four carries on their owning entries; the drift pin on Window retired; found-and-not-owned to the card; two stops"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T14:17:45Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-console-engine-entry-point",
+"--run-dir",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap",
+"--marker",
+"2026-10-10-console-engine-entry-point"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-console-engine-entry-point-2026-10-10.md",
+"I1 cited scope.md:30 · scope.md:32 · scope.md:33 · scope.md:49 · scope.md:55 · scope.md:62 · scope.md:77 · scope.md:101 · scope.md:105 · scope.md:114 · research.md:12 · plan.md:29 · plan.md:35 · plan.md:378 · plan.md:381 · plan.md:389 · plan.md:391",
+"I2 n/a — a message has no live source · copy message · message: the operator (the pc overseer), in the session at P4, 2026-10-10",
+"I2 cited scope.md:68 · plan.md:29 · plan.md:35 · plan.md:374 · plan.md:422",
+"I3 n/a — a message has no live source · copy message · message: the operator, in the implement session after the P4 report, 2026-10-10",
+"I3 UNCITED",
+"I4 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-console-engine-entry-point-2026-10-10.md",
+"I4 UNCITED",
+"inputs: 4 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 2 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 4,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 2,
+"unparsed": 0
+}
+}
+]

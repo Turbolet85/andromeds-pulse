@@ -1,0 +1,38 @@
+[
+  {
+    "id": "I1",
+    "kind": "relay",
+    "repo": null,
+    "path": "../additional/pc-overseer/relays/pulse-phase-pre-push-native-linux-2026-10-09.md",
+    "form": "copy",
+    "state": "no-repo",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "c2d67c29b4be551180cf32ab8cb31df3a7e4b3702954c7faa672cb95197a5511",
+    "copy": "I1-pulse-phase-pre-push-native-linux-2026-10-09.md.txt",
+    "link": false,
+    "read_at": "2026-10-09T21:05:55Z",
+    "step": "phase:P1",
+    "why": "the operator directive for this chunk: how the check is run by hand today, what the surviving stages means, the two boot-smoke readings, the scope edge, the host load, the stops"
+  },
+  {
+    "id": "I2",
+    "kind": "relay",
+    "repo": null,
+    "path": "../additional/pc-overseer/relays/pulse-wrap-pre-push-native-linux-2026-10-10.md",
+    "form": "copy",
+    "state": "no-repo",
+    "commit": null,
+    "ref": null,
+    "upstream": null,
+    "claimed": null,
+    "sha256": "36a014898f5b2816bf8f367392dc84e29f5682f4e6f626e422f81772764f953d",
+    "copy": "I2-pulse-wrap-pre-push-native-linux-2026-10-10.md.txt",
+    "link": false,
+    "read_at": "2026-10-10T01:19:29Z",
+    "step": "wrap",
+    "why": "the operator wrap directive for this chunk: the operator pass stands with its red, the watch recurred and its closing entry is minted first in the tail, the freight as measured, the two greens recorded, the six deviations accepted, the harness-only class as the operator reading, P-113 pooled with a dated note, the two stops"
+  }
+]

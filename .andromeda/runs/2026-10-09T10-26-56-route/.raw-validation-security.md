@@ -1,0 +1,25 @@
+# Security validation — route draft
+
+---
+
+## Reorder
+- Move `Door admission lifecycle and bounds` before `Door reachable from another host`
+  Reason: per security-plan §Threat Model Summary → Attack surface "MCP stdio surface" (its trust boundary rests on no network exposure) and §Bootstrap phases `auth-scaffolding-baseline` (skipped only while auth is none), revocation, answer bounds, store-only reads and the switchable write must exist before a network caller does, as `Token lifecycle by engine command` precedes the receiver. As drafted, one chunk leaves the door reachable from another host with an admission that cannot be revoked and answers with no bound, against P-093's "from the moment it can be reached".
+- Move `One place on a node` before `Corpus encryption at rest retired`
+  Reason: per security-plan §Data Protection → At rest, cell encryption is the incident corpus's only at-rest control, and §Logging & Monitoring → Access controls gives an owner-only mode to the log directory alone (in `pulse-app/src` and `crates/*/src` no other store location sets one). Retiring encryption first leaves plaintext incident stores under default permissions until the owner-only resolver lands.
+
+## Rewrite
+- `Door inside the engine's process`: "own host only" → "owner only, own host"
+  Reason: per security-plan §API Security "Host header allowlist" (a loopback listener is not by itself an authorization boundary) and §Data Protection → At rest (access by OS user), the door trades a stdio pipe with no listener for one inside the engine, and the double gate leaves in the same chunk. An own-host door any local account can call reads the stores around the owner-only locations `One place on a node` sets, from Epoch 1 until admission exists in Epoch 4.
+- `One place on a node`: "stores, log and pid, one documented service default, one resolver; other-system roots leave" → "stores, log, pid, one documented service default, one resolver; other-system roots, shared-temp fallback leave"
+  Reason: per security-plan §Data Protection → At rest "Corpus-key lock file" residual (2), a shared temp directory was accepted only for a content-free lock file under a single-user boundary. The data-directory resolver ends in that same shared temp directory when no home is set (`pulse-app/src/main.rs:203`), which on a service account places unencrypted stores where another local account can pre-create the directory.
+- `Training export retired`: "nothing the engine writes lands outside its own stores" → "the model's per-spawn temp file is the one write left outside them"
+  Reason: per security-plan §Data Protection → At rest "Corpus-key lock file", three product-written locations sit outside the data dir: the lock file leaves in Epoch 1 and the export sink here, but the per-spawn grammar temp file stays until `Local model retired` in Epoch 3 (`pulse-app/src/llamacli_inference.rs:758`). The line's claim is false at its own chunk on a host with a model configured, so P-106's clause closes only at that later entry.
+- `Desktop distribution retired`: "release and updater-key runbooks" → "release and updater-key runbooks, release credentials"
+  Reason: per security-plan §Secret Management "What counts as secret" and "GitHub Environment scoping", the two workflows this chunk removes are the only readers of the `production-release` environment's signing keys, vault federation and channel push tokens (16 secret names referenced in `release.yml` and `update-channels.yml`). The line retires the readers and names no end for the credentials — revoked, or recorded as never made — so they would stay live with no pipeline.
+- `Security posture restated for a networked engine`: "for a token-gated receiver and disk stores" → "for token-gated receiver, admitted-party door, disk stores"
+  Reason: per security-plan §Threat Model Summary → Attack surface "MCP stdio surface" and → Auth model, the door reached from another host is a second network surface with its own credential, distinct from the sender's token. Both door entries of this epoch are built to this restatement, which names only the receiver and the stores.
+- `Network OTLP receiver behind the token`: "termination and key custody stated" → "termination, key custody, renewal stated"
+  Reason: per security-plan §Secret Management → Rotation cadence, each secret-class key carries a stated rotation path; the channel's private key is the one new key of this epoch with custody stated and no renewal, while the token beside it has "replaced".
+- `State in one line for a desktop panel`: "an engine command prints the current state; a panel module on the founder's desktop shows it" → "an engine command prints the state through the door; the founder's desktop panel shows it"
+  Reason: per security-plan §Threat Model Summary → Attack surface "OS notification / tray surfaces" (outbound, same-process), the panel that replaces the tray now reads an engine on another host (P-102). Unnamed, the path admits a second remote read outside `Door admission lifecycle and bounds`; P-092 already names the door as the status widget's.

@@ -1,0 +1,265 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T15:50:08Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-phase-supply-chain-push-and-pr-2026-10-09.md",
+"--kind",
+"relay",
+"--why",
+"the pc overseer phase directive for this chunk: the defect as read in runs 37907730264 and 37904682919, the push-event witness, the permission-widening halt, the freight, the P-128 scope edge",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-supply-chain-push-and-pr-2026-10-09.md",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-pulse-phase-supply-chain-push-and-pr-2026-10-09.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-phase-supply-chain-push-and-pr-2026-10-09.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "dfd97986f8798ffeb5b13d40d294f55816905d8d8dd67137cafba2e112ca0e91",
+"copy": "I1-pulse-phase-supply-chain-push-and-pr-2026-10-09.md.txt",
+"link": false,
+"read_at": "2026-10-09T15:50:08Z",
+"step": "phase:P1",
+"why": "the pc overseer phase directive for this chunk: the defect as read in runs 37907730264 and 37904682919, the push-event witness, the permission-widening halt, the freight, the P-128 scope edge"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T15:50:08Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--message-file",
+".andromeda/runs/2026-10-09T15-49-36Z-phase/relay-1.md",
+"--origin",
+"the operator (pc overseer), the /andromeda-phase invocation arguments, 2026-10-09",
+"--kind",
+"relay",
+"--why",
+"the invocation directive: a plan that widens a token permission halts at P4 for the founder own word; stop at P5 for the operator yes",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: the operator (pc overseer), the /andromeda-phase invocation arguments, 2026-10-09",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (pc overseer), the /andromeda-phase invocation arguments, 2026-10-09",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "aa70420c1c4c8a4679e5f7f5714b74f1be01778555697cbebbd4ca43cac88ccc",
+"copy": "I2-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-09T15:50:08Z",
+"step": "phase:P1",
+"why": "the invocation directive: a plan that widens a token permission halts at P4 for the founder own word; stop at P5 for the operator yes"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T16:19:49Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-phase-p5-review-main-now-2026-10-09.md",
+"--kind",
+"relay",
+"--why",
+"the operator answer at P5 on a founder ruling of 2026-10-09: main is repaired now by a separate pull request the founder merges, the witness is the push run on main, no push-witness trigger; how the two branches meet again is measured by a trial merge",
+"--step",
+"phase:P5",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I3 · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-p5-review-main-now-2026-10-09.md",
+"cite: inputs#I3"
+],
+"stderr": null,
+"wrote": [
+"inputs/I3-pulse-phase-p5-review-main-now-2026-10-09.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I3",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-phase-p5-review-main-now-2026-10-09.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "46b265ff271fc91089941c42d71da50a85b0c45a8b5f96b2c9d3867deb15b0fb",
+"copy": "I3-pulse-phase-p5-review-main-now-2026-10-09.md.txt",
+"link": false,
+"read_at": "2026-10-09T16:19:49Z",
+"step": "phase:P5",
+"why": "the operator answer at P5 on a founder ruling of 2026-10-09: main is repaired now by a separate pull request the founder merges, the witness is the push run on main, no push-witness trigger; how the two branches meet again is measured by a trial merge"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T16:19:49Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--message-file",
+".andromeda/runs/2026-10-09T15-49-36Z-phase/relay-2.md",
+"--origin",
+"the operator (pc overseer), the P5 review answer in the session, 2026-10-09",
+"--kind",
+"relay",
+"--why",
+"the P5 review word: revise the plan to the founder ruling and stop at P5 again for the operator yes",
+"--step",
+"phase:P5",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I4 · copy message · message: the operator (pc overseer), the P5 review answer in the session, 2026-10-09",
+"cite: inputs#I4"
+],
+"stderr": null,
+"wrote": [
+"inputs/I4-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I4",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (pc overseer), the P5 review answer in the session, 2026-10-09",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "fe1f041ca1937d58d7ea0e424ca67a3cb5242ec1d0abc447499ef05807e4311d",
+"copy": "I4-relay-2.md.txt",
+"link": false,
+"read_at": "2026-10-09T16:19:49Z",
+"step": "phase:P5",
+"why": "the P5 review word: revise the plan to the founder ruling and stop at P5 again for the operator yes"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T16:29:38Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-supply-chain-push-and-pr-2026-10-09.md",
+"I1 cited scope.md:7 · scope.md:44 · scope.md:67 · scope.md:91 · scope.md:129 · scope.md:137 · scope.md:138 · scope.md:151 · research.md:22 · research.md:130 · plan.md:28 · plan.md:537 · plan.md:567 · plan.md:591",
+"I2 n/a — a message has no live source · copy message · message: the operator (pc overseer), the /andromeda-phase invocation arguments, 2026-10-09",
+"I2 cited scope.md:91 · scope.md:137 · scope.md:139 · research.md:24 · plan.md:537 · plan.md:567",
+"I3 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-p5-review-main-now-2026-10-09.md",
+"I3 cited scope.md:16 · scope.md:38 · scope.md:45 · scope.md:86 · scope.md:125 · scope.md:135 · research.md:26 · research.md:77 · plan.md:10 · plan.md:30 · plan.md:335 (in fence) · plan.md:434 (in fence) · plan.md:537 · plan.md:540 · plan.md:542 · plan.md:569 · plan.md:572 · plan.md:574 · plan.md:583 · plan.md:637",
+"I4 n/a — a message has no live source · copy message · message: the operator (pc overseer), the P5 review answer in the session, 2026-10-09",
+"I4 cited scope.md:17 · scope.md:139 · research.md:29 · plan.md:10 · plan.md:538",
+"inputs: 4 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 4,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]

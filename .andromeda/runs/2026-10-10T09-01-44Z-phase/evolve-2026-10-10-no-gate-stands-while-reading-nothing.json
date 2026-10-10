@@ -1,0 +1,202 @@
+[
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "d54f9254",
+"ts": "2026-10-10T09:03:35Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T09-01-44Z-phase",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2549→2550 · bytes 2610515→2612232 · term lf",
+"ts 2026-10-10T09:03:25Z · clock 2026-10-10T09:03:35Z · bound 2026-10-10T09:00:54Z (line 2549)",
+"ids 2026-10-10T09:03:25Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2549,
+"bytes": 2610515,
+"terminator": "LF",
+"bound": "2026-10-10T09:00:54Z"
+},
+"after": {
+"lines": 2550,
+"bytes": 2612232
+}
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "d54f9254",
+"ts": "2026-10-10T09:12:19Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"5",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T09-01-44Z-phase",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 5 record(s) · friction-log.ndjson lines 2550→2555 · bytes 2612232→2616994 · term lf",
+"ts 2026-10-10T09:11:54Z · clock 2026-10-10T09:12:19Z · bound 2026-10-10T09:03:25Z (line 2550)",
+"ids 2026-10-10T09:11:54Z-a … 2026-10-10T09:11:54Z-e (5)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2550,
+"bytes": 2612232,
+"terminator": "LF",
+"bound": "2026-10-10T09:03:25Z"
+},
+"after": {
+"lines": 2555,
+"bytes": 2616994
+}
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "d54f9254",
+"ts": "2026-10-10T09:19:31Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"3",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T09-01-44Z-phase",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 3 record(s) · friction-log.ndjson lines 2555→2558 · bytes 2616994→2620014 · term lf",
+"ts 2026-10-10T09:19:11Z · clock 2026-10-10T09:19:31Z · bound 2026-10-10T09:11:54Z (line 2555)",
+"ids 2026-10-10T09:19:11Z-a … 2026-10-10T09:19:11Z-c (3)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2555,
+"bytes": 2616994,
+"terminator": "LF",
+"bound": "2026-10-10T09:11:54Z"
+},
+"after": {
+"lines": 2558,
+"bytes": 2620014
+}
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "d54f9254",
+"ts": "2026-10-10T09:29:06Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T09-01-44Z-phase",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 2558→2560 · bytes 2620014→2622231 · term lf",
+"ts 2026-10-10T09:28:51Z · clock 2026-10-10T09:29:05Z · bound 2026-10-10T09:19:11Z (line 2558)",
+"ids 2026-10-10T09:28:51Z-a … 2026-10-10T09:28:51Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2558,
+"bytes": 2620014,
+"terminator": "LF",
+"bound": "2026-10-10T09:19:11Z"
+},
+"after": {
+"lines": 2560,
+"bytes": 2622231
+}
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "d54f9254",
+"ts": "2026-10-10T09:32:22Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T09-01-44Z-phase",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 2560→2562 · bytes 2622231→2624555 · term lf",
+"ts 2026-10-10T09:32:02Z · clock 2026-10-10T09:32:21Z · bound 2026-10-10T09:28:51Z (line 2560)",
+"ids 2026-10-10T09:32:02Z-a … 2026-10-10T09:32:02Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2560,
+"bytes": 2622231,
+"terminator": "LF",
+"bound": "2026-10-10T09:28:51Z"
+},
+"after": {
+"lines": 2562,
+"bytes": 2624555
+}
+}
+]

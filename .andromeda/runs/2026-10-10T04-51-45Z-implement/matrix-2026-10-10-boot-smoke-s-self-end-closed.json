@@ -1,0 +1,49 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-10T06:09:11Z",
+"argv": [
+"implement",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--chunk",
+"2026-10-10-boot-smoke-s-self-end-closed",
+"--id",
+"P-129",
+"--ref-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T04-51-45Z-implement"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"implement P-129 · status planned → implemented · ref ci#38026637514 (pull_request) on the pushed tip 4e61553b, merge commit 69c81cb33… (1555 chars)",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-129",
+"chunk": "2026-10-10-boot-smoke-s-self-end-closed",
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The cause of the early exit is named from what two runs kept: every `end` line of `ci#38019133294` and `ci#38022477393` … (1534 chars)",
+"notes_chars": 9738
+},
+"after": {
+"id": "P-129",
+"chunk": "2026-10-10-boot-smoke-s-self-end-closed",
+"status": "implemented",
+"method": "integration",
+"ref": "ci#38026637514 (pull_request) on the pushed tip 4e61553b, merge commit 69c81cb339a9, attempts 1, 2 and 3 consecutive, re… (1555 chars)",
+"acceptance": "The cause of the early exit is named from what two runs kept: every `end` line of `ci#38019133294` and `ci#38022477393` … (1534 chars)",
+"notes_chars": 9738
+}
+}
+]

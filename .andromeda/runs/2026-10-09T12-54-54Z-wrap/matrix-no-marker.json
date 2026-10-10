@@ -1,0 +1,818 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:56:22Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-door-engine-state.json",
+"--dry-run",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-122 · planned · chunk null · ref null · method integration",
+"title: The door answers the engine's memory use and the size of its stores",
+"requirement: the door answers, as part of the engine's own state, the engine's current memory use and t… (302 chars)",
+"observed_gap: P-093 lets the door read \"the engine's own state\" and P-092 lists telemetry, one incident … (409 chars)",
+"acceptance: A reader that has only the door asks for the engine's own state and is answered the engine… (302 chars)",
+"requirements.md: 39 capability lines · `- **id** · ` 0 · `- id · ` 39",
+"(dry-run) requirements.md carries no line for P-122 — the id is assigned there first (contract §ID scheme) — the write refuses until one line stands",
+"dry-run: nothing written",
+"pool: unclaimed 40 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122]",
+"version: verified 0/40"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": {
+"id": "P-122",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A reader that has only the door asks for the engine's own state and is answered the engine's current memory use and the … (302 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:56:22Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-door-notification-record.json",
+"--dry-run",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-122 · planned · chunk null · ref null · method integration",
+"title: Each raised notification's record is read through the door",
+"requirement: the record each raised notification leaves is readable through the door, as part of the en… (187 chars)",
+"observed_gap: `System notification on a change of state` says each raise \"leaves a record a check reads\"… (298 chars)",
+"acceptance: After the engine has raised notifications, a reader that has only the door obtains exactly… (295 chars)",
+"requirements.md: 39 capability lines · `- **id** · ` 0 · `- id · ` 39",
+"(dry-run) requirements.md carries no line for P-122 — the id is assigned there first (contract §ID scheme) — the write refuses until one line stands",
+"dry-run: nothing written",
+"pool: unclaimed 40 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122]",
+"version: verified 0/40"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": {
+"id": "P-122",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "After the engine has raised notifications, a reader that has only the door obtains exactly one record for each notificat… (295 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:56:22Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-channel-key-renewal.json",
+"--dry-run",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-122 · planned · chunk null · ref null · method integration",
+"title: The channel's private key is renewed in a stated way",
+"requirement: how the encrypted channel's private key is renewed is stated beside who terminates the cha… (337 chars)",
+"observed_gap: `Network OTLP receiver behind the token` says \"termination, key custody, renewal stated\"; … (156 chars)",
+"acceptance: The way the channel's private key is renewed is stated, with who does it; a renewal carrie… (257 chars)",
+"requirements.md: 39 capability lines · `- **id** · ` 0 · `- id · ` 39",
+"(dry-run) requirements.md carries no line for P-122 — the id is assigned there first (contract §ID scheme) — the write refuses until one line stands",
+"dry-run: nothing written",
+"pool: unclaimed 40 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122]",
+"version: verified 0/40"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": {
+"id": "P-122",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The way the channel's private key is renewed is stated, with who does it; a renewal carried out by those steps leaves a … (257 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:56:22Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-store-across-builds.json",
+"--dry-run",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-122 · planned · chunk null · ref null · method integration",
+"title: A telemetry store written by another build is recognised",
+"requirement: a telemetry store written by another build of the engine is recognised as such when it is … (210 chars)",
+"observed_gap: the route entry `Disk store opened across builds` cites P-091, whose text has no such rule… (91 chars)",
+"acceptance: An engine that opens a telemetry store another build wrote recognises it; by the stated ru… (252 chars)",
+"requirements.md: 39 capability lines · `- **id** · ` 0 · `- id · ` 39",
+"(dry-run) requirements.md carries no line for P-122 — the id is assigned there first (contract §ID scheme) — the write refuses until one line stands",
+"dry-run: nothing written",
+"pool: unclaimed 40 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122]",
+"version: verified 0/40"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": {
+"id": "P-122",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "An engine that opens a telemetry store another build wrote recognises it; by the stated rule it either carries the store… (252 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:56:22Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-door-owner-only.json",
+"--dry-run",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-122 · planned · chunk null · ref null · method integration",
+"title: Only the engine's owner calls the door's first form",
+"requirement: until the door can be reached from another host, only the engine's owner on the engine's h… (156 chars)",
+"observed_gap: `Door inside the engine's process` carries \"owner only\" on P-118's authority; P-093 says \"… (121 chars)",
+"acceptance: Before the door can be reached from another host, a call by the engine's owner on the engi… (170 chars)",
+"requirements.md: 39 capability lines · `- **id** · ` 0 · `- id · ` 39",
+"(dry-run) requirements.md carries no line for P-122 — the id is assigned there first (contract §ID scheme) — the write refuses until one line stands",
+"dry-run: nothing written",
+"pool: unclaimed 40 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122]",
+"version: verified 0/40"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": {
+"id": "P-122",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "Before the door can be reached from another host, a call by the engine's owner on the engine's host is answered and a ca… (170 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:56:22Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-release-secrets-named.json",
+"--dry-run",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-122 · planned · chunk null · ref null · method manual",
+"title: The release environment and its secrets are named for the founder",
+"requirement: the card of the chunk that retires the desktop's distribution names the release environmen… (228 chars)",
+"observed_gap: `Desktop distribution retired` ends \"release environment, secret names listed for the foun… (367 chars)",
+"acceptance: The removing chunk's card names the release environment and every secret name the bundle w… (279 chars)",
+"requirements.md: 39 capability lines · `- **id** · ` 0 · `- id · ` 39",
+"(dry-run) requirements.md carries no line for P-122 — the id is assigned there first (contract §ID scheme) — the write refuses until one line stands",
+"dry-run: nothing written",
+"pool: unclaimed 40 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122]",
+"version: verified 0/40"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": {
+"id": "P-122",
+"chunk": null,
+"status": "planned",
+"method": "manual",
+"ref": "null",
+"acceptance": "The removing chunk's card names the release environment and every secret name the bundle workflow and the channel workfl… (279 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:58:39Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-door-engine-state.json",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-122 · planned · chunk null · ref null · method integration",
+"title: The door answers the engine's memory use and the size of its stores",
+"requirement: the door answers, as part of the engine's own state, the engine's current memory use and t… (302 chars)",
+"observed_gap: P-093 lets the door read \"the engine's own state\" and P-092 lists telemetry, one incident … (409 chars)",
+"acceptance: A reader that has only the door asks for the engine's own state and is answered the engine… (302 chars)",
+"requirements.md: 42 capability lines · `- **id** · ` 0 · `- id · ` 42",
+"requirements.md: line 51 carries P-122",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 40 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122]",
+"version: verified 0/40"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": null,
+"after": {
+"id": "P-122",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A reader that has only the door asks for the engine's own state and is answered the engine's current memory use and the … (302 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:58:39Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-door-notification-record.json",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-123 · planned · chunk null · ref null · method integration",
+"title: Each raised notification's record is read through the door",
+"requirement: the record each raised notification leaves is readable through the door, as part of the en… (187 chars)",
+"observed_gap: `System notification on a change of state` says each raise \"leaves a record a check reads\"… (298 chars)",
+"acceptance: After the engine has raised notifications, a reader that has only the door obtains exactly… (295 chars)",
+"requirements.md: 42 capability lines · `- **id** · ` 0 · `- id · ` 42",
+"requirements.md: line 67 carries P-123",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 41 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122 P-123]",
+"version: verified 0/41"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": null,
+"after": {
+"id": "P-123",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "After the engine has raised notifications, a reader that has only the door obtains exactly one record for each notificat… (295 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:58:39Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-channel-key-renewal.json",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-124 · planned · chunk null · ref null · method integration",
+"title: The channel's private key is renewed in a stated way",
+"requirement: how the encrypted channel's private key is renewed is stated beside who terminates the cha… (337 chars)",
+"observed_gap: `Network OTLP receiver behind the token` says \"termination, key custody, renewal stated\"; … (156 chars)",
+"acceptance: The way the channel's private key is renewed is stated, with who does it; a renewal carrie… (257 chars)",
+"requirements.md: 42 capability lines · `- **id** · ` 0 · `- id · ` 42",
+"requirements.md: line 45 carries P-124",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 42 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122 P-123 P-124]",
+"version: verified 0/42"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": null,
+"after": {
+"id": "P-124",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The way the channel's private key is renewed is stated, with who does it; a renewal carried out by those steps leaves a … (257 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:58:53Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-store-across-builds.json",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-125 · planned · chunk null · ref null · method integration",
+"title: A telemetry store written by another build is recognised",
+"requirement: a telemetry store written by another build of the engine is recognised as such when it is … (210 chars)",
+"observed_gap: the route entry `Disk store opened across builds` cites P-091, whose text has no such rule… (91 chars)",
+"acceptance: An engine that opens a telemetry store another build wrote recognises it; by the stated ru… (252 chars)",
+"requirements.md: 45 capability lines · `- **id** · ` 0 · `- id · ` 45",
+"requirements.md: line 53 carries P-125",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 43 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122 P-123 P-124 P-125]",
+"version: verified 0/43"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": null,
+"after": {
+"id": "P-125",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "An engine that opens a telemetry store another build wrote recognises it; by the stated rule it either carries the store… (252 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:58:53Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-door-owner-only.json",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-126 · planned · chunk null · ref null · method integration",
+"title: Only the engine's owner calls the door's first form",
+"requirement: until the door can be reached from another host, only the engine's owner on the engine's h… (156 chars)",
+"observed_gap: `Door inside the engine's process` carries \"owner only\" on P-118's authority; P-093 says \"… (121 chars)",
+"acceptance: Before the door can be reached from another host, a call by the engine's owner on the engi… (170 chars)",
+"requirements.md: 45 capability lines · `- **id** · ` 0 · `- id · ` 45",
+"requirements.md: line 54 carries P-126",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 44 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122 P-123 P-124 P-125 P-126]",
+"version: verified 0/44"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": null,
+"after": {
+"id": "P-126",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "Before the door can be reached from another host, a call by the engine's owner on the engine's host is answered and a ca… (170 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:58:53Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/add-release-secrets-named.json",
+"--marker",
+"no-marker",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-127 · planned · chunk null · ref null · method manual",
+"title: The release environment and its secrets are named for the founder",
+"requirement: the card of the chunk that retires the desktop's distribution names the release environmen… (228 chars)",
+"observed_gap: `Desktop distribution retired` ends \"release environment, secret names listed for the foun… (367 chars)",
+"acceptance: The removing chunk's card names the release environment and every secret name the bundle w… (279 chars)",
+"requirements.md: 45 capability lines · `- **id** · ` 0 · `- id · ` 45",
+"requirements.md: line 36 carries P-127",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 45 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122 P-123 P-124 P-125 P-126 P-127]",
+"version: verified 0/45"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": null,
+"after": {
+"id": "P-127",
+"chunk": null,
+"status": "planned",
+"method": "manual",
+"ref": "null",
+"acceptance": "The removing chunk's card names the release environment and every secret name the bundle workflow and the channel workfl… (279 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:59:31Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-122",
+"--text-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/note-P-122.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-122: +864 chars (total 864) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-122",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A reader that has only the door asks for the engine's own state and is answered the engine's current memory use and the … (302 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-122",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "A reader that has only the door asks for the engine's own state and is answered the engine's current memory use and the … (302 chars)",
+"notes_chars": 864
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:59:31Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-123",
+"--text-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/note-P-123.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-123: +1131 chars (total 1131) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-123",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "After the engine has raised notifications, a reader that has only the door obtains exactly one record for each notificat… (295 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-123",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "After the engine has raised notifications, a reader that has only the door obtains exactly one record for each notificat… (295 chars)",
+"notes_chars": 1131
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:59:31Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-124",
+"--text-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/note-P-124.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-124: +902 chars (total 902) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-124",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The way the channel's private key is renewed is stated, with who does it; a renewal carried out by those steps leaves a … (257 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-124",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The way the channel's private key is renewed is stated, with who does it; a renewal carried out by those steps leaves a … (257 chars)",
+"notes_chars": 902
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:59:31Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-125",
+"--text-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/note-P-125.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-125: +631 chars (total 631) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-125",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "An engine that opens a telemetry store another build wrote recognises it; by the stated rule it either carries the store… (252 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-125",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "An engine that opens a telemetry store another build wrote recognises it; by the stated rule it either carries the store… (252 chars)",
+"notes_chars": 631
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:59:31Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-126",
+"--text-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/note-P-126.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-126: +745 chars (total 745) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-126",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "Before the door can be reached from another host, a call by the engine's owner on the engine's host is answered and a ca… (170 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-126",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "Before the door can be reached from another host, a call by the engine's owner on the engine's host is answered and a ca… (170 chars)",
+"notes_chars": 745
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T12:59:31Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-127",
+"--text-file",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap/note-P-127.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T12-54-54Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-127: +934 chars (total 934) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-127",
+"chunk": null,
+"status": "planned",
+"method": "manual",
+"ref": "null",
+"acceptance": "The removing chunk's card names the release environment and every secret name the bundle workflow and the channel workfl… (279 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-127",
+"chunk": null,
+"status": "planned",
+"method": "manual",
+"ref": "null",
+"acceptance": "The removing chunk's card names the release environment and every secret name the bundle workflow and the channel workfl… (279 chars)",
+"notes_chars": 934
+}
+}
+]

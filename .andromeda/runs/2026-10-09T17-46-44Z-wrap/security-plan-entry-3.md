@@ -1,0 +1,6 @@
+
+## 2026-10-09-supply-chain-job-same-on-push-and-pull-request — the CI boot job witnesses ui.webgpu.adapter on some runs
+**Section:** §Security Anti-Patterns → Logging (the `ui.webgpu.adapter` deliberate NO-SCRUB log boundary paragraph)
+**Change:** Was "Its only live witness is the dev-host `perf:frame-sample` leg …; the CI boot job stops the app before the webview issues any IPC, so no CI job witnesses it." Now: the dev-host `perf:frame-sample` leg is the live witness of the `obtained` arm (2 `obtained` records, fields unredacted); the CI boot job witnesses the record on some runs only — the app lives 0.57 s to 1.40 s before the smoke's `cleanup` stops it, so of seven boot-job logs of 2026-10-09 four hold `ui.webgpu.adapter` with `outcome: no_navigator_gpu` (WARN, both fields rendered) and three hold no webview-originated record; the earlier statement was true of the one run it was measured on (`ci#36765040464`).
+**Why:** Measured false as a rule while reading the boot smoke's application logs for a recurring red of that job. The boundary's field set, its allowlist leaf and its no-scrub posture are unchanged. Trap for later chunks: what the boot job's log holds depends on how long the smoke lets the app live, which no step fixes; a claim about that log needs more than one run behind it.
+**Ref:** .andromeda/runs/2026-10-09T17-46-44Z-wrap/

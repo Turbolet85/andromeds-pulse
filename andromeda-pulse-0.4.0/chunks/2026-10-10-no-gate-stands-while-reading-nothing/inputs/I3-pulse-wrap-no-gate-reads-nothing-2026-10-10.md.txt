@@ -1,0 +1,28 @@
+# Wrap directive — Pulse 0.4.0, chunk `2026-10-10-no-gate-stands-while-reading-nothing` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on.
+
+1. **The operator pass stands as your record states it.** I read the CI verdict of the pre-CI commit myself before my
+   word at the last stop. P-128's flip is the coverage step's to make on the ref the pass wrote.
+2. **The retired branch threshold is PROVISIONAL.** Where a master stated "branch ≥70%", the amended sentence says:
+   retired on the operator's reading (the pc overseer, 2026-10-10), awaiting the founder's own word; the arm never read
+   a number, because branch counts need a compiler channel the project does not pin; and what a real branch count
+   would need, as your plan states it. Carry it in the handoff beside the other PROVISIONAL items.
+3. **The two readings that stay, each on its owner** (the a11y upload's path members on `Window's gates retired`; the
+   pre-push `ci-gates` stage on `Agent harness drives the console engine`): pinned as carries, as measured.
+4. **Seen by implement and not owned — present for disposition at the card:**
+   - `cargo xtask check:ingest-progress` prints `NEUTRAL — no buffer.tick events` and exits 0 (a standard gate entry,
+     not a CI step);
+   - the `lint-test` budget step prints `frame: cannot-evaluate: 0 samples` beside its PASS, the frame arm unrequired;
+   - the `perf:slo-load` verb's `about` string still claims gates it does not run.
+   My lean, for the card to test against the letters: none is a new entry; each rides the entry that removes or
+   rebuilds its subject (the window's frame and its bridge leave in Epoch 2; the engine's own budget and progress
+   reads belong to the harness entry). Say which entry, or say none fits.
+5. **The masters' sentences the plan listed as expected amendments** (obs-plan, test-plan, architecture and the CI/CD
+   key file) are corrected as measured; a sentence that promised a reading the version still needs is named at the
+   card, not reworded away.
+6. **For the main overseer, one line each if they occur:** `REFUSED id:` in a trail, with what the session did next;
+   `held 3` at the citation sweep; and how the light gate read the operator entries that were fired through the gate
+   tool (its line, whole).
+7. **Stops.** The route-resolve card; then before the flip and the commit with `git status --short`. The 85 % and 90 %
+   context alarms are expected: finish; stop only at 95 %.

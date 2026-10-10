@@ -1,0 +1,178 @@
+[
+{
+"tool": "planlint",
+"v": "1.8",
+"sha8": "d8f55cea",
+"ts": "2026-10-10T07:13:21Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-no-ci-step-reads-nothing/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T06-45-10Z-phase",
+"--marker",
+"2026-10-10-no-ci-step-reads-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"fence: 32 entries · plan: andromeda-pulse-0.4.0/chunks/2026-10-10-no-ci-step-reads-nothing/plan.md · research: andromed…",
+"check 9 · CI-outcome reads: 2 · leg operator exempt: 2 · Platform issues consulted: filled · ``actions/upload-artifact…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: filled · ``.claude/rules/verification-harness.md` — r…`",
+"check 4 (5) · leg entries with a content atom: 6 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 2 · not ci.py conclusion: 1 → HIT",
+"  gate 32 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 4 (15) · grep → wc -l counts asserting exit 0 and last line 0: 0",
+"check 4 (16) · guards whose exclusions leave a new file in: 0 of 1 with an exclusion",
+"check 4 (17) · entries reading a path the wrap writes: 0 of 24 asserting — listed, P5's read",
+"check 4 (17) · a path the wrap writes, read from inside a program an entry runs (a suite, the ledger's tool): not read",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 1 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13)–(16)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "filled",
+"ci_reads": 2,
+"operator": 2,
+"hit": false
+},
+"harness": {
+"slot": "filled",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 6,
+"bare": []
+},
+"tool": {
+"operator": 2,
+"hand": [
+32
+]
+},
+"base": {
+"operator": 8,
+"reads": []
+},
+"count": {
+"hits": [],
+"unsplit": []
+},
+"newfiles": {
+"operator": 8,
+"guards": 1,
+"hits": [],
+"abstain": []
+},
+"wrap": {
+"asserting": 24,
+"listed": []
+},
+"check2": {
+"entries": 22,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 1
+}
+},
+{
+"tool": "planlint",
+"v": "1.8",
+"sha8": "d8f55cea",
+"ts": "2026-10-10T07:15:28Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-no-ci-step-reads-nothing/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T06-45-10Z-phase",
+"--marker",
+"2026-10-10-no-ci-step-reads-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"fence: 32 entries · plan: andromeda-pulse-0.4.0/chunks/2026-10-10-no-ci-step-reads-nothing/plan.md · research: andromed…",
+"check 9 · CI-outcome reads: 2 · leg operator exempt: 2 · Platform issues consulted: filled · ``actions/upload-artifact…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: filled · ``.claude/rules/verification-harness.md` — r…`",
+"check 4 (5) · leg entries with a content atom: 6 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 2 · not ci.py conclusion: 1 → HIT",
+"  gate 32 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 4 (15) · grep → wc -l counts asserting exit 0 and last line 0: 0",
+"check 4 (16) · guards whose exclusions leave a new file in: 0 of 1 with an exclusion",
+"check 4 (17) · entries reading a path the wrap writes: 0 of 24 asserting — listed, P5's read",
+"check 4 (17) · a path the wrap writes, read from inside a program an entry runs (a suite, the ledger's tool): not read",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 1 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13)–(16)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "filled",
+"ci_reads": 2,
+"operator": 2,
+"hit": false
+},
+"harness": {
+"slot": "filled",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 6,
+"bare": []
+},
+"tool": {
+"operator": 2,
+"hand": [
+32
+]
+},
+"base": {
+"operator": 8,
+"reads": []
+},
+"count": {
+"hits": [],
+"unsplit": []
+},
+"newfiles": {
+"operator": 8,
+"guards": 1,
+"hits": [],
+"abstain": []
+},
+"wrap": {
+"asserting": 24,
+"listed": []
+},
+"check2": {
+"entries": 22,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 1
+}
+}
+]

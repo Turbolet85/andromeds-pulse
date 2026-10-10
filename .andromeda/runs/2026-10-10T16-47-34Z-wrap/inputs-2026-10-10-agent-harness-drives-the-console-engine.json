@@ -1,0 +1,250 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T16:47:43Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-agent-harness-drives-the-console-engine",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-wrap-agent-harness-console-engine-2026-10-10.md",
+"--kind",
+"relay",
+"--why",
+"the operator wrap directive for this chunk: the operator pass stands; the second entry minted at route-resolve; the five carries struck, moved or amended; a home for the engine cycle when the boot job leaves; P-086 not claimed; the last wrap cascade finished here by recomputing every leaf the four masters feed; found-and-not-owned to the card; two windows, P1 only first; two stops",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I4 · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-agent-harness-console-engine-2026-10-10.md",
+"cite: inputs#I4"
+],
+"stderr": null,
+"wrote": [
+"inputs/I4-pulse-wrap-agent-harness-console-engine-2026-10-10.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I4",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-wrap-agent-harness-console-engine-2026-10-10.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "1a9b2f9188c5a2d6ff145b3267b68f88b0b5054e1dc7a57c7153dce1c7be8b97",
+"copy": "I4-pulse-wrap-agent-harness-console-engine-2026-10-10.md.txt",
+"link": false,
+"read_at": "2026-10-10T16:47:43Z",
+"step": "wrap",
+"why": "the operator wrap directive for this chunk: the operator pass stands; the second entry minted at route-resolve; the five carries struck, moved or amended; a home for the engine cycle when the boot job leaves; P-086 not claimed; the last wrap cascade finished here by recomputing every leaf the four masters feed; found-and-not-owned to the card; two windows, P1 only first; two stops"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T16:47:43Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-agent-harness-drives-the-console-engine",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-agent-harness-console-engine-2026-10-10.md",
+"I1 cited scope.md:23 · scope.md:24 · scope.md:28 · scope.md:39 · scope.md:46 · scope.md:51 · scope.md:119 · scope.md:122 · scope.md:132 · research.md:13 · plan.md:33 · plan.md:46 · plan.md:61 · plan.md:434",
+"I2 n/a — a message has no live source · copy message · message: the operator (the pc overseer), in session at P4, 2026-10-10",
+"I2 cited scope.md:94 · research.md:14 · research.md:145 · plan.md:29 · plan.md:40 · plan.md:434 · plan.md:445 · plan.md:481 · plan.md:492",
+"I3 n/a — a message has no live source · copy message · message: the operator, in the implement session after the P4 report, 2026-10-10",
+"I3 UNCITED",
+"I4 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-agent-harness-console-engine-2026-10-10.md",
+"I4 UNCITED",
+"inputs: 4 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 2 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 4,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 2,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T16:51:55Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-agent-harness-drives-the-console-engine",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-agent-harness-console-engine-2026-10-10.md",
+"I1 cited scope.md:23 · scope.md:24 · scope.md:28 · scope.md:39 · scope.md:46 · scope.md:51 · scope.md:119 · scope.md:122 · scope.md:132 · research.md:13 · plan.md:33 · plan.md:46 · plan.md:61 · plan.md:434",
+"I2 n/a — a message has no live source · copy message · message: the operator (the pc overseer), in session at P4, 2026-10-10",
+"I2 cited scope.md:94 · research.md:14 · research.md:145 · plan.md:29 · plan.md:40 · plan.md:434 · plan.md:445 · plan.md:481 · plan.md:492 · report.md:225 · report.md:250",
+"I3 n/a — a message has no live source · copy message · message: the operator, in the implement session after the P4 report, 2026-10-10",
+"I3 cited report.md:187 · report.md:287 · report.md:321 · report.md:478",
+"I4 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-agent-harness-console-engine-2026-10-10.md",
+"I4 cited report.md:190 · report.md:226 · report.md:257 · report.md:324 · report.md:334 · report.md:479",
+"inputs: 4 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 4,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 0,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T17:35:21Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-agent-harness-drives-the-console-engine",
+"--message-file",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap/relay-1.md",
+"--origin",
+"the operator (the pc overseer), in session at the wrap route-resolve card, 2026-10-10",
+"--kind",
+"relay",
+"--why",
+"the operator answers at the route-resolve card: the second entry and its fourth row; the engine log upload class covers build.log and boot.log (the operator reading); one CARRY naming ten master defects; the leaf layout lines; the two process departures stand",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I5 · copy message · message: the operator (the pc overseer), in session at the wrap route-resolve card, 2026-10-10",
+"cite: inputs#I5"
+],
+"stderr": null,
+"wrote": [
+"inputs/I5-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I5",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (the pc overseer), in session at the wrap route-resolve card, 2026-10-10",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "e68d34b4f2f6c99e4cb86fced7ed00d25e9cce793f3653e5a609a58ea25111cb",
+"copy": "I5-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-10T17:35:21Z",
+"step": "wrap",
+"why": "the operator answers at the route-resolve card: the second entry and its fourth row; the engine log upload class covers build.log and boot.log (the operator reading); one CARRY naming ten master defects; the leaf layout lines; the two process departures stand"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T17:42:48Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-agent-harness-drives-the-console-engine",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-agent-harness-console-engine-2026-10-10.md",
+"I1 cited scope.md:23 · scope.md:24 · scope.md:28 · scope.md:39 · scope.md:46 · scope.md:51 · scope.md:119 · scope.md:122 · scope.md:132 · research.md:13 · plan.md:33 · plan.md:46 · plan.md:61 · plan.md:434",
+"I2 n/a — a message has no live source · copy message · message: the operator (the pc overseer), in session at P4, 2026-10-10",
+"I2 cited scope.md:94 · research.md:14 · research.md:145 · plan.md:29 · plan.md:40 · plan.md:434 · plan.md:445 · plan.md:481 · plan.md:492 · report.md:225 · report.md:250",
+"I3 n/a — a message has no live source · copy message · message: the operator, in the implement session after the P4 report, 2026-10-10",
+"I3 cited report.md:187 · report.md:287 · report.md:321 · report.md:485",
+"I4 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-agent-harness-console-engine-2026-10-10.md",
+"I4 cited report.md:190 · report.md:226 · report.md:257 · report.md:324 · report.md:341 · report.md:486",
+"I5 n/a — a message has no live source · copy message · message: the operator (the pc overseer), in session at the wrap route-resolve card, 2026-10-10",
+"I5 cited report.md:331",
+"inputs: 5 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 3 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 5,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 3
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]

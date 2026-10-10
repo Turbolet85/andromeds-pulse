@@ -1,0 +1,11 @@
+
+## 2026-10-10-no-gate-stands-while-reading-nothing — ci-gates left the perf grader: the perf-budget bullet, the frame row, the load-profile paragraph and the log-file row
+**Section:** §10 → CI gates (the perf-budget bullet) · §10 → Performance budgets (the WebGPU canvas frame row) · §10 → Load-profile constraints · §9 → Telemetry artifact handling (the Log file row)
+**Change:**
+- Perf-budget bullet: was "`ci-gates` grades the boot-smoke log with no arm required and prints `perf-budget NEUTRAL` over it"; now `cargo xtask ci-gates` grades no perf arm and prints no perf-budget or frame line (two arms, zero-spans and zero-panic; exits 0 · 1 · 2). The frame `cannot-evaluate` line on CI is the lint-test `perf:budget` step's alone, as read on `ci#38042949735` (`graded 120 record(s)`, memory PASS n=3, snapshot PASS n=50, `perf-budget: PASS`, and `frame: cannot-evaluate: 0 samples, no adapter record in this log`). The boot job's earlier lines stay as dated readings; "the lint-test `perf:budget` line was not re-read" is gone. The producer's command spells `--no-tests=fail`.
+- Frame row: the boot job's `ci-gates` frame line was "the expected line on a run whose smoke step passes"; now that held until this chunk, and since it the boot job prints no frame line on any run. The boot log's `ui.webgpu.adapter` records were not re-read on `ci#38042949735`.
+- Load-profile constraints: was "`ci-gates` and `perf:load-profiles` grade with no arm required"; now `perf:load-profiles` alone. The NEUTRAL tolerance is the perf grader's, for an arm no caller requires, and is not a licence for a gate to pass over an absent input: `ci-gates` exits 2 on an absent log family.
+- Log file row: what `ci-gates` reads of the boot log is its record count and its panic read.
+**Why:** The heartbeat and perf-budget arms of `ci-gates` could not fail on the boot job's log (one tick per target, one memory sample, no snapshot or frame record), so the chunk removed them; the enforced budget gate is the lint-test `perf:budget --require memory,snapshot` step, unchanged.
+**Kept:** The frame arm stays ungraded on CI by the operator's 2026-09-30 decision; its `cannot-evaluate` line in the lint-test step is an unrequired arm's, beside a PASS decided by two required arms that each read samples.
+**Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/

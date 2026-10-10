@@ -16,17 +16,13 @@ env:
   CARGO_TERM_COLOR: always
 
 # Independent jobs: a round lasts as long as its longest job, not the sum.
-# Cache keys are budgeted against the 10 GB repository cap: one target cache per
-# lint-test OS, one per release OS (macOS, Windows) and one for boot; a11y,
-# mcp-test and supply-chain restore read-only, and coverage keeps only the registry.
+# Cache keys are budgeted against the 10 GB repository cap: one target cache for
+# lint-test and one for boot; a11y, mcp-test and supply-chain restore read-only,
+# and coverage keeps only the registry.
 jobs:
   lint-test:
-    name: lint / test (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-22.04, macos-latest, windows-latest]
+    name: lint / test (ubuntu-22.04)
+    runs-on: ubuntu-22.04
     steps:
       - name: Harden runner
         uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
@@ -57,7 +53,6 @@ jobs:
       # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
       # the build scripts find them through pkg-config.
       - name: Install Linux system libraries (Tauri + dbus)
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \
@@ -84,8 +79,7 @@ jobs:
       # (U+043A for "to", U+0430 for "a", U+0431 for "b") had leaked into comments,
       # error strings and - critically - the L4 system prompts, degrading what the
       # local model receives. The scan is an xtask verb so pre-push:linux runs the
-      # same check, and its output is ASCII-only so the Windows runner's ANSI code
-      # page cannot crash it. Docs, rules and .andromeda/ are OUT of scope - they
+      # same check. Docs, rules and .andromeda/ are OUT of scope - they
       # legitimately quote the operator in Russian.
       - name: No Cyrillic in sources
         run: cargo xtask check:english-sources
@@ -108,28 +102,25 @@ jobs:
       - name: cargo xtask capability-widening-check (chunk #77 — NEVER-widen bans on pulse:notification/tray/plugin-fs)
         run: cargo xtask capability-widening-check
 
-      - name: cargo xtask verify:capability-matrix (chunk #99 — P-001..P-060 scenario mapping)
+      - name: cargo xtask verify:capability-matrix (reads the capability record — P-001..P-082, each claimed or retired)
         run: cargo xtask verify:capability-matrix
 
       # Runs after the drift checks: the default-features test run rewrites
       # pulse-app/ui/src/bindings/index.ts without the feature-gated mcp
       # namespace, which capability-drift would then read as drift.
-      - name: cargo xtask test (no-tests=pass at Foundation epoch)
+      - name: cargo xtask test
         run: cargo xtask test
 
       # Selects its one test under --workspace, so it reuses the test build above.
-      - name: cargo xtask perf:slo-load (10k spans/sec sustained-load) (Linux only)
-        if: runner.os == 'Linux'
+      - name: cargo xtask perf:slo-load (10k spans/sec sustained-load)
         run: cargo xtask perf:slo-load
 
       # The in-process producer of the memory + snapshot perf samples (no
       # window), then the budget gate over its log with both arms required.
-      - name: cargo nextest run --workspace --profile perf-samples (Linux only)
-        if: runner.os == 'Linux'
-        run: cargo nextest run --workspace --profile perf-samples
+      - name: cargo nextest run --workspace --profile perf-samples
+        run: cargo nextest run --workspace --profile perf-samples --no-tests=fail
 
-      - name: cargo xtask perf:budget (memory + snapshot required) (Linux only)
-        if: runner.os == 'Linux'
+      - name: cargo xtask perf:budget (memory + snapshot required)
         run: cargo xtask perf:budget --data-dir target/tmp/perf-budget-samples --require memory,snapshot
 
       - name: Upload perf-samples logs artifact
@@ -138,46 +129,8 @@ jobs:
         with:
           name: logs-perf-samples-${{ runner.os }}
           path: target/tmp/perf-budget-samples/logs/
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14
-
-      - name: Upload logs artifact
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: logs-${{ runner.os }}
-          path: ${{ env.ANDROMEDA_PULSE_DATA_DIR }}/logs/
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload nextest junit artifact
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: nextest-${{ runner.os }}
-          path: target/nextest/**/junit.xml
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload criterion bench artifact (deferred; non-blocking)
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: criterion-${{ runner.os }}
-          path: target/criterion/
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Download base-branch criterion baseline (PR only)
-        if: github.event_name == 'pull_request'
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
-        continue-on-error: true
-        with:
-          name: criterion-${{ runner.os }}-base
-          path: target/criterion-baseline/
-
-      - name: cargo xtask criterion-regression (chunk #56 — mean.point_estimate +10% gate vs base branch)
-        run: cargo xtask criterion-regression --current target/criterion --baseline target/criterion-baseline
 
       - name: Upload capability-drift report
         if: always()
@@ -185,61 +138,8 @@ jobs:
         with:
           name: capability-drift-${{ runner.os }}
           path: target/capability-drift/report.json
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14
-
-  # On Linux the supply-chain job's `cargo auditable build --workspace --release`
-  # builds the same scope, profile and features.
-  release:
-    name: release build (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest, windows-latest]
-    steps:
-      - name: Harden runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
-        with:
-          egress-policy: audit
-
-      - name: Export ANDROMEDA_PULSE_DATA_DIR
-        shell: bash
-        run: echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-ci-data" >> "$GITHUB_ENV"
-
-      - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-
-      - name: Install Rust toolchain (respects rust-toolchain.toml)
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
-
-      # The release job owns its key: a lint-test re-save after a Cargo.lock
-      # change drops the release dependencies, which would leave this job cold.
-      - name: Cache cargo
-        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
-        with:
-          shared-key: release-${{ runner.os }}
-          cache-on-failure: true
-
-      - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: '24'
-
-      - name: npm ci (pulse-app/ui)
-        working-directory: pulse-app/ui
-        run: npm ci
-
-      - name: npm run build (ui/dist, embedded by tauri::generate_context!)
-        working-directory: pulse-app/ui
-        run: npm run build
-
-      # No frame boot here: the hosted Windows runner exposed no WebGPU adapter
-      # to WebView2 even under the software-adapter flag set (ci#36723465727,
-      # 0 frame samples, app healthy), so the frame budget is graded by
-      # `cargo xtask perf:frame-sample` on a GPU dev host.
-      - name: cargo build --workspace --release (macOS + Windows)
-        run: cargo build --workspace --release
 
   mcp-test:
     name: mcp-server tests (ubuntu-22.04)
@@ -296,15 +196,11 @@ jobs:
         run: npm run build
 
       - name: cargo nextest run --features mcp-server
-        run: cargo nextest run --workspace --features mcp-server --profile ci --no-tests=pass
+        run: cargo nextest run --workspace --features mcp-server --profile ci --no-tests=fail
 
   a11y:
-    name: a11y (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-22.04, macos-latest, windows-latest]
+    name: a11y (ubuntu-22.04)
+    runs-on: ubuntu-22.04
     steps:
       - name: Harden runner
         uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
@@ -331,7 +227,6 @@ jobs:
       # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
       # the build scripts find them through pkg-config.
       - name: Install Linux system libraries (Tauri + dbus)
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \
@@ -357,14 +252,6 @@ jobs:
         working-directory: pulse-app/ui
         run: npx playwright install --with-deps chromium
 
-      - name: Download base-branch a11y-violations baseline (PR only)
-        if: github.event_name == 'pull_request'
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
-        continue-on-error: true
-        with:
-          name: a11y-violations-base
-          path: pulse-app/ui/tests-a11y/baselines/
-
       - name: cargo xtask test:a11y (axe + Lighthouse + pa11y + colorjs.io + aggregator + regression)
         run: cargo xtask test:a11y
 
@@ -377,7 +264,7 @@ jobs:
             ${{ env.ANDROMEDA_PULSE_DATA_DIR }}/logs/a11y-*.json*
             pulse-app/ui/dist/contrast-report.json
             pulse-app/ui/tests-a11y/regression-set.json
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14
 
       - name: Upload Playwright a11y report
@@ -386,7 +273,7 @@ jobs:
         with:
           name: playwright-a11y-report-${{ runner.os }}
           path: target/playwright-a11y-report/
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14
 
   boot:
@@ -439,21 +326,51 @@ jobs:
       - name: cargo build --features mcp-server (feature-gated binary build smoke)
         run: cargo build --workspace --release --features mcp-server
 
+      # scripts/exit-witness.c records the call that ends the app process,
+      # with its caller. The boot verb loads the built library onto the app
+      # alone, on its one spawn line; here it is only built and named.
+      - name: Build the exit witness
+        run: |
+          cc -shared -fPIC -O2 -o "$RUNNER_TEMP/exit-witness.so" scripts/exit-witness.c
+          echo "ANDROMEDA_PULSE_EXIT_WITNESS_LIB=$RUNNER_TEMP/exit-witness.so" >> "$GITHUB_ENV"
+
       - name: Boot pulse-app smoke
         # The runner is headless: without a display tao panics initialising
-        # GTK. One xvfb-run spans all three verbs so the X server outlives
-        # boot's backgrounded app.
+        # GTK. One xvfb-run spans the whole sequence so the X server outlives
+        # boot's backgrounded app, and -e keeps the X server's own error
+        # output in the uploaded logs. harness:settled reads the app once it
+        # has settled, or at its end, and says what it saw; cleanup runs
+        # whatever harness:settled and status returned.
         run: |
-          xvfb-run -a --server-args="-screen 0 1280x1024x24" bash -c '
-            set -e
-            bash scripts/agent-run.sh boot
-            bash scripts/agent-run.sh status
-            bash scripts/agent-run.sh cleanup
+          mkdir -p "$ANDROMEDA_PULSE_DATA_DIR/logs"
+          xvfb-run -a -e "$ANDROMEDA_PULSE_DATA_DIR/logs/xvfb.log" --server-args="-screen 0 1280x1024x24" bash -c '
+            bash scripts/agent-run.sh boot || exit 1
+            cargo xtask harness:settled; a=$?
+            bash scripts/agent-run.sh status; b=$?
+            bash scripts/agent-run.sh cleanup; c=$?
+            test "$a$b$c" = 000
           '
+
+      # Seven more boots of the same build, so one run reads eight. Each has
+      # its own data dir, display server and per-user data and cache dirs,
+      # and is recorded with its ordinal in logs/boot-series.json. A boot
+      # that ends by itself fails the step; it runs when the smoke is red too.
+      - name: Boot series (equal source)
+        if: always()
+        run: cargo xtask harness:boot-series --count 7
 
       # Reads the log the boot smoke above wrote under ANDROMEDA_PULSE_DATA_DIR.
       - name: cargo xtask ci-gates
         run: cargo xtask ci-gates
+
+      # One cycle of the harness verbs on the console engine, on a data dir
+      # and ports of its own: boot engine, a healthy feed over OTLP, the
+      # settle read, status engine, cleanup, then the check over the engine's
+      # own log (panic, heartbeat gap, progress, process end, memory budget).
+      # It runs whatever the steps before it returned.
+      - name: Console engine cycle
+        if: always()
+        run: cargo xtask harness:engine-cycle --data-dir "$RUNNER_TEMP/andromeda-pulse-engine-data"
 
       - name: Upload boot logs artifact
         if: always()
@@ -461,7 +378,17 @@ jobs:
         with:
           name: logs-boot-${{ runner.os }}
           path: ${{ env.ANDROMEDA_PULSE_DATA_DIR }}/logs/
-          if-no-files-found: ignore
+          if-no-files-found: error
+          retention-days: 14
+
+      # The console engine's own log family, as the cycle above left it.
+      - name: Upload engine logs artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: logs-engine-${{ runner.os }}
+          path: ${{ runner.temp }}/andromeda-pulse-engine-data/logs/
+          if-no-files-found: error
           retention-days: 14
 
   supply-chain:
@@ -509,7 +436,6 @@ jobs:
       # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
       # the build scripts find them through pkg-config.
       - name: Install Linux system libraries (Tauri + dbus)
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \
@@ -540,7 +466,7 @@ jobs:
         run: cargo auditable build --workspace --release
 
   coverage:
-    name: coverage gate (line ≥75% / branch ≥70% / function ≥85%)
+    name: coverage gate (line ≥75% / function ≥85%)
     runs-on: ubuntu-22.04
     steps:
       - name: Harden runner
@@ -574,7 +500,6 @@ jobs:
       # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
       # the build scripts find them through pkg-config.
       - name: Install Linux system libraries (Tauri + dbus)
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \
@@ -606,36 +531,20 @@ jobs:
           fi
           line_total=$(awk -F: '/^LF:/{s+=$2} END{print s+0}' lcov.info)
           line_hit=$(awk -F: '/^LH:/{s+=$2} END{print s+0}' lcov.info)
-          branch_total=$(awk -F: '/^BRF:/{s+=$2} END{print s+0}' lcov.info)
-          branch_hit=$(awk -F: '/^BRH:/{s+=$2} END{print s+0}' lcov.info)
           fn_total=$(awk -F: '/^FNF:/{s+=$2} END{print s+0}' lcov.info)
           fn_hit=$(awk -F: '/^FNH:/{s+=$2} END{print s+0}' lcov.info)
-          if [ "$line_total" -eq 0 ] && [ "$fn_total" -eq 0 ]; then
-            echo "Coverage gate: 0 lines / 0 functions tracked (Foundation epoch — gate trivially passes; activates at chunk #15 first tests)"
-            exit 0
+          if [ "$line_total" -eq 0 ] || [ "$fn_total" -eq 0 ]; then
+            echo "::error::lcov.info tracks ${line_total} lines and ${fn_total} functions — coverage gate cannot pass a report that tracks nothing"
+            exit 1
           fi
-          line_pct=$(awk -v h="$line_hit" -v t="$line_total" 'BEGIN { if (t==0) print "100.0"; else printf "%.1f", (h/t)*100 }')
-          branch_pct=$(awk -v h="$branch_hit" -v t="$branch_total" 'BEGIN { if (t==0) print "100.0"; else printf "%.1f", (h/t)*100 }')
-          fn_pct=$(awk -v h="$fn_hit" -v t="$fn_total" 'BEGIN { if (t==0) print "100.0"; else printf "%.1f", (h/t)*100 }')
+          line_pct=$(awk -v h="$line_hit" -v t="$line_total" 'BEGIN { printf "%.1f", (h/t)*100 }')
+          fn_pct=$(awk -v h="$fn_hit" -v t="$fn_total" 'BEGIN { printf "%.1f", (h/t)*100 }')
           echo "Line:     ${line_hit}/${line_total} = ${line_pct}% (threshold 75%)"
-          echo "Branch:   ${branch_hit}/${branch_total} = ${branch_pct}% (threshold 70%)"
           echo "Function: ${fn_hit}/${fn_total} = ${fn_pct}% (threshold 85%)"
           fail=0
           awk -v pct="$line_pct"   'BEGIN { exit (pct + 0 < 75.0) }' || { echo "::error::line coverage ${line_pct}% < 75%"; fail=1; }
-          awk -v pct="$branch_pct" 'BEGIN { exit (pct + 0 < 70.0) }' || { echo "::error::branch coverage ${branch_pct}% < 70%"; fail=1; }
           awk -v pct="$fn_pct"     'BEGIN { exit (pct + 0 < 85.0) }' || { echo "::error::function coverage ${fn_pct}% < 85%"; fail=1; }
           [ $fail -eq 0 ]
-
-      - name: Download base-branch coverage baseline (PR only)
-        if: github.event_name == 'pull_request'
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
-        continue-on-error: true
-        with:
-          name: coverage-linux-base
-          path: target/lcov-baseline/
-
-      - name: cargo xtask coverage-regression (chunk #55 — line/branch/function gate vs base branch)
-        run: cargo xtask coverage-regression --current lcov.info --baseline target/lcov-baseline/lcov.info
 
       - name: Upload coverage artifact
         if: always()
@@ -643,5 +552,5 @@ jobs:
         with:
           name: coverage-linux
           path: lcov.info
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14

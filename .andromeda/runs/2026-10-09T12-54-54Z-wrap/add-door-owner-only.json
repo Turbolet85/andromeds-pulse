@@ -1,0 +1,7 @@
+{
+  "title": "Only the engine's owner calls the door's first form",
+  "requirement": "until the door can be reached from another host, only the engine's owner on the engine's host can call it; a call by another account on that host is refused",
+  "observed_gap": "`Door inside the engine's process` carries \"owner only\" on P-118's authority; P-093 says \"on the engine's own host only\".",
+  "method": "integration",
+  "acceptance": "Before the door can be reached from another host, a call by the engine's owner on the engine's host is answered and a call by another account on the same host is refused."
+}

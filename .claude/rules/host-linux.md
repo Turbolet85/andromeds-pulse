@@ -40,9 +40,6 @@ work, not hypothetical.
 ## Encoding & heredocs
 - Heredoc terminators must be column-0 and whitespace-exact — a padded terminator silently
   swallows the rest of the script.
-- The transport collapses a BACKSLASH PAIR `\\` to `\` before bash sees it, inside a quoted heredoc too (measured
-  2026-09-23 on three payloads) — a backslash-bearing payload goes through a scratchpad file written by the
-  Write tool.
 - The repo pins LF through `.gitattributes` (setup appends the lines): `git ls-files --eol` on a pipeline file
   reads `i/lf w/lf`. Never write CRLF into a pipeline file, and never fix a terminator reading with a
   terminator-agnostic script.

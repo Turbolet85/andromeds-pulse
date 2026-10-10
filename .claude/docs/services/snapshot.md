@@ -1,17 +1,17 @@
 # `snapshot` — Curated Markdown Generator
 
 ## Responsibility
-Generates token-efficient curated markdown snapshots from buffer data. Pipeline: time-window selection → filter → curate (dedup identical spans / anomaly highlighting / critical-path extraction / p50/p95/p99 aggregation / drop verbose attributes) → format hierarchical markdown → enforce token budget (10k / 25k / 50k preset). Hosts `snapshot.{generate,list_recent,copy_to_clipboard}` TauRPC routers.
+Generates token-efficient curated markdown snapshots from buffer data. Pipeline: time-window selection → filter → curate (dedup identical spans / anomaly highlighting / critical-path extraction / p50/p95/p99 aggregation / drop verbose attributes) → format hierarchical markdown → enforce token budget (10k / 25k / 50k preset). The one implemented TauRPC procedure is `snapshot.generate`, hosted at the binary boundary in `pulse-app/src/snapshot_runtime.rs` (window app only — the console program mounts no TauRPC router); `snapshot.list_recent` and `snapshot.copy_to_clipboard` are deferred, with no runtime emitter.
 
 ## Key integrations
 
 ### Consumes from
 - `buffer` crate via DuckDB prepared statements.
 - `viz` crate aggregation utilities for percentile computation.
-- `workspace-detector` for snapshot path resolution (`.andromeda/` marker → `.andromeda/pulse/{timestamp}.md`; else → `~/.cache/andromeda-pulse/snapshots/{timestamp}.md`).
+- Snapshot files land in `snapshots/` under the resolved data dir (`~/.andromeda-pulse/snapshots/` on Linux; `ANDROMEDA_PULSE_DATA_DIR` overrides the root), resolved in `pulse-app/src/snapshot_runtime.rs` — no `workspace-detector` call, no `.andromeda/pulse/` and no `~/.cache/` location.
 
 ### Publishes to
-- TauRPC routers: `snapshot.generate`, `snapshot.list_recent`, `snapshot.copy_to_clipboard`.
+- TauRPC procedure: `snapshot.generate` (`pulse-app/src/snapshot_runtime.rs`); `snapshot.list_recent` and `snapshot.copy_to_clipboard` deferred — no runtime emitter.
 - Tauri Channel: `pulse://stream/snapshot-progress` (progress events during generation; final completion event).
 - Filesystem: `~/.andromeda-pulse/snapshots/{timestamp}.md` (canonical) + dual `.json` raw OTLP if user enabled.
 - OS notification via `tauri-plugin-notification`: "Snapshot ready ({N} tokens). Paste in {AI tool} to investigate."
@@ -47,7 +47,7 @@ Generates token-efficient curated markdown snapshots from buffer data. Pipeline:
 - **Token counter + budget enforcer:** `crates/snapshot/src/budget.rs`
 - **Snapshot path resolution:** `crates/snapshot/src/path.rs` (uses `workspace-detector` API)
 - **Clipboard + notification:** `crates/snapshot/src/io.rs`
-- **TauRPC router:** `crates/snapshot/src/router.rs`
+- **TauRPC resolver + runtime:** `pulse-app/src/snapshot_runtime.rs` (`SnapshotApiImpl`, `snapshot.generate`)
 - **Tests:** colocated per module + `tests/integration/snapshot/` for E2E P2
 
 ## Testing this service
@@ -56,7 +56,7 @@ Generates token-efficient curated markdown snapshots from buffer data. Pipeline:
 - **Performance budget (test-plan §10):** snapshot generation p99 <500ms for 25k token budget; chaos test 10k span backlog with 10k token budget asserts aggressive culling still produces valid snapshot.
 
 ## Local development
-- **Manual snapshot:** Click "Investigate" button in compact widget or full dashboard → curated markdown saved to `.andromeda/pulse/{timestamp}.md` (if cwd has `.andromeda/`) or `~/.andromeda-pulse/snapshots/{timestamp}.md`.
+- **Manual snapshot:** Click "Investigate" button in compact widget or full dashboard → curated markdown saved to `snapshots/` under the resolved data dir (`~/.andromeda-pulse/snapshots/` on Linux; `ANDROMEDA_PULSE_DATA_DIR` overrides the root).
 - **Clipboard:** Snapshot generator copies path to clipboard with one of 4 preset prompts (Claude Code default / Cursor / ChatGPT / Custom).
 
 ## References

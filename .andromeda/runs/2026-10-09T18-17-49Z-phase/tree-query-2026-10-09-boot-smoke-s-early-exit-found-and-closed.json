@@ -1,0 +1,322 @@
+[
+{
+"sql": "SELECT caller_name, callee_name, file, line FROM calls WHERE callee_name IN ('record_exit','install_exit_hook','exit_after_event_loop','install_signal_listener','flush_log_sink','hold_log_guard','read_ended','classify','pid_alive','newest_family_member','apply_linux_default') AND callee_kind = 'fn' ORDER BY callee_name, file, line",
+"rows": 52,
+"result": [
+{
+"caller_name": "main",
+"callee_name": "apply_linux_default",
+"file": "pulse-app/src/main.rs",
+"line": 278
+},
+{
+"caller_name": "crate",
+"callee_name": "apply_linux_default",
+"file": "pulse-app/tests/unit_render_posture.rs",
+"line": 13
+},
+{
+"caller_name": "child_writes_posture",
+"callee_name": "apply_linux_default",
+"file": "pulse-app/tests/unit_render_posture.rs",
+"line": 56
+},
+{
+"caller_name": "run",
+"callee_name": "classify",
+"file": "xtask/src/harness_status.rs",
+"line": 42
+},
+{
+"caller_name": "no_pidfile_is_not_running_regardless_of_logs",
+"callee_name": "classify",
+"file": "xtask/src/harness_status.rs",
+"line": 252
+},
+{
+"caller_name": "pid_without_any_log_family_is_stale",
+"callee_name": "classify",
+"file": "xtask/src/harness_status.rs",
+"line": 259
+},
+{
+"caller_name": "pid_with_fresh_log_writes_is_running_healthy",
+"callee_name": "classify",
+"file": "xtask/src/harness_status.rs",
+"line": 266
+},
+{
+"caller_name": "pid_with_old_log_writes_is_stale",
+"callee_name": "classify",
+"file": "xtask/src/harness_status.rs",
+"line": 277
+},
+{
+"caller_name": "boundary_age_is_still_healthy",
+"callee_name": "classify",
+"file": "xtask/src/harness_status.rs",
+"line": 287
+},
+{
+"caller_name": "a_dead_pid_with_fresh_log_writes_is_not_running",
+"callee_name": "classify",
+"file": "xtask/src/harness_status.rs",
+"line": 311
+},
+{
+"caller_name": "an_unprobeable_pid_falls_back_to_write_freshness",
+"callee_name": "classify",
+"file": "xtask/src/harness_status.rs",
+"line": 322
+},
+{
+"caller_name": "evaluate_at",
+"callee_name": "classify",
+"file": "xtask/src/staged_gate.rs",
+"line": 343
+},
+{
+"caller_name": "classify_clean_when_all_subjects_match_pins",
+"callee_name": "classify",
+"file": "xtask/src/staged_gate.rs",
+"line": 480
+},
+{
+"caller_name": "classify_reds_when_staged_bindings_lack_the_mcp_namespace",
+"callee_name": "classify",
+"file": "xtask/src/staged_gate.rs",
+"line": 492
+},
+{
+"caller_name": "classify_reds_on_extra_staged_procedure",
+"callee_name": "classify",
+"file": "xtask/src/staged_gate.rs",
+"line": 509
+},
+{
+"caller_name": "classify_reds_on_unparseable_staged_bindings",
+"callee_name": "classify",
+"file": "xtask/src/staged_gate.rs",
+"line": 517
+},
+{
+"caller_name": "classify_reds_on_staged_deletion_of_each_subject_kind",
+"callee_name": "classify",
+"file": "xtask/src/staged_gate.rs",
+"line": 524
+},
+{
+"caller_name": "classify_reds_on_staged_deletion_of_each_subject_kind",
+"callee_name": "classify",
+"file": "xtask/src/staged_gate.rs",
+"line": 530
+},
+{
+"caller_name": "classify_reds_on_revoked_grant_naming_file_and_permission",
+"callee_name": "classify",
+"file": "xtask/src/staged_gate.rs",
+"line": 561
+},
+{
+"caller_name": "classify_reds_on_added_grant_and_added_window",
+"callee_name": "classify",
+"file": "xtask/src/staged_gate.rs",
+"line": 587
+},
+{
+"caller_name": "classify_reds_on_identifier_mismatch",
+"callee_name": "classify",
+"file": "xtask/src/staged_gate.rs",
+"line": 622
+},
+{
+"caller_name": "classify_reds_on_unpinned_capability_file",
+"callee_name": "classify",
+"file": "xtask/src/staged_gate.rs",
+"line": 636
+},
+{
+"caller_name": "main",
+"callee_name": "exit_after_event_loop",
+"file": "pulse-app/src/main.rs",
+"line": 1577
+},
+{
+"caller_name": "exit_cause_event_loop_nonzero_code_is_carried_at_error",
+"callee_name": "exit_after_event_loop",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 162
+},
+{
+"caller_name": "exit_cause_event_loop_zero_code_is_recorded_at_info",
+"callee_name": "exit_after_event_loop",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 186
+},
+{
+"caller_name": "exit_cause_at_exit_hook_does_not_duplicate_the_event_loop_record",
+"callee_name": "exit_after_event_loop",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 356
+},
+{
+"caller_name": "record_exit",
+"callee_name": "flush_log_sink",
+"file": "pulse-app/src/observability.rs",
+"line": 2810
+},
+{
+"caller_name": "main",
+"callee_name": "hold_log_guard",
+"file": "pulse-app/src/main.rs",
+"line": 294
+},
+{
+"caller_name": "init_child",
+"callee_name": "hold_log_guard",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 56
+},
+{
+"caller_name": "main",
+"callee_name": "install_exit_hook",
+"file": "pulse-app/src/main.rs",
+"line": 295
+},
+{
+"caller_name": "exit_cause_process_exit_is_recorded_outside_event_loop",
+"callee_name": "install_exit_hook",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 212
+},
+{
+"caller_name": "exit_cause_native_exit_is_recorded_outside_event_loop",
+"callee_name": "install_exit_hook",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 238
+},
+{
+"caller_name": "exit_cause_at_exit_hook_does_not_duplicate_a_record_before_a_native_exit",
+"callee_name": "install_exit_hook",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 312
+},
+{
+"caller_name": "exit_cause_at_exit_hook_does_not_duplicate_the_event_loop_record",
+"callee_name": "install_exit_hook",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 355
+},
+{
+"caller_name": "main",
+"callee_name": "install_signal_listener",
+"file": "pulse-app/src/main.rs",
+"line": 297
+},
+{
+"caller_name": "exit_cause_sigterm_is_recorded_and_still_ends_by_signal",
+"callee_name": "install_signal_listener",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 271
+},
+{
+"caller_name": "run",
+"callee_name": "newest_family_member",
+"file": "xtask/src/harness_status.rs",
+"line": 41
+},
+{
+"caller_name": "newest_family_member_prefers_latest_mtime_and_reads_the_family",
+"callee_name": "newest_family_member",
+"file": "xtask/src/harness_status.rs",
+"line": 303
+},
+{
+"caller_name": "run",
+"callee_name": "pid_alive",
+"file": "xtask/src/harness_status.rs",
+"line": 40
+},
+{
+"caller_name": "pid_alive_tells_a_running_process_from_an_exited_one",
+"callee_name": "pid_alive",
+"file": "xtask/src/harness_status.rs",
+"line": 328
+},
+{
+"caller_name": "pid_alive_tells_a_running_process_from_an_exited_one",
+"callee_name": "pid_alive",
+"file": "xtask/src/harness_status.rs",
+"line": 338
+},
+{
+"caller_name": "run",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 44
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 362
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 364
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 366
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 368
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 370
+},
+{
+"caller_name": "exit_after_event_loop",
+"callee_name": "record_exit",
+"file": "pulse-app/src/observability.rs",
+"line": 2818
+},
+{
+"caller_name": "run_exit_reporter",
+"callee_name": "record_exit",
+"file": "pulse-app/src/observability.rs",
+"line": 2864
+},
+{
+"caller_name": "install_signal_listener",
+"callee_name": "record_exit",
+"file": "pulse-app/src/observability.rs",
+"line": 2906
+},
+{
+"caller_name": "exit_cause_at_exit_hook_does_not_duplicate_a_record_before_a_native_exit",
+"callee_name": "record_exit",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 313
+},
+{
+"caller_name": "exit_cause_at_exit_hook_does_not_duplicate_a_record_before_a_native_exit",
+"callee_name": "record_exit",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 322
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

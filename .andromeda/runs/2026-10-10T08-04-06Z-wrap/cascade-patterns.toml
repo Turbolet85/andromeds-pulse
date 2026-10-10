@@ -1,0 +1,61 @@
+# The retired claims of this pass, by token and by phrasing.
+
+[[pattern]]
+id = "criterion"
+regex = '[Cc]riterion (0\.5|bench|regression)|`criterion`'
+
+[[pattern]]
+id = "xtask-bench"
+regex = 'xtask bench|benches/'
+
+[[pattern]]
+id = "regr-detect"
+regex = 'regression (detection|assertion)'
+
+[[pattern]]
+id = "junit"
+regex = '[Jj][Uu]nit'
+
+[[pattern]]
+id = "test-reporter"
+fixed = 'test-reporter'
+
+[[pattern]]
+id = "a11y-base"
+fixed = 'a11y-violations-base'
+
+[[pattern]]
+id = "base-branch"
+regex = 'base[- ]branch'
+
+[[pattern]]
+id = "artifact-cmp"
+regex = 'artifact comparison|downloaded on PRs|PR comment'
+
+[[pattern]]
+id = "logs-os"
+fixed = 'logs-${{ runner.os }}'
+
+[[pattern]]
+id = "n-logs"
+fixed = '-n logs'
+
+[[pattern]]
+id = "logs-artifact"
+regex = 'logs/agent-latest\.jsonl` artifact|CI artifact `logs/agent-latest|logs artifact \+ snapshot'
+
+[[pattern]]
+id = "snapshot-art"
+regex = '[Ss]napshot markdown|snapshot on failure|snapshot generation on test failure'
+
+[[pattern]]
+id = "two-binaries"
+regex = '(Two|Three) unit binaries shell out'
+
+[[pattern]]
+id = "soft-fail-guard"
+fixed = 'no_continue_on_error'
+
+[[pattern]]
+id = "regr-detector"
+regex = 'regression-detector|[Rr]egression baseline'

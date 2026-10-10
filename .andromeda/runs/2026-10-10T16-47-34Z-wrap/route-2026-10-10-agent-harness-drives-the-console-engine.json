@@ -1,0 +1,125 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T17:43:26Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-10-agent-harness-drives-the-console-engine",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"flip master-route.md:116 - 2026-10-10-agent-harness-drives-the-console-engine pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T17:43:26Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-agent-harness-drives-the-console-engine",
+"--date",
+"2026-10-10",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :31 strip CARRY: 674ch \"CARRY: two readings obs-plan §10 CI gate\"",
+"pin :31 strip CARRY: 440ch \"CARRY: the sixth stage of cargo xtask pr\"",
+"pin :31 strip CARRY: 345ch \"CARRY: cargo xtask check:ingest-progress\"",
+"pin :31 strip CARRY: 470ch \"CARRY: the console program's panic recor\"",
+"pin :31 strip CARRY: 341ch \"CARRY: three readings the new boot's tes\"",
+"pin next markerless :33 holds CARRY:×5",
+"31 · 2026-10-10-agent-harness-drives-the-console-engine · strip 5 block(s) · archive APPEND",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 31,
+"marker": "2026-10-10-agent-harness-drives-the-console-engine",
+"blocks": 5,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T17:43:35Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-agent-harness-drives-the-console-engine",
+"--date",
+"2026-10-10",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :31 strip CARRY: 674ch \"CARRY: two readings obs-plan §10 CI gate\"",
+"pin :31 strip CARRY: 440ch \"CARRY: the sixth stage of cargo xtask pr\"",
+"pin :31 strip CARRY: 345ch \"CARRY: cargo xtask check:ingest-progress\"",
+"pin :31 strip CARRY: 470ch \"CARRY: the console program's panic recor\"",
+"pin :31 strip CARRY: 341ch \"CARRY: three readings the new boot's tes\"",
+"pin next markerless :33 holds CARRY:×5",
+"31 · 2026-10-10-agent-harness-drives-the-console-engine · strip 5 block(s) · archive APPEND",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/route-archive.md",
+"./andromeda-pulse-0.4.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 31,
+"marker": "2026-10-10-agent-harness-drives-the-console-engine",
+"blocks": 5,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+}
+]

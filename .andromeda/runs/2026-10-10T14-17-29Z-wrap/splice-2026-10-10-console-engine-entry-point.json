@@ -1,0 +1,199 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T14:21:55Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-console-engine-entry-point/report.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap/new-text.md",
+"--lines",
+"390",
+"--if-absent-prefix",
+"## New text, by line",
+"--run-dir",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap",
+"--marker",
+"2026-10-10-console-engine-entry-point"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append report.md:+390 at line 376 · lines 375→765 · bytes 36060→58240 · term lf",
+"last line now:   - 131-176 «for (program, seat, level, labels) in [»"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/chunks/2026-10-10-console-engine-entry-point/report.md"
+],
+"before": {
+"lines": 375,
+"bytes": 36060,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 765,
+"bytes": 58240
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T14:46:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap/security-plan-entry.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap",
+"--marker",
+"2026-10-10-console-engine-entry-point"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+11 at line 671 · lines 670→681 · bytes 128525→131092 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T14-17-29Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 670,
+"bytes": 128525,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 681,
+"bytes": 131092
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T14:46:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap/architecture-entry.md",
+"--lines",
+"14",
+"--run-dir",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap",
+"--marker",
+"2026-10-10-console-engine-entry-point"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+14 at line 955 · lines 954→968 · bytes 152266→155263 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T14-17-29Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 954,
+"bytes": 152266,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 968,
+"bytes": 155263
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T14:46:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap/test-plan-entry.md",
+"--lines",
+"13",
+"--run-dir",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap",
+"--marker",
+"2026-10-10-console-engine-entry-point"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+13 at line 899 · lines 898→911 · bytes 158501→161354 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T14-17-29Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 898,
+"bytes": 158501,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 911,
+"bytes": 161354
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T14:46:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap/obs-plan-entry.md",
+"--lines",
+"12",
+"--run-dir",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap",
+"--marker",
+"2026-10-10-console-engine-entry-point"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+12 at line 507 · lines 506→518 · bytes 94286→97247 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T14-17-29Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 506,
+"bytes": 94286,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 518,
+"bytes": 97247
+}
+}
+]

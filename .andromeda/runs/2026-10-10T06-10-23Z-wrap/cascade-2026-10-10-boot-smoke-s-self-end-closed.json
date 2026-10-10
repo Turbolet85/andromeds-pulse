@@ -1,0 +1,196 @@
+[
+{
+"tool": "cascade",
+"v": "1.2",
+"sha8": "89172b3d",
+"ts": "2026-10-10T06:26:31Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-10T06-10-23Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-10T06-10-23Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"baseline 95d17008 (pre-CI parent — the oldest of 1 pre-CI commit(s), 4e61553b)",
+"settle-ended · new 2 · standing 3 · leaf 2 · curation 0 · base 0 · control architecture.md:258 (prose)",
+"limit-sentence · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:258 (prose)",
+"counted-other · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · control architecture.md:258 (prose)",
+"not-closed · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:396 (prose)",
+"closing-entry · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:134 (pr…",
+"read-failed · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:396 (prose)",
+"errno-11 · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:396 (prose)",
+"under-reads · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:134 (prose)",
+"sixteen-pins · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:134 (prose)",
+"sole-reader · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:395 (…",
+"ordinal-one · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:258 (p…",
+"not-claimed · 0 rows (control fired) — a statement about this pattern, not the masters · control registries/contracts/t…",
+"runner-build · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:396 (pros…",
+"no-label · new 0 · standing 3 · leaf 2 · curation 0 · base 0 · control architecture.md:258 (prose)",
+"takes-no-settle · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:258 (prose)",
+".andromeda/architecture.md:259 settle-ended new @c7475/28000 …ed by itself: its settle verdict read `ended`, or, since …",
+".andromeda/test-plan.md:496 settle-ended standing edited @c1687/5788 …f two ways: its settle verdict reads `ended`, or …",
+".andromeda/test-plan.md:509 settle-ended new …ot ended by itself: its settle verdict read `ended`, or, since chunk 2026…",
+".andromeda/obs-plan.md:545 settle-ended standing edited ×2 @c4010,4342/4746 …the job: its settle verdict reads `ended`,…",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md:3 settle-ended standing edited @c1256/6849 …ts settle ve…",
+".claude/rules/verification-harness.md:85 settle-ended leaf …f-ended` (a boot's settle verdict read `ended`) or `not-all…",
+".claude/docs/tests-summary.md:88 settle-ended leaf …-gates`. A boot whose settle verdict reads `ended` fails the job; `…",
+".claude/rules/verification-harness.md:85 limit-sentence leaf … its `run/` is. A measured limit: a boot that ends before…",
+".claude/docs/tests-summary.md:88 limit-sentence leaf …t-witness.jsonl`). A measured limit: a boot that ends before read…",
+".andromeda/architecture.md:259 counted-other standing edited @c9555/28000 …ead ready was counted `other` with a null `e…",
+".andromeda/test-plan.md:134 counted-other standing edited @c4395/6103 …ed`, so it was counted `other` with a null settl…",
+".claude/rules/verification-harness.md:85 counted-other leaf … verdict, so it is counted `other` with no `exit_witness` …",
+".claude/docs/tests-summary.md:88 counted-other leaf …ends before ready is counted `other` with no label. The sh `boot` …",
+".andromeda/obs-plan.md:396 read-failed new @c2120/4152 …ed-library.md`): no read failed on the X connection — under a d…",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md:5 read-failed standing edited @c2460/3854 … read …",
+".andromeda/obs-plan.md:396 errno-11 new @c1181/4152 …d`, and each records `errno` 11, a stale value and not a member of…",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md:5 errno-11 standing edited mixed ×2 @c2009/3854 ……",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md:5 errno-11 @c+2257/3854",
+".andromeda/test-plan.md:134 under-reads standing edited mixed ×2 @c4283,4706/6103 …ts verdict under-read a boot that en…",
+".andromeda/test-plan.md:134 sixteen-pins standing edited @c4009/6103 …series` carried 16 unit pins on its pure decision…",
+".andromeda/architecture.md:259 no-label standing edited @c9578/28000 … `other` with a null `exit_witness` (as measured …",
+".andromeda/test-plan.md:134 no-label standing edited @c4444/6103 …le verdict and a null `exit_witness` (as measured on …",
+".andromeda/obs-plan.md:266 no-label standing …` targets. Counts only, no labels. Equality of `observer_invocations` wit…",
+".claude/rules/verification-harness.md:85 no-label leaf …ounted `other` with no `exit_witness` label (`ci#38019133294`: …",
+".claude/docs/tests-summary.md:88 no-label leaf …s counted `other` with no label. The sh `boot` verb's witness arm has n…",
+".andromeda/test-plan.md:496 takes-no-settle standing edited @c1830/5788 …y. Such a boot takes no settle verdict (its `v…",
+".claude/rules/verification-harness.md:85 takes-no-settle leaf … verb reads ready takes no settle verdict, so it is coun…",
+"settle-ended · new 2 · standing 3 · leaf 2 · curation 0 · base 0 · control architecture.md:258 (prose)",
+"limit-sentence · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:258 (prose)",
+"counted-other · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · control architecture.md:258 (prose)",
+"not-closed · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:396 (prose)",
+"closing-entry · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:134 (pr…",
+"read-failed · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:396 (prose)",
+"errno-11 · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:396 (prose)",
+"under-reads · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:134 (prose)",
+"sixteen-pins · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:134 (prose)",
+"sole-reader · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:395 (…",
+"ordinal-one · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:258 (p…",
+"not-claimed · 0 rows (control fired) — a statement about this pattern, not the masters · control registries/contracts/t…",
+"runner-build · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:396 (pros…",
+"no-label · new 0 · standing 3 · leaf 2 · curation 0 · base 0 · control architecture.md:258 (prose)",
+"takes-no-settle · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:258 (prose)",
+"total (15 patterns) · 26 rows over 7 files",
+"per class · new 4/3 · standing 13/5 · leaf 9/2 · curation 0/0 · base 0/0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "95d17008a9a7cc9dad50cea26ef265c8aa4a4f4b",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), 4e61553b",
+"counts": {
+"settle-ended": {
+"new": 2,
+"standing": 3,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"limit-sentence": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"counted-other": {
+"new": 0,
+"standing": 2,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"not-closed": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"closing-entry": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"read-failed": {
+"new": 1,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"errno-11": {
+"new": 1,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"under-reads": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"sixteen-pins": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"sole-reader": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ordinal-one": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"not-claimed": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"runner-build": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"no-label": {
+"new": 0,
+"standing": 3,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"takes-no-settle": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

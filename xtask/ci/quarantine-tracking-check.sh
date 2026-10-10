@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Chunk #55 quarantine convention enforcement. Greps for #[ignore] in Rust
-# source under crates/*/src/, pulse-app/{src,tests}/, and xtask/src/; for
-# each match, scans the surrounding 5-line window for a GitHub issue URL
-# (https://github.com/.../issues/N). Fails with file:line citation if any
-# quarantine lacks tracking link. NEUTRAL (exit 0) when zero #[ignore]
-# found in source (current state — establishes the gate for future
-# quarantines per test-plan §11 "NEVER commit #[ignore] tests without
-# open GitHub issue").
+# Quarantine convention enforcement (test-plan §11: NEVER commit #[ignore]
+# tests without an open GitHub issue). Greps for #[ignore] in the Rust
+# sources under crates/, pulse-app/{src,tests}/ and xtask/src/; for each
+# match, scans the surrounding 5-line window for a GitHub issue URL
+# (https://github.com/.../issues/N) and fails with a file:line citation when
+# a quarantine lacks one.
+#
+# A check that read nothing has nothing to pass: a missing search dir fails,
+# and so does a scan of zero .rs files. The PASS line says how many files
+# were scanned.
 #
 # Usage: quarantine-tracking-check.sh [<workspace-root>]
 #   Default workspace-root: $(pwd)
@@ -15,22 +17,40 @@ set -euo pipefail
 
 WORKSPACE_ROOT="${1:-$(pwd)}"
 SEARCH_DIRS=(
-    "$WORKSPACE_ROOT/crates"
-    "$WORKSPACE_ROOT/pulse-app/src"
-    "$WORKSPACE_ROOT/pulse-app/tests"
-    "$WORKSPACE_ROOT/xtask/src"
+    "crates"
+    "pulse-app/src"
+    "pulse-app/tests"
+    "xtask/src"
 )
 
+missing=0
+for dir in "${SEARCH_DIRS[@]}"; do
+    if [ ! -d "$WORKSPACE_ROOT/$dir" ]; then
+        printf '::error::quarantine-tracking-check: search dir %s is missing\n' "$dir" >&2
+        missing=1
+    fi
+done
+if [ "$missing" -ne 0 ]; then
+    exit 1
+fi
+
+files=0
 matches=()
 for dir in "${SEARCH_DIRS[@]}"; do
-    if [ ! -d "$dir" ]; then continue; fi
+    count=$(find "$WORKSPACE_ROOT/$dir" -type f -name '*.rs' | wc -l)
+    files=$((files + count))
     while IFS= read -r line; do
         matches+=("$line")
-    done < <(grep -rn -E '^[[:space:]]*#\[ignore' "$dir" --include='*.rs' 2>/dev/null || true)
+    done < <(grep -rn -E '^[[:space:]]*#\[ignore' "$WORKSPACE_ROOT/$dir" --include='*.rs' 2>/dev/null || true)
 done
 
+if [ "$files" -eq 0 ]; then
+    printf '::error::quarantine-tracking-check: no .rs file under %s\n' "${SEARCH_DIRS[*]}" >&2
+    exit 1
+fi
+
 if [ "${#matches[@]}" -eq 0 ]; then
-    echo "quarantine-tracking-check: NEUTRAL (zero #[ignore] in source; gate establishes convention for future quarantines)"
+    echo "quarantine-tracking-check: PASS (0 quarantine(s) across ${files} file(s))"
     exit 0
 fi
 
@@ -48,7 +68,7 @@ for match in "${matches[@]}"; do
 done
 
 if [ "$fail" -eq 0 ]; then
-    echo "quarantine-tracking-check: PASS (${#matches[@]} quarantine(s) tracked via GitHub issue URL)"
+    echo "quarantine-tracking-check: PASS (${#matches[@]} quarantine(s) tracked via GitHub issue URL across ${files} file(s))"
 fi
 
 exit $fail

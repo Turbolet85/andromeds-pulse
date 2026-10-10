@@ -1,0 +1,398 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T10:31:29Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-no-gate-stands-while-reading-nothing/report.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap/new-text.md",
+"--lines",
+"94",
+"--if-absent-prefix",
+"## New text, by line",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append report.md:+94 at line 163 · lines 162→256 · bytes 34859→40307 · term lf",
+"last line now:   - 1123-1133 @1124 «fn quarantine_check_passes_an_ignore_with_its_issue_url() "
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/chunks/2026-10-10-no-gate-stands-while-reading-nothing/report.md"
+],
+"before": {
+"lines": 162,
+"bytes": 34859,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 256,
+"bytes": 40307
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T10:41:42Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap/test-plan-row-ps1.md",
+"--lines",
+"1",
+"--after-line",
+"150",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan.md:+1 at line 151 · lines 666→667 · bytes 201131→201868 · term lf",
+"last line now: - NEVER bind OTLP receivers to `0.0.0.0` (breaks loopback-only security model) �"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan.md"
+],
+"before": {
+"lines": 666,
+"bytes": 201131,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 667,
+"bytes": 201868
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T10:43:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap/architecture-row-bash-awk.md",
+"--lines",
+"1",
+"--after-line",
+"33",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture.md:+1 at line 34 · lines 320→321 · bytes 167595→168364 · term lf",
+"last line now: - **`pulse-v0_2_0-route`** — Pulse v0.2.0 evolution scope. Defined at `docs/v0"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture.md"
+],
+"before": {
+"lines": 320,
+"bytes": 167595,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 321,
+"bytes": 168364
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T10:49:07Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap/architecture-entry.md",
+"--lines",
+"12",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+12 at line 896 · lines 895→907 · bytes 145305→147789 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 895,
+"bytes": 145305,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 907,
+"bytes": 147789
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T10:49:07Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap/obs-plan-entry-1.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+10 at line 486 · lines 485→495 · bytes 89655→91932 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 485,
+"bytes": 89655,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 495,
+"bytes": 91932
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T10:49:07Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap/obs-plan-entry-2.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+11 at line 496 · lines 495→506 · bytes 91932→94286 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 495,
+"bytes": 91932,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 506,
+"bytes": 94286
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T10:49:07Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap/test-plan-entry-1.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+11 at line 829 · lines 828→839 · bytes 148367→150598 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 828,
+"bytes": 148367,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 839,
+"bytes": 150598
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T10:49:07Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap/test-plan-entry-2.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+10 at line 840 · lines 839→849 · bytes 150598→152558 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 839,
+"bytes": 150598,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 849,
+"bytes": 152558
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T10:49:07Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap/test-plan-entry-3.md",
+"--lines",
+"12",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+12 at line 850 · lines 849→861 · bytes 152558→154852 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 849,
+"bytes": 152558,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 861,
+"bytes": 154852
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T10:50:34Z",
+"argv": [
+"append",
+"--file",
+".claude/rules/testing.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap/curation-testing-append.md",
+"--lines",
+"4",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append testing.md:+4 at line 313 · lines 312→316 · bytes 189682→190426 · term lf",
+"last line now: - 2026-10-10: SWEEP HAZARD — `cargo xtask quarantine-tracking` greps line-anch"
+],
+"stderr": null,
+"wrote": [
+".claude/rules/testing.md"
+],
+"before": {
+"lines": 312,
+"bytes": 189682,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 316,
+"bytes": 190426
+}
+}
+]

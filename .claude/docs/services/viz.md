@@ -11,7 +11,7 @@ Owns the query layer feeding webview WebGPU charts. Hosts the `traces.*` / `metr
 
 ### Publishes to
 - TauRPC routers: `traces.query`, `metrics.query`, `logs.query` (paginated result sets).
-- Tauri Channel API: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs` (binary Arrow IPC payloads).
+- The push streams `pulse://stream/spans` / `metrics` / `logs` (binary Arrow IPC) are bound by the `streams.subscribe_{spans,metrics,logs}` procedures of the `pulse-app` crate (`Channel<Vec<u8>>` over `buffer::BroadcastSenders`, `pulse-app/src/streams.rs`), not by this crate.
 - `tracing` events: `viz.query.{traces|metrics|logs}`, `viz.tick`, `metric.trace.latency_percentiles`.
 
 ### Dependencies
@@ -26,7 +26,7 @@ Owns the query layer feeding webview WebGPU charts. Hosts the `traces.*` / `metr
 - **Arrow IPC payload size cap** at 8 MB before `Channel::send` per security plan §Anti-Patterns Code Patterns (truncate or paginate larger result sets).
 - **Trace context propagation** — Arrow `_trace_context` metadata column carries traceparent end-to-end on push streams.
 - **Anonymized query logging** — `tracing` events emit `query_id` + `param_count` + `param_types: ["string","timestamp"]` only; NEVER raw query text or parameter values.
-- **`viz.tick` heartbeat every 15s** with `query_latency_ms`, `subscribers_active`.
+- **`viz.tick` heartbeat every 15s** with `query_latency_ms`, `subscribers_active` — the window app's alone (spawned by `heartbeat::spawn_window_ticks`); the console program `andromeda-pulse-engine` never emits it, and its absence there is by design, not a stall.
 - **Errors** collapse to `AppError::Storage { message }` (sanitized).
 
 ## Service-specific gotchas
@@ -34,7 +34,7 @@ Owns the query layer feeding webview WebGPU charts. Hosts the `traces.*` / `metr
 - **Channel emit binary discipline** — payloads are Arrow IPC bytes (zero-copy); webview decodes via `apache-arrow` JS package + `arrow_ipc.StreamReader`.
 
 ## Entry points for modification
-- **Query routers:** `crates/viz/src/{traces,metrics,logs}.rs` (TauRPC procedure handlers)
+- **Query routers:** `pulse-app/src/viz_routers.rs` (`TracesApiImpl` / `MetricsApiImpl` / `LogsApiImpl`); the query layer they call is `crates/viz/src/query.rs` + `state.rs` (`VizState`)
 - **Aggregation queries:** `crates/viz/src/aggregator.rs` (time-bucket grouping, percentile computation)
 - **Channel emit pipeline:** `crates/viz/src/stream.rs` (broadcast subscriber → Arrow IPC encoder → Tauri Channel)
 - **Tests:** colocated per module

@@ -1,0 +1,28 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "a0f3749c",
+"ts": "2026-10-10T12:41:54Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--chunk",
+"2026-10-10-capability-record-re-based",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-10-capability-record-re-based)",
+"pool: unclaimed 43 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-121 P-122 P-123 P-124 P-125 P-126 P-127]"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

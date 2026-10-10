@@ -1,0 +1,29 @@
+# Phase directive — Pulse 0.4.0, first chunk: `CI on Linux alone` (2026-10-09)
+
+From the pc overseer, the operator. Each line is `measured` by me today unless it says `hypothesis`; re-derive what you
+rely on. Nothing here is this chunk's design — that is yours.
+
+1. **The founder's word to start code** was given today (2026-10-09). This is the first chunk of 0.4.0; the route
+   runs strictly in order.
+2. **Two reds stand between the last master flip and HEAD, and each already has its owner — neither is this chunk's
+   to repair:**
+   - `60ef43c` (the push to `main` that merged PR #39), run `37907730264`: `supply-chain` alone failed, on the checks
+     API (`Resource not accessible by integration`), not on a finding. Owner: the route's SECOND entry, `Supply-chain
+     job same on push and pull request` (P-120, `working-route.md:13`).
+   - `b3ac58a` (the route commit, no source in its diff), pull-request run `37924991598`: `boot smoke (ubuntu-22.04)`
+     alone failed, `"verdict": "not-running"`, no cause in the application's log. Owner: the `WATCH:` on THIS entry
+     (`working-route.md:11`). Readings on equal source: `7f99c38` green · `b3ac58a` red · `0b61bfb` green (job
+     `113832488437`; run `37934330231` concluded success whole).
+   Where Setup 5a asks for the operator's word on either, this is it: owned as above, proceed.
+3. **The watch rides this entry and this chunk's wrap is the first to read it.** `boot smoke (ubuntu-22.04)` is a
+   Linux leg and stays in this chunk — it leaves at `Window's gates retired` (Epoch 2). Record its verdict on every
+   CI run this chunk reads.
+4. **Scope edge.** The supply-chain repair is the NEXT entry's (P-120); do not fold it in even though the same
+   workflow file is open. `hypothesis:` removing the release-build job whole touches what `Desktop distribution
+   retired` (Epoch 2, P-114, P-127) lists for the founder — this chunk removes CI legs, not the release workflows.
+5. **The founder's standing direction on CI** (2026-09-29, verbatim): «Надо ускорять эти ci а то это реально бутылочное
+   горлышко во всей нашей работе». The entry asks for one run's wall-clock recorded: record it before and after, per
+   job, from the runs themselves.
+6. **Diff-shaped probes name the chunk base, never HEAD**: the operator pre-CI commit moves HEAD before the wrap
+   re-runs them (`git diff --numstat <base> -- <file>`).
+7. **Stops.** A boundary widening halts for the founder's own word. At P5 print the plan card and stop for my `yes`.

@@ -1,0 +1,28 @@
+# Phase directive — Pulse 0.4.0, fifth chunk: `Boot smoke's self-end named from a run` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on. Nothing here is this
+chunk's design.
+
+1. **What "named from a run" rules out.** measured (the last chunk's report): 0 self-ends in 51 boots on the dev host;
+   three reds in ten pull-request runs of the build branch, each run booting the app once. So the cause is named from
+   what a CI run keeps, never from a local reproduction, and a design that waits for a natural red waits about three
+   runs for one reading.
+2. **The entry's freight is the measured ground** (`working-route.md`, the entry's `CARRY:`): the process ended by an
+   exit and not a signal, code 1, no `app.exit` and no `app.panic.fatal` record, display and session bus reachable,
+   `boot.log` holding stdout and stderr whole with nothing new in it. What the job does not keep is listed there.
+3. **Two questions for research, each answerable by measurement, neither a direction.** (a) Which instrument, on the
+   runner image as it is, records the call that ends the process with its caller, and what does it cost the boot's
+   timing — measure it on a green boot before trusting it on a red one. (b) Can one run hold several independent boots,
+   so that one run reads the rate instead of one sample — and does booting again in the same job change what is being
+   measured.
+4. **What this chunk must not do.** No retry that turns a red into a green, no soft-fail key, no timing pad placed to
+   make the symptom rarer before the cause is named: each would be the smoothing this entry exists to end. A change
+   that names the cause and a change that closes it may be two steps; if the cause cannot be closed in this chunk, say
+   so at P5 and claim nothing of P-129 that was not shown.
+5. **Boundaries.** The boot job's own steps and what it uploads are this chunk's. A new workflow trigger, a new
+   permission, a secret, or an artifact that could carry more than the app's own log and exit record halts for the
+   founder's own word.
+6. **Scope edge.** The window, its bridge and the boot job leave at `Window's gates retired` and `Window retired`; this
+   chunk repairs nothing for a surface beyond what naming and closing this cause needs.
+7. **At P5** `planlint` now prints its check 4, a listing of gate entries that read what the wrap itself writes: read
+   each row and say in the card what each is. Print the plan card and stop for my `yes`.

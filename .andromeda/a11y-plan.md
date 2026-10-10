@@ -216,6 +216,7 @@ cargo xtask test:a11y
 - Lighthouse a11y category score < 90
 - Keyboard focus order test fails
 - Contrast verification detects token mismatch
+- The regression leg finds a violation tuple the baseline committed in the tree lacks, or that baseline file is absent
 
 **Critical paths (must-be-accessible):**
 
@@ -463,12 +464,12 @@ N/A — no cognitive-accessibility trigger (professional developer users; no int
 |-------|-----------|----------|----------|
 | Lint | eslint-plugin-jsx-a11y 6.10.x | structured stderr (violations in ESLint JSON format) | GitHub Actions annotations (PR check); CI fail if critical violations |
 | Unit | (no UI unit tests for a11y; a11y is integration-level) | n/a | n/a |
-| E2E | @axe-core/playwright 4.11.x + Lighthouse 13.x + pa11y 10.x | `a11y-axe-core-results.jsonl`, `a11y-lighthouse-results.json`, `a11y-pa11y-results.json`, `a11y-keyboard-focus-results.jsonl`, `a11y-violations-summary.json` | uploaded artifact; PR comment with new violations vs base branch |
+| E2E | @axe-core/playwright 4.11.x + Lighthouse 13.x + pa11y 10.x | `a11y-axe-core-results.jsonl`, `a11y-lighthouse-results.json`, `a11y-pa11y-results.json`, `a11y-keyboard-focus-results.jsonl`, `a11y-violations-summary.json` | uploaded artifact (`a11y-violations-Linux`); a violation tuple the baseline committed in the tree lacks fails the job — no step posts a pull-request comment (as measured at chunk 2026-10-10-no-ci-step-reads-nothing) |
 | Aggregation | custom aggregator script (Node.js jq-style) | `a11y-violations-summary.json` (per surface + per WCAG SC pass/fail history) | uploaded artifact; Decisions Log entry if regression |
 
 **Pipeline integration:**
 
-A11y CI runs in same `ci.yml` pipeline as tests E2E per upstream-context Section 5 Test Harness Contract binding, as its own `a11y` matrix job since chunk 2026-09-29-ci-wall-time-and-round-trips (the harness contract it shares with tests is unchanged). Specifically:
+A11y CI runs in same `ci.yml` pipeline as tests E2E per upstream-context Section 5 Test Harness Contract binding, as its own `a11y` job since chunk 2026-09-29-ci-wall-time-and-round-trips, on `ubuntu-22.04` alone since chunk 2026-10-09-ci-on-linux-alone (the harness contract it shares with tests is unchanged). Specifically:
 - Tests' `npm test` (or `cargo nextest run`) invokes Playwright E2E driver which runs axe-core assertions inline via `@axe-core/playwright` AxeBuilder
 - Separate `npm run test:a11y` command invokes Playwright test suite with a11y-specific tests (focus order, keyboard, contrast, screen reader per-surface specs)
 - Reuses tests' `boot` / `run` / `status` / `cleanup` / `logs` harness (5-command discipline per binding contract)
@@ -491,7 +492,7 @@ A11y violation JSON emissions tag with same resource attributes as obs traces fo
 - **Zero WCAG AA violations** on must-be-accessible paths (Section 4 ARIA Patterns + Section 5 Keyboard Navigation paths). NO retry-once policies for a11y violations — masks real failures. Parallel to tests' zero-flakiness budget (upstream-context Section 5).
 
 **Standard+ invariants:**
-- **Zero new violations per PR:** a11y CI fails PR if new WCAG AA violations introduced vs base branch. Per-PR diff detection via artifact comparison.
+- **Zero new violations per PR:** a11y CI fails the PR when the run holds a WCAG AA violation tuple that the baseline committed in the tree lacks (`pulse-app/ui/tests-a11y/baselines/a11y-violations-summary.json`), or when that baseline is absent. The diff is the regression detector's, against the tree file; no artifact is compared (since chunk 2026-10-10-no-ci-step-reads-nothing, where the base-branch artifact download, which had no producer, left).
 - **WCAG SC coverage report:** every must-be-accessible path (P1–P7) covers the universal minimums SC 2.1.1 Keyboard, SC 2.4.3 Focus Order, SC 4.1.2 Name/Role/Value plus path-specific SCs per Section 3 Critical paths table (~10 distinct SCs explicitly named across P1–P7 spanning Perceivable / Operable / Understandable / Robust; ~17 SCs explicitly marked non-applicable per Section 3 applicability list with documented reasons; remaining applicable SCs covered transitively via axe-core / Lighthouse / pa11y default rule sweeps on every path). Per-surface + per-SC pass/fail history tracked in `a11y-violations-summary.json`. CI gate enforces zero regressions on named SCs; non-applicable SCs are documented in the audit trail rather than asserted.
 
 **Performance budget per a11y CI run:**
@@ -562,7 +563,7 @@ A11y violation JSON emissions tag with same resource attributes as obs traces fo
 
 - NEVER use retry-once policy for a11y violations — masks real failures. Parallel to tests' zero-flakiness (upstream-context Section 5). If a11y test flakes: quarantine via `#[ignore]` / skip; investigate; fix or delete before unquarantining.
 - NEVER define soft a11y SLO (must trigger build / deploy failure on threshold) — Section 10 Build/deploy failure conditions lists hard gates
-- NEVER skip per-PR diff (regression detection) at Standard+ tier — track new violations vs base branch; fail PR on regressions
+- NEVER skip per-PR diff (regression detection) at Standard+ tier — track new violations vs the baseline committed in the tree; fail PR on regressions, and on an absent baseline
 
 ### Universal (agent-driven specific)
 

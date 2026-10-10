@@ -1,0 +1,1 @@
+Operator directive: read ~/dev/projects/additional/pc-overseer/relays/pulse-wrap-boot-smoke-early-exit-2026-10-09.md whole first. The runner read settled; P-129 is not claimed and its closing needs an owner at route-resolve. Stop at the route-resolve card and again before the flip and the commit.

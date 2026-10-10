@@ -781,3 +781,203 @@ The entry also carries both rejected alternatives, the deferred `AttentionCue` t
 **Why:** The founder closed 0.3.0 as it stands on 2026-10-09 (his own pick among the options put to him, relayed verbatim by the pc overseer; this wrap was invoked on that relay), and the option he picked carries this entry to the next version in a new form. The route entry the four sites named as owner no longer exists, so they named an owner that is not there. Standing fact for later versions: nothing in 0.3.0 removes the CPU route or stops consuming the CPU binary path.
 **Kept:** The four routing sites the removed entry's wrap was to amend are left describing the CPU route as it ships; they change when the retirement is implemented, not before.
 **Ref:** .andromeda/runs/2026-10-09T08-07-22Z-wrap/
+
+## 2026-10-09-ci-on-linux-alone — CI/CD approach: six jobs on Linux alone; the `release` job and both matrices leave
+**Section:** §Infrastructure Patterns → CI/CD approach (the key file `registries/contracts/architecture/ci-cd-approach.md`) · §Occupied Resources → xtask CLI surfaces (`check:english-sources`)
+**Change:**
+- CI/CD approach, the `ci.yml` bullet. Was: seven independent jobs, `lint-test` and `a11y` on a Linux/macOS/Windows matrix, a macOS/Windows `release` job owning `release-{os}` with `cache-on-failure`, three perf steps "on Linux". Now: six jobs (`lint-test` · `mcp-test` · `a11y` · `boot` · `supply-chain` · `coverage`), each on `ubuntu-22.04`, no matrix, no `needs:` edge; the perf steps are unconditional; no CI job compiles or tests on Windows or macOS.
+- The workspace release build keeps two CI witnesses, `supply-chain`'s `cargo auditable build --workspace --release` and `boot`'s `cargo build --workspace --release --features mcp-server`, pinned by `ci_workflow_keeps_the_linux_release_build_witnesses`; `ci_workflow_runs_on_linux_only` pins that the workflow names no other system.
+- Cache keys: `lint-test-{os}` (owned by `lint-test`, restored read-only by `mcp-test` and `a11y`), `boot-Linux` (owned by `boot`, restored read-only by `supply-chain`), `coverage` (registry only). `{os}` resolves to `Linux` alone; no job writes `release-{os}` or a Windows or macOS `lint-test-{os}` key.
+- A third dated cache reading beside the two of 2026-09-29/30: 2026-10-09T15:13:15Z, 10 entries, 12 208 662 121 B, which is 1 471 243 881 B over the 10 737 418 240 B cap; six entries (8 531 028 085 B) sit on keys with no writer; the four that stay sum 3 677 634 036 B.
+- xtask CLI surfaces: the `check:english-sources` step is wired in `lint-test` on `ubuntu-22.04` (was "on all three OSes").
+**Why:** Chunk 2026-10-09-ci-on-linux-alone removed the Windows and macOS runners from the `ci` workflow, the CI clause of P-113. The reading records the cache as measured and names no remedy: the wrap deletes nothing outside the tree, and who owns the six entries is a route matter.
+**Kept:** The two dated cache measurements of 2026-09-29/30 with their "a watch" wording; the `release.yml` and `update-channels.yml` bullets (both workflows are unchanged); the dated Windows-runner facts in the xtask entry.
+**Ref:** .andromeda/runs/2026-10-09T15-11-06Z-wrap/
+
+## 2026-10-09-supply-chain-job-same-on-push-and-pull-request — CI/CD approach: the audit step, the trigger pin, the fourth cache reading
+**Section:** §Infrastructure Patterns → CI/CD approach (key file `registries/contracts/architecture/ci-cd-approach.md`)
+**Change:** The six-job sentence's `supply-chain` clause named only the auditable build; it now also names `cargo audit` as a plain `run:` step (no action, no token, nothing published, so it ends the same on a pull-request run and on a push run; exit 0 clean · 1 a vulnerability · 2 could not evaluate, on the runner image's own `cargo-audit`, which no step installs; pinned by `ci_workflow_audit_step_is_a_plain_run_step`). New sentence: the trigger block (`pull_request`, and `push` on `main`) is pinned as it stands by `ci_workflow_triggers_are_pull_request_and_push_on_main`. Fourth dated cache reading appended (2026-10-09T17:49:51Z): 10 entries, 12 208 662 121 B, the same count and bytes, none evicted, none created; "keys no job writes" holds for the build branch's workflow only — `main`'s workflow keeps seven jobs and its three-system matrix until the version reaches it, and its push run `ci#37964887106` restored the four orphaned entries on `refs/heads/main` (`last_accessed` 13:05Z → 17:15Z); the two on `refs/pull/39/merge` still read 08:24Z, so least-recently-used names those two alone.
+**Why:** The step changed in this chunk (its record is security-plan's entry of the same marker), and the cache reading was this entry's carried duty. The reading no longer tests whether GitHub evicts the six orphaned entries first: two rounds on `main`'s old workflow touched four of them. A later reading that wants to test eviction waits until `main` runs the Linux-only workflow.
+**Kept:** The third reading's sentence is left as written; the fourth qualifies it. Nothing outside the tree was deleted: the cache entries stand.
+**Ref:** .andromeda/runs/2026-10-09T17-46-44Z-wrap/
+
+## 2026-10-09-supply-chain-job-same-on-push-and-pull-request — record_webgpu_adapter: the CI boot job is a witness on some runs
+**Section:** §Occupied Resources → Tauri IPC routes → `telemetry.frontend.record_webgpu_adapter`
+**Change:** Was "its only live witness is the dev-host `perf:frame-sample` leg (the CI boot job stops the app before the webview issues any IPC)". Now: the dev-host `perf:frame-sample` leg is the live witness for `obtained`; the CI boot job's log holds the record on some runs only — `outcome: no_navigator_gpu` in four of seven boot-job logs of 2026-10-09 and no webview-originated record in three, by how long the app lives before the smoke's `cleanup` stops it (0.57 s to 1.40 s; as measured).
+**Why:** Measured false as a rule while reading the boot smoke's application logs; the same correction lands in obs-plan, test-plan and security-plan under this marker. The procedure, its input type and the procedure count are unchanged.
+**Ref:** .andromeda/runs/2026-10-09T17-46-44Z-wrap/
+
+## 2026-10-09-boot-smoke-s-early-exit-found-and-closed — two harness verdict verbs registered; boot polls readiness
+**Section:** §Occupied Resources → xtask CLI surfaces (`cargo xtask harness:status`; `cargo xtask harness:ready`, new; `cargo xtask harness:settled`, new; `scripts/agent-run.{sh,ps1}`) · → Filesystem locations (`run/andromeda-pulse.pid`; `run/andromeda-pulse.spawn` + `run/andromeda-pulse.exit`) · → Environment variables (`ANDROMEDA_PULSE_PIDFILE`, `ANDROMEDA_PULSE_LOGFILE`)
+**Change:**
+- `cargo xtask harness:ready` registered: object `{verdict, pid, ended, otlp_grpc, otlp_http}`; arms `ready` (exit 0) / `not-ready` (1) / `ended` (1) / `cannot-evaluate` (2); `ready` is the `harness:status` verdict `running-healthy` AND a TCP connection accepted on `127.0.0.1` at both resolved OTLP ports (defaults 4317 / 4318), one second per attempt; labels `accepting` | `refusing`; `ended` needs a pid; a port variable outside 1 to 65535 is `cannot-evaluate`.
+- `cargo xtask harness:settled [--timeout-seconds N]` registered (default 30, below 8 refused, 200 ms poll): `settled` (exit 0: a navigation record for each of the four window labels and a live pid) / `ended` (1) / `not-settled` (1) / `cannot-evaluate` (2); object `{verdict, pid, ended, app_exit_record, windows_settled, display, session_bus}`, also written to `logs/harness-settled.json` when `logs/` exists. `not-settled` is pinned and never read live; the non-Unix socket branch was not compiled on the dev host.
+- `boot` polls `harness:ready`. Was: "Callers are exactly the two harness legs (the boot poll + the `status` verb)" of `harness:status`; now the `status` verb is its one script caller. A failed poll prints `app ended:` or `app still running …`, and `the receivers never both accepted: …` only when the last verdict held a `refusing` label. The ps1 verb mirrors it through `Invoke-Ready`: parsed, never run.
+- The pid file and the exit record gain two xtask readers; both variables are also threaded into the `harness:ready` child.
+- The waiting subshell's `/dev/null` streams are its own; the app's stdout and stderr go to `logs/boot.log`.
+**Why:** the chunk closed the readiness gap: `boot` had reported ready before the receivers bound. The registry enumerates xtask verbs, so a new verb registers.
+**Kept:** the script line citations on the two variable entries (the citation sweep proved them); `harness:status`'s object, arms and exit codes.
+**Ref:** .andromeda/runs/2026-10-09T19-51-29Z-wrap/
+
+## 2026-10-09-boot-smoke-s-early-exit-found-and-closed — the CI smoke step, its kept files, the harness's system variables, what a pull-request run builds
+**Section:** §Occupied Resources → xtask CLI surfaces (`scripts/agent-run.{sh,ps1}`, the smoke step) · → Filesystem locations (`logs/`) · → Environment variables (`DISPLAY` · `DBUS_SESSION_BUS_ADDRESS` · `XDG_RUNTIME_DIR`, new entry) · → Tauri IPC routes (`telemetry.frontend.record_webgpu_adapter`) · §Infrastructure Patterns → CI/CD approach
+**Change:**
+- The smoke step: was "the three invocations run inside one `xvfb-run`"; now it creates `logs/` and runs four inside one `xvfb-run -e "$ANDROMEDA_PULSE_DATA_DIR/logs/xvfb.log"` — `boot || exit 1`, `cargo xtask harness:settled; a=$?`, `status; b=$?`, `cleanup; c=$?`, `test "$a$b$c" = 000`; no `set -e`, so `cleanup` runs whatever the two before it returned; four workflow pins.
+- `logs/` also holds two harness-written files the product neither writes nor reads, `logs/harness-settled.json` and `logs/xvfb.log`; the boot artifact `logs-boot-Linux` holds five files; `run/` is not uploaded.
+- New harness-only entry: three SYSTEM variables read by `harness:settled` alone, labels `reachable` | `gone` | `unset` | `unknown`; a local display `:N` / `:N.S` probed as its X socket, a `unix:path=` bus address else the `bus` socket under the runtime dir by a Unix-socket connect; a `%`-escaped path reads `unknown`; no value printed or written; the product's own `XDG_RUNTIME_DIR` read unchanged.
+- `record_webgpu_adapter`: was "the CI boot job's log holds the record on some runs only" (four of seven logs, the app alive 0.57 s to 1.40 s), per the entry "record_webgpu_adapter: the CI boot job is a witness on some runs"; now on every run that reaches the settle verdict (one run measured, `ci#37979648967`: 2 records, both `no_navigator_gpu`, the app alive 5.494 s); the old count stays as history.
+- CI/CD approach: a `pull_request` run builds the pull request's merge ref, not the pushed tip (measured: `88d5ed30` is `e2931127` merged into `main`'s `178ebac5`); its log's `git.commit.sha` names the merge commit; "equal source" across such runs means the branch tip AND `main`'s tip both unchanged; the merged tree equalled the tip's on that run (0 files differ), which holds only while `main` holds nothing the branch lacks.
+**Why:** the smoke now reads the app past the point where both red runs ended and keeps what a run that ends needs to show. The files and the variable read were classified routine harness evidence, not a boundary widening, by the pc overseer (founder-delegated) at the chunk's plan review, with a standing stop if the display output carries a watched service's telemetry. The merge-ref fact was measured and recorded on the operator's direction at the wrap: a later plan's "equal source" reads it here.
+**Ref:** .andromeda/runs/2026-10-09T19-51-29Z-wrap/
+
+## 2026-10-09-pre-push-check-native-on-linux — the pre-push:linux row describes the native check
+**Section:** §Occupied Resources → xtask CLI surfaces, the `cargo xtask pre-push:linux` row
+**Change:** The row describes a verb that runs on the Linux dev host itself; was "the WSL Linux pre-push verb … Windows host only", every call going through `wsl.exe` into a distro clone. Now:
+- Linux alone; any other system reads `cannot-evaluate` / `not-linux`.
+- The verdict document has six members, `{verdict, reason, head, tree, stages[{name, ok, ms}], missing[]}`, pinned by set equality, none carrying an environment value or a path; was eight, with `remediation` and `cache{bytes, cap, cleaned}`.
+- Reasons, complete: `all-stages-ok` · `not-linux` · `pins-unreadable` · `home-unset` · `provisioning-missing` · `run-dir-unusable` · `tree-unreadable` · `stage-failed:{stage}` · `restore-failed:bindings`; `sync-mismatch` is gone.
+- Order of a run: host guard → two pins from the repo (the Rust channel, ci.yml's Node major) → `HOME` → provisioning probes → per-run area → `head` and `tree` → six stages in the working tree, output on stderr.
+- Every probe and stage child: a cleared environment plus `HOME`, `PATH`, `ANDROMEDA_PULSE_DATA_DIR`, `PUPPETEER_CACHE_DIR` (the `npm` stage only), `GIT_INDEX_FILE` (the tree-id git calls only); no session bus, runtime dir or display variable.
+- `missing[]` names: `rust:{channel}`, `rust:clippy`, `cargo-nextest` (the last two probed only when the channel is listed), `node:{pin} (found {version})` with `none` / `unreadable`, `tool:npm`, `tool:git`, `tool:cc`, `tool:python3`. The apt-list pin and the one `sudo apt-get install` line are gone; the verb installs nothing.
+- The per-run area `target/pre-push/run/` is reset once provisioning has passed, so a `provisioning-missing` run rewrites only the report twin. The clone, its 40 GiB cap and the binary-patch sync are gone.
+- The `test` stage's rewrite of the tracked bindings is put back as found; `restore-failed:bindings` when it cannot; the restore does not run on a signal.
+- "reads no new env var" is retired: the verb reads `HOME` and `PATH` by value and prints or writes neither.
+- Node is the first `node` on the caller's PATH; on the dev host a user-level `mise` Node 24 (v24.21.0, npm 11.19.0, as measured there) beside the default Node 26. The other project's Node install is no longer read.
+**Why:** The chunk rebuilt the verb natively and measured it green on the dev host twice. The reset-after-provisioning order, the `home-unset` reason and the `missing[]` names are implement's deviations, accepted for these rows by the operator (the pc overseer, 2026-10-10).
+**Kept:** "Dev-host only — not wired into CI"; the three exits; the six stage names and their order; the `check:english-sources` row's mention of the `source-lint` stage.
+**Ref:** .andromeda/runs/2026-10-10T01-19-03Z-wrap/
+
+## 2026-10-09-pre-push-check-native-on-linux — HOME, PATH and PUPPETEER_CACHE_DIR registered as harness-only
+**Section:** §Occupied Resources → Environment variables (two new rows)
+**Change:** Two rows are new.
+- `HOME` · `PATH`: SYSTEM variables, not `ANDROMEDA_PULSE_*` inputs, read harness-only and by value by `cargo xtask pre-push:linux` to build the environment its stage children receive. `HOME` unset or empty reads `cannot-evaluate` / `home-unset`. `PATH` is searched, absolute entries only, for the first directory holding a `node` file, and that directory alone is carried into the stage PATH between `{HOME}/.cargo/bin` and `/usr/local/bin:/usr/bin:/bin`. No value of either is printed or written.
+- `PUPPETEER_CACHE_DIR`: harness-only, SET by the verb into its `npm` stage's children only, as the absolute `target/pre-push/run/puppeteer`, so the stage's browser download never touches `~/.cache/puppeteer`; read by no product code. The same row records that the verb SETs `GIT_INDEX_FILE` (`target/pre-push/run/index`) for the three git calls that compute `head` and `tree`, and `ANDROMEDA_PULSE_DATA_DIR` (`target/pre-push/run/data`) for every probe and stage child.
+**Why:** The native verb reads two system variables and sets one variable no row held; the registry lists every harness-only variable beside the product's own.
+**Ref:** .andromeda/runs/2026-10-10T01-19-03Z-wrap/
+
+## 2026-10-10-boot-smoke-s-self-end-named-from-a-run — the boot series verb, the settle verdict's eighth member, the boot verb's witness arm
+**Section:** §Occupied Resources → xtask CLI surfaces; §Infrastructure Patterns → CI/CD approach (key file)
+**Change:**
+- `cargo xtask harness:boot-series --count N` registered: N more boots after the smoke (ordinals 2 to N+1), each one cycle `boot` → `harness:settled` → `status` → `cleanup` under its own `xvfb-run` on its own data dir `series/boot-{ordinal}/`, `XDG_DATA_HOME` / `XDG_CACHE_HOME` set and `ANDROMEDA_PULSE_PIDFILE` / `_LOGFILE` removed per boot, a cycle bounded at 1200 s; verdict `{verdict, boots, settled, ended, other, per_boot}` with a twin at `logs/boot-series.json`; exit 0 `all-settled` · 1 `self-ended` · 1 `not-all-settled` · 2 `cannot-evaluate`; the closed `cycle` labels; the measured limit (a boot that ends before ready is counted `other`).
+- `harness:settled`'s object: was seven members; now eight, the eighth `exit_witness` (`unset` · `unreadable` · `loaded` · `exit-call` · `runtime-exit` · `no-record`), read under a bound of 64 lines of 4096 bytes. Its caller: was the smoke step alone; now the smoke step and each series cycle.
+- `scripts/agent-run.{sh,ps1}`: was "sh+ps1 in lockstep"; now in lockstep but for the sh-only exit-witness arm of `boot` (`ANDROMEDA_PULSE_EXIT_WITNESS_LIB` → `LD_PRELOAD` and `ANDROMEDA_PULSE_EXIT_WITNESS_FILE` on the one spawn command; exit 1 `boot: exit witness library not found` before the pre-build). The smoke step's two neighbours named, with three workflow pins.
+- CI/CD approach: the `boot` job was release build → boot smoke → `ci-gates`; now release build → `Build the exit witness` → boot smoke → `Boot series (equal source)` (`--count 7`, `if: always()`) → `ci-gates`, skipped when the smoke or the series fails; the reading of `ci#38019133294` recorded (seven of eight boots ended, the series step 4 min 27 s).
+**Why:** The chunk built what makes a CI run name who ended the app, and one run now reads eight boots. A later chunk reading a red `boot` job reads it by its per-boot verdicts; the cause is not closed here.
+**Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/
+
+## 2026-10-10-boot-smoke-s-self-end-named-from-a-run — the witness variables, the kept files and the stack row
+**Section:** §Occupied Resources → Environment variables; §Occupied Resources → Filesystem locations; §Stack and Technologies
+**Change:**
+- Environment variables, new rows: `ANDROMEDA_PULSE_EXIT_WITNESS_LIB` (read by `agent-run.sh boot` alone; trim, regular-file check, fail closed) · `ANDROMEDA_PULSE_EXIT_WITNESS_FILE` (set on the spawn line, read by the preloaded library inside the app's process, which removes it and `LD_PRELOAD` at load and checks nothing of the path) · `LD_PRELOAD` (set on the spawn line alone; the one place harness code runs inside the app's process) · `XDG_DATA_HOME` · `XDG_CACHE_HOME` (set by the series on each of its boots). `PATH` gained a second harness-only by-value reader (the series, to find `xvfb-run`); the `ANDROMEDA_PULSE_PIDFILE` and `_LOGFILE` rows say the series removes them per boot.
+- Filesystem locations: the harness-written set under `logs/` was two files; now also `logs/exit-witness.jsonl`, `logs/boot-series.json` and `logs/series/boot-{ordinal}/`; the artifact's contents as read on `ci#38019133294`. New subpath `series/boot-{ordinal}/` (per-boot data dirs, not uploaded). New harness-only entry outside the data dir: `scripts/exit-witness.c` and its two build outputs; the three product-written exceptions unchanged.
+- §Stack: a harness-only row for the C exit-witness library built by the host's `cc` (dev host GCC 16.2.1 20260810, as measured 2026-10-10; the runner's version not read); the xtask controls on the built library fail on a missing `cc`.
+**Why:** Each is a resource this chunk introduced. The classification of the library that runs inside the app's process is security-plan's and is PROVISIONAL there.
+**Kept:** the stack row was shown to the operator beside the escalation and applied on the operator's word (the pc overseer, 2026-10-10).
+**Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/
+
+## 2026-10-10-boot-smoke-s-self-end-closed — the series counts a before-ready self-end; Xlib's thread support at the head of main
+**Section:** §Occupied Resources → xtask CLI surfaces (the `harness:boot-series` row) · §Occupied Resources → Filesystem locations (the `run/andromeda-pulse.spawn` + `.exit` entry) · §Stack and Technologies (one new row) · §Infrastructure Patterns → CI/CD approach (key file)
+**Change:**
+- `harness:boot-series`: `self-ended` (exit 1) holds when a boot's settle verdict read `ended` OR, new, when a boot took no settle verdict and its exit record is an end the app made itself: any record but `signal 15 (TERM)` and `signal 9 (KILL)`; no record stays `other`. Was: only the settle verdict. Such a boot's entry keeps `verdict`, `app_exit_record`, `windows_settled` null and carries `ended` and `exit_witness` read from its own data dir: the pid from `run/andromeda-pulse.spawn`, the record through `harness_status::{end_file, read_ended}`, the label through `harness_witness::label` (two production callers now, was one). Ordinal 1 is listed from the smoke's settle verdict, else from its own exit record and label when that record is an own end; out of the counts. Six top members, seven per-boot members, `cycle` labels, verdict set, exit codes, 48-byte bound unchanged.
+- The "measured limit" sentence (a before-ready boot counted `other`, null `exit_witness`) is a dated reading of `ci#38019133294`. New limit: the before-ready read never ran on a runner.
+- Filesystem locations: the series is a reader of the spawn record, the exit record and `logs/exit-witness.jsonl` for a boot with no settle verdict; nothing of `run/` copied.
+- §Stack: new row, Xlib thread initialisation (Linux). `pulse_app::xlib_threads::init()` is the SECOND statement of `main()`, after `render_posture::apply_linux_default()` (still the first) and before any thread; `XInitThreads` resolved in `libX11.so.6` through `libc` (`dlopen`, `dlsym`); returns `Initialised` · `LibraryNotFound` · `SymbolNotFound` · `Refused` · `NotApplicable`; inert where not found; no dependency, environment variable, log record. Leaves with `Window retired`.
+- CI/CD approach: a boot that ended by itself fails the job, in either way. "The cause is not closed" retired: closed, with `ci#38022477393` (5 of 8) and `ci#38026637514` (attempts 1 to 3, 24 boots, 0 self-ended). A self-end in the series is a new reading for the operator, not an expected red.
+**Why:** The boot job's self-end was the app using Xlib from two threads on an Xlib that does not initialise its thread support at load (1.7.5 on the runner). The operator ruled the close into the app's start and placed it second, leaving the ratified render-posture wording as it stands.
+**Kept:** The `__NV_DISABLE_EXPLICIT_SYNC` row's "the FIRST statement of `main()`" is not amended. Why the series' first boot builds again on the runner stays unmeasured.
+**Ref:** .andromeda/runs/2026-10-10T06-10-23Z-wrap/
+
+## 2026-10-10-no-ci-step-reads-nothing — node as a host need of the workspace tests
+**Section:** §Stack and Technologies (one new row)
+**Change:** A third test-only host-tool row, beside the Python 3 row and the `cc` row: `node` on PATH on every host that runs the workspace tests. `pulse-app/tests/a11y_perf_workflow.rs` (`a11y_regression_detector_fails_when_its_baseline_is_absent`) runs the existing `pulse-app/ui/tests-a11y/regression-detector.mjs` with an absent baseline and asserts a non-zero exit and a stderr holding `baseline not found`; a missing `node` fails the test, never skips it. No npm or Cargo dependency, no manifest or lockfile change. Dev host read at v26.8.2 (its default) and 24.21.0 (the `mise` install the pre-push check runs under), as measured on 2026-10-10; the runner's Node version was not read.
+**Why:** The chunk made a Rust workspace test run Node, a tier §Stack had not stated. Node itself is not new to the stack.
+**Kept:** §Infrastructure Patterns → CI/CD approach is not amended: its key file states none of the eight steps the chunk removed from `ci.yml`.
+**Ref:** .andromeda/runs/2026-10-10T08-04-06Z-wrap/
+
+## 2026-10-10-no-gate-stands-while-reading-nothing — ci-gates and quarantine-tracking contracts registered; the grader keeps one no-arm caller; a bash and awk test-time row
+**Section:** §Occupied Resources → xtask CLI surfaces (dev/CI gates) · §Stack and Technologies · §Infrastructure Patterns → CI/CD approach
+**Change:**
+- xtask CLI surfaces: was "`cargo xtask ci-gates` and `perf:load-profiles` run the same grader in-process with no arm required", with the lines `ci-gates: perf-budget PASS|FAIL|NEUTRAL` and `perf-budget NEUTRAL (no log file to grade)`; now `cargo xtask perf:load-profiles` alone runs the grader with no arm required, and `ci-gates` runs no grader and prints no perf-budget, frame or heartbeat line.
+- New entry `cargo xtask ci-gates` (`xtask/src/ci_gates.rs`): two arms over the `agent-latest.jsonl*` family under the resolved log dir, zero-spans (at least one record; a non-empty line counts whether or not it parses) and zero-panic (no `app.panic.fatal` record at ERROR). Exit 0 PASS with exactly the two PASS lines · 1 FAIL (zero records, or a panic record named by member file name and line) · 2 cannot-evaluate (log dir absent or holding no member); before, an absent log read exit 0 with four NEUTRAL lines. Output holds closed labels, counts, a file name and a line number, never a record's text or a path. Run by the `boot` job and by `pre-push:linux`'s sixth stage.
+- New entry `cargo xtask quarantine-tracking` (`xtask/ci/quarantine-tracking-check.{sh,ps1}`): a missing search dir, a scan of zero `.rs` files, or an untracked `#[ignore]` exits 1; otherwise exit 0 with a PASS line that states the file count; no NEUTRAL arm. The `.sh` is held by five pins; the `.ps1` was parsed and never run.
+- §Stack: a test-time row for `bash` and `awk` on PATH (four thresholds-witness tests and five quarantine pins run the gates' own scripts; a missing tool fails them, never skips them).
+- CI/CD approach key file: the perf-samples nextest line spells `--no-tests=fail`.
+**Why:** The chunk narrowed `ci-gates` to the two arms that read the boot log and made an absent input an exit of its own for it and for the quarantine check; a verb that carries a formal exit contract has its own registry entry. The workspace tests gained two host-tool needs.
+**Kept:** The key file names the coverage job by its key `coverage`, never by its display name, so the job's rename changes no sentence there.
+**Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/
+
+## 2026-10-10-capability-record-re-based — the capability record's gate registered
+**Section:** §Occupied Resources → xtask CLI surfaces (dev/CI gates)
+**Change:** The bullet now registers `cargo xtask verify:capability-matrix`, which it never held. Module
+`xtask/src/capability_record.rs` (`evaluate` reads both files, `judge` is the pure verdict; one caller, the verb in
+`xtask/src/main.rs`). Inputs: two fixed in-repo paths held as constants, `docs/capability-record.json` and
+`andromeda-pulse-0.4.0/working-route.md`; no path argument, no environment variable. Contract: exit 0 clean · 1
+findings · 2 cannot-evaluate (the record absent, unreadable, not JSON or without a `capabilities` array; the route
+absent or unreadable); one line `verify:capability-matrix: {clean|violations} ({n} ids: {c} claimed, {r} retired,
+{k} violation(s))` or `verify:capability-matrix: cannot-evaluate ({reason})`; one JSON event line (target
+`xtask.verify_capability_matrix`) and the report twin `target/capability-matrix/report.json` (`state` ·
+`capability_count` · `claimed_count` · `retired_count` · `violation_count` · `reason`; the twin adds `violations`
+and `generated_at`). The findings are listed in the body: the id set (exactly P-001…P-082 once each), the two
+dispositions, the legend's three closed sets, a claimed entry's carrying requirement (P-083…P-129) and proofs, a
+retired entry's surfaces, removing titles, kept-half owner and guard, and a record with no claimed id. A route
+entry's title is its line without a leading `[marker] ` stamp, up to the first ` — `. It validates no proof of a
+retired id and runs in ci.yml's `lint-test` after `capability-widening-check`. Was: unregistered; the verb read
+`docs/v0_2_0/capability-verification-matrix.json` (P-001…P-060), exit 0 or 1, an absent file falling into the
+generic error exit.
+**Why:** The chunk re-pointed the verb at the one current record and gave it the registry's exit form; a gate the CI
+runs was absent from the section that lists every other formalized xtask contract. Standing consequence for later
+chunks: the verb reads the working route, so a route-resolve that renames, retires or splits an entry the record
+names reddens it until the record is corrected in that wrap's chunk.
+**Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/
+
+## 2026-10-10-capability-record-re-based — the capability record named as a contract another project reads
+**Section:** §Standard Contracts
+**Change:** A new bullet, "Capability record — the form another project reads". `docs/capability-record.json`
+(`schema_version` 1; header `product` · `version` · `as_of` · `supersedes` · `legend`; `capabilities`, 82 entries
+P-001…P-082 in id order, each `id` · `title` · `disposition` · optional `note`) is the one current record of the
+capability ids. The accepted set is every entry whose `disposition` is the string `claimed`; a `retired` entry says
+with what in `surfaces` (closed words `window` · `model` · `desktop` · `workspace` · `training-export` ·
+`corpus-encryption`) and by which working-route entry in `removed_by`. Those three fields — `disposition`,
+`surfaces`, `removed_by` — are what the external harness (Conductor) derives its accepted set from; a change of
+their form is a change another repository reads, and is made known to it. The record is validated by `cargo xtask
+verify:capability-matrix` and supersedes `docs/v0_2_0/pulse-capability-spec.md`,
+`docs/v0_2_0/capability-verification-matrix.json` and `andromeda-pulse-0.3.0/verification-matrix.json`, which
+stand unchanged until the working route retires or re-homes them. Was: no master named the record or any contract
+with the external harness's accepted set.
+**Why:** The record's form is now relied on outside this repository: Conductor's accepted set is derived from it.
+The operator directed, in the wrap directive of 2026-10-10 (the pc overseer, relayed by file), that the record be
+named with its three fields where the masters list what an external reader relies on, so that a later change of the
+form is heard of there. Standing rule: a chunk that changes the form of `disposition`, `surfaces` or `removed_by`
+says so to the operator for Conductor's side before it lands.
+**Kept:** The other fields of an entry (`carried_by`, `changed_form`, `provisional`, `scenarios`, `guard`,
+`kept_half_owner`) are this project's own and are not part of the contract.
+**Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/
+## 2026-10-10-console-engine-entry-point — two programs over one shared engine boot; the console engine binary registered
+**Section:** §Design Philosophy (Single-process modular monolith) · §Stack (Message broker row) · §Established Decisions ([Mobile / Message Broker / Push Notifications]) · §Project Intent (Product type; Growth model) · §Occupied Resources (Network ports; Process / service identity; Filesystem locations: pid file, workspace key, lock file; Environment variables: `ANDROMEDA_PULSE_L4_DETERMINISTIC`, `ANDROMEDA_PULSE_BASELINE_BOOTSTRAP_SECONDS`) · §Cross-cutting Patterns (Test-time telemetry injection) · §Infrastructure Patterns → Deployment model · → Project directory structure
+**Change:**
+- The fourteen library crates are wired by one shared engine boot, `pulse_app::engine_boot` (`init_process`, then `start`), called by two entry points of the `pulse-app` package: the Tauri window app and the console program `andromeda-pulse-engine`. Neither wires an engine part; the shared boot names no window framework; sixteen workspace members stands. Was: linked into the one Tauri binary, one process.
+- Product type: a desktop application and a console program with a closed two-word command line (`run`, `version`). Was: "not a CLI". Not yet: a background service, a bundled artifact, an incident without the deterministic gate.
+- Process identity gains the console engine binary (second `[[bin]]`, `default-run = "pulse-app"`), its command line, its end by signal; product binaries are three; the correct `target/{profile}/andromeda-pulse*` paths are two.
+- Both engine programs bind the two receivers and nothing else; the bind address is fixed to loopback inside `engine_boot::start` (the config holds ports only).
+- The pid file and the workspace key are written by both engine programs at the same paths through `engine_boot`; the lock file has a third writer.
+- `ANDROMEDA_PULSE_L4_DETERMINISTIC` has two readers; in the console program unset seats nothing and no incident forms. The bootstrap-window value is handed over by `engine_boot::start`. Was: `main.rs`.
+- The console program mounts no TauRPC router: tests read back from its log or from `EngineHandles`.
+- Two keyed contracts: the runtime topology names two engine programs; the tree lists `engine_boot.rs`, `console.rs`, `bin/andromeda-pulse-engine.rs`.
+**Why:** The chunk built the console form of the engine beside the window app, and the body described one Tauri process. The Product-type sentence is retired on the operator's recorded direction (the plan's approved expected amendment; the wrap directive of 2026-10-10 from the pc overseer, relayed in a file). The window leaves at `Window retired`.
+**Kept:** No separate registry bullet for the command line and no per-program variable roster: the binary's bullet carries the grammar, security-plan the read set. What `tauri build` does with a second `[[bin]]` is not measured.
+**Ref:** .andromeda/runs/2026-10-10T14-17-29Z-wrap/
+
+## 2026-10-10-agent-harness-drives-the-console-engine — the harness reaches the console engine: three verbs, two changed verdicts, the `engine` word, the cycle's CI step
+**Section:** §Occupied Resources (xtask CLI surfaces; Network ports; Process / service identity; Filesystem locations; Environment variables) · §Stack and Technologies (the exit-witness row; the injector's CLI contract) · §Infrastructure Patterns → CI/CD approach
+**Change:**
+- New entries `cargo xtask check:engine-log` (seven arms, exit 0 · 1 · 2), `cargo xtask harness:engine-settled` (seven members, five verdicts) and `cargo xtask harness:engine-cycle` (refusals, the cleared child environment and its pinned set, eight-member verdict, its CI caller).
+- `harness:status` takes `--program window|console`: seven members (`program` added), five arms (`wrong-program`, exit 1). Was six members and "four arms". `harness:ready` the same: six members, five arms. Was five and four.
+- `agent-run.sh` `boot` / `status` take one optional word, `engine`, which builds and spawns `target/release/andromeda-pulse-engine run`; the pair is in lockstep but for two sh-only parts. Was one sh-only part, and "the one the harness builds and spawns" was the window binary alone.
+- The pid-file bullet no longer says the harness readers are "not aimed at the console program"; the spawn and exit records are written for the engine too, and `check:engine-log` reads the exit record.
+- The exit witness is the window program's alone: bare `boot` reads the variable and preloads the window app's spawn; `boot engine` reads nothing and sets no preload; `harness:engine-cycle` is a second, pass-through reader of `ANDROMEDA_PULSE_EXIT_WITNESS_LIB`. Was "read solely by `agent-run.sh boot`" and "the app's spawn line".
+- Registered: harness-only ports 24317 / 24318; `target/engine-cycle/{stamp}/` and the `logs-engine-Linux` upload; `inject_demo` as a reader of the gRPC port variable; the five variables the cycle sets into its children; `HOME` · `PATH`, `_PIDFILE` and `_LOGFILE` readers.
+- CI/CD approach: the `boot` job's chain continues past `ci-gates` with `Console engine cycle`, and has a second upload; four more workflow tests.
+- `perf:budget`: `check:engine-log` named as an in-process caller of the grader (memory, required).
+**Why:** The chunk aimed the agent harness at the console engine and graded its log in CI; the registry described a harness that builds, spawns and reads the window app alone.
+**Kept:** The exit-witness arm's classification stays PROVISIONAL in security-plan and is not restated here. Which key path the engine of a cycle takes was not read from its log; the entry says so.
+**Ref:** .andromeda/runs/2026-10-10T16-47-34Z-wrap/

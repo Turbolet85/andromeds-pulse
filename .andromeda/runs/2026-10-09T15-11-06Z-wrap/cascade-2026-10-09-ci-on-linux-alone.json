@@ -1,0 +1,221 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "01b568a2",
+"ts": "2026-10-09T15:31:28Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"baseline 0b61bfbe (pre-CI parent — the oldest of 1 pre-CI commit(s), 569604be)",
+"seven-jobs · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control registries/contracts/architecture/ci-cd-approa…",
+"matrix-lmw · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:103 (p…",
+"ci-yml-matrix · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:216…",
+"all-three · new 0 · standing 1 · leaf 3 · curation 0 · base 0 · control architecture.md:249 (prose)",
+"per-os · new 0 · standing 4 · leaf 3 · curation 2 · base 0 · control design-system.md:185 (prose)",
+"matrix-job · new 1 · standing 0 · leaf 1 · curation 0 · base 0 · control test-plan.md:386 (prose)",
+"release-job · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:491 (prose)",
+"linux-macos · new 0 · standing 1 · leaf 1 · curation 2 · base 0 · control architecture.md:202 (prose)",
+"os-latest · new 0 · standing 1 · leaf 0 · curation 1 · base 0 · control test-plan.md:490 (prose)",
+"on-linux-also · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:490 (pr…",
+"ci-runners · new 0 · standing 1 · leaf 2 · curation 3 · base 0 · control test-plan.md:105 (prose)",
+"lint-test-linux · new 0 · standing 8 · leaf 8 · curation 0 · base 0 · control architecture.md:249 (prose)",
+"macos-windows · new 1 · standing 0 · leaf 3 · curation 0 · base 0 · control security-plan.md:103 (prose)",
+"cache-8 · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:491 (prose)",
+"schema-comment · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:221 (prose)",
+"CLAUDE.md:15 seven-jobs leaf …thub/workflows/` — `ci.yml` (seven parallel jobs over Linux/macOS/Windows: lint-test · re…",
+".andromeda/security-plan.md:224 all-three standing …er skips it (green on all three `lint-test` runners, `ci#3732784682…",
+".claude/rules/testing.md:56 all-three leaf …ased; cross-platform on all 3 CI runners). Exclude generated code (`prost` …",
+".claude/rules/verification-harness.md:84 all-three leaf …in sources\" step on all three OSes; local: `pre-push:linux`'s …",
+".claude/docs/tests-summary.md:85 all-three leaf …st-time requirement on all three `lint-test` runners since 2026-10-05:…",
+".andromeda/design-system.md:185 per-os standing …the above rules; all other state changes are instant per OS convention.",
+".andromeda/test-plan.md:66 per-os standing …-parseable log signals, per-OS PID paths, and the self-bootstrapping OTLP t…",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md:4 per-os standing …e` / `.deb` per OS in matrix (macOS `…",
+".andromeda/registries/contracts/test-plan/pid-file.md:3 per-os standing …se (the former per-OS `$XDG_RUNTIME_DIR`/`$TMP…",
+".claude/rules/testing.md:155 per-os curation …wasm-tools` CLI binary (per-OS install complexity), (c) per-build `build.…",
+".claude/docs/session-learnings.md:231 per-os curation …ry cap is 10 GB, and per-OS target caches run about 1.6–2.5 GB e…",
+".claude/rules/verification-harness.md:57 per-os leaf …le path. (The former per-OS `$XDG_RUNTIME_DIR`/`$TMPDIR`/`%LOCALA…",
+".claude/rules/verification-harness.md:102 per-os leaf …h resolution differs per OS — both honor `ANDROMEDA_PULSE_DATA_D…",
+".claude/docs/tests-summary.md:34 per-os leaf …imal PID per line. (The per-OS `$XDG_RUNTIME_DIR`/`$TMPDIR`/`%LOCALAPPDAT…",
+".andromeda/test-plan.md:503 matrix-job new **Matrix builds:** none. Each of the six jobs of `ci.yml` declares `runs-on:…",
+".claude/rules/testing.md:108 matrix-job leaf …/Windows × Rust stable; tauri-driver matrix per platform for E2E desktop-…",
+".andromeda/test-plan.md:491 release-job standing edited ×2 …lease build** | no `release` job since chunk 2026-10-09-ci-…",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md:3 release-job new ×2 @c1066/2949 …indows `release` job l…",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md:3 release-job @c+1941/2949",
+".andromeda/architecture.md:202 linux-macos standing …: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)…",
+".claude/rules/testing.md:206 linux-macos curation … Windows MSVC target; Linux/macOS use system linker via default tool…",
+".claude/docs/session-learnings.md:2589 linux-macos curation …fer coverage to CI Linux/macOS runners where profiler runt…",
+".claude/docs/tests-summary.md:102 linux-macos leaf …573 + the two arms) and in CI lint-test Linux/macOS, not on Windows.",
+".andromeda/test-plan.md:490 os-latest standing edited ×3 @c601,1767,1782/2043 …d `clean` on windows-latest, `ci#3689300…",
+".claude/docs/session-learnings.md:2461 os-latest curation ×2 … matrix runners (`windows-latest` = MSVC + WebView2 Runti…",
+".andromeda/test-plan.md:105 ci-runners standing edited …Windows/macOS/Linux CI runners — no such matrix exists: since c…",
+".claude/docs/session-learnings.md:2461 ci-runners curation …ation epoch state. CI matrix runners (`windows-latest` = MS…",
+".claude/docs/session-learnings.md:2567 ci-runners curation …the security-plan minimum (≥1.85) and the CI matrix runners.",
+".claude/docs/session-learnings.md:2591 ci-runners curation …ation: the route#5 CI matrix workflow should run the covera…",
+".claude/rules/testing.md:56 ci-runners leaf …cross-platform on all 3 CI runners). Exclude generated code (`prost` stubs…",
+".claude/rules/testing.md:108 ci-runners leaf - **CI matrix:** Linux/macOS/Windows × Rust stable; tauri-driver matrix pe…",
+".andromeda/architecture.md:249 lint-test-linux standing edited @c14042/15488 … in ci.yml's lint-test Linux as `--requir…",
+".andromeda/test-plan.md:135 lint-test-linux standing …memory and snapshot (lint-test Linux: the `perf_budget_samples` p…",
+".andromeda/test-plan.md:562 lint-test-linux standing …profile, CI-wired on lint-test Linux; the default profile exclude…",
+".andromeda/obs-plan.md:499 lint-test-linux standing edited …nd-trips); and the lint-test Linux perf-samples log (`logs-…",
+".andromeda/obs-plan.md:544 lint-test-linux standing …re memory,snapshot` (lint-test Linux) over the `pulse-app/tests/pe…",
+".andromeda/obs-plan.md:546 lint-test-linux standing …re memory,snapshot` (lint-test Linux) over the `perf_budget_sample…",
+".andromeda/obs-plan.md:559 lint-test-linux standing … empty input. On CI, lint-test Linux runs the producer (`cargo nex…",
+".andromeda/obs-plan.md:560 lint-test-linux standing …re memory,snapshot` (lint-test Linux): nearest-rank p99 of `fields…",
+"CLAUDE.md:36 lint-test-linux leaf …gets over a log family; CI lint-test Linux requires memory + snapshot) + `perf:frame…",
+".claude/rules/observability.md:99 lint-test-linux leaf @c302/2209 …empty input. CI (lint-test Linux) runs the `perf_bud…",
+".claude/rules/testing.md:59 lint-test-linux leaf …y,snapshot` grades on lint-test Linux (a sample source, not a load pr…",
+".claude/rules/verification-harness.md:89 lint-test-linux leaf …not-evaluate. CI: lint-test Linux, `--require memory,sna…",
+".claude/docs/obs-summary.md:79 lint-test-linux leaf …re memory,snapshot` (lint-test Linux) over the `perf_budget_sample…",
+".claude/docs/tests-summary.md:76 lint-test-linux leaf …ry,snapshot` grades (lint-test Linux); the default profile exclu…",
+".claude/docs/tests-summary.md:102 lint-test-linux leaf …+ the two arms) and in CI lint-test Linux/macOS, not on Windows.",
+".claude/docs/workflow.md:44 lint-test-linux leaf …et`, which CI runs on lint-test Linux with memory + snapshot required…",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md:3 macos-windows new @c1052/2949 …nd the macOS/Windows `r…",
+"CLAUDE.md:15 macos-windows leaf …en parallel jobs over Linux/macOS/Windows: lint-test · release · mcp-test · a11y · boo…",
+".claude/rules/testing.md:108 macos-windows leaf - **CI matrix:** Linux/macOS/Windows × Rust stable; tauri-driver matrix…",
+".claude/docs/tests-summary.md:81 macos-windows leaf GitHub Actions matrix (Linux/macOS/Windows × Rust stable):",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md:3 cache-8 standing edited ×2 @c2070/2949 …ps: 8 entries,…",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md:3 cache-8 @c+2391/2949",
+".andromeda/test-plan.md:221 schema-comment standing edited @c1189/4632 …ints` key test still states the disproved cause…",
+"seven-jobs · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control registries/contracts/architecture/ci-cd-approa…",
+"matrix-lmw · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:103 (p…",
+"ci-yml-matrix · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:216…",
+"all-three · new 0 · standing 1 · leaf 3 · curation 0 · base 0 · control architecture.md:249 (prose)",
+"per-os · new 0 · standing 4 · leaf 3 · curation 2 · base 0 · control design-system.md:185 (prose)",
+"matrix-job · new 1 · standing 0 · leaf 1 · curation 0 · base 0 · control test-plan.md:386 (prose)",
+"release-job · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:491 (prose)",
+"linux-macos · new 0 · standing 1 · leaf 1 · curation 2 · base 0 · control architecture.md:202 (prose)",
+"os-latest · new 0 · standing 1 · leaf 0 · curation 1 · base 0 · control test-plan.md:490 (prose)",
+"on-linux-also · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:490 (pr…",
+"ci-runners · new 0 · standing 1 · leaf 2 · curation 3 · base 0 · control test-plan.md:105 (prose)",
+"lint-test-linux · new 0 · standing 8 · leaf 8 · curation 0 · base 0 · control architecture.md:249 (prose)",
+"macos-windows · new 1 · standing 0 · leaf 3 · curation 0 · base 0 · control security-plan.md:103 (prose)",
+"cache-8 · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:491 (prose)",
+"schema-comment · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:221 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "0b61bfbef575eeb56909ea5e31bdcb8cc66ee74b",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), 569604be",
+"counts": {
+"seven-jobs": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"matrix-lmw": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ci-yml-matrix": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"all-three": {
+"new": 0,
+"standing": 1,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"per-os": {
+"new": 0,
+"standing": 4,
+"leaf": 3,
+"curation": 2,
+"base": 0
+},
+"matrix-job": {
+"new": 1,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"release-job": {
+"new": 1,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"linux-macos": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 2,
+"base": 0
+},
+"os-latest": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 1,
+"base": 0
+},
+"on-linux-also": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ci-runners": {
+"new": 0,
+"standing": 1,
+"leaf": 2,
+"curation": 3,
+"base": 0
+},
+"lint-test-linux": {
+"new": 0,
+"standing": 8,
+"leaf": 8,
+"curation": 0,
+"base": 0
+},
+"macos-windows": {
+"new": 1,
+"standing": 0,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"cache-8": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"schema-comment": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

@@ -18,7 +18,7 @@ Watches `<data_dir>/config.toml` and fans a validated `Settings` delta out to th
 - Workspace-inherited: `notify` 8.x, `tokio` (sync + time), `serde`, `thiserror`, `tracing`. **No `tauri` dep** — see the runtime-agnostic rule below.
 
 ## Internal conventions
-- **Runtime-agnostic background task (load-bearing).** `start_config_watcher(...)` returns `(ConfigWatchHandle, ConfigWatchTask)` — it does **NOT** call `tokio::spawn` internally. The caller spawns with ITS spawner: `tauri::async_runtime::spawn(task.run())` in production boot, `tokio::spawn(task.run())` in `#[tokio::test]`. A Tauri `.setup(...)` closure has no entered tokio runtime, so an internal `tokio::spawn` panics "there is no reactor running" (2026-06-04 pattern). The task owns the `RecommendedWatcher` + the mpsc receiver so the watcher outlives the call.
+- **Runtime-agnostic background task (load-bearing).** `start_config_watcher(...)` returns `(ConfigWatchHandle, ConfigWatchTask)` — it does **NOT** call `tokio::spawn` internally. The caller spawns with ITS spawner: `tokio::spawn(config_task.run())` in production boot — inside the one shared engine boot `pulse_app::engine_boot::start`, which both programs (the window app and the console engine `andromeda-pulse-engine`) call with a tokio runtime already entered and which names no window framework — and `tokio::spawn(task.run())` in `#[tokio::test]`. A Tauri `.setup(...)` closure has no entered tokio runtime, so an internal `tokio::spawn` panics "there is no reactor running" (2026-06-04 pattern). The task owns the `RecommendedWatcher` + the mpsc receiver so the watcher outlives the call.
 - **`partition_changed_keys`** classifies each delta into `hot_applied` (cadence / lifecycle knobs) · `restart_required` (ports, data dir, feature-shaped settings) · `silent` (no runtime effect). Adding a `Settings` field means classifying it here — an unclassified field defaults conservatively rather than silently hot-applying.
 - **Prospective-only by design:** a hot-applied change affects work from that moment forward; it does NOT retroactively recompute the window already processed. Full retrospective re-classification is **opt-in** via `diagnostics.reevaluate_recent_window`.
 - **`contract` module** is the ONLY `pub` surface.
@@ -33,7 +33,7 @@ Watches `<data_dir>/config.toml` and fans a validated `Settings` delta out to th
 - **Watcher + task:** `crates/config-watcher/src/watcher.rs` (`start_config_watcher` / `ConfigWatchTask::run`)
 - **Classification:** `crates/config-watcher/src/` (`partition_changed_keys`)
 - **Public contract:** `crates/config-watcher/src/contract.rs`
-- **Boot wiring:** `pulse-app/src/main.rs` (spawns via `tauri::async_runtime::spawn`)
+- **Boot wiring:** `pulse-app/src/engine_boot.rs` (`engine_boot::start` starts the watcher and spawns its task via `tokio::spawn`, for both programs; `main.rs` wires none itself — it only passes the returned handle slot + status to `ConfigApiImpl`)
 - **Resolver:** `pulse-app/src/config_router.rs` (`config.reload` / `config.status`)
 - **Retrospective path:** `pulse-app/src/reevaluation.rs` (`RecentWindowReevaluator` / `LiveReevaluator`)
 - **Tests:** co-located unit tests + `pulse-app/tests/integration_config_hot_reload.rs`

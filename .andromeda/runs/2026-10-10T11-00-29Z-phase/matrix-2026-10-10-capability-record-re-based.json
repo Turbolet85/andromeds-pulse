@@ -1,0 +1,106 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "a0f3749c",
+"ts": "2026-10-10T11:29:19Z",
+"argv": [
+"coverage",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--run-dir",
+".andromeda/runs/2026-10-10T11-00-29Z-phase",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"verified 4/47 · deferred 0 · planned 43 · implemented 0 · unclaimed 43",
+"unclaimed: P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098",
+"          P-099 P-100 P-101 P-102 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115",
+"          P-116 P-117 P-118 P-119 P-121 P-122 P-123 P-124 P-125 P-126 P-127",
+"claimed-unfinished: none",
+"done-test: NO — 43 not verified|deferred · unclaimed 43",
+"chunks referenced: 4 distinct"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "a0f3749c",
+"ts": "2026-10-10T11:29:19Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-117",
+"--text-file",
+".andromeda/runs/2026-10-10T11-00-29Z-phase/note-P-117.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T11-00-29Z-phase",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-117: +1012 chars (total 1012) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-117",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "One current record lists all 82 capabilities, each either still claimed by the engine or retired with the window, the mo… (245 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-117",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "One current record lists all 82 capabilities, each either still claimed by the engine or retired with the window, the mo… (245 chars)",
+"notes_chars": 1012
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "a0f3749c",
+"ts": "2026-10-10T11:29:19Z",
+"argv": [
+"audit",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--chunk",
+"2026-10-10-capability-record-re-based",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T11-00-29Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"claimed by 2026-10-10-capability-record-re-based: 0 · ## Acceptance Criteria: line 350, 43 lines",
+"pool: unclaimed 43 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-121 P-122 P-123 P-124 P-125 P-126 P-127]"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]
