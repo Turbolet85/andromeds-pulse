@@ -905,3 +905,50 @@ The entry also carries both rejected alternatives, the deferred `AttentionCue` t
 **Why:** The chunk narrowed `ci-gates` to the two arms that read the boot log and made an absent input an exit of its own for it and for the quarantine check; a verb that carries a formal exit contract has its own registry entry. The workspace tests gained two host-tool needs.
 **Kept:** The key file names the coverage job by its key `coverage`, never by its display name, so the job's rename changes no sentence there.
 **Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/
+
+## 2026-10-10-capability-record-re-based — the capability record's gate registered
+**Section:** §Occupied Resources → xtask CLI surfaces (dev/CI gates)
+**Change:** The bullet now registers `cargo xtask verify:capability-matrix`, which it never held. Module
+`xtask/src/capability_record.rs` (`evaluate` reads both files, `judge` is the pure verdict; one caller, the verb in
+`xtask/src/main.rs`). Inputs: two fixed in-repo paths held as constants, `docs/capability-record.json` and
+`andromeda-pulse-0.4.0/working-route.md`; no path argument, no environment variable. Contract: exit 0 clean · 1
+findings · 2 cannot-evaluate (the record absent, unreadable, not JSON or without a `capabilities` array; the route
+absent or unreadable); one line `verify:capability-matrix: {clean|violations} ({n} ids: {c} claimed, {r} retired,
+{k} violation(s))` or `verify:capability-matrix: cannot-evaluate ({reason})`; one JSON event line (target
+`xtask.verify_capability_matrix`) and the report twin `target/capability-matrix/report.json` (`state` ·
+`capability_count` · `claimed_count` · `retired_count` · `violation_count` · `reason`; the twin adds `violations`
+and `generated_at`). The findings are listed in the body: the id set (exactly P-001…P-082 once each), the two
+dispositions, the legend's three closed sets, a claimed entry's carrying requirement (P-083…P-129) and proofs, a
+retired entry's surfaces, removing titles, kept-half owner and guard, and a record with no claimed id. A route
+entry's title is its line without a leading `[marker] ` stamp, up to the first ` — `. It validates no proof of a
+retired id and runs in ci.yml's `lint-test` after `capability-widening-check`. Was: unregistered; the verb read
+`docs/v0_2_0/capability-verification-matrix.json` (P-001…P-060), exit 0 or 1, an absent file falling into the
+generic error exit.
+**Why:** The chunk re-pointed the verb at the one current record and gave it the registry's exit form; a gate the CI
+runs was absent from the section that lists every other formalized xtask contract. Standing consequence for later
+chunks: the verb reads the working route, so a route-resolve that renames, retires or splits an entry the record
+names reddens it until the record is corrected in that wrap's chunk.
+**Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/
+
+## 2026-10-10-capability-record-re-based — the capability record named as a contract another project reads
+**Section:** §Standard Contracts
+**Change:** A new bullet, "Capability record — the form another project reads". `docs/capability-record.json`
+(`schema_version` 1; header `product` · `version` · `as_of` · `supersedes` · `legend`; `capabilities`, 82 entries
+P-001…P-082 in id order, each `id` · `title` · `disposition` · optional `note`) is the one current record of the
+capability ids. The accepted set is every entry whose `disposition` is the string `claimed`; a `retired` entry says
+with what in `surfaces` (closed words `window` · `model` · `desktop` · `workspace` · `training-export` ·
+`corpus-encryption`) and by which working-route entry in `removed_by`. Those three fields — `disposition`,
+`surfaces`, `removed_by` — are what the external harness (Conductor) derives its accepted set from; a change of
+their form is a change another repository reads, and is made known to it. The record is validated by `cargo xtask
+verify:capability-matrix` and supersedes `docs/v0_2_0/pulse-capability-spec.md`,
+`docs/v0_2_0/capability-verification-matrix.json` and `andromeda-pulse-0.3.0/verification-matrix.json`, which
+stand unchanged until the working route retires or re-homes them. Was: no master named the record or any contract
+with the external harness's accepted set.
+**Why:** The record's form is now relied on outside this repository: Conductor's accepted set is derived from it.
+The operator directed, in the wrap directive of 2026-10-10 (the pc overseer, relayed by file), that the record be
+named with its three fields where the masters list what an external reader relies on, so that a later change of the
+form is heard of there. Standing rule: a chunk that changes the form of `disposition`, `surfaces` or `removed_by`
+says so to the operator for Conductor's side before it lands.
+**Kept:** The other fields of an entry (`carried_by`, `changed_form`, `provisional`, `scenarios`, `guard`,
+`kept_half_owner`) are this project's own and are not part of the contract.
+**Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/

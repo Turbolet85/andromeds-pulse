@@ -859,3 +859,40 @@ The load suite found and fixed in-chunk 3 pipeline defects: retention-sweep conn
 **Why:** The chunk narrowed the verb to the arms that read the boot log and gave an absent log its own exit; four master sentences still described the arms that left or the line they printed.
 **Kept:** "`ci-gates` is skipped when the smoke or the series fails" and "runs in this job only" stand. The pre-push stage is outside P-128, which is about what a CI job does (the operator's answer at the plan's dialog).
 **Ref:** .andromeda/runs/2026-10-10T10-27-16Z-wrap/
+
+## 2026-10-10-capability-record-re-based — the capability gate reads the one record
+**Section:** §9 CI Integration → Capability verification matrix (CI step, runs after capability-drift)
+**Change:** The paragraph now says: `cargo xtask verify:capability-matrix` reads two fixed in-repo files, no path
+argument and no environment variable — `docs/capability-record.json`, all 82 ids P-001–P-082, each `claimed` or
+`retired` (36 claimed, 46 retired, as measured at this chunk), and `andromeda-pulse-0.4.0/working-route.md` — and
+exits 0 clean · 1 findings · 2 cannot-evaluate. It holds all 82 ids to the form and validates proofs of claimed ids
+only: `carried_by` in P-083…P-129 (empty only with a `note`), at least one scenario that is not `source-evidence`,
+eight scenario kinds (five with a file ref that must exist and its `contains` anchor found; `by-construction` ·
+`external` · `manual` needing the entry's `note`), nine verification modes (the old seven plus `dynamic-external`
+and `manual`). A retired entry carries no scenario, mode or `carried_by`; it names `surfaces` (six closed words),
+`removed_by` (working-route entry titles the route carries) and `guard` (`runs` · `part` · `none`, with `by` and
+`unrun`); no proof file of a retired entry is checked. The id set is closed in `xtask/src/capability_record.rs`, so
+a change of it lands in the module and the record in one chunk. Was: the gate validates
+`docs/v0_2_0/capability-verification-matrix.json`, all 60 ids P-001–P-060, four modes named with P-040 as the
+by-construction example, exit on dangling ids, paths or anchors, and ids from P-061 on extend the matrix JSON. The
+`xtask-gate` scenario kind is no longer known to the gate. Both older records are superseded and read by no gate.
+**Why:** The chunk made the old gate read the one current record, which gives each of the 82 ids one of two
+dispositions; the paragraph's input, id range, exits and extension rule were each measured false. Standing trap: the
+gate reads the working route, so a route-resolve that renames, retires or splits an entry the record names reddens
+the verb and the pin `the_committed_record_reads_clean_over_the_committed_route` until the record is corrected.
+**Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/
+
+## 2026-10-10-capability-record-re-based — pending trigger for the capability verb's glue
+**Section:** §1 Test Scope Summary → Pending coverage triggers (documented gaps)
+**Change:** A new row, `verify-capability-matrix-verb-glue-coverage`. The capability record's verdict is pinned
+in-crate by 36 co-located pins in `xtask/src/capability_record.rs` (one per arm over constructed records under
+`tempfile::TempDir`, plus one over the committed record and route). The verb function `verify_capability_matrix`
+in `xtask/src/main.rs` has no pin: the JSON event line (target `xtask.verify_capability_matrix`), the report twin
+`target/capability-matrix/report.json` (`state` · `capability_count` · `claimed_count` · `retired_count` ·
+`violation_count` · `reason` · `violations` · `generated_at`) and the process exit taken from
+`Verdict::exit_code`. The verb ran on one arm only, clean and exit 0 (the dev host; the `lint / test` job log of
+`ci#38049792921`); its exit 1 and exit 2 never ran through the verb, which takes no path. Owed: a pin over the
+twin's member set and the verb's exit per state. Was: no row.
+**Why:** The verdict is tested at the unit tier and the function that prints it, writes the twin and returns the
+exit is not; the gap is recorded so that it is not read as covered by the 36 pins.
+**Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/

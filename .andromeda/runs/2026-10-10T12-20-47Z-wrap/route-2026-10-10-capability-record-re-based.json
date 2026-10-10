@@ -1,0 +1,96 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T12:42:42Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-10-capability-record-re-based",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"flip master-route.md:114 - 2026-10-10-capability-record-re-based pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T12:42:42Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-capability-record-re-based",
+"--date",
+"2026-10-10",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin listing NOT DERIVED -- 2026-10-10-capability-record-re-based's line :27 carries no freight (already compact)",
+"compacted 0 lines (9 stamped read) -- an empty sweep is a verdict, not an absence proof"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [],
+"skips": [],
+"kept_notes": []
+}
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T12:42:56Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-capability-record-re-based",
+"--date",
+"2026-10-10",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin listing NOT DERIVED -- 2026-10-10-capability-record-re-based's line :27 carries no freight (already compact)",
+"compacted 0 lines (9 stamped read) -- an empty sweep is a verdict, not an absence proof"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [],
+"skips": [],
+"kept_notes": []
+}
+}
+]

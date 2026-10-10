@@ -807,11 +807,10 @@
       "title": "MCP Independence",
       "disposition": "claimed",
       "carried_by": [
-        "P-084",
-        "P-099"
+        "P-084"
       ],
       "provisional": true,
-      "changed_form": "The original sentence no longer holds as written: it promised that every capability works with no MCP configured. Claimed in a changed form: \"the engine starts, detects and reports with no model present and none configured\" (P-084); \"a large model reads through the door (P-092) and is not part of the engine\" (P-084); the report is \"written without a model\" (P-099). The door itself is part of the engine and is not optional.",
+      "changed_form": "The original sentence no longer holds as written: it promised that every capability works with no MCP configured. Claimed in a changed form, independence from a model, which one requirement sentence carries, that of P-084: \"the engine starts, detects and reports with no model present and none configured\" (P-084) and, in the same sentence, \"a large model reads through the door (P-092) and is not part of the engine\" (P-084). No requirement sentence says in so many words that the engine works with no reader at the door; that is not claimed, and the working-route entry \"Door inside the engine's process\" would have to state it. The door itself is part of the engine and is not optional.",
       "verification_mode": "automated-nextest",
       "scenarios": [
         {
@@ -820,7 +819,7 @@
           "contains": "mcp"
         }
       ],
-      "note": "PROVISIONAL: claimed in this changed form on the operator's answer of 2026-10-10 (the pc overseer, at the P4 dialog of chunk 2026-10-10-capability-record-re-based); the founder's own word is owed. The carrying text is the thinnest of the four: the requirements say the engine works with no model and that a large model is outside it; none says in so many words that it works with no reader at the door."
+      "note": "PROVISIONAL: claimed in this changed form on the operator's answer of 2026-10-10 (the pc overseer, at the P4 dialog of chunk 2026-10-10-capability-record-re-based); the founder's own word is owed. P-099, named beside P-084 at that dialog, is not listed in carried_by: no sentence of it carries this form."
     },
     {
       "id": "P-041",

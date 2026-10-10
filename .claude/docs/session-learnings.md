@@ -1,6 +1,18 @@
 # Session Learnings
 
 
+## 2026-10-10 — A hand-copied evidence line is checked against its log before the record closes
+
+An evidence record that copies a tool's output by hand can carry a wrong character that nothing downstream
+reads. At the capability-record chunk's operator pass one job's completion time was typed seventy minutes off
+in `evidence/operator-pass.md`. It was caught because every copied line was then checked against its source: a
+loop that takes each line of the entry's log and looks for it in the record with a fixed-string grep, and the
+same check for each entry line of the gate tool's output. Do this for any evidence file that quotes a log,
+before the commit that carries it; a line the loop reports missing is copied again from the log, never adjusted
+by eye.
+
+---
+
 ## 2026-10-09 — A red CI read returns while the run is still open
 
 `ci.py conclusion --wait` returns at the first failed check, not when the run settles. A step read or a jobs listing
