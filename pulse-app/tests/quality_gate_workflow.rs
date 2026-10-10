@@ -1,10 +1,12 @@
-//! Chunks #55 + #56 workflow self-lint tests. Asserts `.github/workflows/ci.yml`
-//! and `.config/nextest.toml` preserve the quality-gate and obs-gate posture
-//! introduced by these chunks (zero-flake retry policy, coverage regression
-//! gate, perf-budget regression gate, lint/typecheck gate, criterion bench
-//! regression gate, CI subscriber default fields, no `continue-on-error`
-//! on gate steps). Mirrors chunk #54 `a11y_perf_workflow.rs` shape — pure
-//! file-read + substring/pattern assertion; no Tauri runtime; no network.
+//! Workflow self-lint tests. Asserts `.github/workflows/ci.yml` and
+//! `.config/nextest.toml` keep the quality-gate and obs-gate posture (the
+//! zero-flake retry policy, the Linux-only runner and the trigger block, the
+//! lint and quarantine gates, the CI subscriber default fields, no
+//! `continue-on-error` on any step, no artifact download without a producer,
+//! every upload failing its step when it finds no file, and the boot job's
+//! smoke, exit-witness and series steps). Same shape as
+//! `a11y_perf_workflow.rs`, a file read and a substring or pattern assertion,
+//! with no Tauri runtime and no network.
 
 use std::path::PathBuf;
 
@@ -215,34 +217,6 @@ fn ci_workflow_invokes_quarantine_tracking_check() {
 }
 
 #[test]
-fn ci_workflow_invokes_coverage_regression_check() {
-    let content = read_workflow();
-    assert!(
-        content.contains("cargo xtask coverage-regression"),
-        "ci.yml MUST invoke `cargo xtask coverage-regression` per chunk #55 \
-         coverage regression gate (test-plan §10 + §11 no-decrease policy)"
-    );
-}
-
-#[test]
-fn ci_workflow_downloads_coverage_baseline_artifact() {
-    let content = read_workflow();
-    let download_idx = content.find("name: coverage-linux-base").expect(
-        "ci.yml MUST have download-artifact step with `name: coverage-linux-base` per chunk #55",
-    );
-    let window_start = download_idx.saturating_sub(400);
-    let window = &content[window_start..download_idx];
-    assert!(
-        window.contains("if: github.event_name == 'pull_request'"),
-        "coverage-linux-base download step MUST be gated `if: github.event_name == 'pull_request'` per chunk #54 PR-only baseline pattern"
-    );
-    assert!(
-        window.contains("actions/download-artifact@"),
-        "coverage-linux-base download step MUST use SHA-pinned actions/download-artifact"
-    );
-}
-
-#[test]
 fn ci_workflow_clippy_uses_deny_warnings() {
     let content = read_workflow();
     assert!(
@@ -264,8 +238,6 @@ fn ci_workflow_test_gates_no_continue_on_error() {
         "cargo audit",
         "cargo xtask test",
         "cargo xtask quarantine-tracking",
-        "cargo xtask coverage-regression",
-        "cargo xtask criterion-regression",
         "cargo xtask ci-gates",
         "cargo xtask test:a11y",
         "cargo xtask perf:slo-load",
@@ -274,18 +246,12 @@ fn ci_workflow_test_gates_no_continue_on_error() {
         "perf:budget --data-dir",
         "perf:frame-sample",
     ];
-    let step_pattern = "      - name: ";
-    let step_starts: Vec<usize> = content
-        .match_indices(step_pattern)
-        .map(|(i, _)| i)
-        .collect();
+    let blocks = workflow_step_blocks(&content);
     assert!(
-        !step_starts.is_empty(),
+        !blocks.is_empty(),
         "ci.yml MUST contain at least one `      - name:` step (sanity check on indentation pattern)"
     );
-    for (idx, &start) in step_starts.iter().enumerate() {
-        let end = step_starts.get(idx + 1).copied().unwrap_or(content.len());
-        let block = &content[start..end];
+    for block in &blocks {
         let contains_gate = gate_substrings.iter().any(|s| block.contains(s));
         if !contains_gate {
             continue;
@@ -294,6 +260,115 @@ fn ci_workflow_test_gates_no_continue_on_error() {
             !block.contains("continue-on-error: true"),
             "ci.yml step block contains gate command AND `continue-on-error: true` (forbidden \
              per test-plan §11 + §10 Build failure conditions); block:\n{block}"
+        );
+    }
+    // Every step, whatever it runs: a soft-fail key on a step the list above
+    // does not name passes a failed step as well.
+    for block in &blocks {
+        assert!(
+            !block.contains("continue-on-error"),
+            "ci.yml: no step may carry `continue-on-error` (test-plan §11 Test \
+             Anti-Patterns); block:\n{block}"
+        );
+    }
+}
+
+const STEP_NAME_PREFIX: &str = "      - name: ";
+
+// One block per step, from its `      - name: ` line to the next one.
+fn workflow_step_blocks(content: &str) -> Vec<&str> {
+    let starts: Vec<usize> = content
+        .match_indices(STEP_NAME_PREFIX)
+        .map(|(i, _)| i)
+        .collect();
+    starts
+        .iter()
+        .enumerate()
+        .map(|(idx, &start)| {
+            let end = starts.get(idx + 1).copied().unwrap_or(content.len());
+            &content[start..end]
+        })
+        .collect()
+}
+
+// The artifact name a step block hands to `action`, or None when the block
+// does not use that action.
+fn artifact_step_name<'a>(block: &'a str, action: &str) -> Option<&'a str> {
+    let uses = format!("uses: {action}@");
+    if !block.lines().any(|l| l.trim_start().starts_with(&uses)) {
+        return None;
+    }
+    let name = block
+        .lines()
+        .find_map(|l| l.trim_start().strip_prefix("name: "))
+        .unwrap_or_else(|| panic!("a `{action}` step MUST name its artifact; block:\n{block}"));
+    Some(name.trim_end())
+}
+
+fn uploaded_artifact_names() -> Vec<String> {
+    let dir = project_root().join(".github/workflows");
+    let mut names = Vec::new();
+    let entries =
+        std::fs::read_dir(&dir).unwrap_or_else(|e| panic!("read {} failed: {e}", dir.display()));
+    for entry in entries {
+        let path = entry.expect("read a workflow dir entry").path();
+        if !path
+            .extension()
+            .is_some_and(|ext| ext == "yml" || ext == "yaml")
+        {
+            continue;
+        }
+        let content = std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("read {} failed: {e}", path.display()));
+        for block in workflow_step_blocks(&content) {
+            if let Some(name) = artifact_step_name(block, "actions/upload-artifact") {
+                names.push(name.to_string());
+            }
+        }
+    }
+    names
+}
+
+#[test]
+fn ci_workflow_makes_no_download_without_a_producer() {
+    let uploaded = uploaded_artifact_names();
+    assert!(
+        !uploaded.is_empty(),
+        "the workflows MUST hold at least one upload step (sanity check on the step parse)"
+    );
+    let content = read_workflow();
+    for block in workflow_step_blocks(&content) {
+        let Some(artifact) = artifact_step_name(block, "actions/download-artifact") else {
+            continue;
+        };
+        assert!(
+            uploaded.iter().any(|name| name == artifact),
+            "ci.yml downloads `{artifact}`, which no workflow uploads under that name: a \
+             download without a producer reads nothing (test-plan §9 Pipeline structure); \
+             uploaded names: {uploaded:?}; block:\n{block}"
+        );
+    }
+}
+
+#[test]
+fn ci_workflow_uploads_fail_when_they_find_no_file() {
+    let content = read_workflow();
+    let uploads: Vec<&str> = workflow_step_blocks(&content)
+        .into_iter()
+        .filter(|block| artifact_step_name(block, "actions/upload-artifact").is_some())
+        .collect();
+    assert!(
+        !uploads.is_empty(),
+        "ci.yml MUST hold at least one upload step (sanity check on the step parse)"
+    );
+    for block in uploads {
+        assert!(
+            block
+                .lines()
+                .any(|line| line.trim() == "if-no-files-found: error"),
+            "every upload step of ci.yml MUST carry `if-no-files-found: error`, so an upload \
+             that finds no file fails its step (obs-plan §9 Telemetry artifact handling); \
+             block:\n{block}"
         );
     }
 }
@@ -374,56 +449,10 @@ fn ci_workflow_invokes_ci_gates() {
     );
 }
 
-#[test]
-fn ci_workflow_invokes_criterion_regression_check() {
-    let content = read_workflow();
-    assert!(
-        content.contains("cargo xtask criterion-regression"),
-        "ci.yml MUST invoke `cargo xtask criterion-regression` per chunk #56 \
-         criterion bench regression detection (obs-plan §10 row 4 stable estimators)"
-    );
-}
-
-#[test]
-fn ci_workflow_downloads_criterion_baseline_artifact() {
-    let content = read_workflow();
-    let download_idx = content
-        .find("name: criterion-${{ runner.os }}-base")
-        .expect("ci.yml MUST have download-artifact step with `name: criterion-${{ runner.os }}-base` per chunk #56");
-    let window_start = download_idx.saturating_sub(400);
-    let window = &content[window_start..download_idx];
-    assert!(
-        window.contains("if: github.event_name == 'pull_request'"),
-        "criterion-${{ runner.os }}-base download step MUST be gated `if: github.event_name == 'pull_request'`"
-    );
-    assert!(
-        window.contains("actions/download-artifact@"),
-        "criterion-${{ runner.os }}-base download step MUST use SHA-pinned actions/download-artifact"
-    );
-}
-
-#[test]
-fn ci_workflow_uploads_criterion_artifact_unchanged() {
-    let content = read_workflow();
-    assert!(
-        content.contains("name: criterion-${{ runner.os }}"),
-        "ci.yml MUST preserve `Upload criterion bench artifact` step with \
-         `name: criterion-${{ runner.os }}` (chunk #56 regression backstop \
-         — chunk #54 substrate must remain)"
-    );
-}
-
+// The boot smoke writes the log ci-gates reads, in the boot job.
 #[test]
 fn ci_workflow_uploads_logs_artifact_unchanged() {
     let content = read_workflow();
-    assert!(
-        content.contains("name: logs-${{ runner.os }}"),
-        "ci.yml MUST preserve `Upload logs artifact` step with `name: logs-${{ runner.os }}` \
-         (chunk #56 regression backstop — chunk #54 substrate must remain; obs-plan §9 \
-         CI failure → artifact triage workflow requires log file artifact upload)"
-    );
-    // The boot smoke writes the log ci-gates reads in its own job, so its
-    // upload needs a name that cannot collide with lint-test's per-OS one.
     assert!(
         content.contains("name: logs-boot-${{ runner.os }}"),
         "ci.yml MUST upload the boot job's logs as `logs-boot-${{ runner.os }}` \

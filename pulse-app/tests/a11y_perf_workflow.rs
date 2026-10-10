@@ -94,6 +94,54 @@ fn ci_workflow_uploads_playwright_a11y_report_artifact() {
     );
 }
 
+const A11Y_BASELINE: &str = "pulse-app/ui/tests-a11y/baselines/a11y-violations-summary.json";
+
+// The a11y job downloads no baseline: the comparison reads this file.
+#[test]
+fn a11y_regression_baseline_is_committed_in_the_tree() {
+    let path = project_root().join(A11Y_BASELINE);
+    let text = std::fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("read {} failed: {e}", path.display()));
+    let baseline: serde_json::Value = serde_json::from_str(&text)
+        .unwrap_or_else(|e| panic!("{A11Y_BASELINE} MUST parse as JSON: {e}"));
+    assert!(
+        baseline
+            .get("per_surface")
+            .is_some_and(serde_json::Value::is_object),
+        "{A11Y_BASELINE} MUST hold a `per_surface` object, the tuples the regression \
+         detector compares against (a11y-plan §3 Harness wiring & conventions)"
+    );
+}
+
+#[test]
+fn a11y_regression_detector_fails_when_its_baseline_is_absent() {
+    let scratch = tempfile::tempdir().expect("create a scratch dir");
+    let current = scratch.path().join("a11y-violations-summary.json");
+    std::fs::write(&current, r#"{"per_surface":{}}"#).expect("write the current summary");
+    let absent = scratch.path().join("absent-baseline.json");
+    let output = std::process::Command::new("node")
+        .arg("tests-a11y/regression-detector.mjs")
+        .arg("--baseline")
+        .arg(&absent)
+        .arg("--current")
+        .arg(&current)
+        .current_dir(project_root().join("pulse-app/ui"))
+        .output()
+        .expect("`node` MUST be on PATH: the a11y comparison is a node script");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("baseline not found"),
+        "the detector MUST say its baseline was not found; stderr:\n{stderr}"
+    );
+    assert!(
+        !output.status.success(),
+        "the detector MUST fail, not pass, when its baseline is absent: with no tuple in the \
+         current summary an empty baseline compares clean (a11y-plan §3 Harness wiring & \
+         conventions); status: {}; stderr:\n{stderr}",
+        output.status
+    );
+}
+
 #[test]
 fn ci_workflow_invokes_xtask_verify_capability_matrix() {
     let content = read_workflow();

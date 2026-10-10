@@ -234,30 +234,10 @@ enum Cmd {
     )]
     PerfSloLoad,
     #[command(
-        name = "coverage-regression",
-        about = "Chunk #55 — compare current lcov.info against base-branch baseline; fail on any line/branch/function regression > +0.0pp default (test-plan §10 + §11)"
-    )]
-    CoverageRegression {
-        #[arg(long, value_name = "PATH")]
-        current: PathBuf,
-        #[arg(long, value_name = "PATH")]
-        baseline: PathBuf,
-    },
-    #[command(
         name = "quarantine-tracking",
         about = "Chunk #55 — assert every #[ignore] in Rust source carries a GitHub issue URL in surrounding 5-line window (test-plan §11)"
     )]
     QuarantineTracking,
-    #[command(
-        name = "criterion-regression",
-        about = "Chunk #56 — compare current target/criterion/<bench>/new/estimates.json mean.point_estimate against baseline; fail on +10% regression default (obs-plan §10 row 4)"
-    )]
-    CriterionRegression {
-        #[arg(long, value_name = "PATH")]
-        current: PathBuf,
-        #[arg(long, value_name = "PATH")]
-        baseline: PathBuf,
-    },
     #[command(
         name = "verify:capability-matrix",
         about = "Chunk #99 — validate docs/v0_2_0/capability-verification-matrix.json: all 60 P-001..P-060 ids present exactly once, every scenario file ref exists, every `contains` anchor greps non-empty, by-construction entries carry justification notes"
@@ -341,13 +321,7 @@ async fn main() -> ExitCode {
             no_inject,
         } => webview_drive::run_webview_drive(expect_absent, no_inject).await,
         Cmd::PerfSloLoad => run_perf_slo_load().await,
-        Cmd::CoverageRegression { current, baseline } => {
-            run_coverage_regression(&current, &baseline).await
-        }
         Cmd::QuarantineTracking => run_quarantine_tracking().await,
-        Cmd::CriterionRegression { current, baseline } => {
-            run_criterion_regression(&current, &baseline).await
-        }
         Cmd::VerifyCapabilityMatrix => verify_capability_matrix().await,
         Cmd::PerfLoadProfiles => run_perf_load_profiles().await,
         Cmd::PrePushLinux => pre_push::run(),
@@ -1074,55 +1048,6 @@ async fn verify_capability_matrix() -> Result<ExitCode> {
     }
 }
 
-async fn invoke_coverage_regression_check(current: &Path, baseline: &Path) -> Result<bool> {
-    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .context("xtask manifest has no workspace parent")?
-        .to_path_buf();
-    let script = if cfg!(target_os = "windows") {
-        workspace_root
-            .join("xtask")
-            .join("ci")
-            .join("coverage-regression-check.ps1")
-    } else {
-        workspace_root
-            .join("xtask")
-            .join("ci")
-            .join("coverage-regression-check.sh")
-    };
-    if !script.exists() {
-        bail!(
-            "coverage-regression-check script missing at {}",
-            script.display()
-        );
-    }
-    let status = if cfg!(target_os = "windows") {
-        tokio::process::Command::new("pwsh")
-            .args(["-NoProfile", "-File"])
-            .arg(&script)
-            .arg(current)
-            .arg(baseline)
-            .status()
-            .await?
-    } else {
-        tokio::process::Command::new("bash")
-            .arg(&script)
-            .arg(current)
-            .arg(baseline)
-            .status()
-            .await?
-    };
-    Ok(status.success())
-}
-
-async fn run_coverage_regression(current: &Path, baseline: &Path) -> Result<ExitCode> {
-    if invoke_coverage_regression_check(current, baseline).await? {
-        Ok(ExitCode::SUCCESS)
-    } else {
-        Ok(ExitCode::FAILURE)
-    }
-}
-
 async fn invoke_quarantine_tracking_check() -> Result<bool> {
     let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
@@ -1164,55 +1089,6 @@ async fn invoke_quarantine_tracking_check() -> Result<bool> {
 
 async fn run_quarantine_tracking() -> Result<ExitCode> {
     if invoke_quarantine_tracking_check().await? {
-        Ok(ExitCode::SUCCESS)
-    } else {
-        Ok(ExitCode::FAILURE)
-    }
-}
-
-async fn invoke_criterion_regression_check(current: &Path, baseline: &Path) -> Result<bool> {
-    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .context("xtask manifest has no workspace parent")?
-        .to_path_buf();
-    let script = if cfg!(target_os = "windows") {
-        workspace_root
-            .join("xtask")
-            .join("ci")
-            .join("criterion-regression-check.ps1")
-    } else {
-        workspace_root
-            .join("xtask")
-            .join("ci")
-            .join("criterion-regression-check.sh")
-    };
-    if !script.exists() {
-        bail!(
-            "criterion-regression-check script missing at {}",
-            script.display()
-        );
-    }
-    let status = if cfg!(target_os = "windows") {
-        tokio::process::Command::new("pwsh")
-            .args(["-NoProfile", "-File"])
-            .arg(&script)
-            .arg(current)
-            .arg(baseline)
-            .status()
-            .await?
-    } else {
-        tokio::process::Command::new("bash")
-            .arg(&script)
-            .arg(current)
-            .arg(baseline)
-            .status()
-            .await?
-    };
-    Ok(status.success())
-}
-
-async fn run_criterion_regression(current: &Path, baseline: &Path) -> Result<ExitCode> {
-    if invoke_criterion_regression_check(current, baseline).await? {
         Ok(ExitCode::SUCCESS)
     } else {
         Ok(ExitCode::FAILURE)

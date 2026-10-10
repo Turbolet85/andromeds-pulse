@@ -1,0 +1,84 @@
+[
+{
+"sql": "SELECT caller_name, callee_name, file, line FROM calls WHERE callee_name IN ('run_criterion_regression','run_coverage_regression','invoke_criterion_regression_check','invoke_coverage_regression_check') AND callee_kind = 'fn' ORDER BY callee_name, file, line",
+"rows": 4,
+"result": [
+{
+"caller_name": "run_coverage_regression",
+"callee_name": "invoke_coverage_regression_check",
+"file": "xtask/src/main.rs",
+"line": 1118
+},
+{
+"caller_name": "run_criterion_regression",
+"callee_name": "invoke_criterion_regression_check",
+"file": "xtask/src/main.rs",
+"line": 1214
+},
+{
+"caller_name": "main",
+"callee_name": "run_coverage_regression",
+"file": "xtask/src/main.rs",
+"line": 344
+},
+{
+"caller_name": "main",
+"callee_name": "run_criterion_regression",
+"file": "xtask/src/main.rs",
+"line": 348
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT name, kind, file, def_line FROM symbol WHERE name IN ('read_workflow','workflow_job_block','ci_workflow_test_gates_no_continue_on_error','CriterionRegression','CoverageRegression') AND kind <> 'meta' ORDER BY file, def_line",
+"rows": 7,
+"result": [
+{
+"name": "read_workflow",
+"kind": "fn",
+"file": "pulse-app/tests/a11y_perf_workflow.rs",
+"def_line": 16
+},
+{
+"name": "read_workflow",
+"kind": "fn",
+"file": "pulse-app/tests/distribution_manifests.rs",
+"def_line": 22
+},
+{
+"name": "read_workflow",
+"kind": "fn",
+"file": "pulse-app/tests/quality_gate_workflow.rs",
+"def_line": 17
+},
+{
+"name": "workflow_job_block",
+"kind": "fn",
+"file": "pulse-app/tests/quality_gate_workflow.rs",
+"def_line": 78
+},
+{
+"name": "ci_workflow_test_gates_no_continue_on_error",
+"kind": "fn",
+"file": "pulse-app/tests/quality_gate_workflow.rs",
+"def_line": 256
+},
+{
+"name": "CoverageRegression",
+"kind": "type",
+"file": "xtask/src/main.rs",
+"def_line": 239
+},
+{
+"name": "CriterionRegression",
+"kind": "type",
+"file": "xtask/src/main.rs",
+"def_line": 254
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

@@ -129,46 +129,8 @@ jobs:
         with:
           name: logs-perf-samples-${{ runner.os }}
           path: target/tmp/perf-budget-samples/logs/
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14
-
-      - name: Upload logs artifact
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: logs-${{ runner.os }}
-          path: ${{ env.ANDROMEDA_PULSE_DATA_DIR }}/logs/
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload nextest junit artifact
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: nextest-${{ runner.os }}
-          path: target/nextest/**/junit.xml
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload criterion bench artifact (deferred; non-blocking)
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: criterion-${{ runner.os }}
-          path: target/criterion/
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Download base-branch criterion baseline (PR only)
-        if: github.event_name == 'pull_request'
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
-        continue-on-error: true
-        with:
-          name: criterion-${{ runner.os }}-base
-          path: target/criterion-baseline/
-
-      - name: cargo xtask criterion-regression (chunk #56 — mean.point_estimate +10% gate vs base branch)
-        run: cargo xtask criterion-regression --current target/criterion --baseline target/criterion-baseline
 
       - name: Upload capability-drift report
         if: always()
@@ -176,7 +138,7 @@ jobs:
         with:
           name: capability-drift-${{ runner.os }}
           path: target/capability-drift/report.json
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14
 
   mcp-test:
@@ -290,14 +252,6 @@ jobs:
         working-directory: pulse-app/ui
         run: npx playwright install --with-deps chromium
 
-      - name: Download base-branch a11y-violations baseline (PR only)
-        if: github.event_name == 'pull_request'
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
-        continue-on-error: true
-        with:
-          name: a11y-violations-base
-          path: pulse-app/ui/tests-a11y/baselines/
-
       - name: cargo xtask test:a11y (axe + Lighthouse + pa11y + colorjs.io + aggregator + regression)
         run: cargo xtask test:a11y
 
@@ -310,7 +264,7 @@ jobs:
             ${{ env.ANDROMEDA_PULSE_DATA_DIR }}/logs/a11y-*.json*
             pulse-app/ui/dist/contrast-report.json
             pulse-app/ui/tests-a11y/regression-set.json
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14
 
       - name: Upload Playwright a11y report
@@ -319,7 +273,7 @@ jobs:
         with:
           name: playwright-a11y-report-${{ runner.os }}
           path: target/playwright-a11y-report/
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14
 
   boot:
@@ -415,7 +369,7 @@ jobs:
         with:
           name: logs-boot-${{ runner.os }}
           path: ${{ env.ANDROMEDA_PULSE_DATA_DIR }}/logs/
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14
 
   supply-chain:
@@ -578,22 +532,11 @@ jobs:
           awk -v pct="$fn_pct"     'BEGIN { exit (pct + 0 < 85.0) }' || { echo "::error::function coverage ${fn_pct}% < 85%"; fail=1; }
           [ $fail -eq 0 ]
 
-      - name: Download base-branch coverage baseline (PR only)
-        if: github.event_name == 'pull_request'
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
-        continue-on-error: true
-        with:
-          name: coverage-linux-base
-          path: target/lcov-baseline/
-
-      - name: cargo xtask coverage-regression (chunk #55 — line/branch/function gate vs base branch)
-        run: cargo xtask coverage-regression --current lcov.info --baseline target/lcov-baseline/lcov.info
-
       - name: Upload coverage artifact
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: coverage-linux
           path: lcov.info
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 14
