@@ -452,3 +452,34 @@ Owner moves to the working-route entry "Duplicate-span replay fails loudly" (mod
 **Why:** Phase research measured the mechanism the paragraph listed as unmeasured, and the chunk closed the end on the runner; the narrative still named it open with a route owner.
 **Kept:** §9's log-file row stands: its `ci#38019133294` reading is dated and its description of `boot-series.json` still holds.
 **Ref:** .andromeda/runs/2026-10-10T06-10-23Z-wrap/
+
+## 2026-10-10-no-ci-step-reads-nothing — no bench suite exists: the criterion claim retired at its eight sites
+**Section:** §1 (perf-budget-instruments, the snapshot token budget row) · §2 (the Metrics row) · §5 (why `tracing` events instead of an OTel Meter) · §9 Telemetry artifact handling (the Criterion bench JSON row) · §9 Pipeline integration (the `xtask bench` row) · §10 Performance budgets (the snapshot row, the frame row) · §10 CI gates (the perf-budget bullet)
+**Change:**
+- Was, in each: "`criterion` 0.5 in `xtask benches/`" as an offline regression assertion, "`xtask benches/snapshot.rs` provides regression detection on stable estimators (median + slope)", "offline criterion bench for stable hardware regression detection", "the `xtask bench` half", a Criterion bench JSON artifact and an `xtask bench` stage.
+- Now, in each: no bench suite exists — no `criterion` dependency, no `xtask benches/` directory, no `bench` verb. The snapshot p99 ≤ 500 ms assertion is the snapshot arm of `cargo xtask perf:budget` over the emitted events; SLO-critical budgets are asserted by `perf:budget` over the `metric.*` stream; the budgets are absolute, and nothing compares a run with an earlier one.
+- §9: the Criterion bench JSON row reads "not produced"; the `xtask bench` stage row is gone, with one sentence under the table saying no step runs a bench.
+- §10 CI gates: there is no `xtask bench` half; the `criterion-regression` verb, its CI step, the `criterion-Linux` upload and the base-branch criterion download left `ci.yml` and `xtask`, each having read nothing on `ci#38031822696`; `perf:budget` is the whole perf gate.
+**Why:** The bench the plan described was never built, and the CI steps written for it compared nothing with nothing. The operator ruled them gone whole and asked that the absence be stated as measured (the operator, the pc overseer, at the P4 dialog and by the wrap directive, 2026-10-10).
+**Kept:** The absolute budgets and their grader are unchanged. Whether the version still wants regression detection against an earlier run was put to the operator at this wrap's route-resolve card.
+**Ref:** .andromeda/runs/2026-10-10T08-04-06Z-wrap/
+
+## 2026-10-10-no-ci-step-reads-nothing — which CI artifacts exist: two log uploads, no test-job log, no snapshot
+**Section:** §9 Telemetry artifact handling (the Log file row, the Snapshot markdown row) · §9 Pipeline integration (the `xtask test`, `xtask test --release` and Integration tests rows) · §9 CI failure → artifact triage workflow
+**Change:**
+- Log file row: was the `lint-test` job (`logs-${{ runner.os }}`) and the `boot` job; now the `boot` job (`logs-boot-${{ runner.os }}`) and the lint-test perf-samples log (`logs-perf-samples-${{ runner.os }}`), two uploads. The `lint-test` job's `logs-${{ runner.os }}` upload found no file (no step of that job writes a log family under its data dir, `ci#38031822696`) and left. Each upload of `ci.yml` now carries `if-no-files-found: error`: an upload that finds no file fails its step, read on a runner only where the producer did not run (`ci#38034700885`), never where one ran and wrote nothing.
+- Snapshot markdown row: was "uploaded as CI artifact" when an integration test fails; now "not produced in CI": no step of `ci.yml` writes or uploads a snapshot on a failed test.
+- Pipeline integration: `xtask test` was "CI artifact `logs/agent-latest.jsonl`"; now the test run uploads nothing and the perf-samples producer after it writes the log `perf:budget` grades. The `xtask test --release` row is gone (no step runs it). Integration tests: was "logs artifact + snapshot markdown artifact"; now none uploaded.
+- Triage workflow: was "Test failure → uploads `logs/agent-latest.jsonl`" and `gh run download <run_id> -n logs`; now a failed `boot` job uploads `logs-boot-Linux`, a failed test in `lint-test` uploads no app log, and the download names the artifact (`-n logs-boot-Linux`; no artifact of a run is named `logs`).
+**Why:** Each sentence named an artifact no step produced. The chunk removed the uploads that found nothing and made the rest fail on nothing; the rows now say what a run keeps.
+**Kept:** §11's two bans, "NEVER lose telemetry artifacts (log file + snapshot on failure)" and "NEVER skip snapshot generation on test failure", are not amended: they are requirements the workflow does not meet, and whether the version keeps them was put to the operator at this wrap's route-resolve card. The Snapshot row says they stand, unmet.
+**Ref:** .andromeda/runs/2026-10-10T08-04-06Z-wrap/
+
+## 2026-10-10-no-ci-step-reads-nothing — owners named at the card: the unmet bans, and the engine's readings on its node
+**Section:** §9 Telemetry artifact handling (the Snapshot markdown row) · §10 CI gates (the perf-budget bullet)
+**Change:**
+- Snapshot markdown row: the §11 bans that name it stand, unmet, and are now owned by the route entry `Engine end-to-end gate reachable`, which keeps the engine's log in CI. Was, in this pass's earlier entry: unmet with no owner.
+- §10 CI gates: after "nothing compares a run with an earlier one", the route's owners of the engine's readings on its node are named: its memory by `Engine memory measured` (P-090), its behaviour under load by `Load profiles re-based on the engine` and `Disk store measured under load` (P-090, P-091); no route entry owns a comparison of one run with an earlier one.
+**Why:** The operator ruled that a ban standing unmet has an owner from now, a carry on that entry, and asked that the corrected sentence name the entry that owns a performance or memory reading of the engine, or say none (the operator, the pc overseer, at this wrap's route-resolve card, 2026-10-10).
+**Kept:** §11's two bans are unchanged in the body. A machine-read test report, perf regression against an earlier run and a pull-request comment with new a11y violations stand corrected as measured with no owner.
+**Ref:** .andromeda/runs/2026-10-10T08-04-06Z-wrap/

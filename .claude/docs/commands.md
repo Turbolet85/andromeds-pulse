@@ -151,9 +151,9 @@ cd pulse-app/ui && npm install --save-dev \
 
 ## Performance + profiling
 ```bash
-# Criterion benchmarks (regression detection)
-cargo bench --workspace
-cd xtask && cargo run -- bench
+# No bench suite exists (no criterion dependency, no `xtask bench` verb; measured 2026-10-10).
+# The perf budgets are graded over log samples:
+cargo xtask perf:budget --data-dir <DIR> --require memory,snapshot
 
 # Profiling
 cargo flamegraph --bin pulse-app

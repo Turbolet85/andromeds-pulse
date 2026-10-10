@@ -77,7 +77,7 @@ Emitted to `~/.andromeda-pulse/logs/a11y-{tool}-results.jsonl`; uploaded as CI a
 
 ## SLO invariants
 - **Zero WCAG AA violations** on must-be-accessible paths.
-- **Zero new violations per PR** — per-PR diff detection vs base branch (`actions/download-artifact@v4` → `jq` filter on `{surface, wcag_criterion, selector, severity}` tuples).
+- **Zero new violations per PR** — the regression detector diffs the run against the baseline committed in the tree (`tests-a11y/baselines/a11y-violations-summary.json`) by `{surface, wcag_criterion, selector, severity, violation_type}` tuple; no artifact is downloaded, and an absent baseline fails (since 2026-10-10).
 - **Performance budget per a11y CI run:** axe-core <30s per surface; Lighthouse a11y <15s per URL; total a11y CI + tests E2E <10 min.
 
 ## CI gate (PR cannot merge if)
@@ -85,7 +85,7 @@ Emitted to `~/.andromeda-pulse/logs/a11y-{tool}-results.jsonl`; uploaded as CI a
 - Lighthouse a11y category score <90 on any URL
 - Keyboard focus order test fails
 - Contrast verification detects token mismatch (actual <required)
-- Per-PR regression — any new tuple `{surface, wcag_criterion, selector, severity}` not in base branch
+- Per-PR regression — any new tuple `{surface, wcag_criterion, selector, severity, violation_type}` not in the baseline committed in the tree, or that baseline absent
 
 ## v0.2.0 re-audit (chunk #99, per a11y-plan §12 2026-06-10)
 - **Harness repaired** — the Playwright a11y suite was silently dead since session 64 (4 infra bugs: stale root-level `../helpers/` import; IPC mock matched `plugin:taurpc|` while taurpc 0.7 invokes `TauRPC__<router.path>`; window-label global never read — production reads `__TAURI_INTERNALS__.metadata.currentWebview.label`; `/#/route` URLs never resolved — TanStack Router uses browser history). Repairs: `helpers/mock-tauri.ts` rewrite + `helpers/v02-fixtures.ts` + `helpers/static-server.mjs` SPA fallback + `pa11y/run-pa11y.mjs` + real route paths in pa11y/Lighthouse configs.

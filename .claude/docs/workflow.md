@@ -41,11 +41,11 @@ Co-Authored-By footer when AI-assisted: `Co-Authored-By: Claude Opus 4.7 (1M con
 - `cargo clippy --workspace --all-targets --all-features -- -D warnings` clean
 - `cargo nextest run --workspace --profile ci` passes (zero failures, zero flakes — flake = real bug per Standard tier)
 - Coverage ≥75% line / ≥70% branch / ≥85% function (`cargo llvm-cov`)
-- Performance budgets respected (snapshot p99 ≤500ms, memory max ≤512 MB, WebGPU frame p99 ≤33ms — graded by `cargo xtask perf:budget`, which CI runs on lint-test Linux with memory + snapshot required; the frame arm by `cargo xtask perf:frame-sample` on a GPU dev host, since hosted runners expose no WebGPU adapter; `criterion` covers bench regression)
+- Performance budgets respected (snapshot p99 ≤500ms, memory max ≤512 MB, WebGPU frame p99 ≤33ms — graded by `cargo xtask perf:budget`, which CI runs on lint-test Linux with memory + snapshot required; the frame arm by `cargo xtask perf:frame-sample` on a GPU dev host, since hosted runners expose no WebGPU adapter; no bench suite exists, so nothing covers regression against an earlier run)
 - `cargo audit` zero findings above warning
 - `cargo deny check bans licenses sources` clean (catches `tonic` 0.14/0.13 duplicate)
 - `xtask capability-drift` passes (TauRPC procedures match the `EXPECTED_PROCEDURES` pin — worktree AND staged git-index copies; staged `capabilities/*.json` grants match `staged_gate::EXPECTED_GRANTS`; `cargo xtask check:staged-artifacts` is the direct verb)
-- A11y suite passes (axe-core no critical/serious, Lighthouse a11y ≥90, no per-PR regression vs base branch)
+- A11y suite passes (axe-core no critical/serious, Lighthouse a11y ≥90, no new violation tuple vs the baseline committed in the tree)
 - Heartbeat-stall detection passes (no `{module}.tick` gap >45s during test run)
 - Zero `app.panic.fatal` spans in test logs
 
