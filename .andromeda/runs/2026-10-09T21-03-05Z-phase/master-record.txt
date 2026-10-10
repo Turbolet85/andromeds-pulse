@@ -1,0 +1,1 @@
+2026-10-09-pre-push-check-native-on-linux · pending · Pre-push check native on Linux: the surviving stages run on the dev host; the wsl.exe hop and its distro clone leave · → andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/

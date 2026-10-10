@@ -271,11 +271,11 @@
       "observed_gap": "`cargo xtask pre-push:linux` needs `wsl.exe`; on the Linux dev host its stages are run by hand.",
       "verification": {
         "method": "integration",
-        "acceptance": "On the Linux dev host one check runs natively before a push, over every stage that survives this version's removals, with no second operating system involved, and gives a verdict.",
-        "ref": null,
-        "status": "planned"
+        "acceptance": "On the Linux dev host `cargo xtask pre-push:linux`, started with Node 24 (the major ci.yml pins) first on PATH, exits 0 and prints one JSON verdict reading `green` / `all-stages-ok`, whose stages are `script-modes`, `source-lint`, `npm`, `clippy`, `test`, `ci-gates` in that order, each `ok`; the same document stands at `target/pre-push/report.json`. The two files that held the hop to a second operating system, `xtask/src/pre_push.rs` and `xtask/src/main.rs`, contain no `wsl` in any letter case. The six stages are every stage standing at the claim, so they include every stage that survives this version's removals; a later entry that removes a surface removes its stage with it and does not reopen this reading.",
+        "ref": "plan.md ## Test Commands entry 16 (d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xtask pre-push:linux) · read at /implement 2026-10-10 on the Linux dev host: exit 0, verdict green / all-stages-ok, stages script-modes, source-lint, npm, clippy, test, ci-gates in that order, each ok; the printed verdict equal to target/pre-push/report.json · entry 18 (the report-twin read) green · entry 12 (cat xtask/src/pre_push.rs xtask/src/main.rs | grep -i -c wsl) exit 1, last line 0 · per-decision pins: xtask/src/pre_push.rs::tests (20, in cargo nextest run --workspace --profile ci) · record: chunks/2026-10-09-pre-push-check-native-on-linux/evidence/live-readings.md",
+        "status": "implemented"
       },
-      "chunk": null
+      "chunk": "2026-10-09-pre-push-check-native-on-linux"
     },
     {
       "id": "P-104",

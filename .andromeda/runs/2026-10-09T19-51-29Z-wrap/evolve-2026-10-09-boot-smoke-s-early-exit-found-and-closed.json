@@ -158,5 +158,45 @@
 "lines": 2443,
 "bytes": 2484110
 }
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "9d4071c3",
+"ts": "2026-10-09T20:22:36Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2443→2444 · bytes 2484110→2485512 · term lf",
+"ts 2026-10-09T20:22:36Z · clock 2026-10-09T20:22:36Z · bound 2026-10-09T20:19:09Z (line 2443)",
+"ids 2026-10-09T20:22:36Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2443,
+"bytes": 2484110,
+"terminator": "LF",
+"bound": "2026-10-09T20:19:09Z"
+},
+"after": {
+"lines": 2444,
+"bytes": 2485512
+}
 }
 ]

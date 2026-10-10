@@ -260,7 +260,7 @@ enum Cmd {
     PerfLoadProfiles,
     #[command(
         name = "pre-push:linux",
-        about = "Run the Linux-reachable CI gates (script modes, the English-only source lint, npm build, clippy, xtask test, ci-gates) in a WSL Ubuntu clone synced to HEAD + the working tree, before a push. One JSON verdict; exit 0 green / 1 red / 2 cannot-evaluate (not Windows, no distro, or a pinned tool or apt package missing — the remediation command is printed). Never binds a port"
+        about = "Run the Linux-reachable CI gates (script modes, the English-only source lint, npm build, clippy, xtask test, ci-gates) on the Linux dev host, in the working tree, before a push: six stages in order, first failure stops, each under a constructed environment. One JSON verdict; exit 0 green / 1 red / 2 cannot-evaluate (not Linux, or a pin read from the repo is unmet: the Rust channel, ci.yml's Node major, a missing tool). Installs nothing, puts the generated bindings back as found, never binds a port"
     )]
     PrePushLinux,
 }
