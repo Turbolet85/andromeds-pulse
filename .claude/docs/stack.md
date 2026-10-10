@@ -47,7 +47,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 
 ## Messaging & Events
 - **In-process channels:** `tokio::sync::mpsc` (ingest → DuckDB appender hand-off, built-in backpressure) + `tokio::sync::broadcast` (buffer → live UI subscribers fan-out).
-- **External message broker:** N/A — single-process desktop app.
+- **External message broker:** N/A — each product program is a single process (the desktop window app; the console engine `andromeda-pulse-engine`).
 - **Real-time push contract:** Tauri 2 IPC `Channel` API with binary Arrow IPC payloads; events `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`. SSE/WebSocket NOT used (consumer is in-process).
 
 ## Observability

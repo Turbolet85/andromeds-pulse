@@ -952,3 +952,17 @@ says so to the operator for Conductor's side before it lands.
 **Kept:** The other fields of an entry (`carried_by`, `changed_form`, `provisional`, `scenarios`, `guard`,
 `kept_half_owner`) are this project's own and are not part of the contract.
 **Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/
+## 2026-10-10-console-engine-entry-point — two programs over one shared engine boot; the console engine binary registered
+**Section:** §Design Philosophy (Single-process modular monolith) · §Stack (Message broker row) · §Established Decisions ([Mobile / Message Broker / Push Notifications]) · §Project Intent (Product type; Growth model) · §Occupied Resources (Network ports; Process / service identity; Filesystem locations: pid file, workspace key, lock file; Environment variables: `ANDROMEDA_PULSE_L4_DETERMINISTIC`, `ANDROMEDA_PULSE_BASELINE_BOOTSTRAP_SECONDS`) · §Cross-cutting Patterns (Test-time telemetry injection) · §Infrastructure Patterns → Deployment model · → Project directory structure
+**Change:**
+- The fourteen library crates are wired by one shared engine boot, `pulse_app::engine_boot` (`init_process`, then `start`), called by two entry points of the `pulse-app` package: the Tauri window app and the console program `andromeda-pulse-engine`. Neither wires an engine part; the shared boot names no window framework; sixteen workspace members stands. Was: linked into the one Tauri binary, one process.
+- Product type: a desktop application and a console program with a closed two-word command line (`run`, `version`). Was: "not a CLI". Not yet: a background service, a bundled artifact, an incident without the deterministic gate.
+- Process identity gains the console engine binary (second `[[bin]]`, `default-run = "pulse-app"`), its command line, its end by signal; product binaries are three; the correct `target/{profile}/andromeda-pulse*` paths are two.
+- Both engine programs bind the two receivers and nothing else; the bind address is fixed to loopback inside `engine_boot::start` (the config holds ports only).
+- The pid file and the workspace key are written by both engine programs at the same paths through `engine_boot`; the lock file has a third writer.
+- `ANDROMEDA_PULSE_L4_DETERMINISTIC` has two readers; in the console program unset seats nothing and no incident forms. The bootstrap-window value is handed over by `engine_boot::start`. Was: `main.rs`.
+- The console program mounts no TauRPC router: tests read back from its log or from `EngineHandles`.
+- Two keyed contracts: the runtime topology names two engine programs; the tree lists `engine_boot.rs`, `console.rs`, `bin/andromeda-pulse-engine.rs`.
+**Why:** The chunk built the console form of the engine beside the window app, and the body described one Tauri process. The Product-type sentence is retired on the operator's recorded direction (the plan's approved expected amendment; the wrap directive of 2026-10-10 from the pc overseer, relayed in a file). The window leaves at `Window retired`.
+**Kept:** No separate registry bullet for the command line and no per-program variable roster: the binary's bullet carries the grammar, security-plan the read set. What `tauri build` does with a second `[[bin]]` is not measured.
+**Ref:** .andromeda/runs/2026-10-10T14-17-29Z-wrap/

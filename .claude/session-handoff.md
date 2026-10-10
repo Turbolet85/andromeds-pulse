@@ -1,37 +1,55 @@
 # Session Handoff
 
-**Last Updated:** 2026-10-10T12:39:00Z
-**Branch:** build/andromeda-pulse-0.4.0 · 0 ahead of origin/build/andromeda-pulse-0.4.0 as read at this wrap's Setup (HEAD `923a0dad`, the operator pass's pre-CI commit, pushed)
+**Last Updated:** 2026-10-10T14:49:21Z
+**Branch:** build/andromeda-pulse-0.4.0 · 0 ahead of origin/build/andromeda-pulse-0.4.0 as read at this wrap's Setup (HEAD `4f519c94`, the operator pass's pre-CI commit, pushed)
 **Status:** clean once this wrap's commit lands
-**Last Commit:** this wrap's commit — 2026-10-10-capability-record-re-based (after `923a0dad`), made on the
+**Last Commit:** this wrap's commit — 2026-10-10-console-engine-entry-point (after `4f519c94`), made on the
 operator's word after the stop before the flip and the commit
 
 ## Position
-- **Done:** `2026-10-10-capability-record-re-based`. `docs/capability-record.json` is the one current record for the
-  82 capability ids: 36 claimed, each naming the 0.4.0 requirement that carries it, and 46 retired, each naming its
-  surface, the route entry that removes it and its guard (6 none · 15 part · 25 runs). `cargo xtask
-  verify:capability-matrix` reads it against the working route, exit 0 · 1 · 2, 36 pins. The two old records stand
-  byte-identical. Report: `andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/report.md`.
-- **P-117 is advanced, not claimed.** Its third clause (Conductor's accepted set equals the record) is read at
-  `Version close on Linux`, which now carries a `CARRY:` saying what is read against what.
-- **The verdict run is `ci#38049792921` on `923a0dad`, green 7 of 7,** attempt 1 (`evidence/operator-pass.md`).
-- **Next:** `/andromeda-phase` — promote and plan `Console engine entry point` (Epoch 1, `working-route.md:29`,
-  P-086).
+- **Done:** `2026-10-10-console-engine-entry-point`. A second program, `andromeda-pulse-engine` (`run` | `version`),
+  boots the two loopback receivers, the buffer, the detectors and the corpus with no window. Both programs call one
+  engine boot, `pulse-app/src/engine_boot.rs` (`init_process`, `start`); `main.rs` keeps the window. One boot record,
+  `app.boot.engine`. Report: `andromeda-pulse-0.4.0/chunks/2026-10-10-console-engine-entry-point/report.md`.
+- **P-086 is advanced, not claimed;** its dated ledger note says which half was shown and which entries carry the
+  rest. P-117 stays advanced, not claimed (`Version close on Linux`).
+- **The console program seats no runner when `ANDROMEDA_PULSE_L4_DETERMINISTIC` is unset:** cues and digests, no
+  incident (the operator's answer, inputs#I2); owner `Incident is the engine's own record`.
+- **The verdict run is `ci#38056942758` on `4f519c94`, green 7 of 7,** attempt 1; coverage 90.5 % line, 89.3 %
+  function (`evidence/operator-pass.md`).
+- **Next:** `/andromeda-phase` — promote and plan `Agent harness drives the console engine` (Epoch 1,
+  `working-route.md:31`, P-086).
 
 ## Work done
-- /implement, two operator edits of the plan, the operator pass (entries 20 to 25, run by the agent on the
-  operator's word) and this wrap, in one session. Wrap run: `.andromeda/runs/2026-10-10T12-20-47Z-wrap/`.
+- /implement, the operator pass (entries 20 to 24, run by the agent on the operator's word, inputs#I3) and this
+  wrap, in one session. Wrap run: `.andromeda/runs/2026-10-10T14-17-29Z-wrap/`.
 
 ## Drift resolved
-- 4 amendments in two masters, 4 sidecar entries: test-plan (§9's capability-gate paragraph re-based on the record;
-  one pending-coverage row, `verify-capability-matrix-verb-glue-coverage`), architecture (the verb registered under
-  xtask CLI surfaces; the record named under §Standard Contracts as a form another project reads, with its three
-  fields). Four leaves re-derived (CLAUDE.md, `rules/testing.md`, `docs/tests-summary.md`, `docs/commands.md`).
-- No escalation and no proposal rejected. Seven `CARRY:` pins went to the route on the operator's word at the card
-  (`route-card.md` in the wrap run dir holds it).
+- 58 amendments in four masters (security-plan 13, architecture 16, test-plan 14, obs-plan 15; six keyed-contract
+  files among them), 4 sidecar entries: the masters describe two programs over one engine boot. 63 proposals, 5
+  rejected, 1 escalated and resolved. Citations: 0 re-pointed, 2 changed, 0 stretched, `held 0`.
+- Six `CARRY:` pins went to the route on the operator's word at the card (`route-card.md` in the wrap run dir):
+  `working-route.md:31` twice, `:39`, `:50`, `:52`, `:65`.
 
 ## Notes
-- **PROVISIONAL, awaiting the founder's own word — new at this chunk:** four ids are claimed in the record in a
+- **The command line is classified a bounded input, not a boundary widening** (the operator, the pc overseer,
+  2026-10-10, at this wrap's P2 halt; security-plan §Input Validation holds it). No playbook rule was minted, on the
+  operator's word at the card: every later command halts as the Boundary-widening rule says, and one that takes a
+  value, a path or a network address is a new question each time.
+- **Owed to the next wrap's cascade:** at this wrap the leaves were re-derived at the passages the 58 amendments
+  feed (CLAUDE.md, `rules/{security,testing,observability}.md`, `docs/{stack,obs-summary}.md`), not recomputed whole;
+  `docs/{security,tests}-summary.md`, `docs/commands.md`, `docs/gotchas.md` and `docs/services/*.md` were not opened
+  (`cascade-dispositions.md` in the wrap run dir).
+- **Surfaced, not corrected at this wrap:** seven stale line citations in preserve-verbatim homes —
+  `rules/observability.md:148` (three) and `docs/session-learnings.md:877`, `:1596`, `:1841`, `:1861`.
+- **New pending-coverage row** (test-plan §1): `engine-boot-rejected-port-and-socket-census-coverage`, with a
+  `CARRY:` on `Agent harness drives the console engine`.
+- **Limits of this close:** one run read, attempt 1, on the pre-CI commit — the wrap's commit is covered by the
+  local light gate alone; the coverage log prints totals only; the console program's panic and at-exit records are
+  witnessed one level down; the library read is of debug binaries on the dev host.
+- **Left on the host by this chunk:** `target/boot-smoke/ci-38056942758-attempt-1/` and the local smoke's
+  `target/boot-smoke/{stamp}-series/` (ignored by git); the registered corpus-key lock file in the system temp dir.
+- **PROVISIONAL, awaiting the founder's own word — from the capability-record chunk:** four ids are claimed in the record in a
   changed form on the operator's answer (the pc overseer, 2026-10-10): P-030, P-040, P-048, P-050. Each line opens
   "The original sentence no longer holds as written". P-040 is carried by P-084's one sentence alone; no requirement
   sentence says the engine works with no reader at the door, and `Door inside the engine's process` carries the
@@ -126,7 +144,9 @@ operator's word after the stop before the flip and the commit
 - **Last failed command:** none.
 
 ## Deferred learnings
-- **This wrap:** five candidates; two written (Tier 2, `rules/testing.md`: an unquoted YAML step name is cut at
+- **This wrap:** three candidates; one written (Tier 2, `rules/testing.md`: a fetched CI job log carries colour
+  escapes, so a plain grep reads 0), one task-specific, one below threshold (`curation.md` in the wrap run dir).
+- **The prior wrap:** five candidates; two written (Tier 2, `rules/testing.md`: an unquoted YAML step name is cut at
   ` #`, and a baseline cannot vouch for an atom that prints only after the chunk's edit; Tier 3: a hand-copied
   evidence line is checked against its log), one in-place extension (`rules/security.md`, the 2026-06-11 entry),
   one duplicate, one task-specific.

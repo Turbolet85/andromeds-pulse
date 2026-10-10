@@ -14,7 +14,7 @@ The product's external surfaces (OTLP receivers ingesting third-party clients) c
   2. Build `tracing_subscriber::registry()` composing the non-blocking file appender + `EnvFilter` + `ErrorLayer` (no stderr layer)
   3. Install `std::panic::set_hook` calling `tracing::error!(target: "app.panic.fatal", ...)` with SpanTrace
   4. Spawn Tauri + bind OTLP receivers
-  - Between 3 and 4, `main` parks the `WorkerGuard` `init` returns (`hold_log_guard`), installs the at-exit hook
+  - Between 3 and 4, the process start both programs call (`engine_boot::init_process`, since chunk 2026-10-10-console-engine-entry-point; the console program `andromeda-pulse-engine` has no event loop and ends by signal) parks the `WorkerGuard` `init` returns (`hold_log_guard`), installs the at-exit hook
     (`install_exit_hook`) and, on Unix, the SIGTERM/SIGINT listener; the app runs through `run_return`, whose code
     goes to `exit_after_event_loop` (record `app.exit` → drop the guard → `process::exit` with the same code).
     `WorkerGuard::drop` is the file sink's only drain (obs-plan §3).

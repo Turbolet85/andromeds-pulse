@@ -1,4 +1,4 @@
 schema_version: 3
-last_wrap: 2026-10-10T12:39:00Z              # ISO-8601 UTC
-tree_db_refreshed_at: 2026-10-10T12:23:08Z    # last successful code-graph refresh (rust 10015n/48906e · ts 4164n/7755e)
-session_count: 106                          # v3 wrap counter; +1 per successful v3 wrap
+last_wrap: 2026-10-10T14:49:21Z              # ISO-8601 UTC
+tree_db_refreshed_at: 2026-10-10T14:18:46Z    # last successful code-graph refresh (rust 10240n/49688e · ts 4164n/7755e)
+session_count: 107                          # v3 wrap counter; +1 per successful v3 wrap

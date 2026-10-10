@@ -896,3 +896,16 @@ twin's member set and the verb's exit per state. Was: no row.
 **Why:** The verdict is tested at the unit tier and the function that prints it, writes the twin and returns the
 exit is not; the gap is recorded so that it is not read as covered by the 36 pins.
 **Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/
+## 2026-10-10-console-engine-entry-point — the console program as a surface, the spawned-program witness form, five pending-coverage rows moved and one added
+**Section:** §1 Coverage scope (`pulse-app` row) · §1 Surfaces under test (new row) · §1 Pending coverage triggers (`exit-hook-main-composition-coverage`, `discovery-observer-wiring-coverage`, `damper-shared-instance-wiring-coverage`, `viz-read-connection-router-wiring-coverage`, `render-posture-main-placement-coverage`; new `engine-boot-rejected-port-and-socket-census-coverage`) · §2 Directory pattern · §4 Test file location · §3 → Per-chunk gate discipline · §3 → PID file
+**Change:**
+- `pulse-app` builds two programs over one engine boot; the window app is driven as before, the shared boot in process (`integration_engine_boot`), the console program as a spawned binary (`integration_console_engine`). New surface row for `andromeda-pulse-engine`: driver, signal (exit status, ports, its log family), boundary.
+- Spawned-program witness form recorded in §3: the built binary under a cleared environment, its own data dir and picked ports, the pid from `Child::id()`, a still-running child killed on drop, readiness and records awaited under a bound, the log read after the end. A chunk touching `console.rs` or the bin file takes it as its runtime gate. The process-end form gains two re-exec arms over `engine_boot::init_process`. `pulse-app/src/engine_boot.rs` joins the boot-smoke path list.
+- `exit-hook-main-composition-coverage` and `discovery-observer-wiring-coverage` narrowed: the process start and the three-observer composition left `main.rs` for `engine_boot` and are witnessed (re-exec children; an in-process boot). Still owed: the window's event-loop tail, the main-thread panic, the observer ORDER, the window's own `main` end to end.
+- The damper row's sole production caller is `engine_boot::start`. Was: `main.rs`. The viz row names `main.rs` without its two stale line ranges. The posture row's owed pin is anchored on the `init_process` call.
+- New row: the rejected-port arm of `engine_boot::start`, a socket census and the lock file's directory are not asserted by any test.
+- `main.rs` is one of two `[[bin]]` targets and keeps one test; the 14 resolver tests run from `unit_engine_boot_env.rs`. `pulse-app/tests/*.rs`: 109 files, 103 at the base.
+- The pid file is written by both programs through the shared boot; the harness verbs stay aimed at `pulse-app`.
+**Why:** The chunk moved the engine boot out of `main.rs` and added a second program with its own tests; rows naming `main.rs` as the wiring site, the single `[[bin]]` and the file count were stale, and the new witness form had no record.
+**Kept:** The two narrowed rows keep their dated original statements above the narrowing.
+**Ref:** .andromeda/runs/2026-10-10T14-17-29Z-wrap/

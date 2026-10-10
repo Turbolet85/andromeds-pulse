@@ -36,14 +36,17 @@ andromeda-pulse/
 │   └── mcp-server/                 # MCP stdio sidecar (feature-gated; hand-rolled JSON-RPC 2.0)
 │       ├── Cargo.toml
 │       └── src/
-├── pulse-app/                      # Tauri binary crate that wires the workspace
+├── pulse-app/                      # binary crate: the Tauri window app and the console engine, both over the shared engine boot
 │   ├── Cargo.toml
 │   ├── tauri.conf.json
 │   ├── capabilities/               # Tauri 2 capability JSON files
 │   ├── icons/
 │   ├── src/
-│   │   ├── main.rs
-│   │   └── lib.rs
+│   │   ├── main.rs                 # the window app's entry
+│   │   ├── lib.rs
+│   │   ├── engine_boot.rs          # the one engine boot both programs call
+│   │   ├── console.rs              # the console program's command grammar and its run
+│   │   └── bin/andromeda-pulse-engine.rs   # the console binary's main: hands its arguments to console::main
 │   └── ui/                         # webview source root (frontend tooling owned by design specialist)
 │       └── src/
 ├── xtask/                          # cargo-xtask: release/sign/notarize/changelog tasks
