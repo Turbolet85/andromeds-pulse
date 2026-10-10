@@ -1,0 +1,988 @@
+[
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T22:04:51Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data",
+"--run-dir",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap",
+"--marker",
+"2026-10-10-shared-telemetry-test-data"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base 50216d7e (the parent of the oldest pre-CI commit d9651126) · lists new 5 · modify 14 · derived 1 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"list Cargo.lock (derived by `cargo build --workspace --tests`) ×1",
+"scope: clean — changed 20 · listed 20 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 63"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "50216d7ee49c9763d1d9304aa07d3c3f3b74c7e3",
+"base_why": "the parent of the oldest pre-CI commit d9651126",
+"counts": {
+"changed": 20,
+"listed": 20,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 63,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T22:13:09Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data",
+"--run-dir",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap",
+"--marker",
+"2026-10-10-shared-telemetry-test-data"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base 50216d7e (the parent of the oldest pre-CI commit d9651126) · lists new 5 · modify 14 · derived 1 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"list Cargo.lock (derived by `cargo build --workspace --tests`) ×1",
+"scope: clean — changed 20 · listed 20 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 73"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "50216d7ee49c9763d1d9304aa07d3c3f3b74c7e3",
+"base_why": "the parent of the oldest pre-CI commit d9651126",
+"counts": {
+"changed": 20,
+"listed": 20,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 73,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T22:48:40Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap",
+"--marker",
+"2026-10-10-shared-telemetry-test-data"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root . · marker 2026-10-10-shared-telemetry-test-data · entries 26",
+"logs $TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z · bound: GNU timeout",
+"delta docs 62 · unmapped 6",
+"walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 68",
+"prose L131-135: The chunk's own guards and pins come first, then the repeated run, then the supply-chain r… (466 chars)",
+"prose L137-139: **One-shot mutating control:** step 2's two mutations of the edge pin are run once at impl… (273 chars)",
+"prose L141-143: **Evidence no entry produces:** `evidence/census.md` is written by step 7 and `evidence/mu… (295 chars)",
+"prose L145-146: **The pre-push check** runs a console engine cycle of its own on 24317 and 24318 in its si… (196 chars)",
+"prose L148-155: Absences, each with its reason: - No boot-smoke gate: no boot-path file is touched (`main.… (611 chars)",
+"prose L157-159: **The operator pass, in this order.** The hygiene entry; the pre-CI commit; the local pre-… (257 chars)",
+"  1 lint        green · exit 0 · 0.67s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 0.63s · 72 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 probe       green · exit 0 · 0.01s · 0 B → 3.log · git diff --name-only 50216d7ee49c9763d1d9304aa07d3c3f3b74c… (711 chars)",
+"  4 probe       green · exit 0 · 0.01s · 0 B → 4.log · git diff -U0 --src-prefix=a/ --dst-prefix=b/ 50216d7ee49c9… (447 chars)",
+"  5 unit        green · exit 0 · 1.03s · 88662 B → 5.log · cargo nextest run --workspace --profile ci --no-tests=fail… (174 chars)",
+"  6 probe       green · exit 0 · 0.08s · 2 B → 6.log · grep -rlE --include=*.rs 'fn claim_port|struct PortClaim|f… (101 chars)",
+"  7 probe       green · exit 1 · 0.0s · 2 B → 7.log · grep -nE 'bind\\(\\(\"127\\.0\\.0\\.1\", 0\\)\\)|bind\\(\"127\\.0\\.0\\.… (169 chars)",
+"  8 integration green · exit 0 · 118.8s · 69020 B → 8.log · for i in 1 2 3 4 5 6 7; do cargo nextest run --workspace -… (233 chars)",
+"  9 probe       green · exit 0 · 1.16s · 11050 B → 9.log · cargo deny check bans licenses sources",
+" 10 probe       green · exit 0 · 2.16s · 2585 B → 10.log · cargo audit",
+" 11 lint        green · exit 0 · 0.42s · 100 B → 11.log · cargo xtask check:english-sources",
+" 12 probe       green · exit 0 · 0.32s · 69 B → 12.log · cargo xtask quarantine-tracking",
+" 13 probe       green · exit 0 · 0.29s · 394 B → 13.log · cargo xtask capability-widening-check",
+" 14 probe       green · exit 0 · 0.29s · 99 B → 14.log · cargo xtask check:ingest-progress",
+" 15 probe       green · exit 0 · 0.32s · 342 B → 15.log · cargo xtask check:staged-artifacts",
+" 16 probe       green · exit 0 · 0.32s · 714 B → 16.log · cargo xtask capability-drift",
+" 17 probe       green · exit 0 · 0.29s · 447 B → 17.log · cargo xtask verify:capability-matrix",
+" 18 unit        green · exit 0 · 18.42s · 755465 B → 18.log · cargo nextest run --workspace --profile ci --no-tests=fail",
+" 19 build       green · exit 0 · 2.93s · 493 B → 19.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 20 probe       green · exit 0 · 0.01s · 0 B → 20.log · git diff --quiet 50216d7ee49c9763d1d9304aa07d3c3f3b74c7e3 … (95 chars)",
+" 21 integration green · exit 0 · 108.1s · 1659404 B → 21.log · d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xta… (75 chars)",
+" 22 probe       green · exit 0 · 0.0s · 0 B → 22.log · test ! -e target/pre-push/run/data/run/andromeda-pulse.pid… (162 chars)",
+" 23 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)",
+" 24 probe       not run — leg operator (the letter drives it) · m=\"$(git ls-remote origin refs/heads/main | cut -f1)\" && t… (111 chars)",
+" 25 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (92 chars)",
+" 26 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)",
+"entries 26 · green 22 · red 0 · recorded 0 · timeout 0 · not-run 4"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-10-shared-telemetry-test-data",
+"plan": "./andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data/plan.md",
+"root": ".",
+"shell": "/usr/bin/bash",
+"out_dir": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z",
+"delta": {
+"docs": [
+".andromeda/architecture-amendments.md",
+".andromeda/architecture.md",
+".andromeda/friction-log.ndjson",
+".andromeda/registries/contracts/test-plan/bootstrap-phases.md",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md",
+".andromeda/registries/contracts/test-plan/test-data-bootstrap.md",
+".andromeda/security-plan-amendments.md",
+".andromeda/security-plan.md",
+".andromeda/state.yaml",
+".andromeda/test-plan-amendments.md",
+".andromeda/test-plan.md",
+".claude/docs/conventions.md",
+".claude/docs/security-summary.md",
+".claude/docs/services/buffer.md",
+".claude/docs/services/ingest.md",
+".claude/docs/services/viz.md",
+".claude/docs/session-learnings.md",
+".claude/docs/stack.md",
+".claude/docs/tests-summary.md",
+".claude/rules/host-linux.md",
+".claude/rules/security.md",
+".claude/rules/testing.md",
+".claude/session-handoff.md",
+"CLAUDE.md",
+"andromeda-pulse-0.4.0/working-route.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/.raw-fanout-a11y-plan.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/.raw-fanout-design-system.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/.raw-fanout-layout-templates.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/.raw-fanout-obs-plan.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/a11y-plan-contracts.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/architecture-contracts.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/architecture-entry-1.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/architecture-entry-2.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/architecture-entry-3.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/cascade-2026-10-10-shared-telemetry-test-data.json",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/cascade-dispositions.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/cascade-patterns.toml",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/citation-dispositions.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/cites-2026-10-10-shared-telemetry-test-data.json",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/curation.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/evolve-2026-10-10-shared-telemetry-test-data.json",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/fanout-results.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/gate-2026-10-10-shared-telemetry-test-data.json",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/inputs-2026-10-10-shared-telemetry-test-data.json",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/master-desc.txt",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/new-text.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/obs-plan-contracts.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/registry-2026-10-10-shared-telemetry-test-data.json",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/relay-1.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/relay-2.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/relay-3.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/route-card.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/route-no-marker.json",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/security-plan-entry.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/splice-2026-10-10-shared-telemetry-test-data.json",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/test-plan-contracts.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/test-plan-entry-1.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/test-plan-entry-2.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/test-plan-entry-3.md",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/test-plan-entry-4.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data/evidence/operator-pass.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data/report.md"
+]
+},
+"unmapped": [
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data/inputs/andromeda-inputs.json",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data/inputs/I10-relay-3.md.txt",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data/inputs/I6-pulse-wrap-shared-telemetry-test-data-2026-10-10.md.txt",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data/inputs/I7-relay-1.md.txt",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data/inputs/I8-pulse-wrap-shared-telemetry-test-data-2026-10-10.md.txt",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data/inputs/I9-relay-2.md.txt"
+],
+"walk_class": {
+"marked": {
+"rust": [
+"xtask/src/source_lint.rs",
+"xtask/src/staged_gate.rs"
+]
+},
+"uncommitted": 68,
+"problem": null
+},
+"prose": [
+{
+"from": 131,
+"to": 135,
+"text": "The chunk's own guards and pins come first, then the repeated run, then the supply-chain reads (the lockfile gains an entry), then the standard gate set in test-plan §3 order (`capability-drift` before the default-features workspace nextest, the `--features mcp-server` bindings regen as the last cargo-adjacent step, the base-identity bindings close, since the chunk adds no procedure), then the local pre-push check with its teardown probe, then the operator pass."
+},
+{
+"from": 137,
+"to": 139,
+"text": "**One-shot mutating control:** step 2's two mutations of the edge pin are run once at implement, both readings in `evidence/mutations.md`. On every re-run the property is guarded by entries that mutate nothing: the scope guard and the workspace nextest, which runs the pin."
+},
+{
+"from": 141,
+"to": 143,
+"text": "**Evidence no entry produces:** `evidence/census.md` is written by step 7 and `evidence/mutations.md` by step 2, both steps outside this block, run once at implement; the count of the repeated run is copied into `evidence/` from that entry's own log. No entry carries an `artifact` key for them."
+},
+{
+"from": 145,
+"to": 146,
+"text": "**The pre-push check** runs a console engine cycle of its own on 24317 and 24318 in its sixth stage (as it has since the last chunk); the probe after it reads that the stage ended what it started."
+},
+{
+"from": 148,
+"to": 155,
+"text": "Absences, each with its reason: - No boot-smoke gate: no boot-path file is touched (`main.rs`, `engine_boot.rs`, `console.rs`,   `observability.rs`, a capability file); the two guards below read that no product line changes. - No webview gate and no headful self-verify: no `pulse-app/ui/**` path is touched. - No live leg: nothing here boots a product program outside a test binary. - No local coverage entry: the thresholds are read by the `coverage` job of the operator pass's run. - No retry anywhere. A red repeated run, a red pre-push stage or a port found taken stops the pass and goes to   the operator."
+},
+{
+"from": 157,
+"to": 159,
+"text": "**The operator pass, in this order.** The hygiene entry; the pre-CI commit; the local pre-push check again; the merge-base probe; the build-branch push; the CI read of the pushed tip, asserted green. A red is fixed by a further commit on top and read again."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.67,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/2.log",
+"bytes": 72,
+"log_sha8": "a8dd5b4f",
+"exit": 0,
+"seconds": 0.63,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "git diff --name-only 50216d7ee49c9763d1d9304aa07d3c3f3b74c7e3 -- crates pulse-app xtask scripts deny.toml rust-toolchain.toml .github .cargo .config ':!crates/test-support' ':!crates/buffer/Cargo.toml' ':!crates/buffer/src/consumer.rs' ':!crates/buffer/src/appender.rs' ':!pulse-app/Cargo.toml' ':!pulse-app/tests/integration_engine_boot.rs' ':!pulse-app/tests/integration_console_engine.rs' ':!pulse-app/tests/e2e_drain_template_assignment.rs' ':!pulse-app/tests/e2e_pii_span_masking_stored_field.rs' ':!xtask/Cargo.toml' ':!xtask/src/main.rs' ':!xtask/src/test_support_edges.rs' ':!xtask/src/harness_ready.rs' ':!xtask/src/engine_cycle.rs' ':!xtask/tests/common/mod.rs' ':!pulse-app/ui/src/bindings/index.ts' ",
+"run_sha8": "e17f405e",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/3.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "git diff -U0 --src-prefix=a/ --dst-prefix=b/ 50216d7ee49c9763d1d9304aa07d3c3f3b74c7e3 -- crates/buffer/src/consumer.rs crates/buffer/src/appender.rs xtask/src/harness_ready.rs xtask/src/engine_cycle.rs | awk '/^\\+\\+\\+ b\\//{f=substr($2,3)} /^@@/{split($2,a,\",\"); s=-a[1]; lim=(f==\"crates/buffer/src/consumer.rs\")?284:(f==\"crates/buffer/src/appender.rs\")?931:(f==\"xtask/src/harness_ready.rs\")?477:360; if (s<lim){print f\":\"s; bad=1}} END{exit bad}' ",
+"run_sha8": "43288190",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/4.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci --no-tests=fail -E 'package(test-support) | (package(buffer) & test(default_built)) | (package(xtask) & test(test_support_edges))' ",
+"run_sha8": "1fc84a37",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/5.log",
+"bytes": 88662,
+"log_sha8": "b2e005dd",
+"exit": 0,
+"seconds": 1.03,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "grep -rlE --include=*.rs 'fn claim_port|struct PortClaim|fn pick_port' crates pulse-app xtask | wc -l",
+"run_sha8": "64a13a57",
+"expect": [
+"exit 0",
+"last line 1"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/6.log",
+"bytes": 2,
+"log_sha8": "4355a46b",
+"exit": 0,
+"seconds": 0.08,
+"readings": [
+"exit 0 ✓",
+"last line '1' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "grep -nE 'bind\\(\\(\"127\\.0\\.0\\.1\", 0\\)\\)|bind\\(\"127\\.0\\.0\\.1:0\"\\)' pulse-app/tests/integration_engine_boot.rs xtask/src/harness_ready.rs xtask/src/engine_cycle.rs | wc -l",
+"run_sha8": "49cda2fc",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/7.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.0,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "integration",
+"run": "for i in 1 2 3 4 5 6 7; do cargo nextest run --workspace --profile ci --no-tests=fail -E 'binary(integration_engine_boot) | binary(integration_console_engine) | binary(agent_run_shell) | binary(engine_cycle_refusals)' || exit 1; done",
+"run_sha8": "b4b1b3f8",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/8.log",
+"bytes": 69020,
+"log_sha8": "c63ed7aa",
+"exit": 0,
+"seconds": 118.8,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo deny check bans licenses sources",
+"run_sha8": "7593f094",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/9.log",
+"bytes": 11050,
+"log_sha8": "4642dde4",
+"exit": 0,
+"seconds": 1.16,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "cargo audit",
+"run_sha8": "317b8907",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/10.log",
+"bytes": 2585,
+"log_sha8": "7ae3b68d",
+"exit": 0,
+"seconds": 2.16,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "lint",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/11.log",
+"bytes": 100,
+"log_sha8": "00214f39",
+"exit": 0,
+"seconds": 0.42,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cargo xtask quarantine-tracking",
+"run_sha8": "45f2d08d",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/12.log",
+"bytes": 69,
+"log_sha8": "50aedcab",
+"exit": 0,
+"seconds": 0.32,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/13.log",
+"bytes": 394,
+"log_sha8": "008e0d72",
+"exit": 0,
+"seconds": 0.29,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/14.log",
+"bytes": 99,
+"log_sha8": "09869944",
+"exit": 0,
+"seconds": 0.29,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/15.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.32,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/16.log",
+"bytes": 714,
+"log_sha8": "9e9553f2",
+"exit": 0,
+"seconds": 0.32,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/17.log",
+"bytes": 447,
+"log_sha8": "d394dffc",
+"exit": 0,
+"seconds": 0.29,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 18,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci --no-tests=fail",
+"run_sha8": "e4fcdfa3",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/18.log",
+"bytes": 755465,
+"log_sha8": "0273b5e5",
+"exit": 0,
+"seconds": 18.42,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 19,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/19.log",
+"bytes": 493,
+"log_sha8": "61ac0386",
+"exit": 0,
+"seconds": 2.93,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "git diff --quiet 50216d7ee49c9763d1d9304aa07d3c3f3b74c7e3 -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "9dd26a37",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/20.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 21,
+"role": "integration",
+"run": "d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xtask pre-push:linux",
+"run_sha8": "9f639d67",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"green\"",
+"contains \"reason\": \"all-stages-ok\"",
+"lacks \"ok\": false",
+"contains engine-log: PASS",
+"contains cleanup: clean"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/21.log",
+"bytes": 1659404,
+"log_sha8": "6dba157e",
+"exit": 0,
+"seconds": 108.1,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"green\"' ✓",
+"contains '\"reason\": \"all-stages-ok\"' ✓",
+"lacks '\"ok\": false' ✓",
+"contains 'engine-log: PASS' ✓",
+"contains 'cleanup: clean' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "test ! -e target/pre-push/run/data/run/andromeda-pulse.pid && ! (exec 3<>/dev/tcp/127.0.0.1/24317) 2>/dev/null && ! (exec 3<>/dev/tcp/127.0.0.1/24318) 2>/dev/null",
+"run_sha8": "7ca0e210",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-10-shared-telemetry-test-data/wrap-2026-10-10T22-04-24Z/22.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.0,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 23,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "3c62df70",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 24,
+"role": "probe",
+"run": "m=\"$(git ls-remote origin refs/heads/main | cut -f1)\" && test -n \"$m\" && git merge-base --is-ancestor \"$m\" HEAD",
+"run_sha8": "4c1e4d3b",
+"expect": [
+"exit 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 25,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin build/andromeda-pulse-0.4.0",
+"run_sha8": "aa77c2b4",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 26,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2700",
+"run_sha8": "d04716c7",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T22:48:58Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap",
+"--marker",
+"2026-10-10-shared-telemetry-test-data"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base 50216d7e (the parent of the oldest pre-CI commit d9651126)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"P1 .andromeda/runs/2026-10-10T22-04-24Z-wrap/.raw-fanout-a11y-plan.md:5 ×2 · in-root",
+"in-root: a home path under the root in 1 files — respell: gate.py respell --file {path} (the root prefix dropped, never ~/)",
+"hygiene: refused 1 files — P1 1 · P2 0 · P3 0 · read 97 (runs 79 · evidence 6 · inputs 12) · trails 24 not read · copies 10 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [
+"P1 .andromeda/runs/2026-10-10T22-04-24Z-wrap/.raw-fanout-a11y-plan.md:5 ×2 · in-root"
+],
+"counts": {
+"P1": 1,
+"P2": 0,
+"P3": 0,
+"runs": 79,
+"evidence": 6,
+"inputs": 12,
+"trails": 24,
+"copies": 10,
+"kept": 0,
+"binary": 0,
+"in_root": 1
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T22:49:03Z",
+"argv": [
+"respell",
+"--file",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap/.raw-fanout-a11y-plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap",
+"--marker",
+"2026-10-10-shared-telemetry-test-data"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"respelled .andromeda/runs/2026-10-10T22-04-24Z-wrap/.raw-fanout-a11y-plan.md ×2 · −88 B · 08e5bc4e→79300d19"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"path": ".andromeda/runs/2026-10-10T22-04-24Z-wrap/.raw-fanout-a11y-plan.md",
+"occurrences": 2,
+"bytes": 88,
+"before": "08e5bc4e",
+"after": "79300d19"
+}
+},
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T22:49:03Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap",
+"--marker",
+"2026-10-10-shared-telemetry-test-data"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base 50216d7e (the parent of the oldest pre-CI commit d9651126)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 97 (runs 79 · evidence 6 · inputs 12) · trails 24 not read · copies 10 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 79,
+"evidence": 6,
+"inputs": 12,
+"trails": 24,
+"copies": 10,
+"kept": 0,
+"binary": 0,
+"in_root": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T22:49:09Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data",
+"--run-dir",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap",
+"--marker",
+"2026-10-10-shared-telemetry-test-data"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base 50216d7e (the parent of the oldest pre-CI commit d9651126) · lists new 5 · modify 14 · derived 1 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"list Cargo.lock (derived by `cargo build --workspace --tests`) ×1",
+"scope: clean — changed 20 · listed 20 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 128"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "50216d7ee49c9763d1d9304aa07d3c3f3b74c7e3",
+"base_why": "the parent of the oldest pre-CI commit d9651126",
+"counts": {
+"changed": 20,
+"listed": 20,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 128,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.14",
+"sha8": "e8e4a72c",
+"ts": "2026-10-10T22:50:07Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-10T22-04-24Z-wrap",
+"--marker",
+"2026-10-10-shared-telemetry-test-data"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base 50216d7e (the parent of the oldest pre-CI commit d9651126)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 100 (runs 81 · evidence 6 · inputs 13) · trails 25 not read · copies 11 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 81,
+"evidence": 6,
+"inputs": 13,
+"trails": 25,
+"copies": 11,
+"kept": 0,
+"binary": 0,
+"in_root": 0
+},
+"indeterminate": 0
+}
+}
+]

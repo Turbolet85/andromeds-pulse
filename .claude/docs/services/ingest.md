@@ -45,7 +45,7 @@ Owns the two OTLP receiver surfaces (`:4317` gRPC + `:4318` HTTP) bound `127.0.0
 
 ## Testing this service
 - **Unit tests:** `cargo nextest run --filter-expr 'package(ingest)'`
-- **Integration:** `tonic` 0.14.5 native client → loopback `:4317`; `axum-test` 18.7 + `reqwest` 0.12 → `:4318`. The once-specified `MockTraceSpan::builder()` is not implemented (0 hits under `crates`, `pulse-app/src`, `pulse-app/tests`, `xtask/src`, read 2026-10-10); the tests build OTLP messages directly.
+- **Integration:** `tonic` 0.14.5 native client → loopback `:4317`; `axum-test` 18.7 + `reqwest` 0.12 → `:4318`. The once-specified `MockTraceSpan::builder()` was never built and is dropped (test-plan §3 item 6); the one set of telemetry factories is `test_support::otlp` in the dev-only member `test-support`, which depends on `ingest`: a unit module of `ingest` cannot take it (reasoned in that chunk's plan, not measured by a compile) and `ingest` names no dev-dependency on it, so `ingest`'s own tests build OTLP messages directly.
 - **Negative tests REQUIRED:** post-`prost` invariant rejection, oversized body 413, `0.0.0.0` bind rejection, Host-header allowlist miss, CORS rejection, rate-limit hit.
 
 ## Local development

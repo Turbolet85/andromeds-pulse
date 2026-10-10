@@ -45,7 +45,7 @@ _Extracted from `.andromeda/architecture.md` Conventions section by `/setup-proj
 - Each crate exposes only its public contract via `pub`.
 - Cross-crate utilities use `pub(crate)`.
 - NO `pub use` re-exports across crate boundaries except in the explicit contract module of each crate.
-- Dependency graph forms a DAG with `pulse-app` as the only root — no library crate depends on the binary crate; no library crate depends on a sibling unless its declared contract requires it.
+- The graph the product is built from forms a DAG with `pulse-app` as the only root — no library crate depends on the binary crate; no library crate depends on a sibling unless its declared contract requires it. One carve-out since chunk 2026-10-10-shared-telemetry-test-data: a dev-only edge from a member to `test-support` is allowed, and only that — PROVISIONAL (the operator's word, the pc overseer, 2026-10-10; the founder's own word is owed). The `xtask` test module `test_support_edges` pins it: red if any member names `test-support` outside `[dev-dependencies]`, or if `test-support` depends on anything but `ingest`. No product target links `test-support`.
 
 ## Feature flags
 - Cargo features: `kebab-case` (`mcp-server`, `otap-ingest`).

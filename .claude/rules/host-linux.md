@@ -46,3 +46,4 @@ work, not hypothetical.
 
 ## Session Additions
 - 2026-10-05: On the Linux host the Bash tool's working directory persists across calls and the cwd guard blocks only a LEADING `cd`, so a `cd` inside a loop or a compound command silently moves the session cwd for every later call — use absolute paths or a `( cd DIR && … )` subshell there.
+- 2026-10-10: This host's user git config sets `diff.mnemonicPrefix`, so a commit-to-work-tree `git diff` prints `c/` and `w/` header prefixes where a commit-to-commit diff prints `a/` and `b/`: a probe that parses diff headers pins `--src-prefix=a/ --dst-prefix=b/`, and the host's git config is never changed to make a probe pass.

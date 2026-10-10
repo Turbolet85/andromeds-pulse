@@ -1,0 +1,69 @@
+# Cascade step 2 — the pattern set of this pass, derived from every amendment before the first grep.
+# Each pattern is a retired wording or a retired mechanism's phrasing; the tool runs each one's
+# known-positive control against the pre-pass masters and key files.
+
+[[pattern]]
+id = 'members'
+regex = '[Ss]ixteen workspace members|[Ss]ixteen members|16 members|16 workspace|all sixteen'
+
+[[pattern]]
+id = 'libcrates'
+regex = '[Ff]ourteen library crates|14 library crates|[Ff]ourteen crates'
+
+[[pattern]]
+id = 'threebin'
+regex = 'three (claiming|port-using|test) binar|three binaries'
+
+[[pattern]]
+id = 'portusing'
+fixed = 'port-using'
+
+[[pattern]]
+id = 'bindrelease'
+regex = 'bind-and-release|still picks|picks its ports'
+
+[[pattern]]
+id = 'commonmod'
+fixed = 'xtask/tests/common/mod.rs'
+
+[[pattern]]
+id = 'claimname'
+regex = 'claim_port|PortClaim|pick_port'
+
+[[pattern]]
+id = 'testports'
+fixed = 'test-ports'
+
+[[pattern]]
+id = 'owner'
+fixed = 'Shared telemetry test data'
+
+[[pattern]]
+id = 'mocktrio'
+regex = 'Mock(TraceSpan|ArrowBatch|MetricPoint)'
+
+[[pattern]]
+id = 'unimpl'
+regex = 'specified[- ]but[- ](not[- ])?(un)?implemented|SPECIFIED BUT NOT IMPLEMENTED|owed mandate|factories-unimplemented'
+
+[[pattern]]
+id = 'duration'
+# the retired builder call of the old sample; the bare field name `duration_ms` is a product field with 68 unrelated hits
+regex = '\.duration_ms\('
+
+[[pattern]]
+id = 'sibling'
+regex = 'depends on a sibling|as the only root|sibling crate'
+
+[[pattern]]
+id = 'nomanifest'
+regex = 'no manifest or lockfile change|no Cargo or npm dependency'
+
+[[pattern]]
+id = 'count3112'
+fixed = '3112'
+
+[[pattern]]
+id = 'covexcl'
+# added after the route-resolve card, for the section 10 bullet written then
+regex = 'test fixtures|excluded from the measure|[Ii]nside the (coverage )?measure|INSIDE the measure|outside the (coverage )?measure'

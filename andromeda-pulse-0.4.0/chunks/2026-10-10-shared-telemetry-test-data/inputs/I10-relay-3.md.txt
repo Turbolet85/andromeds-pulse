@@ -1,0 +1,3 @@
+The operator's word at the route-resolve card of /andromeda-wrap-session, given in this session, 2026-10-11 (local; 2026-10-10 UTC), verbatim.
+
+"Operator: card read. A - yes, rows 1 to 9 as proposed, the two shared sets as one block on the first owner naming the others. B - Scenario legs driven against the console engine takes the crate out of the measure (the earlier one). C - yes, rewrite to what the chunk did. D - as you lean, with one change: 4 is not nothing-owed - the attribute setters were built ahead of a caller, so a carry on Span and resource attributes kept says that entry is their first caller or removes them. 12 stays deferred. E - no split. Then go on and stop before the flip and the commit with git status --short."

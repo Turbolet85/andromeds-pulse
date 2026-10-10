@@ -47,7 +47,7 @@ Owns the in-memory DuckDB ring buffer (5–10 min retention, configurable) + Apa
 
 ## Testing this service
 - **Unit tests:** `cargo nextest run --filter-expr 'package(buffer)'`
-- **Integration:** ephemeral `duckdb::open_in_memory()` per test; rows seeded by OTLP ingest or direct in-memory inserts (the specified `MockArrowBatch::builder()` is not implemented — 0 workspace hits, measured 2026-08-23); `tokio::time::pause()` + `advance(Duration)` for retention window tests.
+- **Integration:** ephemeral `duckdb::open_in_memory()` per test; rows seeded by OTLP ingest, direct in-memory inserts, or resource-level batches from the `test_support::otlp` factories (`buffer` takes the dev-only member `test-support` since chunk 2026-10-10-shared-telemetry-test-data; no Arrow-batch factory exists — the once-specified `MockArrowBatch` was dropped from test-plan §3 item 6); `tokio::time::pause()` + `advance(Duration)` for retention window tests.
 - **Chaos test (test-plan §10):** Inject 10k spans/sec for 15 min (exceeds 10-min window) → assert oldest spans evicted; assert `metric.buffer.memory_bytes` ≤512 MB.
 
 ## Local development

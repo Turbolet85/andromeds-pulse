@@ -1,6 +1,18 @@
 # Session Learnings
 
 
+## 2026-10-10 — A gate entry that is wrong by its own text is corrected by an operator edit of the plan between runs
+
+When a plan's gate entry cannot read its subject for a reason in the entry itself (not in the tree), the run
+finishes its block and reports the entry as surfaced. The implement step edits no plan on its own, and the host
+is not reconfigured to make the entry pass. The operator then gives one edit of the plan between runs; it is
+typed as the operator's, recorded in the chunk's evidence with the line before and after, and the entry is fired
+again. The verdict the report carries is the re-fired one, with the first red named as the entry's and not the
+tree's. Two chunks have taken this course. Where it applies: any plan entry whose probe turns out to depend on
+something the plan author did not pin, such as a host setting or the output form of a tool.
+
+---
+
 ## 2026-10-10 — A hand-copied evidence line is checked against its log before the record closes
 
 An evidence record that copies a tool's output by hand can carry a wrong character that nothing downstream

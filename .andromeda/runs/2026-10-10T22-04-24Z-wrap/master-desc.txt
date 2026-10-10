@@ -1,0 +1,1 @@
+spans, metric points and log records from one set of test factories in the dev-only member test-support; event time, service and attributes settable, the version setter carried to Span keeps its identity; one port claim for the port-using tests; engine-boot tests on claimed ports
