@@ -7,6 +7,7 @@
 #![allow(clippy::items_after_test_module)]
 
 mod bundle_format;
+mod ci_gates;
 mod discovery;
 mod external_resolve;
 mod gap_resume;
@@ -75,7 +76,7 @@ enum Cmd {
     },
     #[command(
         name = "test",
-        about = "cargo nextest run --workspace --profile ci --no-tests=pass"
+        about = "cargo nextest run --workspace --profile ci --no-tests=fail"
     )]
     Test {
         #[arg(trailing_var_arg = true)]
@@ -83,7 +84,7 @@ enum Cmd {
     },
     #[command(
         name = "test:coverage",
-        about = "cargo llvm-cov nextest --workspace --lcov --no-tests=pass (writes lcov.info)"
+        about = "cargo llvm-cov nextest --workspace --lcov --no-tests=fail (writes lcov.info)"
     )]
     TestCoverage {
         #[arg(trailing_var_arg = true)]
@@ -146,7 +147,7 @@ enum Cmd {
     CheckEnglishSources,
     #[command(
         name = "ci-gates",
-        about = "obs SLO gates: zero-spans + zero-panic + heartbeat-gap + perf-budget (NEUTRAL over a log carrying no perf samples, never PASS)"
+        about = "Read the app's obs-log family (agent-latest.jsonl* under the resolved log dir): zero-spans (the family holds at least one record) and zero-panic (no app.panic.fatal record at ERROR). Exit 0 PASS, 1 FAIL, 2 cannot-evaluate (no log family to read)"
     )]
     CiGates,
     #[command(
@@ -305,7 +306,7 @@ async fn main() -> ExitCode {
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
         Cmd::CheckNpmSupplyChain => npm_gate::run_npm_gate().await,
         Cmd::CheckEnglishSources => source_lint::run(),
-        Cmd::CiGates => run_ci_gates().await,
+        Cmd::CiGates => Ok(run_ci_gates()),
         Cmd::PerfBudget { data_dir, require } => perf_budget::run_perf_budget(&data_dir, &require),
         Cmd::PerfFrameSample => perf_frame::run_perf_frame_sample().await,
         Cmd::Lint { extra } => run_npm_script("lint", extra).await,
@@ -426,21 +427,23 @@ async fn run_cargo(subcommand: &str, args: &[&str]) -> Result<ExitCode> {
     Ok(status_to_code(status))
 }
 
+const TEST_ARGS: [&str; 8] = [
+    "nextest",
+    "run",
+    "--workspace",
+    "--profile",
+    "ci",
+    "--no-tests=fail",
+    "--message-format",
+    "libtest-json",
+];
+
 async fn run_cargo_nextest(extra: Vec<String>) -> Result<ExitCode> {
     let mut cmd = cargo_command();
     // libtest-json is gated behind an experimental flag in cargo-nextest 0.9.x;
     // set the env var unconditionally so the message-format parses agent-side.
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
-    cmd.args([
-        "nextest",
-        "run",
-        "--workspace",
-        "--profile",
-        "ci",
-        "--no-tests=pass",
-        "--message-format",
-        "libtest-json",
-    ]);
+    cmd.args(TEST_ARGS);
     for arg in extra {
         cmd.arg(arg);
     }
@@ -457,19 +460,21 @@ async fn run_cargo_nextest(extra: Vec<String>) -> Result<ExitCode> {
 /// above 85 % and xtask's inclusion (test-plan §10).
 const COVERAGE_IGNORE_FILENAME_REGEX: &str = r"(^|[/\\])xtask[/\\]";
 
+const TEST_COVERAGE_ARGS: [&str; 9] = [
+    "llvm-cov",
+    "nextest",
+    "--workspace",
+    "--lcov",
+    "--output-path",
+    "lcov.info",
+    "--no-tests=fail",
+    "--ignore-filename-regex",
+    COVERAGE_IGNORE_FILENAME_REGEX,
+];
+
 async fn run_cargo_llvm_cov(extra: Vec<String>) -> Result<ExitCode> {
     let mut cmd = cargo_command();
-    cmd.args([
-        "llvm-cov",
-        "nextest",
-        "--workspace",
-        "--lcov",
-        "--output-path",
-        "lcov.info",
-        "--no-tests=pass",
-        "--ignore-filename-regex",
-        COVERAGE_IGNORE_FILENAME_REGEX,
-    ]);
+    cmd.args(TEST_COVERAGE_ARGS);
     for arg in extra {
         cmd.arg(arg);
     }
@@ -480,94 +485,8 @@ async fn run_cargo_llvm_cov(extra: Vec<String>) -> Result<ExitCode> {
     Ok(status_to_code(status))
 }
 
-async fn run_ci_gates() -> Result<ExitCode> {
-    let log_files = collect_log_files();
-    if log_files.is_empty() {
-        // INACTIVE state: no harness boot in this CI run; gate trivially passes.
-        // Activates organically when integration tests boot pulse-app (chunks #15+).
-        println!(
-            "ci-gates: zero-spans NEUTRAL (no `agent-latest.jsonl*` under {} — pre-integration-test state)",
-            resolve_log_dir().display()
-        );
-        println!("ci-gates: zero-panic NEUTRAL (no log file to scan)");
-        println!("ci-gates: heartbeat-gap NEUTRAL (no log file to scan)");
-        println!("ci-gates: perf-budget NEUTRAL (no log file to grade)");
-        return Ok(ExitCode::SUCCESS);
-    }
-
-    let mut total_lines = 0usize;
-    let mut panic_violation: Option<String> = None;
-    for path in &log_files {
-        let content = match fs::read_to_string(path) {
-            Ok(c) => c,
-            Err(e) => {
-                eprintln!("ci-gates: skipping {} ({e})", path.display());
-                continue;
-            }
-        };
-        for (idx, raw) in content.lines().enumerate() {
-            if raw.trim().is_empty() {
-                continue;
-            }
-            total_lines += 1;
-            let v: Value = match serde_json::from_str(raw) {
-                Ok(v) => v,
-                Err(_) => continue,
-            };
-            let target = v.get("target").and_then(Value::as_str).unwrap_or("");
-            let level = v.get("level").and_then(Value::as_str).unwrap_or("");
-            if target == "app.panic.fatal" && level == "ERROR" && panic_violation.is_none() {
-                let preview: String = raw.chars().take(240).collect();
-                panic_violation = Some(format!("{}:{} — {}", path.display(), idx + 1, preview));
-            }
-        }
-    }
-
-    if total_lines == 0 {
-        eprintln!("::error::ci-gates: zero-spans FAIL (log files present but contain no events)");
-        return Ok(ExitCode::FAILURE);
-    }
-    println!(
-        "ci-gates: zero-spans PASS ({total_lines} log records across {} file(s))",
-        log_files.len()
-    );
-
-    if let Some(violation) = panic_violation {
-        eprintln!("::error::ci-gates: zero-panic FAIL — app.panic.fatal at {violation}");
-        return Ok(ExitCode::FAILURE);
-    }
-    println!("ci-gates: zero-panic PASS");
-
-    // Heartbeat-gap gate: shell out to xtask/ci/heartbeat-gap-check.{sh,ps1}
-    match invoke_heartbeat_check(&log_files).await {
-        Ok(true) => println!("ci-gates: heartbeat-gap PASS"),
-        Ok(false) => {
-            eprintln!("::error::ci-gates: heartbeat-gap FAIL");
-            return Ok(ExitCode::FAILURE);
-        }
-        Err(e) => {
-            eprintln!(
-                "ci-gates: heartbeat-gap script unavailable ({e:#}) — treating as NEUTRAL at chunk #5/#6"
-            );
-        }
-    }
-
-    // No arm is required here: the boot-smoke log and pre-push:linux's seeded
-    // record legitimately carry no perf samples. The gates that expect samples
-    // run `perf:budget --require` over their own producer's log.
-    let perf_results = perf_budget::grade(&perf_budget::read_family(&resolve_log_dir())?);
-    for line in perf_budget::arm_lines(&perf_results, &[]) {
-        println!("ci-gates: {line}");
-    }
-    match perf_budget::evaluate(&perf_results, &[]) {
-        perf_budget::Verdict::Fail => {
-            eprintln!("::error::ci-gates: perf-budget FAIL");
-            return Ok(ExitCode::FAILURE);
-        }
-        verdict => println!("ci-gates: perf-budget {}", verdict.word()),
-    }
-
-    Ok(ExitCode::SUCCESS)
+fn run_ci_gates() -> ExitCode {
+    ci_gates::run(&resolve_log_dir())
 }
 
 // Progress gate. The existing obs gates key on tick PRESENCE (obs-plan §3/§10
@@ -730,26 +649,28 @@ async fn invoke_heartbeat_check(log_files: &[PathBuf]) -> Result<bool> {
     Ok(status.success())
 }
 
+const PERF_SLO_LOAD_ARGS: [&str; 10] = [
+    "nextest",
+    "run",
+    "--workspace",
+    "-E",
+    "binary(perf_slo_10k_spans)",
+    "--profile",
+    "ci",
+    "--no-tests=fail",
+    "--message-format",
+    "libtest-json",
+];
+
 async fn run_perf_slo_load() -> Result<ExitCode> {
     // 10k spans/sec sustained-load test runs the perf_slo_10k_spans
-    // integration test via cargo-nextest; post-test p99 / max gates fire
-    // via run_ci_gates() (invoked as a separate xtask step in CI).
+    // integration test via cargo-nextest; the test asserts its own throughput
+    // bound and emits no perf sample, so no verb grades a log after it.
     // Narrowed with -E under --workspace, never -p: a -p selection unifies
     // features differently and recompiles the graph `cargo xtask test` built.
     let mut cmd = cargo_command();
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
-    cmd.args([
-        "nextest",
-        "run",
-        "--workspace",
-        "-E",
-        "binary(perf_slo_10k_spans)",
-        "--profile",
-        "ci",
-        "--no-tests=pass",
-        "--message-format",
-        "libtest-json",
-    ]);
+    cmd.args(PERF_SLO_LOAD_ARGS);
     let status = cmd
         .status()
         .await
@@ -764,23 +685,25 @@ async fn run_perf_slo_load() -> Result<ExitCode> {
 // heartbeat-gap + perf-slo gates run over harness logs when present (the
 // booted-app ACTIVE window flow); absent logs map to NEUTRAL — the
 // in-process suite does not write agent-latest.jsonl itself.
+const PERF_LOAD_PROFILES_ARGS: [&str; 11] = [
+    "nextest",
+    "run",
+    "-p",
+    "pulse-app",
+    "--test",
+    "perf_load_profiles",
+    "--profile",
+    "load-profiles",
+    "--no-tests=fail",
+    "--message-format",
+    "libtest-json",
+];
+
 async fn run_perf_load_profiles() -> Result<ExitCode> {
     let run_start_utc19 = chrono::Utc::now().format("%Y-%m-%dT%H:%M:%S").to_string();
     let mut cmd = cargo_command();
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
-    cmd.args([
-        "nextest",
-        "run",
-        "-p",
-        "pulse-app",
-        "--test",
-        "perf_load_profiles",
-        "--profile",
-        "load-profiles",
-        "--no-tests=pass",
-        "--message-format",
-        "libtest-json",
-    ]);
+    cmd.args(PERF_LOAD_PROFILES_ARGS);
     let status = cmd
         .status()
         .await
@@ -1092,6 +1015,121 @@ async fn run_quarantine_tracking() -> Result<ExitCode> {
         Ok(ExitCode::SUCCESS)
     } else {
         Ok(ExitCode::FAILURE)
+    }
+}
+
+#[cfg(test)]
+mod empty_input_tests {
+    use super::*;
+
+    #[test]
+    fn every_nextest_argument_list_fails_on_an_empty_selection() {
+        for (verb, args) in [
+            ("test", &TEST_ARGS[..]),
+            ("test:coverage", &TEST_COVERAGE_ARGS[..]),
+            ("perf:slo-load", &PERF_SLO_LOAD_ARGS[..]),
+            ("perf:load-profiles", &PERF_LOAD_PROFILES_ARGS[..]),
+        ] {
+            let flags: Vec<&str> = args
+                .iter()
+                .copied()
+                .filter(|arg| arg.starts_with("--no-tests"))
+                .collect();
+            assert_eq!(
+                flags,
+                ["--no-tests=fail"],
+                "`cargo xtask {verb}` MUST fail a run that selects no test"
+            );
+        }
+    }
+
+    const QUARANTINE_SEARCH_DIRS: [&str; 4] =
+        ["crates", "pulse-app/src", "pulse-app/tests", "xtask/src"];
+
+    fn quarantine_root(sources: &[(&str, &str)]) -> tempfile::TempDir {
+        let root = tempfile::TempDir::new().expect("tmp");
+        for dir in QUARANTINE_SEARCH_DIRS {
+            fs::create_dir_all(root.path().join(dir)).expect("create a search dir");
+        }
+        for (path, text) in sources {
+            fs::write(root.path().join(path), text).expect("write a source file");
+        }
+        root
+    }
+
+    // The check's exit code and everything it printed.
+    fn quarantine_check(root: &Path) -> (Option<i32>, String) {
+        let script = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("ci")
+            .join("quarantine-tracking-check.sh");
+        let output = std::process::Command::new("bash")
+            .arg(&script)
+            .arg(root)
+            .output()
+            .expect("`bash` MUST be on PATH: the quarantine check is a bash script");
+        let printed = format!(
+            "{}{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        (output.status.code(), printed)
+    }
+
+    #[test]
+    fn quarantine_check_fails_when_no_search_dir_exists() {
+        let root = tempfile::TempDir::new().expect("tmp");
+        let (code, printed) = quarantine_check(root.path());
+        assert_eq!(code, Some(1), "printed:\n{printed}");
+        assert!(
+            printed.contains("::error::") && printed.contains("xtask/src"),
+            "the check MUST name the missing dir relative to the root; printed:\n{printed}"
+        );
+        assert!(!printed.contains("PASS"), "printed:\n{printed}");
+    }
+
+    #[test]
+    fn quarantine_check_fails_on_a_scan_of_no_source_file() {
+        let root = quarantine_root(&[]);
+        let (code, printed) = quarantine_check(root.path());
+        assert_eq!(code, Some(1), "printed:\n{printed}");
+        assert!(printed.contains("::error::"), "printed:\n{printed}");
+        assert!(!printed.contains("PASS"), "printed:\n{printed}");
+    }
+
+    #[test]
+    fn quarantine_check_says_how_many_files_it_scanned() {
+        let root = quarantine_root(&[("xtask/src/lib.rs", "fn plain() {}\n")]);
+        let (code, printed) = quarantine_check(root.path());
+        assert_eq!(code, Some(0), "printed:\n{printed}");
+        assert!(
+            printed.contains("quarantine-tracking-check: PASS (0 quarantine(s) across 1 file(s))"),
+            "printed:\n{printed}"
+        );
+        assert!(!printed.contains("NEUTRAL"), "printed:\n{printed}");
+    }
+
+    #[test]
+    fn quarantine_check_fails_an_ignore_without_an_issue_url() {
+        let source = "#[test]\n#[ignore]\nfn quarantined() {}\n";
+        let root = quarantine_root(&[("crates/lib.rs", source)]);
+        let (code, printed) = quarantine_check(root.path());
+        assert_eq!(code, Some(1), "printed:\n{printed}");
+        assert!(
+            printed.contains("lacks GitHub issue URL"),
+            "printed:\n{printed}"
+        );
+    }
+
+    #[test]
+    fn quarantine_check_passes_an_ignore_with_its_issue_url() {
+        let source = "// https://github.com/example/example/issues/1\n#[test]\n#[ignore]\nfn quarantined() {}\n";
+        let root = quarantine_root(&[("crates/lib.rs", source)]);
+        let (code, printed) = quarantine_check(root.path());
+        assert_eq!(code, Some(0), "printed:\n{printed}");
+        assert!(
+            printed.contains("PASS (1 quarantine(s)") && printed.contains("across 1 file(s))"),
+            "printed:\n{printed}"
+        );
     }
 }
 

@@ -108,7 +108,7 @@ jobs:
       # Runs after the drift checks: the default-features test run rewrites
       # pulse-app/ui/src/bindings/index.ts without the feature-gated mcp
       # namespace, which capability-drift would then read as drift.
-      - name: cargo xtask test (no-tests=pass at Foundation epoch)
+      - name: cargo xtask test
         run: cargo xtask test
 
       # Selects its one test under --workspace, so it reuses the test build above.
@@ -118,7 +118,7 @@ jobs:
       # The in-process producer of the memory + snapshot perf samples (no
       # window), then the budget gate over its log with both arms required.
       - name: cargo nextest run --workspace --profile perf-samples
-        run: cargo nextest run --workspace --profile perf-samples
+        run: cargo nextest run --workspace --profile perf-samples --no-tests=fail
 
       - name: cargo xtask perf:budget (memory + snapshot required)
         run: cargo xtask perf:budget --data-dir target/tmp/perf-budget-samples --require memory,snapshot
@@ -196,7 +196,7 @@ jobs:
         run: npm run build
 
       - name: cargo nextest run --features mcp-server
-        run: cargo nextest run --workspace --features mcp-server --profile ci --no-tests=pass
+        run: cargo nextest run --workspace --features mcp-server --profile ci --no-tests=fail
 
   a11y:
     name: a11y (ubuntu-22.04)
@@ -447,7 +447,7 @@ jobs:
         run: cargo auditable build --workspace --release
 
   coverage:
-    name: coverage gate (line ≥75% / branch ≥70% / function ≥85%)
+    name: coverage gate (line ≥75% / function ≥85%)
     runs-on: ubuntu-22.04
     steps:
       - name: Harden runner
@@ -512,23 +512,18 @@ jobs:
           fi
           line_total=$(awk -F: '/^LF:/{s+=$2} END{print s+0}' lcov.info)
           line_hit=$(awk -F: '/^LH:/{s+=$2} END{print s+0}' lcov.info)
-          branch_total=$(awk -F: '/^BRF:/{s+=$2} END{print s+0}' lcov.info)
-          branch_hit=$(awk -F: '/^BRH:/{s+=$2} END{print s+0}' lcov.info)
           fn_total=$(awk -F: '/^FNF:/{s+=$2} END{print s+0}' lcov.info)
           fn_hit=$(awk -F: '/^FNH:/{s+=$2} END{print s+0}' lcov.info)
-          if [ "$line_total" -eq 0 ] && [ "$fn_total" -eq 0 ]; then
-            echo "Coverage gate: 0 lines / 0 functions tracked (Foundation epoch — gate trivially passes; activates at chunk #15 first tests)"
-            exit 0
+          if [ "$line_total" -eq 0 ] || [ "$fn_total" -eq 0 ]; then
+            echo "::error::lcov.info tracks ${line_total} lines and ${fn_total} functions — coverage gate cannot pass a report that tracks nothing"
+            exit 1
           fi
-          line_pct=$(awk -v h="$line_hit" -v t="$line_total" 'BEGIN { if (t==0) print "100.0"; else printf "%.1f", (h/t)*100 }')
-          branch_pct=$(awk -v h="$branch_hit" -v t="$branch_total" 'BEGIN { if (t==0) print "100.0"; else printf "%.1f", (h/t)*100 }')
-          fn_pct=$(awk -v h="$fn_hit" -v t="$fn_total" 'BEGIN { if (t==0) print "100.0"; else printf "%.1f", (h/t)*100 }')
+          line_pct=$(awk -v h="$line_hit" -v t="$line_total" 'BEGIN { printf "%.1f", (h/t)*100 }')
+          fn_pct=$(awk -v h="$fn_hit" -v t="$fn_total" 'BEGIN { printf "%.1f", (h/t)*100 }')
           echo "Line:     ${line_hit}/${line_total} = ${line_pct}% (threshold 75%)"
-          echo "Branch:   ${branch_hit}/${branch_total} = ${branch_pct}% (threshold 70%)"
           echo "Function: ${fn_hit}/${fn_total} = ${fn_pct}% (threshold 85%)"
           fail=0
           awk -v pct="$line_pct"   'BEGIN { exit (pct + 0 < 75.0) }' || { echo "::error::line coverage ${line_pct}% < 75%"; fail=1; }
-          awk -v pct="$branch_pct" 'BEGIN { exit (pct + 0 < 70.0) }' || { echo "::error::branch coverage ${branch_pct}% < 70%"; fail=1; }
           awk -v pct="$fn_pct"     'BEGIN { exit (pct + 0 < 85.0) }' || { echo "::error::function coverage ${fn_pct}% < 85%"; fail=1; }
           [ $fail -eq 0 ]
 

@@ -3,10 +3,12 @@
 //! zero-flake retry policy, the Linux-only runner and the trigger block, the
 //! lint and quarantine gates, the CI subscriber default fields, no
 //! `continue-on-error` on any step, no artifact download without a producer,
-//! every upload failing its step when it finds no file, and the boot job's
-//! smoke, exit-witness and series steps). Same shape as
-//! `a11y_perf_workflow.rs`, a file read and a substring or pattern assertion,
-//! with no Tauri runtime and no network.
+//! every upload failing its step when it finds no file, every nextest run
+//! failing on an empty selection, the coverage thresholds step failing on a
+//! report that tracks nothing, and the boot job's smoke, exit-witness and
+//! series steps). Same shape as `a11y_perf_workflow.rs`, a file read and a
+//! substring or pattern assertion, with no Tauri runtime and no network; the
+//! thresholds witness also runs the step's own script with `bash` and `awk`.
 
 use std::path::PathBuf;
 
@@ -445,7 +447,7 @@ fn ci_workflow_invokes_ci_gates() {
     assert!(
         content.contains("cargo xtask ci-gates"),
         "ci.yml MUST invoke `cargo xtask ci-gates` per chunk #56 obs gates \
-         (zero-spans + zero-panic + heartbeat-gap + perf-budget delegation)"
+         (the record count and the panic read over the boot log)"
     );
 }
 
@@ -681,6 +683,200 @@ fn ci_workflow_boot_series_carries_no_soft_fail() {
             "the boot series step MUST hold no `{banned}`: a boot that ends by itself fails the \
              job (test-plan §11 Test Anti-Patterns); step:\n{}",
             step.join("\n")
+        );
+    }
+}
+
+const COVERAGE_THRESHOLDS_STEP: &str = "Enforce coverage thresholds";
+const RUN_SCRIPT_INDENT: &str = "          ";
+
+// The script of a `run: |` step, cut out of its job by the step's name.
+fn workflow_run_script(content: &str, job: &str, step: &str) -> String {
+    let block = workflow_job_block(content, job);
+    let lines: Vec<&str> = block.lines().collect();
+    let name_line = format!("{STEP_NAME_PREFIX}{step}");
+    let start = lines
+        .iter()
+        .position(|line| *line == name_line)
+        .unwrap_or_else(|| panic!("the {job} job MUST hold the step `{name_line}`"));
+    assert_eq!(
+        lines.get(start + 1).copied(),
+        Some("        run: |"),
+        "the step `{step}` MUST be an inline `run: |` step"
+    );
+    lines[start + 2..]
+        .iter()
+        .take_while(|line| line.trim().is_empty() || line.starts_with(RUN_SCRIPT_INDENT))
+        .map(|line| line.strip_prefix(RUN_SCRIPT_INDENT).unwrap_or(""))
+        .collect::<Vec<&str>>()
+        .join("\n")
+}
+
+fn lcov_report(lines: Option<(u32, u32)>, functions: Option<(u32, u32)>) -> String {
+    let mut report = String::from("SF:src/lib.rs\n");
+    if let Some((hit, found)) = functions {
+        report.push_str(&format!("FNF:{found}\nFNH:{hit}\n"));
+    }
+    if let Some((hit, found)) = lines {
+        report.push_str(&format!("LF:{found}\nLH:{hit}\n"));
+    }
+    report.push_str("end_of_record\n");
+    report
+}
+
+// Runs the thresholds step as the runner does (`bash -e`), in a scratch dir
+// that holds `report` as `lcov.info`, or no report. Its exit code and
+// everything it printed.
+fn run_coverage_thresholds_step(report: Option<&str>) -> (Option<i32>, String) {
+    let awk = std::process::Command::new("awk")
+        .arg("BEGIN { exit 0 }")
+        .status()
+        .expect("`awk` MUST be on PATH: the thresholds step sums the report with it");
+    assert!(awk.success(), "`awk` MUST run a program; status: {awk}");
+    let scratch = tempfile::tempdir().expect("create a scratch dir");
+    if let Some(report) = report {
+        std::fs::write(scratch.path().join("lcov.info"), report).expect("write the report");
+    }
+    let script = scratch.path().join("step.sh");
+    let body = workflow_run_script(&read_workflow(), "coverage", COVERAGE_THRESHOLDS_STEP);
+    std::fs::write(&script, body).expect("write the step's script");
+    let output = std::process::Command::new("bash")
+        .arg("-e")
+        .arg(&script)
+        .current_dir(scratch.path())
+        .output()
+        .expect("`bash` MUST be on PATH: the thresholds step is a bash script");
+    let printed = format!(
+        "{}{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    (output.status.code(), printed)
+}
+
+#[test]
+fn coverage_thresholds_step_fails_on_a_report_tracking_nothing() {
+    let cases = [
+        ("an empty report", String::new()),
+        ("lines and no function", lcov_report(Some((90, 100)), None)),
+        ("functions and no line", lcov_report(None, Some((9, 10)))),
+    ];
+    for (case, report) in cases {
+        let (code, printed) = run_coverage_thresholds_step(Some(&report));
+        assert_eq!(
+            code,
+            Some(1),
+            "{case}: a report tracking 0 lines or 0 functions MUST fail the step (test-plan \
+             §10 Coverage thresholds); printed:\n{printed}"
+        );
+        assert!(
+            printed.contains("::error::lcov.info tracks"),
+            "{case}: the step MUST say the report tracks nothing; printed:\n{printed}"
+        );
+        assert!(
+            !printed.contains("100.0"),
+            "{case}: no percentage may read 100 over a zero total; printed:\n{printed}"
+        );
+    }
+}
+
+#[test]
+fn coverage_thresholds_step_passes_a_report_over_both_thresholds() {
+    let report = lcov_report(Some((90, 100)), Some((9, 10)));
+    let (code, printed) = run_coverage_thresholds_step(Some(&report));
+    assert_eq!(code, Some(0), "printed:\n{printed}");
+    for line in [
+        "Line:     90/100 = 90.0% (threshold 75%)",
+        "Function: 9/10 = 90.0% (threshold 85%)",
+    ] {
+        assert!(
+            printed.contains(line),
+            "the step MUST print `{line}`; printed:\n{printed}"
+        );
+    }
+}
+
+#[test]
+fn coverage_thresholds_step_fails_a_report_under_either_threshold() {
+    let cases = [
+        (
+            lcov_report(Some((70, 100)), Some((9, 10))),
+            "::error::line coverage 70.0% < 75%",
+        ),
+        (
+            lcov_report(Some((90, 100)), Some((8, 10))),
+            "::error::function coverage 80.0% < 85%",
+        ),
+    ];
+    for (report, error) in cases {
+        let (code, printed) = run_coverage_thresholds_step(Some(&report));
+        assert_eq!(code, Some(1), "printed:\n{printed}");
+        assert!(
+            printed.contains(error),
+            "the step MUST print `{error}`; printed:\n{printed}"
+        );
+    }
+}
+
+#[test]
+fn coverage_thresholds_step_fails_without_a_report() {
+    let (code, printed) = run_coverage_thresholds_step(None);
+    assert_eq!(code, Some(1), "printed:\n{printed}");
+    assert!(
+        printed.contains("::error::lcov.info missing"),
+        "printed:\n{printed}"
+    );
+}
+
+// The pinned toolchain writes no branch count, so the job states and reads
+// the two thresholds it can measure.
+#[test]
+fn coverage_job_reads_no_branch_count() {
+    let coverage = workflow_job_block(&read_workflow(), "coverage");
+    for token in ["BRF", "BRH", "branch_", "Branch:"] {
+        assert!(
+            !coverage.contains(token),
+            "the coverage job MUST hold no `{token}`: its report carries a zero branch total \
+             on every run (test-plan §10 Coverage thresholds)"
+        );
+    }
+    let name = coverage
+        .lines()
+        .find_map(|line| line.strip_prefix("    name: "))
+        .expect("the coverage job MUST carry a `name:`");
+    assert!(
+        !name.to_ascii_lowercase().contains("branch"),
+        "the coverage job's name MUST state no branch threshold; name: {name}"
+    );
+}
+
+#[test]
+fn ci_workflow_nextest_runs_fail_on_an_empty_selection() {
+    let content = read_workflow();
+    let runs: Vec<&str> = content
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.starts_with('#') && !line.starts_with("- name:"))
+        .filter(|line| line.contains("cargo nextest run"))
+        .collect();
+    assert!(
+        !runs.is_empty(),
+        "ci.yml MUST run `cargo nextest run` in at least one step (sanity check on the line \
+         pattern)"
+    );
+    for line in &runs {
+        assert!(
+            line.contains("--no-tests=fail"),
+            "every `cargo nextest run` of ci.yml MUST spell `--no-tests=fail`, so a run that \
+             selects no test fails its step (test-plan §9 Pipeline structure); line: {line}"
+        );
+    }
+    for (idx, line) in content.lines().enumerate() {
+        assert_eq!(
+            line.matches("no-tests=").count(),
+            line.matches("no-tests=fail").count(),
+            "ci.yml:{}: the only `no-tests` value the workflow may name is `fail`; line: {line}",
+            idx + 1
         );
     }
 }
