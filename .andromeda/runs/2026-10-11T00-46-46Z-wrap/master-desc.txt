@@ -1,0 +1,1 @@
+a door inside the console engine's process: the sidecar's nine tools read the engine's stores over an owner-only Unix socket on the engine's own host, calls bounded and their records allowlisted, the one write switchable; the stdio sidecar and its double gate stay until Stdio sidecar retired (P-126 verified; P-092 and P-093 advanced, not claimed)

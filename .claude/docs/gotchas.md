@@ -43,6 +43,11 @@ The toolchain is pinned to rustc 1.95.0 and the workspace declares `rust-version
   - `snapshot.copy_to_clipboard` MUST emit a `pulse://stream/snapshot-progress` event at clipboard-write time so the UI can show a non-suppressible "X bytes copied" toast.
   - MCP `query_*` and `generate_snapshot` tool responses are the indirect-prompt-injection surface that the calling LLM client must defend against — receiver app cannot fully sanitize OTLP-derived attribute values. Documented behavior, not a defect.
 
+## The door is a second way to the tools (PROVISIONAL)
+- Since chunk 2026-10-10-door-inside-the-engine-s-process the console engine serves the sidecar's nine tools over an owner-only Unix-domain socket (`{data dir}/run/door/sock`), behind neither of the sidecar's gates: `pulse-app` links `mcp-server` in every build, and only `rmcp` and the sidecar binary stay behind `--features mcp-server`. The same unsanitized OTLP-derived answers leave through it to a caller of the engine's own account.
+- Root is not held by the socket's directory or file mode — only the door's account check refuses it. A test that runs its client as root reads the account check, not the modes.
+- A Unix socket path must be shorter than 108 bytes: a deep data dir boots with no door (`app.boot.door` `state` `path_too_long`, WARN) and the engine goes on.
+
 ## rmcp stdio reservation
 - When running as the `andromeda-pulse-mcp` stdio sidecar, stdout is reserved for JSON-RPC 2.0 framing.
 - ANY accidental `println!` / `dbg!` / library stdout write corrupts the protocol and silently disconnects the MCP client.

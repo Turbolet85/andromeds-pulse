@@ -33,7 +33,7 @@ andromeda-pulse/
 │   │   ├── Cargo.toml
 │   │   ├── wit/                    # WIT interface definitions
 │   │   └── src/
-│   └── mcp-server/                 # MCP stdio sidecar (feature-gated; hand-rolled JSON-RPC 2.0)
+│   └── mcp-server/                 # the nine tools, their dispatch and the hand-rolled JSON-RPC 2.0 layer, linked by pulse-app in every build; the stdio sidecar binary and the rmcp anchor stay feature-gated
 │       ├── Cargo.toml
 │       └── src/
 ├── pulse-app/                      # binary crate: the Tauri window app and the console engine, both over the shared engine boot
@@ -46,6 +46,7 @@ andromeda-pulse/
 │   │   ├── lib.rs
 │   │   ├── engine_boot.rs          # the one engine boot both programs call
 │   │   ├── console.rs              # the console program's command grammar and its run
+│   │   ├── door.rs                 # the console engine's door: an owner-only Unix socket serving the nine tools
 │   │   └── bin/andromeda-pulse-engine.rs   # the console binary's main: hands its arguments to console::main
 │   └── ui/                         # webview source root (frontend tooling owned by design specialist)
 │       └── src/

@@ -70,6 +70,8 @@ W3C `traceparent` (HTTP) and gRPC `grpc-trace-bin` extracted at receiver entry; 
 ## Critical paths (P1–P7 — must-trace)
 Every P1–P7 must emit parent + child spans with the `{module}.{operation}` naming convention. Trace context propagated end-to-end via traceparent field. See obs-plan §1 critical paths table for required spans + log fields per path.
 
+**P3 has two carriers since chunk 2026-10-10-door-inside-the-engine-s-process.** The `mcp.tools.call.request` → `mcp.feature.gate.check` → per-tool read → `mcp.tools.call.response` chain is the stdio sidecar's, unchanged. The console engine's door (JSON-RPC 2.0 over the Unix-domain socket `{data dir}/run/door/sock`) runs the same nine tools through `call_tool`, which writes no `mcp.*` record and passes no gate: its record is the log event `door.call` {`method`, `tool`, `outcome`, `write`, `result_type`, `result_count`, `answer_bytes`, `duration_ms`}, once per answered request, written before the answer line, INFO for `ok` and WARN otherwise; a refused connection or line leaves `door.refused` {`reason`, `peer`} at WARN; `app.boot.door` {`state`, `resolve_write`} is written once per boot of a program that seats the door. Three EXACT allowlist leaves, closed labels only, none at ERROR, no bare `door` key (guard: `pulse-app/tests/unit_observability_allowlist_door.rs`). The tools' own callee records (`viz.query.*`, and for `generate_snapshot` the two snapshot token records) are written by the console engine on such a call and were not enumerated from a log. The door is PROVISIONAL — obs-plan §4 Scenario P3 holds the sentence. The obs scope counts 9 major surfaces since that chunk (8 before).
+
 ## SLO invariants (CI gates)
 | Invariant | Enforcement |
 |---|---|
@@ -193,5 +195,6 @@ WebGPU frame timing + skeleton-pulse durations + the three delegated timing obse
 - NEVER use proprietary APM as ONLY exporter — JSON file is the canonical agent surface.
 - NEVER skip zero-unlogged-panics invariant.
 - NEVER define soft SLO budgets — must trigger build/deploy failure.
+- The MCP double-gate ban (compile-time feature + runtime variable, its state on `mcp.feature.gate.check`) is the stdio sidecar's; the console engine's door serves the same tools behind neither gate and emits no gate-check span — its admission is the owner check, read from `app.boot.door` and `door.refused`.
 
 Full plan: `.andromeda/obs-plan.md`.
