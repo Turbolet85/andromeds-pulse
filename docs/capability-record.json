@@ -807,19 +807,20 @@
       "title": "MCP Independence",
       "disposition": "claimed",
       "carried_by": [
-        "P-084"
+        "P-084",
+        "P-092"
       ],
       "provisional": true,
-      "changed_form": "The original sentence no longer holds as written: it promised that every capability works with no MCP configured. Claimed in a changed form, independence from a model, which one requirement sentence carries, that of P-084: \"the engine starts, detects and reports with no model present and none configured\" (P-084) and, in the same sentence, \"a large model reads through the door (P-092) and is not part of the engine\" (P-084). No requirement sentence says in so many words that the engine works with no reader at the door; that is not claimed, and the working-route entry \"Door inside the engine's process\" would have to state it. The door itself is part of the engine and is not optional.",
+      "changed_form": "The original sentence no longer holds as written: it promised that every capability works with no MCP configured. Claimed in a changed form: the engine starts, detects and reports with no reader at the door. The plan of chunk 2026-10-10-door-inside-the-engine-s-process (the working-route entry \"Door inside the engine's process\") states that sentence, beside P-084's \"the engine starts, detects and reports with no model present and none configured\" (P-084); the door it speaks of is P-092's, inside the engine's process. The door itself is part of the engine and is not optional: what is claimed is that the engine does its work whether or not anything reads through it.",
       "verification_mode": "automated-nextest",
       "scenarios": [
         {
-          "kind": "ui-test",
-          "ref": "pulse-app/ui/src/dashboard/routes/SettingsModalForm.test.tsx",
-          "contains": "mcp"
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/integration_engine_boot.rs",
+          "contains": "an_incident_forms_with_the_door_listening_and_no_reader"
         }
       ],
-      "note": "PROVISIONAL: claimed in this changed form on the operator's answer of 2026-10-10 (the pc overseer, at the P4 dialog of chunk 2026-10-10-capability-record-re-based); the founder's own word is owed. P-099, named beside P-084 at that dialog, is not listed in carried_by: no sentence of it carries this form."
+      "note": "PROVISIONAL: claimed in this changed form on the operator's answers of 2026-10-10 (the pc overseer): at the P4 dialog of chunk 2026-10-10-capability-record-re-based, and at the P4 dialog of chunk 2026-10-10-door-inside-the-engine-s-process, whose plan states the sentence and whose arm an_incident_forms_with_the_door_listening_and_no_reader is its check; the founder's own word is owed. P-099, named beside P-084 at the first dialog, is not listed in carried_by: no sentence of it carries this form."
     },
     {
       "id": "P-041",

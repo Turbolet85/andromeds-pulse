@@ -1019,6 +1019,30 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // The door's three records, each its own exact leaf: closed labels and
+        // counts, no argument, answer, path, account id or error text. No bare
+        // `door` key and no bare `app` key exists.
+        by_target.insert(
+            "app.boot.door",
+            ["state", "resolve_write"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "door.call",
+            [
+                "method",
+                "tool",
+                "outcome",
+                "write",
+                "result_type",
+                "result_count",
+                "answer_bytes",
+                "duration_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert("door.refused", ["reason", "peer"].iter().copied().collect());
         by_target.insert(
             "app.boot.window.show",
             ["label", "error_kind", "error_msg"]

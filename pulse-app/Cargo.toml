@@ -67,7 +67,6 @@ config-watcher = { path = "../crates/config-watcher" }
 package = "mcp-server"
 version = "0.1.0"
 path = "../crates/mcp-server"
-optional = true
 
 [build-dependencies]
 tauri-build.workspace = true
@@ -85,5 +84,5 @@ test-support = { path = "../crates/test-support" }
 
 [features]
 default = []
-mcp-server = ["dep:mcp-server-crate", "mcp-server-crate/mcp-server"]
+mcp-server = ["mcp-server-crate/mcp-server"]
 otap-ingest = []

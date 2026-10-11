@@ -11,6 +11,7 @@ pub mod deterministic_inference;
 pub mod diagnostics_router;
 pub mod digest_runtime;
 pub mod discovery_observer;
+pub mod door;
 pub mod drain_persistence;
 pub mod engine_boot;
 pub mod hardware_profile;

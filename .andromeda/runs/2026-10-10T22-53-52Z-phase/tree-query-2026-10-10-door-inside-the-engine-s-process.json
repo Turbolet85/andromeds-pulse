@@ -1,0 +1,556 @@
+[
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name = 'dispatch_tool' AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 18,
+"result": [
+{
+"caller_name": "crate",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 12
+},
+{
+"caller_name": "dispatch_tools_call",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 273
+},
+{
+"caller_name": "dispatch_query_traces_returns_empty_paginated_response_on_empty_buffer",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 765
+},
+{
+"caller_name": "dispatch_query_metrics_returns_empty_paginated_response_on_empty_buffer",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 778
+},
+{
+"caller_name": "dispatch_query_logs_returns_empty_paginated_response_on_empty_buffer",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 792
+},
+{
+"caller_name": "dispatch_generate_snapshot_returns_envelope_on_empty_buffer",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 804
+},
+{
+"caller_name": "dispatch_unknown_tool_returns_tool_dispatch_failed_unknown_tool",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 817
+},
+{
+"caller_name": "dispatch_query_traces_rejects_malformed_arguments",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 832
+},
+{
+"caller_name": "dispatch_query_traces_clamps_limit_above_max",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 852
+},
+{
+"caller_name": "dispatch_tool_routes_incident_tools_through_context",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 1039
+},
+{
+"caller_name": "retrieve_incident_events_reads_transitions_in_order",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 1076
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+"line": 23
+},
+{
+"caller_name": "mcp_retrieve_report_markdown_is_byte_identical_to_resolver",
+"file": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+"line": 142
+},
+{
+"caller_name": "mcp_retrieve_report_previously_seen_matches_resolver_selection",
+"file": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+"line": 234
+},
+{
+"caller_name": "mcp_retrieve_report_markdown_parses_as_commonmark_with_six_sections",
+"file": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+"line": 266
+},
+{
+"caller_name": "mcp_query_incident_list_returns_seeded_incident",
+"file": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+"line": 348
+},
+{
+"caller_name": "mcp_retrieve_telemetry_slice_returns_the_deterministic_evidence_refs",
+"file": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+"line": 507
+},
+{
+"caller_name": "mcp_retrieve_report_renders_the_deterministic_evidence_section",
+"file": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+"line": 541
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name = 'validate_double_gate' AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 9,
+"result": [
+{
+"caller_name": "crate",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 7
+},
+{
+"caller_name": "main",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 107
+},
+{
+"caller_name": "validate_double_gate_emits_check_span_when_env_disabled",
+"file": "crates/mcp-server/src/feature_gate.rs",
+"line": 238
+},
+{
+"caller_name": "validate_double_gate_emits_warn_when_env_set_without_feature",
+"file": "crates/mcp-server/src/feature_gate.rs",
+"line": 259
+},
+{
+"caller_name": "validate_double_gate_returns_enabled_when_both_gates_active",
+"file": "crates/mcp-server/src/feature_gate.rs",
+"line": 282
+},
+{
+"caller_name": "mcp_router",
+"file": "pulse-app/src/mcp_router.rs",
+"line": 23
+},
+{
+"caller_name": "stop",
+"file": "pulse-app/src/mcp_router.rs",
+"line": 109
+},
+{
+"caller_name": "stop",
+"file": "pulse-app/src/mcp_router.rs",
+"line": 146
+},
+{
+"caller_name": "stop",
+"file": "pulse-app/src/mcp_router.rs",
+"line": 220
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'mcp-server' OR from_crate = 'mcp-server'",
+"rows": 10,
+"result": [
+{
+"from_crate": "mcp-server",
+"to_crate": "workspace-detector"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "viz"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "triage"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "curation"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "buffer"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "snapshot"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "interpretation"
+},
+{
+"from_crate": "pulse-app",
+"to_crate": "mcp-server"
+},
+{
+"from_crate": "ui-bridge",
+"to_crate": "mcp-server"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "corpus"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee_name, callee_kind, callee_file, COUNT(*) AS sites, COUNT(DISTINCT file) AS files FROM refs WHERE callee_crate = 'mcp-server' AND callee_file LIKE '%/src/%' AND file NOT LIKE regexp_replace(callee_file, '/src/.*$', '/src/%') AND callee_kind <> 'module' GROUP BY 1, 2, 3 ORDER BY sites DESC, callee_name",
+"rows": 22,
+"result": [
+{
+"callee_name": "Error",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 18,
+"files": 1
+},
+{
+"callee_name": "GateState",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/feature_gate.rs",
+"sites": 10,
+"files": 2
+},
+{
+"callee_name": "IncidentToolContext",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/tools.rs",
+"sites": 7,
+"files": 1
+},
+{
+"callee_name": "dispatch_tool",
+"callee_kind": "fn",
+"callee_file": "crates/mcp-server/src/tools.rs",
+"sites": 7,
+"files": 1
+},
+{
+"callee_name": "corpus",
+"callee_kind": "term",
+"callee_file": "crates/mcp-server/src/tools.rs",
+"sites": 4,
+"files": 1
+},
+{
+"callee_name": "validate_double_gate",
+"callee_kind": "fn",
+"callee_file": "crates/mcp-server/src/feature_gate.rs",
+"sites": 4,
+"files": 1
+},
+{
+"callee_name": "workspace_root",
+"callee_kind": "term",
+"callee_file": "crates/mcp-server/src/tools.rs",
+"sites": 4,
+"files": 1
+},
+{
+"callee_name": "Enabled",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/feature_gate.rs",
+"sites": 3,
+"files": 2
+},
+{
+"callee_name": "EnvVarDisabled",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 3,
+"files": 1
+},
+{
+"callee_name": "EnvDisabled",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/feature_gate.rs",
+"sites": 2,
+"files": 2
+},
+{
+"callee_name": "FeatureMissing",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/feature_gate.rs",
+"sites": 2,
+"files": 2
+},
+{
+"callee_name": "Io",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 2,
+"files": 1
+},
+{
+"callee_name": "JsonRpcFraming",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 2,
+"files": 1
+},
+{
+"callee_name": "RmcpInit",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 2,
+"files": 1
+},
+{
+"callee_name": "ToolArgsInvalid",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 2,
+"files": 1
+},
+{
+"callee_name": "ToolDispatchFailed",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 2,
+"files": 1
+},
+{
+"callee_name": "detail",
+"callee_kind": "term",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 2,
+"files": 1
+},
+{
+"callee_name": "reason",
+"callee_kind": "term",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 2,
+"files": 1
+},
+{
+"callee_name": "tool_name",
+"callee_kind": "term",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 2,
+"files": 1
+},
+{
+"callee_name": "FeatureNotEnabled",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 1,
+"files": 1
+},
+{
+"callee_name": "TracingInit",
+"callee_kind": "type",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 1,
+"files": 1
+},
+{
+"callee_name": "source",
+"callee_kind": "term",
+"callee_file": "crates/mcp-server/src/contract.rs",
+"sites": 1,
+"files": 1
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller_name || ' @ ' || file || ':' || (line+1) AS site FROM calls WHERE callee_name = 'start' AND callee_kind = 'fn' AND callee_file LIKE '%pulse-app/src/engine_boot.rs' ORDER BY file, line",
+"rows": 3,
+"result": [
+{
+"site": "run @ pulse-app/src/console.rs:84"
+},
+{
+"site": "main @ pulse-app/src/main.rs:143"
+},
+{
+"site": "boot @ pulse-app/tests/integration_engine_boot.rs:148"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT name || ' ' || kind || ' ' || file AS hit FROM symbol WHERE name LIKE 'door%' AND kind <> 'meta'",
+"rows": 0,
+"result": [],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller_name || ' @ ' || file || ':' || (line+1) AS site FROM calls WHERE callee_name IN ('reconcile_externally_resolved','read_published_workspace_key','publish_workspace_key_for_sidecar','read_connection') AND callee_kind = 'fn' AND file NOT LIKE '%/tests/%' ORDER BY file, line",
+"rows": 19,
+"result": [
+{
+"site": "init_incident_context @ crates/mcp-server/src/bin/andromeda-pulse-mcp.rs:78"
+},
+{
+"site": "run_incident_persist_cycle @ crates/triage/src/incident/persistence.rs:216"
+},
+{
+"site": "reconcile_resolves_registry_rows_absent_from_the_durable_active_set @ crates/triage/src/incident/persistence.rs:522"
+},
+{
+"site": "reconcile_is_a_no_op_when_registry_and_durable_agree @ crates/triage/src/incident/persistence.rs:540"
+},
+{
+"site": "reconcile_resolves_nothing_when_the_durable_read_fails @ crates/triage/src/incident/persistence.rs:560"
+},
+{
+"site": "reconcile_only_touches_the_named_workspace @ crates/triage/src/incident/persistence.rs:582"
+},
+{
+"site": "read_connection_returns_a_distinct_usable_connection @ crates/viz/src/query.rs:505"
+},
+{
+"site": "published_key_round_trips_through_the_data_dir @ crates/workspace-detector/src/contract.rs:233"
+},
+{
+"site": "absent_published_key_reads_as_none @ crates/workspace-detector/src/contract.rs:241"
+},
+{
+"site": "oversized_published_key_is_rejected @ crates/workspace-detector/src/contract.rs:249"
+},
+{
+"site": "empty_or_control_character_published_key_is_rejected @ crates/workspace-detector/src/contract.rs:256"
+},
+{
+"site": "empty_or_control_character_published_key_is_rejected @ crates/workspace-detector/src/contract.rs:258"
+},
+{
+"site": "published_key_survives_a_trailing_newline @ crates/workspace-detector/src/contract.rs:266"
+},
+{
+"site": "crate @ crates/workspace-detector/src/lib.rs:8"
+},
+{
+"site": "start @ pulse-app/src/engine_boot.rs:755"
+},
+{
+"site": "viz_routers @ pulse-app/src/viz_routers.rs:5"
+},
+{
+"site": "new @ pulse-app/src/viz_routers.rs:25"
+},
+{
+"site": "new @ pulse-app/src/viz_routers.rs:59"
+},
+{
+"site": "new @ pulse-app/src/viz_routers.rs:93"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller_name || ' @ ' || file || ':' || (line+1) AS site FROM calls WHERE callee_name = 'update_incident_status' AND callee_kind = 'fn' AND file NOT LIKE '%/tests/%' ORDER BY file, line",
+"rows": 32,
+"result": [
+{
+"site": "load_incident_by_id_returns_resolved_row @ crates/corpus/src/contract.rs:1371"
+},
+{
+"site": "update_incident_status_declines_a_write_older_than_the_stored_row @ crates/corpus/src/contract.rs:1399"
+},
+{
+"site": "update_incident_status_declines_a_write_older_than_the_stored_row @ crates/corpus/src/contract.rs:1405"
+},
+{
+"site": "update_incident_status_applies_an_equal_timestamp_write @ crates/corpus/src/contract.rs:1429"
+},
+{
+"site": "update_incident_status_still_errors_for_a_missing_row @ crates/corpus/src/contract.rs:1447"
+},
+{
+"site": "status_value_change_records_one_lifecycle_event_per_transition @ crates/corpus/src/contract.rs:1480"
+},
+{
+"site": "status_value_change_records_one_lifecycle_event_per_transition @ crates/corpus/src/contract.rs:1483"
+},
+{
+"site": "same_status_refresh_records_no_event @ crates/corpus/src/contract.rs:1502"
+},
+{
+"site": "same_status_refresh_records_no_event @ crates/corpus/src/contract.rs:1505"
+},
+{
+"site": "declined_write_records_no_event @ crates/corpus/src/contract.rs:1520"
+},
+{
+"site": "declined_write_records_no_event @ crates/corpus/src/contract.rs:1524"
+},
+{
+"site": "load_incident_events_reads_transitions_oldest_first_with_written_timestamps @ crates/corpus/src/contract.rs:1564"
+},
+{
+"site": "load_incident_events_reads_transitions_oldest_first_with_written_timestamps @ crates/corpus/src/contract.rs:1567"
+},
+{
+"site": "load_incident_events_excludes_another_incidents_events @ crates/corpus/src/contract.rs:1588"
+},
+{
+"site": "load_incident_events_excludes_another_incidents_events @ crates/corpus/src/contract.rs:1591"
+},
+{
+"site": "load_incident_events_honours_the_limit @ crates/corpus/src/contract.rs:1606"
+},
+{
+"site": "load_incident_events_honours_the_limit @ crates/corpus/src/contract.rs:1609"
+},
+{
+"site": "load_incident_events_honours_the_limit @ crates/corpus/src/contract.rs:1612"
+},
+{
+"site": "load_incident_events_unchanged_by_a_declined_stale_write @ crates/corpus/src/contract.rs:1630"
+},
+{
+"site": "load_incident_events_unchanged_by_a_declined_stale_write @ crates/corpus/src/contract.rs:1635"
+},
+{
+"site": "dispatch_mark_incident_resolved @ crates/mcp-server/src/tools.rs:469"
+},
+{
+"site": "retrieve_incident_events_reads_transitions_in_order @ crates/mcp-server/src/tools.rs:1071"
+},
+{
+"site": "retrieve_incident_events_reads_transitions_in_order @ crates/mcp-server/src/tools.rs:1074"
+},
+{
+"site": "retrieve_incident_events_coerces_an_out_of_set_kind_to_unknown @ crates/mcp-server/src/tools.rs:1129"
+},
+{
+"site": "retrieve_incident_events_reads_the_producers_created_event_as_created @ crates/mcp-server/src/tools.rs:1157"
+},
+{
+"site": "run_incident_persist_cycle @ crates/triage/src/incident/persistence.rs:219"
+},
+{
+"site": "run_one_tick @ pulse-app/src/incident_observer.rs:74"
+},
+{
+"site": "update_incident_status @ pulse-app/src/incident_persistence.rs:87"
+},
+{
+"site": "get_report @ pulse-app/src/incidents_router.rs:239"
+},
+{
+"site": "get_report @ pulse-app/src/incidents_router.rs:310"
+},
+{
+"site": "attach_resolution_summary_to_incident @ pulse-app/src/inference_runtime.rs:662"
+},
+{
+"site": "create_incident_from_l4_output @ pulse-app/src/inference_runtime.rs:881"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

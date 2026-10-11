@@ -121,11 +121,13 @@ pub fn empty_tools_list() -> Value {
 // JSON Schema draft-07 fragments; `additionalProperties: false` rejects
 // unknown args for `tools/call`. Chunk #49 shipped the first 4 (live-buffer
 // query tools); chunk #94 adds the 4 corpus-backed incident/report tools.
+// `write` marks the one tool that changes what the engine stores.
 pub fn tools_list_manifest() -> Value {
     json!({
         "tools": [
             {
                 "name": "query_traces",
+                "write": false,
                 "description": "Query recent OTLP traces from the in-memory buffer. Returns paginated trace rows with trace_id, span_id, service, duration_ms, error_count.",
                 "inputSchema": {
                     "type": "object",
@@ -139,6 +141,7 @@ pub fn tools_list_manifest() -> Value {
             },
             {
                 "name": "query_metrics",
+                "write": false,
                 "description": "Query recent OTLP metric points from the in-memory buffer. Returns paginated metric rows with metric_name, ts_unix_nano, value, data_point_kind.",
                 "inputSchema": {
                     "type": "object",
@@ -152,6 +155,7 @@ pub fn tools_list_manifest() -> Value {
             },
             {
                 "name": "query_logs",
+                "write": false,
                 "description": "Query recent OTLP log records from the in-memory buffer. Returns paginated log rows with severity, body, trace correlation.",
                 "inputSchema": {
                     "type": "object",
@@ -165,6 +169,7 @@ pub fn tools_list_manifest() -> Value {
             },
             {
                 "name": "generate_snapshot",
+                "write": false,
                 "description": "Generate a curated markdown snapshot of recent telemetry. Pipeline: dedupe → anomaly highlight → critical path → p50/p95/p99 aggregates → token-budget markdown. Token budget snaps to Conservative (10k), Balanced (25k), or Detailed (50k) preset.",
                 "inputSchema": {
                     "type": "object",
@@ -177,6 +182,7 @@ pub fn tools_list_manifest() -> Value {
             },
             {
                 "name": "query_incident_list",
+                "write": false,
                 "description": "List active incidents from the persistent corpus for the current workspace. Returns id, status, severity, title, opened_at per incident.",
                 "inputSchema": {
                     "type": "object",
@@ -186,6 +192,7 @@ pub fn tools_list_manifest() -> Value {
             },
             {
                 "name": "retrieve_report",
+                "write": false,
                 "description": "Retrieve the six-section Diagnostic Report markdown for an incident by id. Byte-identical to the in-app Copy markdown action. Resolved incidents render full hypotheses + investigation steps; active incidents render a degraded-mode notice.",
                 "inputSchema": {
                     "type": "object",
@@ -198,6 +205,7 @@ pub fn tools_list_manifest() -> Value {
             },
             {
                 "name": "retrieve_telemetry_slice",
+                "write": false,
                 "description": "Retrieve the persisted incident context for an incident by id: span and fingerprint evidence references plus timestamps. Persisted context only — live telemetry rows are served by the separate query_traces / query_logs tools against the live buffer.",
                 "inputSchema": {
                     "type": "object",
@@ -210,6 +218,7 @@ pub fn tools_list_manifest() -> Value {
             },
             {
                 "name": "mark_incident_resolved",
+                "write": true,
                 "description": "Mark an incident resolved in the persistent corpus by id. The main app's in-memory registry reflects the change on next launch (eventual consistency).",
                 "inputSchema": {
                     "type": "object",
@@ -222,6 +231,7 @@ pub fn tools_list_manifest() -> Value {
             },
             {
                 "name": "retrieve_incident_events",
+                "write": false,
                 "description": "Retrieve the lifecycle events of one incident by id, oldest first, each with event_kind and occurred_unix_nano. The first event is created, written when the interpretation path opens the incident; each later one is a status change (active, acknowledged, resolved). Bounded; truncated is true when more exist.",
                 "inputSchema": {
                     "type": "object",
@@ -381,6 +391,24 @@ mod tests {
         assert!(names.contains(&"retrieve_telemetry_slice"));
         assert!(names.contains(&"mark_incident_resolved"));
         assert!(names.contains(&"retrieve_incident_events"));
+    }
+
+    #[test]
+    fn tools_list_manifest_marks_exactly_one_tool_as_a_write() {
+        let r = tools_list_manifest();
+        let tools = r["tools"].as_array().expect("array");
+        for tool in tools {
+            assert!(
+                tool["write"].is_boolean(),
+                "every tool carries a boolean `write`: {tool}"
+            );
+        }
+        let writes: Vec<&str> = tools
+            .iter()
+            .filter(|t| t["write"] == true)
+            .map(|t| t["name"].as_str().expect("name"))
+            .collect();
+        assert_eq!(writes, ["mark_incident_resolved"]);
     }
 
     #[test]

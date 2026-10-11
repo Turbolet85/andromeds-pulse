@@ -18,7 +18,7 @@ const BOOT_INIT_PROCESS: &str = "engine_boot::init_process(";
 
 /// The engine's parts, as call text. Closed: a part added to the shared boot
 /// is added here.
-const ENGINE_PARTS: [&str; 17] = [
+const ENGINE_PARTS: [&str; 18] = [
     "run_consumer(",
     "run_retention(",
     "start_emitter(",
@@ -36,6 +36,7 @@ const ENGINE_PARTS: [&str; 17] = [
     "spawn_l4_inference_subscriber(",
     "Corpus::open(",
     "spawn_engine_ticks(",
+    "door::open(",
 ];
 
 const WINDOW_FRAMEWORK: [&str; 2] = ["tauri", "taurpc"];

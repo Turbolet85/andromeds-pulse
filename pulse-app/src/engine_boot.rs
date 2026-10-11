@@ -65,6 +65,7 @@ use crate::corpus_retrieval::{CorpusBackedIncidentSource, run_pipeline_metrics_p
 use crate::degraded_mode_runtime::LocalDegradedModeStatus;
 use crate::digest_runtime;
 use crate::discovery_observer::DiscoveryObserverAdapter;
+use crate::door::{self, ResolveWrite};
 use crate::drain_persistence::CorpusDrainPersistence;
 use crate::incident_observer::{AutoResolveObserver, run_auto_resolution_loop};
 use crate::incident_persistence::CorpusIncidentPersistence;
@@ -82,6 +83,8 @@ pub const ENV_OTLP_GRPC_PORT: &str = "ANDROMEDA_PULSE_OTLP_GRPC_PORT";
 pub const ENV_OTLP_HTTP_PORT: &str = "ANDROMEDA_PULSE_OTLP_HTTP_PORT";
 #[doc(hidden)]
 pub const ENV_RETENTION_SECONDS: &str = "ANDROMEDA_PULSE_RETENTION_SECONDS";
+#[doc(hidden)]
+pub const ENV_DOOR_RESOLVE: &str = "ANDROMEDA_PULSE_DOOR_RESOLVE";
 
 // Retention bounds per security plan §Input Validation row "Configuration values":
 // reject out-of-range rather than silently clamping. Default fallback per arch
@@ -126,6 +129,13 @@ pub fn resolve_retention_seconds() -> u64 {
         return RETENTION_SECONDS_DEFAULT;
     }
     parsed
+}
+
+/// The door's write switch. The variable's value is never logged: a value
+/// outside the set reads `rejected` in the door's boot record.
+#[doc(hidden)]
+pub fn resolve_door_write() -> ResolveWrite {
+    ResolveWrite::from_value(env::var_os(ENV_DOOR_RESOLVE).as_deref())
 }
 
 #[doc(hidden)]
@@ -355,22 +365,26 @@ pub struct InterpretationSeat {
 
 /// A receiver port is `None` when its variable was rejected; the receiver then
 /// does not start. The bind address is always loopback and is not configurable.
+/// `door_resolve` is read by the console program's door alone.
 pub struct EngineConfig {
     pub data_dir: PathBuf,
     pub grpc_port: Option<OtlpPort>,
     pub http_port: Option<OtlpPort>,
     pub retention_seconds: u64,
+    pub door_resolve: ResolveWrite,
 }
 
 impl EngineConfig {
-    /// Reads the two port variables and the retention variable. Call after
-    /// `init_process`: a rejected value is reported through the log sink.
+    /// Reads the two port variables, the retention variable and the door's
+    /// write switch. Call after `init_process`: a rejected value is reported
+    /// through the log sink.
     pub fn from_env(data_dir: PathBuf) -> Self {
         Self {
             data_dir,
             grpc_port: resolve_grpc_port().ok(),
             http_port: resolve_http_port().ok(),
             retention_seconds: resolve_retention_seconds(),
+            door_resolve: resolve_door_write(),
         }
     }
 }
@@ -467,6 +481,7 @@ pub fn start(config: EngineConfig, inputs: EngineInputs) -> EngineHandles {
         grpc_port,
         http_port,
         retention_seconds,
+        door_resolve,
     } = config;
     let EngineInputs {
         program,
@@ -1019,6 +1034,23 @@ pub fn start(config: EngineConfig, inputs: EngineInputs) -> EngineHandles {
             }
         });
     }
+    // The door: the console program's one way in besides telemetry, answering
+    // from the stores built above. The window program seats none. An endpoint
+    // that cannot be bound leaves the door unstarted and the engine goes on,
+    // as for a rejected receiver port.
+    #[cfg(unix)]
+    if program == Program::Console {
+        let tools = door::EngineTools::new(
+            buffer_conn.as_ref(),
+            corpus_writer.as_ref(),
+            &incident_workspace_key,
+        );
+        if let Some(door) = door::open(&data_dir, Arc::new(tools), door_resolve) {
+            tokio::spawn(door.serve());
+        }
+    }
+    #[cfg(not(unix))]
+    let _ = door_resolve;
     // Connection-state detector loop: broadcasts on
     // `pulse://stream/connection-state` only when the state changes. The 15 s
     // `connection.tick` below is a separate concern.

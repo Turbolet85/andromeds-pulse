@@ -134,7 +134,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-10-10 (2026-10-10-door-inside-the-engine-s-process, phase P5): advanced, not claimed. This chunk's plan builds a door inside the console engine's process (a Unix-domain socket under the data dir) that answers the sidecar's nine tools from the stores the running engine holds. It cannot prove the acceptance: the stdio sidecar still exists (its removal was cut into an entry the operator mints at this chunk's wrap), no harness verb and no status command reads through the door, and the filters by service, trace and text with aggregates, the whole incident, and the snapshot's one consumer belong to other route entries."
     },
     {
       "id": "P-093",
@@ -147,7 +148,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-10-10 (2026-10-10-door-inside-the-engine-s-process, phase P5): advanced, not claimed. This chunk's plan shows the own-host half: the door answers on the engine's own host only, a request outside its closed tool set is refused, an answer is cut at a stated size bound and a stated time bound, and resolving an incident is named as a write and can be switched off. It cannot prove the acceptance: admission, revocation, where an admitted party's credential lives and encryption in transit begin when another host can reach the door, in `Door admission lifecycle and bounds` and `Door reachable from another host`. That the time bound's interrupt ends a real running query is not shown by this chunk either."
     },
     {
       "id": "P-094",
@@ -581,12 +583,12 @@
       "observed_gap": "`Door inside the engine's process` carries \"owner only\" on P-118's authority; P-093 says \"on the engine's own host only\".",
       "verification": {
         "method": "integration",
-        "acceptance": "Before the door can be reached from another host, a call by the engine's owner on the engine's host is answered and a call by another account on the same host is refused.",
+        "acceptance": "Before the door can be reached from another host: on the pull-request run of this chunk's pushed tip, the arm `another_account_is_refused_at_each_of_three_layers` of `pulse-app/tests/integration_door.rs` runs against a spawned `andromeda-pulse-engine`, and (a) a `tools/call` by the engine's owner over `run/door/sock` is answered with content the test sent over OTLP, and (b) a client run as `nobody` and a client run as root under `sudo -n`, with the door's directory and socket opened by the test so that only the door's account check stands, are each refused: the connection is closed with no byte, and after the engine's end its log holds one `door.refused` record with reason `other_account` per client and no `door.call` record from them. The `lint / test` job's step `Door refuses another account` fails unless the arm printed its three-layer sentence, the CI read of that tip is green, and the report names the run id. A run in which the arm skipped proves nothing and fails that step.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null,
-      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item B.3: the route entry `Door inside the engine's process` carries \"owner only\" on P-118's authority while P-093 says \"on the engine's own host only\"). It rests on P-093, PROVISIONAL until the founder's own word, and on P-118, where who may read the engine's place is PROVISIONAL the same way. Taken by that route entry (a `CARRY:` naming this id). word: \"write it. […] All six ids, the seven route edits and the watch as on the card.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+      "chunk": "2026-10-10-door-inside-the-engine-s-process",
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item B.3: the route entry `Door inside the engine's process` carries \"owner only\" on P-118's authority while P-093 says \"on the engine's own host only\"). It rests on P-093, PROVISIONAL until the founder's own word, and on P-118, where who may read the engine's place is PROVISIONAL the same way. Taken by that route entry (a `CARRY:` naming this id). word: \"write it. […] All six ids, the seven route edits and the watch as on the card.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it.\n\n2026-10-10 (2026-10-10-door-inside-the-engine-s-process, phase P5): claimed by this chunk. The acceptance is concretized to a real refusal of a second account on the hosted runner, beside the owner's answered call. How owner-only is enforced (an owner-only directory, the socket's mode, the peer's account read on every connection) and the workflow step that runs a client as a second account are the operator's answers at this chunk's P4 dialog (the pc overseer, 2026-10-10; the chunk's inputs#I3), PROVISIONAL until the founder's own word. Whether the dev host can drive a second account was not measured, so the refusal is read on the pull-request run only."
     },
     {
       "id": "P-127",

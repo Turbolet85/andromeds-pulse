@@ -431,6 +431,20 @@ async fn census_at_rest(pid: u32) -> Census {
     }
 }
 
+/// The door's one listener as the census reads it: the kernel's unix table
+/// lists the socket under the path it was bound at, the canonical
+/// `run/door/sock` under the data dir.
+#[cfg(target_os = "linux")]
+fn door_listener(data_dir: &Path) -> (&'static str, String) {
+    let socket = data_dir
+        .canonicalize()
+        .expect("the data dir resolves")
+        .join("run")
+        .join("door")
+        .join("sock");
+    ("unix", socket.to_string_lossy().to_string())
+}
+
 /// An empty census cannot pass: pointed at this process, it finds a listener
 /// this process opened.
 #[cfg(target_os = "linux")]
@@ -494,8 +508,8 @@ fn family_text(dir: &Path) -> String {
 
 #[cfg(target_os = "linux")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn a_rejected_grpc_port_leaves_that_receiver_unstarted_and_the_http_receiver_alone_listening()
-{
+async fn a_rejected_grpc_port_leaves_that_receiver_unstarted_and_the_http_receiver_and_the_door_listening()
+ {
     use std::os::unix::process::ExitStatusExt;
 
     assert_the_census_finds_a_listener_of_this_process();
@@ -508,13 +522,17 @@ async fn a_rejected_grpc_port_leaves_that_receiver_unstarted_and_the_http_receiv
     engine
         .wait_for_records("app.boot.otlp.grpc.bind", 1, BOOT_WAIT)
         .await;
+    engine.wait_for_records("app.boot.door", 1, BOOT_WAIT).await;
 
     let census = census_at_rest(engine.child.id()).await;
     eprintln!("socket census, gRPC port variable rejected: {census:?}");
     assert_eq!(
         census.listeners(),
-        BTreeSet::from([("tcp", format!("127.0.0.1:{http}"))]),
-        "the HTTP receiver is the one listener: {census:?}"
+        BTreeSet::from([
+            ("tcp", format!("127.0.0.1:{http}")),
+            door_listener(engine.data_dir.path()),
+        ]),
+        "the HTTP receiver and the door are the only listeners: {census:?}"
     );
     assert_no_socket_beyond_the_listeners(&census);
     assert!(
@@ -555,12 +573,13 @@ async fn a_rejected_grpc_port_leaves_that_receiver_unstarted_and_the_http_receiv
 
 #[cfg(target_os = "linux")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn the_engine_listens_on_its_two_loopback_receivers_and_on_nothing_else() {
+async fn the_engine_listens_on_its_two_loopback_receivers_and_its_door_and_on_nothing_else() {
     use std::os::unix::process::ExitStatusExt;
 
     assert_the_census_finds_a_listener_of_this_process();
     let mut engine = Running::spawn(&[]);
     engine.wait_for_both_ports().await;
+    engine.wait_for_records("app.boot.door", 1, BOOT_WAIT).await;
 
     let census = census_at_rest(engine.child.id()).await;
     eprintln!("socket census, both ports valid: {census:?}");
@@ -569,8 +588,9 @@ async fn the_engine_listens_on_its_two_loopback_receivers_and_on_nothing_else() 
         BTreeSet::from([
             ("tcp", format!("127.0.0.1:{}", engine.grpc)),
             ("tcp", format!("127.0.0.1:{}", engine.http)),
+            door_listener(engine.data_dir.path()),
         ]),
-        "the two receivers are the only listeners: {census:?}"
+        "the two receivers and the door are the only listeners: {census:?}"
     );
     assert_no_socket_beyond_the_listeners(&census);
 

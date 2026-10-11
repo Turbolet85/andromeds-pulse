@@ -7,6 +7,11 @@
 //! program label. Each arm boots a different program and seat pair, so its one
 //! boot record is told apart in the process-wide capture under any runner.
 //!
+//! Five arms read the door the console program's boot seats: each connects to
+//! `run/door/sock` under its own data dir as a caller does. Each runs on a
+//! runtime whose threads carry the arm's name, so its door records are told
+//! apart in the process-wide capture under any runner.
+//!
 //! Two more arms cross a real process boundary, in the form of
 //! `integration_exit_cause_record.rs`: the parent re-executes this test binary,
 //! the child calls `engine_boot::init_process` on its own data dir and ends one
@@ -27,24 +32,34 @@ use ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTrace
 use ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient;
 use interpretation::contract::ModelTier;
 use pulse_app::deterministic_inference::DeterministicInferenceRunner;
+use pulse_app::door::ResolveWrite;
 use pulse_app::engine_boot::{
     self, EngineConfig, EngineHandles, EngineInputs, InterpretationSeat, Program, SeatKind,
 };
 use serde_json::Value;
 use test_support::otlp::{resource, span};
 use test_support::ports::{PortClaim, claim_port};
+use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
 use triage::contract::{
     CueKind, CueScope, Digest, DigestCueRef, DigestKind, DigestLwwMode, PriorityTier,
     UnknownHardwareProfile,
 };
 
 const BOOT_TARGET: &str = "app.boot.engine";
+const DOOR_BOOT_TARGET: &str = "app.boot.door";
+const DOOR_CALL_TARGET: &str = "door.call";
+const DOOR_REFUSED_TARGET: &str = "door.refused";
+// Every door arm names its runtime's threads with this prefix. The four boot
+// arms read the capture without them, so a door arm that boots the same
+// program and seat pair does not show in their count.
+const DOOR_ARM_PREFIX: &str = "door-arm-";
 const WAIT: Duration = Duration::from_secs(30);
 
 // ── the process-wide capture ────────────────────────────────────────────────
 
-/// One captured event: `(target, level, field name -> value)`.
-type Captured = Arc<Mutex<Vec<(String, tracing::Level, BTreeMap<String, String>)>>>;
+/// One captured event: `(target, level, field name -> value, the emitting
+/// thread's name)`.
+type Captured = Arc<Mutex<Vec<(String, tracing::Level, BTreeMap<String, String>, String)>>>;
 
 fn global_capture() -> Captured {
     static CAPTURE: OnceLock<Captured> = OnceLock::new();
@@ -72,8 +87,16 @@ impl tracing::Subscriber for CapturingSubscriber {
     fn record(&self, _: &tracing::span::Id, _: &tracing::span::Record<'_>) {}
     fn record_follows_from(&self, _: &tracing::span::Id, _: &tracing::span::Id) {}
     fn event(&self, event: &tracing::Event<'_>) {
-        // Only the boot record is read; the engine's other records are not kept.
-        if event.metadata().target() != BOOT_TARGET {
+        // Only the boot record and the door's three are read; the engine's
+        // other records are not kept.
+        if ![
+            BOOT_TARGET,
+            DOOR_BOOT_TARGET,
+            DOOR_CALL_TARGET,
+            DOOR_REFUSED_TARGET,
+        ]
+        .contains(&event.metadata().target())
+        {
             return;
         }
         struct Fields(BTreeMap<String, String>);
@@ -91,6 +114,7 @@ impl tracing::Subscriber for CapturingSubscriber {
             event.metadata().target().to_string(),
             *event.metadata().level(),
             fields.0,
+            std::thread::current().name().unwrap_or("").to_string(),
         ));
     }
     fn enter(&self, _: &tracing::span::Id) {}
@@ -108,13 +132,29 @@ fn boot_records(
         .lock()
         .expect("lock")
         .iter()
-        .filter(|(target, _, fields)| {
+        .filter(|(target, _, fields, thread)| {
             target == BOOT_TARGET
+                && !thread.starts_with(DOOR_ARM_PREFIX)
                 && fields.get("program").map(String::as_str) == Some(program)
                 && fields.get("interpretation").map(String::as_str) == Some(interpretation)
                 && fields.get("reason").map(String::as_str) == Some(reason)
         })
-        .map(|(_, level, _)| *level)
+        .map(|(_, level, _, _)| *level)
+        .collect()
+}
+
+/// The records of one door target written on the threads of the arm `arm`.
+fn door_records(
+    events: &Captured,
+    arm: &str,
+    target: &str,
+) -> Vec<(tracing::Level, BTreeMap<String, String>)> {
+    events
+        .lock()
+        .expect("lock")
+        .iter()
+        .filter(|(seen, _, _, thread)| seen == target && thread == arm)
+        .map(|(_, level, fields, _)| (*level, fields.clone()))
         .collect()
 }
 
@@ -127,7 +167,13 @@ struct Booted {
     // Held for the arm's life: the engine binds these numbers after `boot`
     // has returned.
     _ports: [PortClaim; 2],
-    _dir: tempfile::TempDir,
+    dir: tempfile::TempDir,
+}
+
+impl Booted {
+    fn door_socket(&self) -> PathBuf {
+        self.dir.path().join("run").join("door").join("sock")
+    }
 }
 
 fn receiver_port(claim: &PortClaim) -> OtlpPort {
@@ -142,6 +188,14 @@ fn canned_seat(kind: SeatKind) -> InterpretationSeat {
 }
 
 fn boot(program: Program, interpretation: Option<InterpretationSeat>) -> Booted {
+    boot_with(program, interpretation, ResolveWrite::On)
+}
+
+fn boot_with(
+    program: Program,
+    interpretation: Option<InterpretationSeat>,
+    door_resolve: ResolveWrite,
+) -> Booted {
     let dir = tempfile::tempdir().expect("tempdir");
     let ports = [claim_port(), claim_port()];
     let (grpc, http) = (receiver_port(&ports[0]), receiver_port(&ports[1]));
@@ -151,6 +205,7 @@ fn boot(program: Program, interpretation: Option<InterpretationSeat>) -> Booted 
             grpc_port: Some(grpc),
             http_port: Some(http),
             retention_seconds: 600,
+            door_resolve,
         },
         EngineInputs {
             program,
@@ -164,7 +219,7 @@ fn boot(program: Program, interpretation: Option<InterpretationSeat>) -> Booted 
         grpc: SocketAddr::from(([127, 0, 0, 1], grpc.value())),
         http: SocketAddr::from(([127, 0, 0, 1], http.value())),
         _ports: ports,
-        _dir: dir,
+        dir,
     }
 }
 
@@ -386,6 +441,330 @@ async fn the_window_program_with_a_seated_runner_reads_window_in_the_record() {
         [tracing::Level::INFO],
         "one boot record, at INFO"
     );
+}
+
+// ── the door over the booted engine ─────────────────────────────────────────
+
+/// Runs `arm` on a runtime of its own whose threads all carry `name`: the
+/// door's records are written on them, and the capture keeps each record's
+/// thread name.
+fn run_door_arm<F>(name: &'static str, arm: F)
+where
+    F: std::future::Future<Output = ()> + Send + 'static,
+{
+    assert!(name.starts_with(DOOR_ARM_PREFIX));
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(4)
+        .thread_name(name)
+        .enable_all()
+        .build()
+        .expect("runtime");
+    if let Err(ended) = runtime.block_on(async move { tokio::spawn(arm).await }) {
+        std::panic::resume_unwind(ended.into_panic());
+    }
+}
+
+fn tool_call(id: u64, name: &str, arguments: Value) -> Value {
+    serde_json::json!({
+        "jsonrpc": "2.0",
+        "id": id,
+        "method": "tools/call",
+        "params": { "name": name, "arguments": arguments }
+    })
+}
+
+/// One request on a connection of its own, and its one answer line.
+async fn door_ask(socket: &Path, request: Value) -> Value {
+    let stream = tokio::net::UnixStream::connect(socket)
+        .await
+        .expect("the door's socket accepts a connection");
+    let (read_half, mut writer) = stream.into_split();
+    writer
+        .write_all(format!("{request}\n").as_bytes())
+        .await
+        .expect("write the request");
+    let mut line = String::new();
+    let read = tokio::time::timeout(WAIT, BufReader::new(read_half).read_line(&mut line))
+        .await
+        .expect("the door answers within the bound")
+        .expect("read the answer");
+    assert!(read > 0, "the door answered before it closed");
+    serde_json::from_str(&line).expect("an answer line is one JSON object")
+}
+
+/// The steps of `a_seated_canned_runner_turns_a_cue_bearing_digest_into_one_incident`,
+/// up to the one incident; its id.
+async fn form_one_incident(engine: &EngineHandles) -> i64 {
+    let digests = Arc::clone(&engine.digest_broadcast);
+    wait_until("both digest subscribers are listening", || {
+        digests.subscriber_count() == 2
+    })
+    .await;
+    engine
+        .digest_broadcast
+        .sender()
+        .send(digest_with_cue(&engine.incident_workspace_key))
+        .expect("the digest reaches its subscribers");
+    let registry = Arc::clone(&engine.incident_registry);
+    let workspace = engine.incident_workspace_key.clone();
+    wait_until("one incident forms", || {
+        registry.list_active(&workspace).len() == 1
+    })
+    .await;
+    engine
+        .incident_registry
+        .list_active(&engine.incident_workspace_key)[0]
+        .id
+}
+
+fn corpus_row(engine: &EngineHandles, id: i64) -> corpus::contract::IncidentRowRaw {
+    engine
+        .corpus_writer
+        .as_ref()
+        .expect("the corpus opened with the fake key backend")
+        .load_incident_by_id(id)
+        .expect("the corpus read")
+        .expect("the incident's row")
+}
+
+fn field<'a>(fields: &'a BTreeMap<String, String>, name: &str) -> &'a str {
+    fields
+        .get(name)
+        .map(String::as_str)
+        .unwrap_or_else(|| panic!("the record carries `{name}`: {fields:?}"))
+}
+
+#[test]
+fn the_door_answers_from_the_stores_the_boot_built() {
+    const ARM: &str = "door-arm-stores";
+    const SERVICE: &str = "door-reads-the-engine-stores-svc";
+    run_door_arm(ARM, async {
+        let events = global_capture();
+        let booted = boot(Program::Console, None);
+        wait_for_both_receivers(&booted).await;
+
+        let mut client = TraceServiceClient::connect(format!("http://{}", booted.grpc))
+            .await
+            .expect("the gRPC receiver accepts a client");
+        client
+            .export(tonic::Request::new(one_span_request(SERVICE)))
+            .await
+            .expect("the export is accepted");
+        let buffer_state = Arc::clone(&booted.engine.buffer_state);
+        wait_until("the span advances rows_ingested", || {
+            buffer_state.snapshot().rows_ingested >= 1
+        })
+        .await;
+
+        let answer = door_ask(
+            &booted.door_socket(),
+            tool_call(1, "query_traces", serde_json::json!({})),
+        )
+        .await;
+        let items = answer["result"]["items"]
+            .as_array()
+            .unwrap_or_else(|| panic!("a result with items: {answer}"));
+        assert!(
+            items.iter().any(|row| row["service"] == SERVICE),
+            "the span the receiver took is what the door returns: {answer}"
+        );
+
+        let boots = door_records(&events, ARM, DOOR_BOOT_TARGET);
+        assert_eq!(boots.len(), 1, "one door boot record: {boots:?}");
+        assert_eq!(boots[0].0, tracing::Level::INFO);
+        assert_eq!(field(&boots[0].1, "state"), "listening");
+        assert_eq!(field(&boots[0].1, "resolve_write"), "on");
+
+        let calls = door_records(&events, ARM, DOOR_CALL_TARGET);
+        assert_eq!(calls.len(), 1, "one call record: {calls:?}");
+        let (level, fields) = &calls[0];
+        assert_eq!(*level, tracing::Level::INFO);
+        assert_eq!(field(fields, "method"), "tools/call");
+        assert_eq!(field(fields, "tool"), "query_traces");
+        assert_eq!(field(fields, "outcome"), "ok");
+        assert_eq!(field(fields, "write"), "false");
+        assert_eq!(field(fields, "result_type"), "paginated_traces");
+        assert_eq!(field(fields, "result_count"), items.len().to_string());
+        assert!(door_records(&events, ARM, DOOR_REFUSED_TARGET).is_empty());
+    });
+}
+
+#[test]
+fn the_door_resolves_an_incident_and_says_it_was_a_write() {
+    const ARM: &str = "door-arm-resolve";
+    run_door_arm(ARM, async {
+        let events = global_capture();
+        let booted = boot(Program::Console, Some(canned_seat(SeatKind::Deterministic)));
+        let id = form_one_incident(&booted.engine).await;
+        let socket = booted.door_socket();
+
+        let listed = door_ask(
+            &socket,
+            tool_call(1, "query_incident_list", serde_json::json!({})),
+        )
+        .await;
+        let items = listed["result"]["items"]
+            .as_array()
+            .unwrap_or_else(|| panic!("a result with items: {listed}"));
+        assert_eq!(items.len(), 1, "the one incident is listed: {listed}");
+        assert_eq!(items[0]["incident_id"], id);
+        assert_eq!(corpus_row(&booted.engine, id).status, "active");
+
+        let resolved = door_ask(
+            &socket,
+            tool_call(
+                2,
+                "mark_incident_resolved",
+                serde_json::json!({ "incident_id": id }),
+            ),
+        )
+        .await;
+        assert_eq!(resolved["result"]["resolved"], true, "{resolved}");
+
+        // Read through the engine's own corpus writer, not through the door.
+        let row = corpus_row(&booted.engine, id);
+        assert_eq!(row.status, "resolved");
+        assert!(row.resolved_unix_nano.is_some());
+
+        let calls = door_records(&events, ARM, DOOR_CALL_TARGET);
+        assert_eq!(calls.len(), 2, "the list and the resolve: {calls:?}");
+        let (list_level, list) = &calls[0];
+        assert_eq!(field(list, "tool"), "query_incident_list");
+        assert_eq!(field(list, "write"), "false");
+        assert_eq!(*list_level, tracing::Level::INFO);
+        let (write_level, write) = &calls[1];
+        assert_eq!(field(write, "tool"), "mark_incident_resolved");
+        assert_eq!(field(write, "write"), "true");
+        assert_eq!(field(write, "outcome"), "ok");
+        assert_eq!(*write_level, tracing::Level::INFO);
+    });
+}
+
+#[test]
+fn the_door_refuses_the_write_with_the_switch_off() {
+    const ARM: &str = "door-arm-write-off";
+    run_door_arm(ARM, async {
+        let events = global_capture();
+        let booted = boot_with(
+            Program::Console,
+            Some(canned_seat(SeatKind::Deterministic)),
+            ResolveWrite::Off,
+        );
+        let id = form_one_incident(&booted.engine).await;
+        let socket = booted.door_socket();
+
+        let refused = door_ask(
+            &socket,
+            tool_call(
+                1,
+                "mark_incident_resolved",
+                serde_json::json!({ "incident_id": id }),
+            ),
+        )
+        .await;
+        assert_eq!(refused["error"]["code"], -32001, "{refused}");
+        assert!(refused.get("result").is_none());
+
+        let row = corpus_row(&booted.engine, id);
+        assert_eq!(row.status, "active", "the incident stays active");
+        assert!(row.resolved_unix_nano.is_none());
+
+        let calls = door_records(&events, ARM, DOOR_CALL_TARGET);
+        assert_eq!(calls.len(), 1, "one call record: {calls:?}");
+        let (level, fields) = &calls[0];
+        assert_eq!(field(fields, "tool"), "mark_incident_resolved");
+        assert_eq!(field(fields, "write"), "true");
+        assert_eq!(field(fields, "outcome"), "write_off");
+        assert_eq!(*level, tracing::Level::WARN);
+
+        let listed = door_ask(
+            &socket,
+            serde_json::json!({ "jsonrpc": "2.0", "id": 2, "method": "tools/list" }),
+        )
+        .await;
+        let named: Vec<&str> = listed["result"]["tools"]
+            .as_array()
+            .unwrap_or_else(|| panic!("a tool list: {listed}"))
+            .iter()
+            .filter_map(|tool| tool["name"].as_str())
+            .collect();
+        assert!(
+            named.contains(&"mark_incident_resolved"),
+            "the list still names the write: {named:?}"
+        );
+
+        let boots = door_records(&events, ARM, DOOR_BOOT_TARGET);
+        assert_eq!(boots.len(), 1, "one door boot record: {boots:?}");
+        assert_eq!(field(&boots[0].1, "state"), "listening");
+        assert_eq!(field(&boots[0].1, "resolve_write"), "off");
+    });
+}
+
+#[test]
+fn an_incident_forms_with_the_door_listening_and_no_reader() {
+    const ARM: &str = "door-arm-no-reader";
+    run_door_arm(ARM, async {
+        let events = global_capture();
+        let booted = boot(Program::Console, Some(canned_seat(SeatKind::Deterministic)));
+        let socket = booted.door_socket();
+
+        let boots = door_records(&events, ARM, DOOR_BOOT_TARGET);
+        assert_eq!(boots.len(), 1, "one door boot record: {boots:?}");
+        assert_eq!(field(&boots[0].1, "state"), "listening");
+        assert!(socket.exists(), "the door's socket exists");
+
+        // Nothing connects to the door until the incident has formed.
+        let id = form_one_incident(&booted.engine).await;
+        assert_eq!(corpus_row(&booted.engine, id).status, "active");
+        wait_until("the digest reaches the archive", || {
+            archived_digests(&booted.engine) == 1
+        })
+        .await;
+
+        // The door was accepting all along: a connection that asks nothing is
+        // taken and, once the caller ends its side, closed.
+        let mut stream = tokio::net::UnixStream::connect(&socket)
+            .await
+            .expect("the door's socket accepts a connection");
+        stream.shutdown().await.expect("end the caller's side");
+        let mut rest = Vec::new();
+        let read = tokio::time::timeout(WAIT, stream.read_to_end(&mut rest))
+            .await
+            .expect("the door closes its side within the bound")
+            .expect("read to the end");
+        assert_eq!(read, 0, "nothing was asked and nothing was written");
+
+        assert!(
+            door_records(&events, ARM, DOOR_CALL_TARGET).is_empty(),
+            "no call record with no reader"
+        );
+        assert!(
+            door_records(&events, ARM, DOOR_REFUSED_TARGET).is_empty(),
+            "no refusal record with no reader"
+        );
+    });
+}
+
+#[test]
+fn the_window_program_seats_no_door() {
+    const ARM: &str = "door-arm-window";
+    run_door_arm(ARM, async {
+        let events = global_capture();
+        let booted = boot(Program::Window, Some(canned_seat(SeatKind::Deterministic)));
+        wait_for_both_receivers(&booted).await;
+
+        assert!(
+            !booted.dir.path().join("run").join("door").exists(),
+            "no `run/door` under the window program's data dir"
+        );
+        assert!(
+            door_records(&events, ARM, DOOR_BOOT_TARGET).is_empty(),
+            "no door boot record"
+        );
+        // The known positive of the reading above: this arm's engine boot
+        // record is in the capture under the arm's thread name.
+        assert_eq!(door_records(&events, ARM, BOOT_TARGET).len(), 1);
+    });
 }
 
 // ── the two re-exec arms: the process-start function ────────────────────────

@@ -5,11 +5,13 @@
 //! `continue-on-error` on any step, no artifact download without a producer,
 //! every upload failing its step when it finds no file, every nextest run
 //! failing on an empty selection, the coverage thresholds step failing on a
-//! report that tracks nothing, and the boot job's smoke, exit-witness, series
-//! and console engine cycle steps). Same shape as `a11y_perf_workflow.rs`, a
-//! file read and a substring or pattern assertion, with no Tauri runtime and
-//! no network; the thresholds witness also runs the step's own script with
-//! `bash` and `awk`.
+//! report that tracks nothing, the door's other-account step failing unless
+//! its arm read all three layers, and the boot job's smoke, exit-witness,
+//! series and console engine cycle steps). Same shape as
+//! `a11y_perf_workflow.rs`, a file read and a substring or pattern assertion,
+//! with no Tauri runtime and no network; the thresholds witness also runs the
+//! step's own script with `bash` and `awk`, and the other-account witness runs
+//! its step's script with `bash`.
 
 use std::path::PathBuf;
 
@@ -928,6 +930,181 @@ fn coverage_thresholds_step_fails_without_a_report() {
     assert_eq!(code, Some(1), "printed:\n{printed}");
     assert!(
         printed.contains("::error::lcov.info missing"),
+        "printed:\n{printed}"
+    );
+}
+
+const DOOR_OTHER_ACCOUNT_STEP: &str = "Door refuses another account";
+const DOOR_OTHER_ACCOUNT_ARM: &str = "another_account_is_refused_at_each_of_three_layers";
+const DOOR_THREE_LAYERS: &str =
+    "door other-account arm: directory refused, socket mode refused, account check refused";
+const DOOR_SKIPPED: &str = "door other-account arm: skipped, no second account";
+
+#[test]
+fn ci_workflow_runs_the_door_other_account_arm_after_the_test_step_with_no_soft_fail() {
+    let lint_test = workflow_job_block(&read_workflow(), "lint-test");
+    let blocks = workflow_step_blocks(&lint_test);
+    let position = |name: &str| {
+        let header = format!("{STEP_NAME_PREFIX}{name}\n");
+        blocks
+            .iter()
+            .position(|block| block.starts_with(&header))
+            .unwrap_or_else(|| panic!("the lint-test job MUST hold the step `{name}`"))
+    };
+    let step = position(DOOR_OTHER_ACCOUNT_STEP);
+    assert!(
+        step > position("cargo xtask test"),
+        "the step `{DOOR_OTHER_ACCOUNT_STEP}` MUST run after `cargo xtask test`, whose build \
+         it reuses (test-plan §9 Pipeline structure)"
+    );
+    let block = blocks[step];
+    for key in ["continue-on-error", "if:", "uses:"] {
+        assert!(
+            !block.contains(key),
+            "the step `{DOOR_OTHER_ACCOUNT_STEP}` MUST be a plain `run` step with no `{key}`; \
+             block:\n{block}"
+        );
+    }
+}
+
+#[test]
+fn the_door_other_account_step_runs_its_one_arm_and_reads_the_arms_own_sentence() {
+    let script = workflow_run_script(&read_workflow(), "lint-test", DOOR_OTHER_ACCOUNT_STEP);
+    let cargo_lines: Vec<&str> = script
+        .lines()
+        .filter(|line| line.contains("cargo "))
+        .collect();
+    assert_eq!(
+        cargo_lines.len(),
+        1,
+        "the step MUST run one cargo command; script:\n{script}"
+    );
+    let selection = format!("binary(integration_door) & test(={DOOR_OTHER_ACCOUNT_ARM})");
+    assert!(
+        cargo_lines[0].contains(&selection),
+        "the step MUST select the one arm `{selection}`; line: {}",
+        cargo_lines[0]
+    );
+    assert!(
+        cargo_lines[0].contains("--success-output immediate"),
+        "the step MUST print a passing arm's output, which it then reads; line: {}",
+        cargo_lines[0]
+    );
+    assert!(
+        !script.contains("sudo"),
+        "the step itself MUST run nothing as another account: the arm's client is the only \
+         thing that is; script:\n{script}"
+    );
+    assert!(
+        script.contains(DOOR_THREE_LAYERS),
+        "the step MUST read the arm's three-layer sentence; script:\n{script}"
+    );
+    // The arm's own spelling: a sentence changed on one side alone reads red.
+    let arm_path = project_root().join("pulse-app/tests/integration_door.rs");
+    let arm = std::fs::read_to_string(&arm_path)
+        .unwrap_or_else(|e| panic!("read {} failed: {e}", arm_path.display()));
+    for text in [DOOR_OTHER_ACCOUNT_ARM, DOOR_SKIPPED] {
+        assert!(
+            arm.contains(text),
+            "pulse-app/tests/integration_door.rs MUST hold `{text}`"
+        );
+    }
+    let spelled: String = arm.split_whitespace().collect::<Vec<&str>>().join(" ");
+    assert!(
+        spelled.contains(&format!("\"{DOOR_THREE_LAYERS}\"")),
+        "pulse-app/tests/integration_door.rs MUST print the sentence the step reads"
+    );
+}
+
+// Runs the other-account step as the runner does (`bash -e`), with `cargo`
+// standing as a function that prints `captured` and returns `arm_status`: what
+// the step makes of an arm's output. Its exit code and everything it printed.
+fn run_door_other_account_step(captured: &str, arm_status: i32) -> (Option<i32>, String) {
+    let scratch = tempfile::tempdir().expect("create a scratch dir");
+    let capture = scratch.path().join("captured.txt");
+    std::fs::write(&capture, captured).expect("write the captured output");
+    let step = workflow_run_script(&read_workflow(), "lint-test", DOOR_OTHER_ACCOUNT_STEP);
+    let script = scratch.path().join("step.sh");
+    let body = format!("cargo() {{ cat \"$DOOR_STEP_CAPTURED\"; return {arm_status}; }}\n{step}");
+    std::fs::write(&script, body).expect("write the step's script");
+    let output = std::process::Command::new("bash")
+        .arg("-e")
+        .arg(&script)
+        .env("RUNNER_TEMP", scratch.path())
+        .env("DOOR_STEP_CAPTURED", &capture)
+        .current_dir(scratch.path())
+        .output()
+        .expect("`bash` MUST be on PATH: the other-account step is a bash script");
+    let printed = format!(
+        "{}{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    (output.status.code(), printed)
+}
+
+fn arm_output(sentence: &str) -> String {
+    format!(
+        "    Starting 1 test across 1 binary\n\
+         --- STDOUT:              pulse-app::integration_door {DOOR_OTHER_ACCOUNT_ARM} ---\n\
+         {sentence}\n\
+         \x20       PASS [   2.113s] pulse-app::integration_door {DOOR_OTHER_ACCOUNT_ARM}\n"
+    )
+}
+
+#[test]
+fn door_other_account_step_passes_an_arm_that_read_all_three_layers() {
+    let (code, printed) = run_door_other_account_step(&arm_output(DOOR_THREE_LAYERS), 0);
+    assert_eq!(code, Some(0), "printed:\n{printed}");
+    assert!(
+        printed.contains(DOOR_THREE_LAYERS),
+        "the step MUST show the arm's output; printed:\n{printed}"
+    );
+}
+
+#[test]
+fn door_other_account_step_fails_an_arm_that_skipped_or_read_a_layer_open() {
+    let cases = [
+        ("the arm skipped", arm_output(DOOR_SKIPPED)),
+        (
+            "the socket's mode did not refuse",
+            arm_output(
+                "door other-account arm: directory refused, socket mode not refused, account \
+                 check refused",
+            ),
+        ),
+    ];
+    for (case, captured) in cases {
+        let (code, printed) = run_door_other_account_step(&captured, 0);
+        assert_eq!(
+            code,
+            Some(1),
+            "{case}: a passing arm without the three-layer sentence MUST fail the step; \
+             printed:\n{printed}"
+        );
+        assert!(
+            printed.contains("::error::the other-account arm did not read all three layers"),
+            "{case}: printed:\n{printed}"
+        );
+    }
+}
+
+#[test]
+fn door_other_account_step_fails_an_arm_that_printed_nothing() {
+    let (code, printed) = run_door_other_account_step("", 0);
+    assert_eq!(code, Some(1), "printed:\n{printed}");
+    assert!(
+        printed.contains("::error::the other-account arm printed nothing"),
+        "printed:\n{printed}"
+    );
+}
+
+#[test]
+fn door_other_account_step_fails_a_failed_arm_whatever_it_printed() {
+    let (code, printed) = run_door_other_account_step(&arm_output(DOOR_THREE_LAYERS), 100);
+    assert_eq!(code, Some(1), "printed:\n{printed}");
+    assert!(
+        printed.contains("::error::the other-account arm exited 100"),
         "printed:\n{printed}"
     );
 }
