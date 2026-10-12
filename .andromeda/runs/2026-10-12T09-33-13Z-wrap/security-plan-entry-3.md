@@ -1,0 +1,6 @@
+
+## 2026-10-12-stdio-agent-reaches-the-door — the second-account step runs two arms
+**Section:** §Security Anti-Patterns → Input (the second-account step, a harness record)
+**Change:** Was "runs the one arm `another_account_is_refused_at_each_of_three_layers` … the arm's one client is the only thing run as another account"; now the step runs that arm and `another_account_through_the_bridge_receives_nothing` in one selection with the same flags, and passes only when nextest exits 0, its kept output is not empty and holds BOTH arms' sentences. Two things run as another account, root included, each against an engine the test itself spawned: the three-layer arm's Python client, and the relay arm's copy of the built `andromeda-pulse-engine`, run as `sudo -n [-u nobody] env ANDROMEDA_PULSE_DATA_DIR={data dir} {copy} door` (the data dir and `run/` opened to 0755, the copy in the arm's own temp dir). Where `sudo -n true` fails each arm prints its skip sentence and passes, and either skip fails the CI step. The step's own text still holds no `sudo`; test-only.
+**Why:** The relay's other-account reading is the chunk's proof (b), in the existing step (the operator's P4 answer). Part of the door's one PROVISIONAL item, confirmed at this wrap's halt as the founder's delegate; the founder's own word owed.
+**Ref:** .andromeda/runs/2026-10-12T09-33-13Z-wrap/

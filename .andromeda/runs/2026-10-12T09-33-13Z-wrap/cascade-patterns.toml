@@ -1,0 +1,47 @@
+[[pattern]]
+id = 'two-word'
+regex = '''two-word|two words|these two words|first closed members'''
+
+[[pattern]]
+id = 'grammar'
+regex = '''andromeda-pulse-engine (run|version)\b|<run\|version>|`run` (\||/|or|and) `version`|run \| version|`run` \| `version`|run.? or .?version'''
+
+[[pattern]]
+id = 'sidecar-alone'
+regex = '''stays the sidecar's|sidecar's alone|stdio alone|sidecar's transport|sidecar's wire|over stdio per MCP spec|is the sidecar's'''
+
+[[pattern]]
+id = 'only-thing'
+regex = '''only thing run as another account|runs the one arm|the arm's one client|its one client|one other-account arm'''
+
+[[pattern]]
+id = 'counts'
+regex = '''5 arms|five arms|41 tests|112 top-level|112 files|3174 tests'''
+
+[[pattern]]
+id = 'one-process'
+regex = '''one process per program|single process|single-process'''
+
+[[pattern]]
+id = 'readme'
+regex = '''Using MCP with'''
+
+[[pattern]]
+id = 'second-acct'
+regex = '''Door refuses another account|another_account_is_refused|second account'''
+
+[[pattern]]
+id = 'no-record'
+regex = '''`version` and a refused command line'''
+
+[[pattern]]
+id = 'ways-in'
+regex = '''ways in besides telemetry|two ways in'''
+
+[[pattern]]
+id = 'stdout-ban'
+regex = '''stdout reserved|stdout is reserved|reserved for JSON-RPC'''
+
+[[pattern]]
+id = 'three-sentence'
+regex = '''three-layer sentence|holds the arm's'''

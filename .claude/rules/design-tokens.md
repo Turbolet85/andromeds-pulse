@@ -17,7 +17,7 @@ The palette is derived from the user-confirmed Color World; library-shortlist pa
 **Core:**
 - `--color-primary` `#4A90E2` — Earth Blue (actions, focus rings, active states, healthy state)
 - `--color-secondary` `#2C3E7F` — Stellar Indigo (panel backgrounds, secondary nav)
-- `--color-accent` `#C7556A` — Alert Burgundy (alerts, errors, anomaly indicators); lifted from #8B2E3B per design-system.md Decisions Log 2026-05-03 (a11y SC 1.4.11 non-text 3:1 minimum). Now classified as non-text token (border / icon / large-text emphasis); body-size error text should use `--color-text-primary` paired with `--color-accent` border + icon per a11y "never color alone" discipline.
+- `--color-accent` `#C7556A` — Alert Burgundy (alerts, errors, anomaly indicators); lifted from #8B2E3B per design-system-amendments.md 2026-05-03 (a11y SC 1.4.11 non-text 3:1 minimum). Now classified as non-text token (border / icon / large-text emphasis); body-size error text should use `--color-text-primary` paired with `--color-accent` border + icon per a11y "never color alone" discipline.
 
 **Surface scale (borders-only depth strategy):**
 - `--color-base` `#1A1D24` — Deep Control Gray (page/app background)
@@ -38,7 +38,7 @@ The palette is derived from the user-confirmed Color World; library-shortlist pa
 **Border progression (Earth Blue at varying opacity):**
 - Subtle `rgba(74, 144, 226, 0.1)` / Standard `0.3` / Emphasis `0.6` / Focus solid `#4A90E2`
 
-NEVER deviate from these hex values without an explicit Decisions Log entry. NEVER use Tailwind default palette (purple/sky/zinc/etc.) as brand identity. The Halo State Pulse signature element is the ONLY exception that uses radial gradient + blur.
+NEVER deviate from these hex values without recording the deviation in the amendment changelog (`design-system-amendments.md`). NEVER use Tailwind default palette (purple/sky/zinc/etc.) as brand identity. The Halo State Pulse signature element is the ONLY exception that uses radial gradient + blur.
 
 ## Typography (locked: JetBrains Mono + IBM Plex Sans)
 - `--font-display` / `--font-body` `'IBM Plex Sans', sans-serif` — UI, humanist sans = "human-readable summary"
@@ -63,7 +63,7 @@ NEVER use organic curves. Mixed strategy: most chrome at sm/md; only badges + to
 ## Motion (expression level 0.3 base / 0.35 webview / 0.2 native)
 - `--duration-fast` 150ms / `--duration-standard` 200ms / `--easing-out` `cubic-bezier(0.4, 0, 0.2, 1)`
 - Investigation Capture Collapse 250–350ms (supporting moment, EXEMPT from 200ms hard limit per design §Motion)
-- Halo State Pulse breathing period (DEFERRED to the next version — operator ruling 2026-08-29, the glow layer neither built in 0.3.0 nor deleted from the spec; the live surface is the constellation dot hue) 4–5 s quiet → ~2 s under active flow (≈0.2–0.5 Hz; data-driven via WebGPU shader, driven by activity state — supersedes the chunk #31-era 0.8–2.4 Hz `throughput_hz / 1000` band per design-system.md Decisions Log 2026-05-29); opacity + blur modulation ONLY, never scale (P-026); blur radius 4–16 px per cycle mapped from cumulative incident severity; LCH hue interpolation Earth Blue ↔ Alert Burgundy by cumulative incident severity; connection state is an orthogonal grayout/desaturation axis; EXEMPT from chrome budget (separate WebGPU canvas layer)
+- Halo State Pulse breathing period (DEFERRED to the next version — operator ruling 2026-08-29, the glow layer neither built in 0.3.0 nor deleted from the spec; the live surface is the constellation dot hue) 4–5 s quiet → ~2 s under active flow (≈0.2–0.5 Hz; data-driven via WebGPU shader, driven by activity state — supersedes the chunk #31-era 0.8–2.4 Hz `throughput_hz / 1000` band per design-system-amendments.md 2026-05-29); opacity + blur modulation ONLY, never scale (P-026); blur radius 4–16 px per cycle mapped from cumulative incident severity; LCH hue interpolation Earth Blue ↔ Alert Burgundy by cumulative incident severity; connection state is an orthogonal grayout/desaturation axis; EXEMPT from chrome budget (separate WebGPU canvas layer)
 
 **Hard limits (NEVER do):** parallax / scroll animations / spring physics / staggered reveals / 3D transforms / canvas-WebGL except Halo / opacity fades >200ms.
 
@@ -76,7 +76,7 @@ NEVER use organic curves. Mixed strategy: most chrome at sm/md; only badges + to
 
 ## Component patterns (chrome — Tailwind v4 `@theme` consumption)
 - **Cards:** `bg-raised-1` + 1px subtle border + `radius-md` + `padding space-md`. Hovered: emphasis border. NO shadows (borders-only depth).
-- **Inputs:** `bg-inset` + 1px subtle border + `radius-sm` + `padding space-sm`. Focused: 1px solid `--color-primary` + 3px outset `box-shadow rgba(74, 144, 226, 0.2)`. Error: `--color-accent` border + accent text below.
+- **Inputs:** `bg-inset` + 1px subtle border + `radius-sm` + `padding space-sm`. Focused: 1px solid `--color-primary` + 3px outset `box-shadow rgba(74, 144, 226, 0.2)`. Error: `--color-accent` border (rgba(199, 85, 106, 0.5)) + message text `--color-text-primary` below — the accent is carried as border/icon only, never the body-size error text color.
 - **Buttons (primary):** `bg-primary` + `text-base` + `padding space-sm horizontal + space-xs vertical` + `radius-sm`. Hovered: `#5BA5F0` (Earth Blue +10% lightness), 150ms ease-out.
 - **Tables:** transparent rows + 1px subtle border between rows; hover row `rgba(74, 144, 226, 0.1)` instant; cells `font-data` 12px tabular-nums + space-sm padding.
 - **Halo State Pulse canvas container:** `bg-inset` + 1px subtle border + `radius-md` + `padding space-md`; `<canvas>` fills container.
@@ -94,7 +94,7 @@ NEVER use organic curves. Mixed strategy: most chrome at sm/md; only badges + to
 - NEVER use the same layout for different information types — metric display ≠ form ≠ data table ≠ status page.
 - NEVER use color purely for decoration — every color encodes meaning per the palette.
 - NEVER converge on safe defaults (sidebar + card grid, hero→features, form-in-card) — interface emerges from Observatory / Mission Control domain.
-- NEVER use uniform monochrome status icons (green ✓ / red ✗) — Halo encodes throughput rhythm + error hue independently.
+- NEVER use uniform monochrome status icons (green ✓ / red ✗) — Halo encodes activity-driven breathing rhythm + cumulative-incident-severity hue independently.
 - NEVER use bounce easing or animations >250ms in chrome (supporting moments at 350ms exempt per design §Motion).
 - NEVER use generic stock icons across chrome — custom Observatory glyphs first.
 

@@ -1,0 +1,43 @@
+[[pattern]]
+id = 'grammar'
+regex = '''andromeda-pulse-engine (run|version)\b|<run\|version>|`run` (\||/|or|and) `version`|run \| version|`run` \| `version`'''
+
+[[pattern]]
+id = 'topology'
+regex = 'Deployment model|[Rr]untime topology'
+
+[[pattern]]
+id = 'door-contract'
+regex = 'Engine door'
+
+[[pattern]]
+id = 'mcp-stdio'
+regex = 'MCP stdio surface|MCP Server Surface|stdio sidecar'
+
+[[pattern]]
+id = 'door-item'
+regex = '''the door's (one )?(PROVISIONAL )?item|door's one item'''
+
+[[pattern]]
+id = 'door-vector'
+regex = '''the door's vector'''
+
+[[pattern]]
+id = 'second-acct'
+regex = 'Door refuses another account|second account'
+
+[[pattern]]
+id = 'spawned'
+regex = 'Spawned-program witness'
+
+[[pattern]]
+id = 'cli-row'
+regex = 'CLI / main binary|CLI \(command-line entrypoint'
+
+[[pattern]]
+id = 'scenario-p3'
+regex = 'Scenario P3'
+
+[[pattern]]
+id = 'stdout-ban'
+regex = '''stdout reserved|stdout is reserved|reserved for JSON-RPC'''

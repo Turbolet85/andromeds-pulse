@@ -14,7 +14,7 @@ _Distilled from `.andromeda/design-system.md` + `.andromeda/layout-templates.md`
 
 > **Measured 2026-08-21; DEFERRED 2026-08-29 (operator ruling, chunk 2026-08-29-halo-state-pulse-signature-deferred):** the dedicated WebGPU halo canvas layer does NOT render on desktop-webview (no production render site; re-verified at HEAD 2026-08-29) and the whole glow layer — webview AND tray (never probed; defers on its own ground) — is DEFERRED to the next version, neither built in 0.3.0 nor deleted from the spec. The shipped signature is the constellation DOT carrying the severity hue via `severityToHueFraction`. The render half rides `.andromeda/residuals.md` (target 0.4.0); the design sketch that gathered in `andromeda-pulse-0.4.0-incubator/signature-orb/` was removed on 2026-10-09 on the founder's word, so the deferred design has no sketch outside the spec. The spec below is the deferred design record.
 WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer around each service constellation dot:
-- **Frequency:** breathing period 4–5 s when quiet → ~2 s under active flow (≈0.2–0.5 Hz; driven by activity state, not raw throughput). Opacity + blur modulation only, never scale (P-026). Supersedes the chunk #31-era 0.8–2.4 Hz `throughput_hz / 1000` band per design-system.md Decisions Log 2026-05-29.
+- **Frequency:** breathing period 4–5 s when quiet → ~2 s under active flow (≈0.2–0.5 Hz; driven by activity state, not raw throughput). Opacity + blur modulation only, never scale (P-026). Supersedes the chunk #31-era 0.8–2.4 Hz `throughput_hz / 1000` band per design-system-amendments.md 2026-05-29.
 - **Hue:** LCH interpolation Earth Blue (`#4A90E2`) ↔ Alert Burgundy (`#C7556A`) by cumulative incident severity.
 - **Blur radius:** 4–16 px envelope per pulse cycle (mapped from cumulative incident severity).
 - **Connection axis:** connection state grays out / desaturates the halo as an orthogonal axis (P-004), independent of the severity hue.
@@ -28,7 +28,7 @@ WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer
 |---|---|---|
 | Primary | `#4A90E2` | Earth Blue (actions, focus, healthy state) |
 | Secondary | `#2C3E7F` | Stellar Indigo (panel backgrounds, secondary nav) |
-| Accent | `#C7556A` | Alert Burgundy (errors, anomaly) |
+| Accent | `#C7556A` | Alert Burgundy (errors, anomaly — non-text only: borders, icons, badges; body-size error text uses Text Primary) |
 | Success | `#17B3A3` | Feedback Cyan (ISS-cabin lighting) |
 | Base | `#1A1D24` | Deep Control Gray (page background) |
 | Raised-1 / 2 / 3 | `#262A33` / `#2D3139` / `#343A45` | Cards / popovers / modals |
@@ -72,17 +72,17 @@ WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer
 ## Surfaces
 
 ### desktop-webview (React 19 + Tailwind v4 + react-aria-components + WebGPU)
-- **Compact widget (primary surface):** quarter-screen, custom frameless titlebar, snap-to-corner (four positions per Settings, default top-right), always-on-top toggle, single-window. Esc minimizes to tray.
+- **Compact widget (primary surface):** quarter-screen, custom frameless titlebar, snap-to-corner (four positions per Settings, default top-right), always-on-top toggle, single-window. Esc minimizes to tray. Its unread badge opens the **Findings window** (a separate borderless always-on-top window docked below the widget, work-area clamped, sized to the incident count — ~8 rows, then the list scrolls — on `--color-raised-2`); selecting a findings row opens the **Report window** (the six-section Report in the `Modal` `fill` variant, edge-to-edge on `--color-base`, no backdrop, left of the findings window).
 - **Full dashboard:** resizable 2/3 to full screen, same custom titlebar, tab or sidebar nav (TBD downstream) — Traces / Metrics / Logs / Snapshots / Settings views.
-- **Settings modal:** theme / widget snap position / retention / MCP toggle / snapshot preset / plugin manager.
-- **Investigation modal:** triggered by Investigate button (telescope glyph) or trace row click; Capture Collapse motion 350ms.
+- **Settings modal:** theme (dark / light / auto) / widget snap position (four corners, default top-right) / retention seconds (300–600) / MCP toggle (visible only when the `mcp-server` feature is built).
+- **Investigation modal:** triggered by the titlebar Investigate button (telescope glyph), a trace row click, or Enter on the keyboard-focused trace row (the in-row telescope button is `tabIndex={-1}`, not a Tab stop); Capture Collapse motion 350ms.
 - Dark mode default (`prefers-color-scheme: dark`); light + auto via Settings.
 - CSP: `script-src 'self'`; WOFF2 fonts bundled locally.
 
 ### desktop-native (Tauri tray icon + menu)
 - **Tray icon:** monochrome SVG glyph (constellation-star/aperture) at 16–22px platform-dependent. Halo State Pulse composited as secondary WebGPU canvas layer (or SVG-filter fallback ≥95% visual equivalence) — DEFERRED to the next version on its own ground (never probed; nothing renders it in 0.3.0).
 - **Tray menu (OS-native, flat hierarchy):** Open andromeda-pulse / read-only summary line / Generate Snapshot / Toggle MCP Server (when feature built) / Open Settings / Quit.
-- **OS notifications:** "Snapshot ready ({N} tokens). Paste in {AI tool} to investigate." — 2 lines max via `tauri-plugin-notification`.
+- **OS notifications:** snapshot ready, MCP server state change, update available, and the close-to-tray signpost (P-063: every close that sends the app to the tray while `notifications_enabled` is true; the dashboard ✕ collapses to the widget and never signposts) — terse title ("Snapshot ready") + a body of 2 lines max ("2.5k tokens, 42 spans") via `tauri-plugin-notification`; opt-out `notifications_enabled` in `config.toml` (default true).
 - Per-platform conventions honored: macOS template-image flag + traffic-light buttons; Windows NotifyIcon + Action Center toast; Linux AppIndicator/StatusNotifier + libnotify.
 
 ## Self-Validation Protocol (run before presenting any UI)
@@ -91,6 +91,6 @@ WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer
 3. **Signature test** — the severity signature (constellation DOT hue via `severityToHueFraction`) present on the surfaces that render it (full dashboard + compact widget constellation canvases)? The 3-place HALO test (dashboard dots / widget badge / tray badge) is deferred with the glow layer and resumes when it lands; meanwhile verify no output claims the glow layer renders.
 4. **Token test** — values trace to Color World / spacing / font stack?
 5. **Sameness test** — would another AI produce same output? Re-anchor to Observatory if yes.
-6. **Contrast test** — match Text Hierarchy ratios (Primary ≥4.5:1, etc.)?
+6. **Contrast test** — match Text Hierarchy ratios (Primary ≈8.5:1, Secondary ≈6.8:1, Tertiary ≈4.2:1 large text only, Muted ≈2.1:1 decorative only)?
 
 Full plan: `.andromeda/design-system.md` + `.andromeda/layout-templates.md`.

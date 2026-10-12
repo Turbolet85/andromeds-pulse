@@ -7,7 +7,7 @@ SQLite-backed persistent storage layer (chunk #68 — Epoch 9 Foundation v0.2.0)
 
 ### Consumes from
 - `security::scrubber::mask_secret_spans` (span-level masking gated by `scrub_attribute`'s verdict, since chunk 2026-09-30-span-level-redaction) for PII scrubbing at ingestion boundary (defense at corpus write; observability subscriber Layer scrubbing deferred to chunk #70+).
-- OS keychain via `keyring` crate (macOS Keychain / Linux Secret Service / Windows DPAPI) for encryption key retrieval at first-launch + restoration on subsequent boots.
+- OS keychain via `keyring` crate (macOS Keychain / Linux Secret Service / Windows Credential Manager) for encryption key retrieval at first-launch + restoration on subsequent boots.
 
 ### Publishes to
 - `pulse-app::storage_router::StorageApiImpl` consumes `CorpusReader::inspect()` for `storage.inspect` TauRPC + `CorpusReader::path()` for `storage.path` TauRPC (binding: router registration + Occupied Resources entry + `EXPECTED_PROCEDURES` pin, staged together with the regenerated `bindings/index.ts`; no per-procedure capability-JSON entry exists).

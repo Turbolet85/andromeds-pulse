@@ -47,6 +47,7 @@ andromeda-pulse/
 │   │   ├── engine_boot.rs          # the one engine boot both programs call
 │   │   ├── console.rs              # the console program's command grammar and its run
 │   │   ├── door.rs                 # the console engine's door: an owner-only Unix socket serving the nine tools
+│   │   ├── door_bridge.rs          # the console program's `door` word: a stdio relay to the door, one connection per request
 │   │   └── bin/andromeda-pulse-engine.rs   # the console binary's main: hands its arguments to console::main
 │   └── ui/                         # webview source root (frontend tooling owned by design specialist)
 │       └── src/

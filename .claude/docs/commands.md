@@ -75,7 +75,8 @@ cargo run --bin pulse-app --features mcp-server
 # Console engine — the package's second program: same engine boot, no window, no display, no model runner
 cargo build --bin andromeda-pulse-engine --release
 target/release/andromeda-pulse-engine run        # stays up until SIGTERM / SIGINT; binds 4317 / 4318 by default and writes the same pid file as pulse-app
-target/release/andromeda-pulse-engine version    # one line, exit 0; any other command line is usage, exit 2
+target/release/andromeda-pulse-engine version    # one line, exit 0; any other command line is usage, exit 2 (usage: andromeda-pulse-engine <run|version|door>)
+target/release/andromeda-pulse-engine door       # Unix; PROVISIONAL: the stdio relay to a running engine's run/door/sock, one connection per stdin line; boots no engine; exit 0 when stdin ends, 1 with one fixed stderr line when the door cannot be reached
 
 # Override env
 ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/dev \
