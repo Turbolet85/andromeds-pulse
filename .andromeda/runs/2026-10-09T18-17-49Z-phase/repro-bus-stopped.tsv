@@ -1,0 +1,4 @@
+boot	kill_bus_at	rc	exit_record	verdict	records	last_target	app_exit	boot_log_lines	bus_alive_at_end	load1	seconds
+1	5	1	signal 15 (TERM)	not-running	109	app.exit	signal/0/sigterm	20	no	31.05	10.25
+2	5	1	signal 15 (TERM)	not-running	109	app.exit	signal/0/sigterm	20	no	32.01	10.36
+3	5	1	signal 15 (TERM)	not-running	109	app.exit	signal/0/sigterm	20	no	32.03	10.31

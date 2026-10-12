@@ -1,0 +1,318 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-10T03:32:49Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run/report.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap/new-text.md",
+"--lines",
+"166",
+"--if-absent-prefix",
+"## New text, by line",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append report.md:+166 at line 381 · lines 380→546 · bytes 35174→45156 · term lf",
+"last line now:   - 72-75 «HarnessBootSeries {»"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run/report.md"
+],
+"before": {
+"lines": 380,
+"bytes": 35174,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 546,
+"bytes": 45156
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-10T03:47:42Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap/architecture-entry-1.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+10 at line 857 · lines 856→866 · bytes 136953→139183 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 856,
+"bytes": 136953,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 866,
+"bytes": 139183
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-10T03:47:42Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap/architecture-entry-2.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+10 at line 867 · lines 866→876 · bytes 139183→141174 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 866,
+"bytes": 139183,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 876,
+"bytes": 141174
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-10T03:47:42Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap/security-plan-entry.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+10 at line 649 · lines 648→658 · bytes 123682→126014 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 648,
+"bytes": 123682,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 658,
+"bytes": 126014
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-10T03:47:42Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap/test-plan-entry-1.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+10 at line 778 · lines 777→787 · bytes 136868→139174 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 777,
+"bytes": 136868,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 787,
+"bytes": 139174
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-10T03:47:42Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap/test-plan-entry-2.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+10 at line 788 · lines 787→797 · bytes 139174→140932 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 787,
+"bytes": 139174,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 797,
+"bytes": 140932
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-10T03:47:42Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap/obs-plan-entry.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+10 at line 434 · lines 433→443 · bytes 79301→81173 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T03-28-29Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 433,
+"bytes": 79301,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 443,
+"bytes": 81173
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-10T03:52:58Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.4.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap/route-entry.txt",
+"--lines",
+"2",
+"--after-line",
+"20",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append working-route.md:+2 at line 21 · lines 180→182 · bytes 23690→26704 · term lf",
+"last line now: Version close on Linux — full gate green; every capability verified or deferre"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/working-route.md"
+],
+"before": {
+"lines": 180,
+"bytes": 23690,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 182,
+"bytes": 26704
+}
+}
+]

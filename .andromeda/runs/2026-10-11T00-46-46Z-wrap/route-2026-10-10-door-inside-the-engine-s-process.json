@@ -1,0 +1,203 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-11T01:39:57Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-10-door-inside-the-engine-s-process",
+"--desc-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/master-desc.txt",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 3,
+"stdout": [],
+"stderr": "2026-10-10-door-inside-the-engine-s-process: claimed below verified -- P-126 (implemented) -- the coverage gate (`matrix.py flip`) runs first",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-11T01:46:57Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-door-inside-the-engine-s-process",
+"--date",
+"2026-10-11",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 3,
+"stdout": [],
+"stderr": "2026-10-10-door-inside-the-engine-s-process: its record is 'pending' -- compact runs AFTER the flip",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-11T01:48:19Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-10-door-inside-the-engine-s-process",
+"--desc-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/master-desc.txt",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run - would flip .andromeda/master-route.md:119",
+"  2026-10-10-door-inside-the-engine-s-process · pending · a door inside the engine… (293 chars)",
+"-> 2026-10-10-door-inside-the-engine-s-process · complete · a door inside the conso… (483 chars)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-11T01:48:19Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-10-door-inside-the-engine-s-process",
+"--desc-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/master-desc.txt",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"flip master-route.md:119 - 2026-10-10-door-inside-the-engine-s-process pending -> complete - desc REWRITTEN from --desc-file"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-11T01:48:19Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-door-inside-the-engine-s-process",
+"--date",
+"2026-10-11",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :37 strip CARRY: 130ch \"CARRY: this entry's owner-only is P-126'\"",
+"pin :37 strip CARRY: 397ch \"CARRY: the capability record's P-040 lin\"",
+"pin next markerless :39 holds CARRY:×1",
+"37 · 2026-10-10-door-inside-the-engine-s-process · strip 2 block(s) · archive APPEND",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 37,
+"marker": "2026-10-10-door-inside-the-engine-s-process",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-11T01:48:26Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-door-inside-the-engine-s-process",
+"--date",
+"2026-10-11",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :37 strip CARRY: 130ch \"CARRY: this entry's owner-only is P-126'\"",
+"pin :37 strip CARRY: 397ch \"CARRY: the capability record's P-040 lin\"",
+"pin next markerless :39 holds CARRY:×1",
+"37 · 2026-10-10-door-inside-the-engine-s-process · strip 2 block(s) · archive APPEND",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/route-archive.md",
+"./andromeda-pulse-0.4.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 37,
+"marker": "2026-10-10-door-inside-the-engine-s-process",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+}
+]

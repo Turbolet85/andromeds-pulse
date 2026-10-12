@@ -1,0 +1,11 @@
+boot	kill_bus_at	rc	exit_record	verdict	records	last_target	app_exit	boot_log_lines	bus_alive_at_end	load1	seconds
+1	0	0	signal 15 (TERM)	running-healthy	224	app.exit	signal/0/sigterm	20	yes	26.27	21.31
+2	0	0	signal 15 (TERM)	running-healthy	224	app.exit	signal/0/sigterm	20	yes	23.29	20.98
+3	0	0	signal 15 (TERM)	running-healthy	230	app.exit	signal/0/sigterm	20	yes	22.16	21.43
+4	0	0	signal 15 (TERM)	running-healthy	228	app.exit	signal/0/sigterm	20	yes	24.76	21.47
+5	0	0	signal 15 (TERM)	running-healthy	224	app.exit	signal/0/sigterm	20	yes	24.26	21.34
+6	0	0	signal 15 (TERM)	running-healthy	228	app.exit	signal/0/sigterm	20	yes	27.91	21.48
+7	0	0	signal 15 (TERM)	running-healthy	224	app.exit	signal/0/sigterm	20	yes	31.59	21.48
+8	0	0	signal 15 (TERM)	running-healthy	228	app.exit	signal/0/sigterm	20	yes	32.69	21.87
+9	0	0	signal 15 (TERM)	running-healthy	224	app.exit	signal/0/sigterm	20	yes	32.53	21.55
+10	0	0	signal 15 (TERM)	running-healthy	228	app.exit	signal/0/sigterm	20	yes	32.21	21.51

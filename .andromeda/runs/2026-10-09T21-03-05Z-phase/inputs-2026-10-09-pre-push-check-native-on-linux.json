@@ -1,0 +1,56 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T21:05:55Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-phase-pre-push-native-linux-2026-10-09.md",
+"--kind",
+"relay",
+"--why",
+"the operator directive for this chunk: how the check is run by hand today, what the surviving stages means, the two boot-smoke readings, the scope edge, the host load, the stops",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-pre-push-native-linux-2026-10-09.md",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-pulse-phase-pre-push-native-linux-2026-10-09.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-phase-pre-push-native-linux-2026-10-09.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "c2d67c29b4be551180cf32ab8cb31df3a7e4b3702954c7faa672cb95197a5511",
+"copy": "I1-pulse-phase-pre-push-native-linux-2026-10-09.md.txt",
+"link": false,
+"read_at": "2026-10-09T21:05:55Z",
+"step": "phase:P1",
+"why": "the operator directive for this chunk: how the check is run by hand today, what the surviving stages means, the two boot-smoke readings, the scope edge, the host load, the stops"
+}
+}
+]

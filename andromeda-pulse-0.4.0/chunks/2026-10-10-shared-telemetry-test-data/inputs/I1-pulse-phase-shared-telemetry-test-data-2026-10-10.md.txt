@@ -1,0 +1,25 @@
+# Phase directive — Pulse 0.4.0, thirteenth chunk: `Shared telemetry test data` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines come from this pair's own reads; re-derive what you rely on.
+Nothing here is this chunk's design.
+
+1. **A set of factories is a foundation, and a foundation ships with its first consumer.** Research lists how spans,
+   metric points and log records are built in tests today (how many sites, how many shapes, where the time stamp,
+   service, version and attributes are fixed). The plan then names which existing tests move onto the one set IN THIS
+   CHUNK, and which later entries are its next consumers (the door, the detection baseline, event time, the kept
+   fields). A factory nothing calls is not built here.
+2. **It names P-089 and P-094 and can show neither whole.** Event time is settable in the DATA here; the checks that
+   reason by it are a later entry's. Say at P5 what of each acceptance this chunk shows and claim nothing that was not
+   shown; "advanced, not claimed" with a dated note is the expected reading.
+3. **The entry's carry closes first:** `pulse-app/tests/integration_engine_boot.rs` still picks its ports by binding
+   port 0 and releasing it. It moves to the claimed-port form the two other binaries took at the last chunk; if one
+   shared helper can serve all three, say what it costs — two twins of one helper is the present state, not a goal.
+4. **Test data is not product.** No product source changes for the factories' sake; if a product type must grow a
+   constructor or a field to be buildable in a test, bring it at P4 instead of adding it.
+5. **What the old form leaves behind.** Every hand-built span, point or record that the chunk replaces is removed in
+   the same chunk; the ones it does not replace are counted in the report with the entry that will move or remove
+   them (many belong to crates that leave in Epochs 2 and 3 — those are not migrated, only counted).
+6. **Boundaries.** A new listening socket, place on disk, credential, command word of the engine, or anything
+   reachable from another host halts for my word. Legs that bind ports use claimed ports, never 4317 / 4318. The plan
+   lists the merge-base probe directly before its push entry.
+7. **At P5** say what `planlint` check 4 listed, print the plan card and stop for my `yes`.

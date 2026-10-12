@@ -1,0 +1,166 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T20:40:44Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-phase-shared-telemetry-test-data-2026-10-10.md",
+"--kind",
+"relay",
+"--why",
+"the operator phase directive for this chunk: seven numbered items on consumers, the two named caps, the carry, product boundaries, the old form, halts and P5",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-10T20-40-14Z-phase",
+"--marker",
+"2026-10-10-shared-telemetry-test-data"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-shared-telemetry-test-data-2026-10-10.md",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-pulse-phase-shared-telemetry-test-data-2026-10-10.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-phase-shared-telemetry-test-data-2026-10-10.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "c3381507117cd42c15de0bbe2c917f08bd368ae73a0fba74754cc1fdcb6e43e7",
+"copy": "I1-pulse-phase-shared-telemetry-test-data-2026-10-10.md.txt",
+"link": false,
+"read_at": "2026-10-10T20:40:43Z",
+"step": "phase:P1",
+"why": "the operator phase directive for this chunk: seven numbered items on consumers, the two named caps, the carry, product boundaries, the old form, halts and P5"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T20:40:44Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data",
+"--message-file",
+".andromeda/runs/2026-10-10T20-40-14Z-phase/relay-1.md",
+"--origin",
+"the operator, in the /andromeda-phase invocation, 2026-10-10",
+"--kind",
+"relay",
+"--why",
+"the invocation directive: fold the relay file as an input; at P5 print the plan card and stop for the operator yes",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-10T20-40-14Z-phase",
+"--marker",
+"2026-10-10-shared-telemetry-test-data"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: the operator, in the /andromeda-phase invocation, 2026-10-10",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator, in the /andromeda-phase invocation, 2026-10-10",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "cbd6ea527060944ae9acf6a2891424da7821d7a1e5b3e8439dd7d96a3d93226b",
+"copy": "I2-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-10T20:40:44Z",
+"step": "phase:P1",
+"why": "the invocation directive: fold the relay file as an input; at P5 print the plan card and stop for the operator yes"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T20:57:17Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data",
+"--message-file",
+".andromeda/runs/2026-10-10T20-40-14Z-phase/relay-2.md",
+"--origin",
+"the operator (the pc overseer), answering the two P4 questions, 2026-10-10",
+"--kind",
+"relay",
+"--why",
+"the set lives in a new dev-only member test-support, the dev-only edge allowed on the operator word and pinned by a committed test; the version setter is not built here and is carried to Span keeps its identity",
+"--step",
+"phase:P4",
+"--run-dir",
+".andromeda/runs/2026-10-10T20-40-14Z-phase",
+"--marker",
+"2026-10-10-shared-telemetry-test-data"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I3 · copy message · message: the operator (the pc overseer), answering the two P4 questions, 2026-10-10",
+"cite: inputs#I3"
+],
+"stderr": null,
+"wrote": [
+"inputs/I3-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I3",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (the pc overseer), answering the two P4 questions, 2026-10-10",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "a5e40f97791ddff6e18470e589f4b2ebcb0382f5d9350932d005af0cde3cb1ec",
+"copy": "I3-relay-2.md.txt",
+"link": false,
+"read_at": "2026-10-10T20:57:17Z",
+"step": "phase:P4",
+"why": "the set lives in a new dev-only member test-support, the dev-only edge allowed on the operator word and pinned by a committed test; the version setter is not built here and is carried to Span keeps its identity"
+}
+}
+]

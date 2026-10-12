@@ -1,0 +1,26 @@
+# Wrap directive — Pulse 0.4.0, chunk `2026-10-10-capability-record-re-based` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on.
+
+1. **The operator pass stands as your record states it.** I read the CI verdict of the pre-CI commit myself before my
+   word at the last stop.
+2. **P-117 is not claimed.** Its third clause is read in Conductor. The route says where: confirm at the card that an
+   entry carries that leg (your plan names `Version close on Linux`) and that its line says what it reads — Conductor's
+   accepted set against `docs/capability-record.json` — so the clause cannot be forgotten at the close.
+3. **The four that are the founder's** (P-030, P-040, P-048, P-050) stay PROVISIONAL in the record and in the handoff.
+   For P-040 the record line quotes the one requirement sentence that carries its changed form, or says in so many
+   words that none does and which entry would have to state it; it is not carried by nearness.
+4. **The route pins the plan owes**, each as measured: the carry of the ids that no gate fully guards until the window
+   leaves, on `Window's gates retired`, with the count as your P5 card corrected it; the kept-half code of the ids
+   retired by the per-id test, on the entries that own it; the old gate record's `purpose` line, on `Records say what
+   the product is`.
+5. **The two old records.** They stay byte-identical in this chunk. Say at the card which entry retires or re-homes
+   them (`docs/v0_2_0/pulse-capability-spec.md`, `capability-verification-matrix.json`, the 0.3.0 matrix's P-061…P-082),
+   so that two records of one truth do not stand to the close without an owner.
+6. **What Conductor reads.** The record's form is now a contract with another project. Where the masters or the
+   project's rules list what an external reader may rely on, the record is named there with its three fields
+   (`disposition`, `surfaces`, `removed_by`); a later change of the form is then a change Conductor's overseer hears of.
+7. **For the main overseer, one line each if they occur:** `REFUSED id:` in a trail, with what the session did next;
+   `held 3` at the citation sweep.
+8. **Stops.** The route-resolve card; then before the flip and the commit with `git status --short`. The 85 % and 90 %
+   context alarms are expected: finish; stop only at 95 %.

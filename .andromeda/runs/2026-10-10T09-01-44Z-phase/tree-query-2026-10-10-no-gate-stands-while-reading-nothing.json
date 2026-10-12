@@ -1,0 +1,94 @@
+[
+{
+"sql": "SELECT callee_name, caller_name, file, line FROM calls WHERE callee_name IN ('run_ci_gates','invoke_heartbeat_check','run_cargo_nextest','run_cargo_llvm_cov','run_perf_slo_load','run_perf_load_profiles','collect_log_files','resolve_log_dir') AND callee_kind = 'fn' ORDER BY callee_name, file, line",
+"rows": 14,
+"result": [
+{
+"callee_name": "collect_log_files",
+"caller_name": "run_ci_gates",
+"file": "xtask/src/main.rs",
+"line": 483
+},
+{
+"callee_name": "collect_log_files",
+"caller_name": "run_check_ingest_progress",
+"file": "xtask/src/main.rs",
+"line": 577
+},
+{
+"callee_name": "collect_log_files",
+"caller_name": "run_perf_load_profiles",
+"file": "xtask/src/main.rs",
+"line": 791
+},
+{
+"callee_name": "invoke_heartbeat_check",
+"caller_name": "run_ci_gates",
+"file": "xtask/src/main.rs",
+"line": 541
+},
+{
+"callee_name": "invoke_heartbeat_check",
+"caller_name": "run_perf_load_profiles",
+"file": "xtask/src/main.rs",
+"line": 817
+},
+{
+"callee_name": "resolve_log_dir",
+"caller_name": "run_ci_gates",
+"file": "xtask/src/main.rs",
+"line": 489
+},
+{
+"callee_name": "resolve_log_dir",
+"caller_name": "run_ci_gates",
+"file": "xtask/src/main.rs",
+"line": 557
+},
+{
+"callee_name": "resolve_log_dir",
+"caller_name": "collect_log_files",
+"file": "xtask/src/main.rs",
+"line": 608
+},
+{
+"callee_name": "resolve_log_dir",
+"caller_name": "run_perf_load_profiles",
+"file": "xtask/src/main.rs",
+"line": 808
+},
+{
+"callee_name": "run_cargo_llvm_cov",
+"caller_name": "main",
+"file": "xtask/src/main.rs",
+"line": 266
+},
+{
+"callee_name": "run_cargo_nextest",
+"caller_name": "main",
+"file": "xtask/src/main.rs",
+"line": 265
+},
+{
+"callee_name": "run_ci_gates",
+"caller_name": "main",
+"file": "xtask/src/main.rs",
+"line": 307
+},
+{
+"callee_name": "run_perf_load_profiles",
+"caller_name": "main",
+"file": "xtask/src/main.rs",
+"line": 325
+},
+{
+"callee_name": "run_perf_slo_load",
+"caller_name": "main",
+"file": "xtask/src/main.rs",
+"line": 322
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

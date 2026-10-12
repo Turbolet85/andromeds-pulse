@@ -1,0 +1,10 @@
+
+## 2026-10-10-shared-telemetry-test-data — one port claim for four port-using binaries; the engine-boot file's bind-and-release picking is gone
+**Section:** §9 CI Integration → Pipeline structure (Integration tests row) · §3 → Per-chunk gate discipline (Spawned-program witness form) · §3 → Bootstrap phases (item 1)
+**Change:**
+- §9 Integration tests row: was "`pulse-app/tests/integration_engine_boot.rs` still picks by bind-and-release (owned by the route entry `Shared telemetry test data`)", per the entry `2026-10-10-engine-harness-proofs-completed — what three pending rows and the Integration tests row leave open has an owner from the route-resolve card`; now the claim is ONE definition, `test_support::ports::claim_port` (dev-only member `crates/test-support`), a fourth binary takes it — `integration_engine_boot`, two claimed ports in each of its four in-process arms — the carry is closed, and no test in that file, `xtask/src/harness_ready.rs` or `xtask/src/engine_cycle.rs` binds port 0 and releases it. Two `xtask` unit tests and the member's own four tests claim too. Seven of seven hand runs of the four binaries were green (a count, not an exclusion).
+- Spawned-program witness form: added — the claim's one home on the same terms (the two twins removed; the lock directory from the crate's compile-time manifest directory, nothing read from the environment at run time; a panic when no port can be claimed), four port-using binaries and two `xtask` unit tests.
+- Bootstrap phases item 1: was "the port-using spawned suites claim their ports"; now the port-using suites, the spawned ones and the in-process arms of `integration_engine_boot.rs`, claim through `test_support::ports::claim_port`.
+**Why:** The chunk closed the carry its route entry owned and gave the claim one home.
+**Kept:** "The three port-using binaries" with one of seven and 14 of 14 stays in both the row and the witness form as the dated measurement of chunk 2026-10-10-engine-harness-proofs-completed. §9's dated "3112 tests" reading stays; this chunk's run counted 3132.
+**Ref:** .andromeda/runs/2026-10-10T22-04-24Z-wrap/

@@ -22,7 +22,7 @@ use viz::VizState;
 
 use pulse_app::heartbeat::{
     emit_buffer_tick, emit_connection_tick, emit_ingest_tick, emit_plugins_tick, emit_viz_tick,
-    spawn,
+    spawn_engine_ticks, spawn_window_ticks,
 };
 
 fn buffer_tick_for_test(
@@ -451,39 +451,45 @@ fn emit_plugins_tick_reflects_registry_invocation_counter() {
 }
 
 #[tokio::test]
-async fn spawn_returns_five_handles_and_aborts_cleanly() {
-    use std::sync::atomic::AtomicBool;
+async fn spawn_engine_ticks_returns_three_handles_and_aborts_cleanly() {
     struct StubBindStatus;
     impl ReceiverBindStatus for StubBindStatus {
         fn any_receiver_failed(&self) -> bool {
             false
         }
     }
-    // Suppress dead-code lint on AtomicBool import path consistency:
-    let _ = AtomicBool::new(false);
 
     let state = Arc::new(HeartbeatState::new());
     let ingest_state = Arc::new(IngestState::new());
     let (sender, _rx) = build_channel();
     let sender = Arc::new(sender);
     let buffer_state = Arc::new(BufferState::new());
-    let viz_state = Arc::new(VizState::new());
     let senders = Arc::new(buffer::broadcast::create());
-    let plugins_registry = Arc::new(Mutex::new(PluginRegistry::empty()));
     let bind_status: Arc<dyn ReceiverBindStatus> = Arc::new(StubBindStatus);
-    let handles = spawn(
+    let handles = spawn_engine_ticks(
         state,
         ingest_state,
         sender,
         buffer_state,
         600,
-        viz_state,
         senders,
-        plugins_registry,
         bind_status,
         None,
     );
-    assert_eq!(handles.len(), 5);
+    assert_eq!(handles.len(), 3);
+    for handle in handles {
+        handle.abort();
+        let _ = handle.await;
+    }
+}
+
+#[tokio::test]
+async fn spawn_window_ticks_returns_two_handles_and_aborts_cleanly() {
+    let state = Arc::new(HeartbeatState::new());
+    let viz_state = Arc::new(VizState::new());
+    let plugins_registry = Arc::new(Mutex::new(PluginRegistry::empty()));
+    let handles = spawn_window_ticks(state, viz_state, plugins_registry);
+    assert_eq!(handles.len(), 2);
     for handle in handles {
         handle.abort();
         let _ = handle.await;

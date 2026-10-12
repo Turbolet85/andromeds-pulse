@@ -1,0 +1,32 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T02:41:21Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run",
+"--source",
+"/tmp/claude-1000/~-dev-projects-andromeda-pulse/bc125454-7931-4811-9679-f911cb72c69f/scratchpad/v2/exit_witness2.c",
+"--kind",
+"sibling",
+"--why",
+"the phase research probe the P4 control measured (p3-measurements.md): the interposed calls, the loaded and runtime-exit lines, the line format the legs and pins read; the committed library is written from it without the child-status lines",
+"--step",
+"implement",
+"--run-dir",
+".andromeda/runs/2026-10-10T02-37-40Z-implement",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 3,
+"stdout": [],
+"stderr": "--source: under the temp dir /tmp — a scratch file is no input",
+"wrote": [],
+"before": null,
+"after": null
+}
+]

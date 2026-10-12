@@ -1,0 +1,6 @@
+registry v1.1 · cbf7ac96
+Build system · .andromeda/registries/contracts/architecture/build-system.md · 494 B
+Deployment model · .andromeda/registries/contracts/architecture/deployment-model.md · 489 B
+Project directory structure · .andromeda/registries/contracts/architecture/project-directory-structure.md · 2461 B
+CI/CD approach · .andromeda/registries/contracts/architecture/ci-cd-approach.md · 7751 B
+4 keyed contract(s) · architecture.md ## Infrastructure Patterns · wrote .andromeda/runs/2026-10-10T11-00-29Z-phase/arch-contracts.md

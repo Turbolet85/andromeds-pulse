@@ -1,0 +1,48 @@
+[
+{
+"sql": "SELECT caller_name, callee_name, file, line FROM calls WHERE callee_file LIKE '%xtask/src/pre_push.rs' AND callee_kind = 'fn' AND file NOT LIKE '%xtask/src/pre_push.rs' ORDER BY file, line",
+"rows": 2,
+"result": [
+{
+"caller_name": "main",
+"callee_name": "run",
+"file": "xtask/src/main.rs",
+"line": 341
+},
+{
+"caller_name": "declared_floor_equals_the_pinned_channel",
+"callee_name": "rust_channel",
+"file": "xtask/src/rust_floor.rs",
+"line": 68
+}
+],
+"db_state": "regenerated",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee_name, callee_kind, COUNT(*) AS sites, COUNT(DISTINCT file) AS files FROM refs WHERE callee_file LIKE '%xtask/src/pre_push.rs' AND file NOT LIKE '%xtask/src/pre_push.rs' GROUP BY 1, 2 ORDER BY sites DESC, callee_name",
+"rows": 3,
+"result": [
+{
+"callee_name": "pre_push",
+"callee_kind": "module",
+"sites": 3,
+"files": 2
+},
+{
+"callee_name": "run",
+"callee_kind": "fn",
+"sites": 1,
+"files": 1
+},
+{
+"callee_name": "rust_channel",
+"callee_kind": "fn",
+"sites": 1,
+"files": 1
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

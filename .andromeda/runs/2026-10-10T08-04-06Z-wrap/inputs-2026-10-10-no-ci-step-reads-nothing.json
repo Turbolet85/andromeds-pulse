@@ -1,0 +1,202 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T08:04:34Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-no-ci-step-reads-nothing",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-wrap-no-ci-step-reads-nothing-2026-10-10.md",
+"--kind",
+"relay",
+"--why",
+"the operator wrap directive: P-128 not claimed, the closing entry minted first in the tail with what it carries, the two carries consumed, the masters corrected as measured, both CI runs in the report, the pre-push and merge-ref gap for disposition, the two stops",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-10T08-04-06Z-wrap",
+"--marker",
+"2026-10-10-no-ci-step-reads-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I3 · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-no-ci-step-reads-nothing-2026-10-10.md",
+"cite: inputs#I3"
+],
+"stderr": null,
+"wrote": [
+"inputs/I3-pulse-wrap-no-ci-step-reads-nothing-2026-10-10.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I3",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-wrap-no-ci-step-reads-nothing-2026-10-10.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "5141ae3383bab07e6a2385f15ca9c76c407a3668d6803e4d6e4972662ab2ea73",
+"copy": "I3-pulse-wrap-no-ci-step-reads-nothing-2026-10-10.md.txt",
+"link": false,
+"read_at": "2026-10-10T08:04:34Z",
+"step": "wrap",
+"why": "the operator wrap directive: P-128 not claimed, the closing entry minted first in the tail with what it carries, the two carries consumed, the masters corrected as measured, both CI runs in the report, the pre-push and merge-ref gap for disposition, the two stops"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T08:04:52Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-no-ci-step-reads-nothing",
+"--message-file",
+".andromeda/runs/2026-10-10T08-04-06Z-wrap/relay-1.md",
+"--origin",
+"the operator (the pc overseer), in this session, 2026-10-10",
+"--kind",
+"relay",
+"--why",
+"the operator words at the operator pass: run the pass; close the seam with main by a merge commit whose tree is the tip own, pins where the plan has them; the verdict run is the second one; and the wrap two stops",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-10T08-04-06Z-wrap",
+"--marker",
+"2026-10-10-no-ci-step-reads-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I4 · copy message · message: the operator (the pc overseer), in this session, 2026-10-10",
+"cite: inputs#I4"
+],
+"stderr": null,
+"wrote": [
+"inputs/I4-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I4",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (the pc overseer), in this session, 2026-10-10",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "ea8d7b23c871331ab4b57172c45395d317afcb8dcdac09c640663fbbea75de48",
+"copy": "I4-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-10T08:04:51Z",
+"step": "wrap",
+"why": "the operator words at the operator pass: run the pass; close the seam with main by a merge commit whose tree is the tip own, pins where the plan has them; the verdict run is the second one; and the wrap two stops"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T08:04:52Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-no-ci-step-reads-nothing",
+"--run-dir",
+".andromeda/runs/2026-10-10T08-04-06Z-wrap",
+"--marker",
+"2026-10-10-no-ci-step-reads-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-no-ci-step-reads-nothing-2026-10-10.md",
+"I1 cited scope.md:13 · scope.md:20 · scope.md:46 · scope.md:62 · scope.md:66 · scope.md:88 · scope.md:96 · scope.md:98 · scope.md:171 · scope.md:189 · research.md:16 · research.md:142 · plan.md:12 · plan.md:398 · plan.md:400 · plan.md:402 · plan.md:423 · plan.md:449",
+"I2 n/a — a message has no live source · copy message · message: the operator (the pc overseer), in this session at the P4 dialog, 2026-10-10",
+"I2 cited scope.md:129 · scope.md:132 · scope.md:134 · scope.md:135 · scope.md:138 · scope.md:141 · scope.md:153 · scope.md:155 · research.md:18 · research.md:174 · plan.md:13 · plan.md:24 · plan.md:87 · plan.md:337 · plan.md:367 · plan.md:369 · plan.md:382 · plan.md:398 · plan.md:411 · plan.md:413 · plan.md:415 · plan.md:417 · plan.md:449",
+"I3 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-no-ci-step-reads-nothing-2026-10-10.md",
+"I3 UNCITED",
+"I4 n/a — a message has no live source · copy message · message: the operator (the pc overseer), in this session, 2026-10-10",
+"I4 UNCITED",
+"inputs: 4 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 2 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 4,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 2,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-10T08:08:56Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-no-ci-step-reads-nothing",
+"--run-dir",
+".andromeda/runs/2026-10-10T08-04-06Z-wrap",
+"--marker",
+"2026-10-10-no-ci-step-reads-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-no-ci-step-reads-nothing-2026-10-10.md",
+"I1 cited scope.md:13 · scope.md:20 · scope.md:46 · scope.md:62 · scope.md:66 · scope.md:88 · scope.md:96 · scope.md:98 · scope.md:171 · scope.md:189 · research.md:16 · research.md:142 · plan.md:12 · plan.md:398 · plan.md:400 · plan.md:402 · plan.md:423 · plan.md:449",
+"I2 n/a — a message has no live source · copy message · message: the operator (the pc overseer), in this session at the P4 dialog, 2026-10-10",
+"I2 cited scope.md:129 · scope.md:132 · scope.md:134 · scope.md:135 · scope.md:138 · scope.md:141 · scope.md:153 · scope.md:155 · research.md:18 · research.md:174 · plan.md:13 · plan.md:24 · plan.md:87 · plan.md:337 · plan.md:367 · plan.md:369 · plan.md:382 · plan.md:398 · plan.md:411 · plan.md:413 · plan.md:415 · plan.md:417 · plan.md:449 · report.md:91 · report.md:137 · report.md:270",
+"I3 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-no-ci-step-reads-nothing-2026-10-10.md",
+"I3 cited report.md:124 · report.md:175 · report.md:198 · report.md:279 · report.md:375",
+"I4 n/a — a message has no live source · copy message · message: the operator (the pc overseer), in this session, 2026-10-10",
+"I4 cited report.md:128 · report.md:131 · report.md:255 · report.md:261 · report.md:274 · report.md:276 · report.md:374",
+"inputs: 4 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 4,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]

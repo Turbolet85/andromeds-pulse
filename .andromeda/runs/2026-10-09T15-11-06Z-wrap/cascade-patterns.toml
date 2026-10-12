@@ -1,0 +1,62 @@
+# The pass's pattern set — derived from every amendment (A1-A4, T1-T12, T14, O1 (a), R1-R6) before the first grep.
+# Each pattern is the retired wording or the retired mechanism's phrasing; its control is the pre-pass text.
+
+[[pattern]]
+id = 'seven-jobs'
+regex = '(?i)seven (independent|parallel) jobs'
+
+[[pattern]]
+id = 'matrix-lmw'
+fixed = 'matrix Linux/macOS/Windows'
+
+[[pattern]]
+id = 'ci-yml-matrix'
+fixed = '`ci.yml` matrix'
+
+[[pattern]]
+id = 'all-three'
+regex = '(?i)all (three|3) (OSes|runners|CI|`lint-test`)'
+
+[[pattern]]
+id = 'per-os'
+regex = '(?i)per[- ]OS\b'
+
+[[pattern]]
+id = 'matrix-job'
+regex = '(?i)matrix job|matrix per surface|tauri-driver matrix|matrix builds'
+
+[[pattern]]
+id = 'release-job'
+regex = '`release` job|release-\$\{\{|release-\{os\}'
+
+[[pattern]]
+id = 'linux-macos'
+regex = 'Linux/macOS[^/]'
+
+[[pattern]]
+id = 'os-latest'
+regex = '(macos|windows)-latest'
+
+[[pattern]]
+id = 'on-linux-also'
+regex = '(?i)on Linux also|plus on Linux|\(Linux only\)'
+
+[[pattern]]
+id = 'ci-runners'
+regex = '(?i)3 platforms|CI matrix|CI runners'
+
+[[pattern]]
+id = 'lint-test-linux'
+fixed = 'lint-test Linux'
+
+[[pattern]]
+id = 'macos-windows'
+regex = 'macOS/Windows|macOS \+ Windows'
+
+[[pattern]]
+id = 'cache-8'
+regex = '8 (cache )?entries'
+
+[[pattern]]
+id = 'schema-comment'
+fixed = 'still states the disproved cause'

@@ -1,0 +1,1 @@
+A and B as you have them. C: pin it as a CARRY on `Records say what the product is`, as you lean (workflow.md:31 and :89 name three files the tree does not have). D: no split, unchanged. Go on to the flip stop.

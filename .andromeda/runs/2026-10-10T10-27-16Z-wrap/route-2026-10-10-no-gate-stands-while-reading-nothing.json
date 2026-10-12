@@ -1,0 +1,123 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T10:56:38Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-10-no-gate-stands-while-reading-nothing",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"flip master-route.md:113 - 2026-10-10-no-gate-stands-while-reading-nothing pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T10:56:39Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-no-gate-stands-while-reading-nothing",
+"--date",
+"2026-10-10",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :25 strip CARRY: 1232ch \"CARRY: five gates of the ci workflow pas\"",
+"pin :25 strip CARRY: 289ch \"CARRY: seen and not measured at 2026-10-\"",
+"pin :25 strip CARRY: 268ch \"CARRY: the a11y job's a11y-violations up\"",
+"pin :25 strip CARRY: 273ch \"CARRY: the reading for P-128's claim, th\"",
+"pin next markerless :27 holds no freight",
+"25 · 2026-10-10-no-gate-stands-while-reading-nothing · strip 4 block(s) · archive APPEND",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 25,
+"marker": "2026-10-10-no-gate-stands-while-reading-nothing",
+"blocks": 4,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T10:56:47Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-no-gate-stands-while-reading-nothing",
+"--date",
+"2026-10-10",
+"--run-dir",
+".andromeda/runs/2026-10-10T10-27-16Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :25 strip CARRY: 1232ch \"CARRY: five gates of the ci workflow pas\"",
+"pin :25 strip CARRY: 289ch \"CARRY: seen and not measured at 2026-10-\"",
+"pin :25 strip CARRY: 268ch \"CARRY: the a11y job's a11y-violations up\"",
+"pin :25 strip CARRY: 273ch \"CARRY: the reading for P-128's claim, th\"",
+"pin next markerless :27 holds no freight",
+"25 · 2026-10-10-no-gate-stands-while-reading-nothing · strip 4 block(s) · archive APPEND",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/route-archive.md",
+"./andromeda-pulse-0.4.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 25,
+"marker": "2026-10-10-no-gate-stands-while-reading-nothing",
+"blocks": 4,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+}
+]

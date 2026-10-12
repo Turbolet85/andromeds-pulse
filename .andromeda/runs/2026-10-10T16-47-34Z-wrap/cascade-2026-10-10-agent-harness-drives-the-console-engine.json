@@ -1,0 +1,539 @@
+[
+{
+"tool": "cascade",
+"v": "1.2",
+"sha8": "fe426974",
+"ts": "2026-10-10T17:13:35Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"baseline 8394da4f (pre-CI parent — the oldest of 1 pre-CI commit(s), b32e979f)",
+"no-harness-verb · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:62 (p…",
+"not-aimed · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:225 (pro…",
+"builds-spawns · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:209 (prose)",
+"pulse-app-alone · new 0 · standing 3 · leaf 1 · curation 0 · base 0 · control security-plan.md:138 (prose)",
+"boot-tauri · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:67 (prose)",
+"one-spawn · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:265 (prose)",
+"apps-spawn · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:32 (prose)",
+"boot-alone · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:257 (pr…",
+"four-arms · 0 rows (control fired) — a statement about this pattern, not the masters · case-variants +1 · control archi…",
+"status-six · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:265 (prose)",
+"ready-five · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:265 (prose)",
+"exits-0112 · new 0 · standing 0 · leaf 3 · curation 0 · base 0 · control test-plan.md:67 (prose)",
+"no-gap-step · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control test-plan.md:500 (prose)",
+"stands-unmet · new 0 · standing 0 · leaf 4 · curation 0 · base 0 · control obs-plan.md:557 (prose)",
+"carried-route · new 0 · standing 1 · leaf 5 · curation 0 · base 0 · control obs-plan.md:557 (prose)",
+"whole-perf-gate · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:560 (p…",
+"upload-count · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control test-plan.md:517 (prose)",
+"one-app-log · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:513 (prose)",
+"no-frame-line · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control test-plan.md:101 (prose)",
+"keeps-log-ci · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:501 (pros…",
+"no-wf-step · 0 rows (control fired) — a statement about this pattern, not the masters · case-variants +1 · control regi…",
+"asserted-by · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · control obs-plan.md:537 (prose)",
+"lockstep · new 0 · standing 3 · leaf 1 · curation 0 · base 0 · control architecture.md:265 (prose)",
+".andromeda/architecture.md:210 builds-spawns standing edited mixed ×2 …t-run.sh boot` builds and spawns; since chunk 20…",
+".andromeda/registries/contracts/test-plan/pid-file.md:8 builds-spawns standing edited mixed ×2 …`boot` builds and spawn…",
+".andromeda/security-plan.md:138 pulse-app-alone standing edited @c13175/14961 …d window app `pulse-app` alone (the cons…",
+".andromeda/security-plan.md:398 pulse-app-alone standing @c578/4679 … the window app `pulse-app` alone among the three …",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:52 pulse-app-alone standing edited …ts `pulse-ap…",
+".claude/rules/security.md:17 pulse-app-alone leaf @c6199/9993 … — the window app `pulse-app` alone; the console program…",
+".andromeda/test-plan.md:135 one-spawn standing edited @c3272/6913 …egular file runs the one spawn command with `LD_PREL…",
+".claude/rules/verification-harness.md:22 one-spawn leaf @c1183/3535 …gular file runs the one spawn command with `LD_PRE…",
+".claude/docs/stack.md:10 apps-spawn leaf …h boot` preloads it into the app's spawn alone to record which call ended the…",
+".claude/rules/verification-harness.md:24 status-six leaf …n stdout `{verdict, pid, ended, log_file_basename, last_write…",
+".claude/docs/tests-summary.md:14 status-six leaf …rdict JSON `{verdict, pid, ended, log_file_basename, last_write_age_s…",
+".claude/rules/verification-harness.md:22 ready-five leaf @c2201/3535 …annot-evaluate, pid, ended, otlp_grpc, otlp_http}…",
+".claude/docs/commands.md:88 exits-0112 leaf …status — real-process verdict JSON, exits 0/1/1/2 (not-running is non-zero)",
+".claude/docs/commands.md:100 exits-0112 leaf …g_file_basename,last_write_age_seconds,stale_after_seconds}; exits 0/1/1/2",
+".claude/docs/tests-summary.md:14 exits-0112 leaf …ocess -Force`), exits 0/1/1/2 from PID file + pid liveness (a dead pi…",
+".andromeda/obs-plan.md:559 no-gap-step new …as `engine-log: PASS`). No CI step makes the gap check over the WINDOW app'…",
+".claude/rules/observability.md:98 stands-unmet leaf …. Its CI enforcement stands unmet and is carried on the working ro…",
+".claude/rules/observability.md:102 stands-unmet leaf …t` reads no log); it stands unmet and is carried on the working r…",
+".claude/rules/verification-harness.md:66 stands-unmet leaf …its CI enforcement stands unmet and is carried on the worki…",
+".claude/docs/obs-summary.md:66 stands-unmet leaf …); its CI enforcement stands unmet and is carried on the working rout…",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:32 carried-route standing @c3416/5913 …s carried…",
+".claude/rules/observability.md:98 carried-route leaf …s CI enforcement stands unmet and is carried on the working route.",
+".claude/rules/observability.md:102 carried-route leaf …ads no log); it stands unmet and is carried on the working route.",
+".claude/rules/verification-harness.md:66 carried-route leaf …forcement stands unmet and is carried on the working route.",
+".claude/docs/obs-summary.md:66 carried-route leaf … its CI enforcement stands unmet and is carried on the working route.",
+".claude/docs/obs-summary.md:77 carried-route leaf …ller); its CI enforcement is unmet and carried on the working route |",
+".claude/docs/tests-summary.md:86 upload-count leaf …n-error`; each of its six uploads fails its step when it finds no f…",
+".andromeda/obs-plan.md:546 no-frame-line standing @c4152/5398 …e boot job prints no frame line on any run: as measured …",
+".claude/rules/observability.md:100 no-frame-line leaf @c1282/2946 … boot job prints no frame line on any run. Before th…",
+".claude/docs/obs-summary.md:80 no-frame-line leaf …d the boot job prints no frame line on any run. Before that chunk th…",
+".andromeda/obs-plan.md:537 asserted-by standing edited … in-spec drain) and asserted by `cargo xtask check:ingest-progr…",
+".andromeda/registries/contracts/obs-plan/heartbeat-ticks.md:5 asserted-by standing edited …led` and asserted by `cargo …",
+".claude/rules/observability.md:87 asserted-by leaf …tained-drain cap) and asserted by `cargo xtask check:ingest-progres…",
+".claude/docs/obs-summary.md:67 asserted-by leaf … sustained-drain cap), asserted by `cargo xtask check:ingest-progress`…",
+".andromeda/architecture.md:268 lockstep standing edited @c21120/42291 …t rule; sh+ps1 in lockstep but for two sh-only p…",
+".andromeda/test-plan.md:146 lockstep standing …red) was made gradable in lockstep — gpu-primary budget 10000 ms, neares…",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md:35 lockstep standing …irrored in lockstep, its li…",
+".claude/rules/verification-harness.md:25 lockstep leaf …on sh; ps1 mirrored in lockstep — its live leg owed via test-pl…",
+"no-harness-verb · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:62 (p…",
+"not-aimed · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:225 (pro…",
+"builds-spawns · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:209 (prose)",
+"pulse-app-alone · new 0 · standing 3 · leaf 1 · curation 0 · base 0 · control security-plan.md:138 (prose)",
+"boot-tauri · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:67 (prose)",
+"one-spawn · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:265 (prose)",
+"apps-spawn · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:32 (prose)",
+"boot-alone · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:257 (pr…",
+"four-arms · 0 rows (control fired) — a statement about this pattern, not the masters · case-variants +1 · control archi…",
+"status-six · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:265 (prose)",
+"ready-five · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:265 (prose)",
+"exits-0112 · new 0 · standing 0 · leaf 3 · curation 0 · base 0 · control test-plan.md:67 (prose)",
+"no-gap-step · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control test-plan.md:500 (prose)",
+"stands-unmet · new 0 · standing 0 · leaf 4 · curation 0 · base 0 · control obs-plan.md:557 (prose)",
+"carried-route · new 0 · standing 1 · leaf 5 · curation 0 · base 0 · control obs-plan.md:557 (prose)",
+"whole-perf-gate · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:560 (p…",
+"upload-count · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control test-plan.md:517 (prose)",
+"one-app-log · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:513 (prose)",
+"no-frame-line · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control test-plan.md:101 (prose)",
+"keeps-log-ci · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:501 (pros…",
+"no-wf-step · 0 rows (control fired) — a statement about this pattern, not the masters · case-variants +1 · control regi…",
+"asserted-by · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · control obs-plan.md:537 (prose)",
+"lockstep · new 0 · standing 3 · leaf 1 · curation 0 · base 0 · control architecture.md:265 (prose)",
+"total (23 patterns) · 38 rows over 15 files",
+"per class · new 1/1 · standing 13/8 · leaf 24/7 · curation 0/0 · base 0/0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "8394da4f2585e9ba7c5b2f197c4fa3e81f393d35",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), b32e979f",
+"counts": {
+"no-harness-verb": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"not-aimed": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"builds-spawns": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"pulse-app-alone": {
+"new": 0,
+"standing": 3,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"boot-tauri": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"one-spawn": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"apps-spawn": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"boot-alone": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"four-arms": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"status-six": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"ready-five": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"exits-0112": {
+"new": 0,
+"standing": 0,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"no-gap-step": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"stands-unmet": {
+"new": 0,
+"standing": 0,
+"leaf": 4,
+"curation": 0,
+"base": 0
+},
+"carried-route": {
+"new": 0,
+"standing": 1,
+"leaf": 5,
+"curation": 0,
+"base": 0
+},
+"whole-perf-gate": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"upload-count": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"one-app-log": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"no-frame-line": {
+"new": 0,
+"standing": 1,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"keeps-log-ci": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"no-wf-step": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"asserted-by": {
+"new": 0,
+"standing": 2,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"lockstep": {
+"new": 0,
+"standing": 3,
+"leaf": 1,
+"curation": 0,
+"base": 0
+}
+}
+}
+},
+{
+"tool": "cascade",
+"v": "1.2",
+"sha8": "fe426974",
+"ts": "2026-10-10T17:29:02Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-10T16-47-34Z-wrap",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"baseline 8394da4f (pre-CI parent — the oldest of 1 pre-CI commit(s), b32e979f)",
+"no-harness-verb · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:62 (p…",
+"not-aimed · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:225 (pro…",
+"builds-spawns · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:209 (prose)",
+"pulse-app-alone · new 0 · standing 3 · leaf 6 · curation 0 · base 0 · control security-plan.md:138 (prose)",
+"boot-tauri · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:67 (prose)",
+"one-spawn · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:265 (pro…",
+"apps-spawn · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:32 (pro…",
+"boot-alone · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:257 (pr…",
+"four-arms · 0 rows (control fired) — a statement about this pattern, not the masters · case-variants +1 · control archi…",
+"status-six · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:265 (pr…",
+"ready-five · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:265 (pr…",
+"exits-0112 · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:67 (prose)",
+"no-gap-step · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control test-plan.md:500 (prose)",
+"stands-unmet · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:557 (pros…",
+"carried-route · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:557 (prose)",
+"whole-perf-gate · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:560 (p…",
+"upload-count · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:517 (pro…",
+"one-app-log · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:513 (prose)",
+"no-frame-line · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:101 (pr…",
+"keeps-log-ci · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:501 (pros…",
+"no-wf-step · 0 rows (control fired) — a statement about this pattern, not the masters · case-variants +1 · control regi…",
+"asserted-by · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · control obs-plan.md:537 (prose)",
+"lockstep · new 0 · standing 3 · leaf 1 · curation 0 · base 0 · control architecture.md:265 (prose)",
+".andromeda/architecture.md:210 builds-spawns standing edited mixed ×2 …t-run.sh boot` builds and spawns; since chunk 20…",
+".andromeda/registries/contracts/test-plan/pid-file.md:8 builds-spawns standing edited mixed ×2 …`boot` builds and spawn…",
+".andromeda/security-plan.md:138 pulse-app-alone standing edited @c13175/14961 …d window app `pulse-app` alone (the cons…",
+".andromeda/security-plan.md:398 pulse-app-alone standing @c578/4679 … the window app `pulse-app` alone among the three …",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:52 pulse-app-alone standing edited …ts `pulse-ap…",
+"CLAUDE.md:44 pulse-app-alone leaf @c2529/3335 …read by the window app `pulse-app` alone; the console program `andromeda…",
+".claude/rules/security.md:17 pulse-app-alone leaf @c10039/13962 …— the window app `pulse-app` alone; the console progra…",
+".claude/rules/testing.md:91 pulse-app-alone leaf @c1147/2043 …indow smoke boots `pulse-app` alone: a chunk touching `pu…",
+".claude/docs/security-summary.md:43 pulse-app-alone leaf @c4920/5618 … the window app `pulse-app` alone (the console pr…",
+".claude/docs/services/interpretation.md:27 pulse-app-alone leaf …y the window app `pulse-app` alone: the console progra…",
+".claude/docs/tests-summary.md:139 pulse-app-alone leaf … window smoke boots `pulse-app` alone. Since chunk 2026-10-10-a…",
+".andromeda/obs-plan.md:559 no-gap-step new …as `engine-log: PASS`). No CI step makes the gap check over the WINDOW app'…",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:32 carried-route standing @c3416/5913 …s carried…",
+".andromeda/obs-plan.md:537 asserted-by standing edited … in-spec drain) and asserted by `cargo xtask check:ingest-progr…",
+".andromeda/registries/contracts/obs-plan/heartbeat-ticks.md:5 asserted-by standing edited …led` and asserted by `cargo …",
+".claude/rules/observability.md:87 asserted-by leaf …tained-drain cap) and asserted by `cargo xtask check:ingest-progres…",
+".claude/docs/obs-summary.md:67 asserted-by leaf … sustained-drain cap), asserted by `cargo xtask check:ingest-progress`…",
+".andromeda/architecture.md:268 lockstep standing edited @c21120/42291 …t rule; sh+ps1 in lockstep but for two sh-only p…",
+".andromeda/test-plan.md:146 lockstep standing …red) was made gradable in lockstep — gpu-primary budget 10000 ms, neares…",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md:35 lockstep standing …irrored in lockstep, its li…",
+".claude/rules/verification-harness.md:25 lockstep leaf …on sh; ps1 mirrored in lockstep — its live leg owed via test-pl…",
+"no-harness-verb · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:62 (p…",
+"not-aimed · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:225 (pro…",
+"builds-spawns · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:209 (prose)",
+"pulse-app-alone · new 0 · standing 3 · leaf 6 · curation 0 · base 0 · control security-plan.md:138 (prose)",
+"boot-tauri · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:67 (prose)",
+"one-spawn · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:265 (pro…",
+"apps-spawn · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:32 (pro…",
+"boot-alone · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:257 (pr…",
+"four-arms · 0 rows (control fired) — a statement about this pattern, not the masters · case-variants +1 · control archi…",
+"status-six · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:265 (pr…",
+"ready-five · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:265 (pr…",
+"exits-0112 · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:67 (prose)",
+"no-gap-step · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control test-plan.md:500 (prose)",
+"stands-unmet · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:557 (pros…",
+"carried-route · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:557 (prose)",
+"whole-perf-gate · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:560 (p…",
+"upload-count · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:517 (pro…",
+"one-app-log · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:513 (prose)",
+"no-frame-line · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:101 (pr…",
+"keeps-log-ci · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:501 (pros…",
+"no-wf-step · 0 rows (control fired) — a statement about this pattern, not the masters · case-variants +1 · control regi…",
+"asserted-by · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · control obs-plan.md:537 (prose)",
+"lockstep · new 0 · standing 3 · leaf 1 · curation 0 · base 0 · control architecture.md:265 (prose)",
+"total (23 patterns) · 21 rows over 17 files",
+"per class · new 1/1 · standing 11/8 · leaf 9/9 · curation 0/0 · base 0/0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "8394da4f2585e9ba7c5b2f197c4fa3e81f393d35",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), b32e979f",
+"counts": {
+"no-harness-verb": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"not-aimed": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"builds-spawns": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"pulse-app-alone": {
+"new": 0,
+"standing": 3,
+"leaf": 6,
+"curation": 0,
+"base": 0
+},
+"boot-tauri": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"one-spawn": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"apps-spawn": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"boot-alone": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"four-arms": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"status-six": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ready-five": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"exits-0112": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"no-gap-step": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"stands-unmet": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"carried-route": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"whole-perf-gate": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"upload-count": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"one-app-log": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"no-frame-line": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"keeps-log-ci": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"no-wf-step": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"asserted-by": {
+"new": 0,
+"standing": 2,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"lockstep": {
+"new": 0,
+"standing": 3,
+"leaf": 1,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

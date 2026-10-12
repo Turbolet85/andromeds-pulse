@@ -1,0 +1,32 @@
+[
+{
+"tool": "upgrade",
+"v": "1.8",
+"sha8": "30b07c54",
+"ts": "2026-10-09T20:52:11Z",
+"argv": [
+"apply",
+"--root",
+".",
+"--id",
+"U04",
+"--regenerate",
+"--run-dir",
+".andromeda/runs/2026-10-09T20-51-32Z-setup-project"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"wrote 628ee262627c9d17930715b09f62d83c  .claude/backup/host-linux.md.pre-setup-2026-10-09T20-51-32Z-setup-project",
+"wrote 253f23d39c6d14ed17444cfbf9795d66  .claude/rules/host-linux.md",
+"U04: .claude/rules/host-linux.md refreshed above `## Session Additions` (50 → 47 lines, the file's own terminator); 1 line(s) below it byte-identical — read back"
+],
+"stderr": null,
+"wrote": [
+"./.claude/backup/host-linux.md.pre-setup-2026-10-09T20-51-32Z-setup-project",
+"./.claude/rules/host-linux.md"
+],
+"before": null,
+"after": null
+}
+]

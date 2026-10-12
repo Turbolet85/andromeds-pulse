@@ -1,0 +1,12 @@
+
+## 2026-10-10-boot-smoke-s-self-end-closed — the series is a second reader of a boot's spawn record, exit record and witness file
+**Section:** §Security Anti-Patterns → Input (the boot-recorder state files class; the exit-witness arm's items (c) and (d)) · §Input Validation (the CLI / env var inputs row, its fourth harness-only boundary) · §Threat Model Summary → Attack surface → CLI input (Trust boundary)
+**Change:**
+- `cargo xtask harness:boot-series` reads, for a series boot that took no settle verdict and for the smoke's top data dir when it holds no `logs/harness-settled.json`, what that boot left in its own data dir: the pid from `run/andromeda-pulse.spawn` (`read_pid`; not the pid file, which cleanup removes on a failed boot), the exit record from `run/andromeda-pulse.exit` (`read_ended`'s 48-byte grammar), the witness file through the bounded witness reader. Was: the series read `PATH` alone, and the two records had no series reader.
+- The bounded witness reader (64 lines of at most 4096 printable-ASCII bytes) has two callers, `harness:settled` and `harness:boot-series`; its one closed label leaves as the settle verdict's `exit_witness` and as the `exit_witness` of a boot with no settle verdict in `boot-series.json`. Was: `harness:settled` alone. Label set and bound unchanged.
+- The series lists the exit record and the label as `ended` / `exit_witness`, both under the 48-byte printable-ASCII bound, and counts the boot `ended` unless the record is the boot verb's own `signal 15 (TERM)` / `signal 9 (KILL)`.
+- No member, label, kept file or witness line kind added; nothing new read from inside the app's process; no environment value and no path in the verdict. The read never ran on a runner.
+- The second reader is part of the same PROVISIONAL item as the witness record: one item awaits the founder's own word.
+**Why:** The series under-read a boot that ended before ready; the repair reads the files such a boot leaves through the readers the settle verdict already uses. The detector graded the five proposals at its declared escalate severity and the operator (the pc overseer, 2026-10-10, given here at the wrap) ruled: apply, and mark the second reader as belonging to the same PROVISIONAL item as the record itself.
+**Kept:** The exit-witness arm's classification stays PROVISIONAL, the operator's reading, awaiting the founder's own word. The standing stop holds: every kept witness file is read whole.
+**Ref:** .andromeda/runs/2026-10-10T06-10-23Z-wrap/

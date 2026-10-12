@@ -1,0 +1,28 @@
+# The retired claim of this pass: test-plan §9 said the capability gate validates
+# docs/v0_2_0/capability-verification-matrix.json, all 60 ids P-001–P-060, and that ids from P-061 on
+# "extend the matrix JSON". The two architecture amendments add text and retire none.
+
+[[pattern]]
+id = "old-path"
+fixed = 'capability-verification-matrix'
+
+[[pattern]]
+id = "verb"
+fixed = 'verify:capability-matrix'
+
+[[pattern]]
+id = "matrix-name"
+fixed = 'capability verification matrix'
+ignore_case = true
+
+[[pattern]]
+id = "sixty-range"
+regex = 'P-001.{1,3}P-060'
+
+[[pattern]]
+id = "sixty-count"
+regex = '\b60 (P-|capabilit|P-entries)'
+
+[[pattern]]
+id = "extend"
+regex = 'extend(s|ed)? the matrix'

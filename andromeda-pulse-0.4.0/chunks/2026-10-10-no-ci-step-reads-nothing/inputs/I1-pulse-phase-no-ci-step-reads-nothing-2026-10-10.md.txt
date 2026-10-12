@@ -1,0 +1,29 @@
+# Phase directive — Pulse 0.4.0, seventh chunk: `No CI step reads nothing` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on. Nothing here is this
+chunk's design.
+
+1. **The entry's two `CARRY:` blocks are the measured ground**, taken on runs of 2026-10-09. The workflow has moved
+   since (two steps were added to the boot job; the boot job now uploads more). measured today, `ci.yml` at
+   `6df9e95c`: three `download-artifact` steps, each with `continue-on-error: true`, at `:164`, `:295`, `:583`
+   (`criterion-…-base`, `a11y-violations-base`, `coverage-linux-base`). Re-read every comparison and every upload on
+   the newest run before planning.
+2. **There is no third state.** A comparison either reads a baseline some workflow produced, or the comparison is
+   gone; an upload either finds its file, or the step is gone. "Kept, and neutral when nothing arrives" is the present
+   defect, not an option. A `continue-on-error` key that exists only so an absent baseline does not red the job goes
+   with it.
+3. **Which way each one falls is a technical fork, and mine: bring them at P4 as one dialog**, each comparison with
+   what a producer would cost and what the gate is worth to the version as it will stand (a console engine; the
+   window, its a11y job and its boot job leave in Epoch 2). A producer that needs a new permission, a token, a new
+   trigger or a third-party action halts for the founder's own word — say so in the option instead of choosing it.
+4. **"Every" in P-128's acceptance.** Two of the kind ride other entries (`a11y-violations-base` on `Window's gates
+   retired`, the `logs-Linux` upload on `Engine end-to-end gate reachable`). My lean, for the plan to test: they are
+   settled HERE with the rest, so the acceptance reads true as written and those two carries are consumed at the wrap —
+   a later entry that needs an upload adds one that finds its file. Say at P4 if a reason stands against it.
+5. **The self-lint guard that reads 16 of the workflow's run steps** (the entry's second `CARRY:`): decide in the plan
+   whether it rides here or gets its own requirement line, as that carry asks. If it rides here, it is not folded into
+   P-128's claim.
+6. **The masters' sentences this entry's wrap corrects** (obs-plan §9, test-plan §9) are named in the carry; the plan
+   lists them as expected amendments, as measured.
+7. **At P5** say what `planlint` check 4 listed, show P-128's concretization against its acceptance, print the plan
+   card and stop for my `yes`.

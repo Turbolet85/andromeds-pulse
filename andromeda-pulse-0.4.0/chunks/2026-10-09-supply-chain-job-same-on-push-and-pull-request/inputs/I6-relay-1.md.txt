@@ -1,0 +1,1 @@
+Operator directive: read ~/dev/projects/additional/pc-overseer/relays/pulse-wrap-supply-chain-push-and-pr-2026-10-09.md whole first. The witness on main is green. The boot-smoke watch recurred and needs an owner at route-resolve - read its artifact log before the card. Stop at the route-resolve card and again before the flip and the commit.

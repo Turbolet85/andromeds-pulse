@@ -1,0 +1,12 @@
+
+## 2026-10-09-boot-smoke-s-early-exit-found-and-closed — two harness verdict verbs registered; boot polls readiness
+**Section:** §Occupied Resources → xtask CLI surfaces (`cargo xtask harness:status`; `cargo xtask harness:ready`, new; `cargo xtask harness:settled`, new; `scripts/agent-run.{sh,ps1}`) · → Filesystem locations (`run/andromeda-pulse.pid`; `run/andromeda-pulse.spawn` + `run/andromeda-pulse.exit`) · → Environment variables (`ANDROMEDA_PULSE_PIDFILE`, `ANDROMEDA_PULSE_LOGFILE`)
+**Change:**
+- `cargo xtask harness:ready` registered: object `{verdict, pid, ended, otlp_grpc, otlp_http}`; arms `ready` (exit 0) / `not-ready` (1) / `ended` (1) / `cannot-evaluate` (2); `ready` is the `harness:status` verdict `running-healthy` AND a TCP connection accepted on `127.0.0.1` at both resolved OTLP ports (defaults 4317 / 4318), one second per attempt; labels `accepting` | `refusing`; `ended` needs a pid; a port variable outside 1 to 65535 is `cannot-evaluate`.
+- `cargo xtask harness:settled [--timeout-seconds N]` registered (default 30, below 8 refused, 200 ms poll): `settled` (exit 0: a navigation record for each of the four window labels and a live pid) / `ended` (1) / `not-settled` (1) / `cannot-evaluate` (2); object `{verdict, pid, ended, app_exit_record, windows_settled, display, session_bus}`, also written to `logs/harness-settled.json` when `logs/` exists. `not-settled` is pinned and never read live; the non-Unix socket branch was not compiled on the dev host.
+- `boot` polls `harness:ready`. Was: "Callers are exactly the two harness legs (the boot poll + the `status` verb)" of `harness:status`; now the `status` verb is its one script caller. A failed poll prints `app ended:` or `app still running …`, and `the receivers never both accepted: …` only when the last verdict held a `refusing` label. The ps1 verb mirrors it through `Invoke-Ready`: parsed, never run.
+- The pid file and the exit record gain two xtask readers; both variables are also threaded into the `harness:ready` child.
+- The waiting subshell's `/dev/null` streams are its own; the app's stdout and stderr go to `logs/boot.log`.
+**Why:** the chunk closed the readiness gap: `boot` had reported ready before the receivers bound. The registry enumerates xtask verbs, so a new verb registers.
+**Kept:** the script line citations on the two variable entries (the citation sweep proved them); `harness:status`'s object, arms and exit codes.
+**Ref:** .andromeda/runs/2026-10-09T19-51-29Z-wrap/

@@ -1,0 +1,28 @@
+# Phase directive — Pulse 0.4.0, ninth chunk: `Capability record re-based` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on. Nothing here is this
+chunk's design.
+
+1. **The other side of P-117's third clause.** measured today in Conductor at `321dc8f` (`build/conductor-0.4.0`): it
+   holds its own COPIES of the two old records (`.andromeda/refs/capability-verification-matrix.json`,
+   `.andromeda/refs/pulse-capability-spec.md`), and its route has the answering entry at
+   `conductor-0.4.0/working-route.md:56` — "Accepted capability set re-based — after Pulse's Capability record
+   re-based … old pin stands meanwhile (v4-06)". So nothing this chunk writes breaks Conductor today, and the clause
+   "the external harness's accepted set equals that record" cannot be read until that entry runs. Say at P5 what of
+   P-117 this chunk can show and what waits for Conductor; claim nothing that was not shown.
+2. **The record is what another project will read.** State in the plan the one file and the form Conductor derives its
+   accepted set from, so that its entry needs no second derivation: which fields say "claimed" or "retired", and with
+   what. A form only Pulse's own gate can read is half the requirement.
+3. **"Retired with its surface" while the surface still stands.** The window, the model and the desktop distribution
+   leave in Epochs 2 and 3; their code and tests are in the tree today. For every id the record retires, it names the
+   route entry that removes its surface. Say what guards such a capability between this chunk and that entry — its
+   tests still run, or nothing does — and bring any id for which the answer is "nothing" to me at P4.
+4. **No third state for an id.** Each of the 82 is claimed by the engine as it will stand, or retired with a named
+   surface. An id the engine keeps in a changed form is claimed, with the changed form's requirement named
+   (P-083…P-129); "kept for now" is not a disposition.
+5. **The classification is a technical fork and mine where it is not obvious.** Bring the doubtful ids at P4 as one
+   dialog, grouped, each group with what claiming and what retiring would mean for the version. An id whose fate turns
+   on what the product is — not on where its code lives — is said so in its option: that one is the founder's.
+6. **The plan lists the merge-base probe** directly before its push entry.
+7. **At P5** say what `planlint` check 4 listed, show P-117's concretization against its acceptance, print the plan
+   card and stop for my `yes`.

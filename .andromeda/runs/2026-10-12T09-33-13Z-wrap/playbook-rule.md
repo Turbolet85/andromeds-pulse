@@ -1,0 +1,4 @@
+
+- pattern: A new environment variable (or similar bounded config input) that is the SWITCH of a surface whose own registration is a boundary widening — e.g. the write switch of a newly widened channel — matched by both `New env var registration` (routine) and `Boundary widening` (escalate).
+  verdict: escalate
+  note: discriminator between the two rules: the variable is judged with the surface it switches, so it rides that widening's escalation and its ratification; it only makes a class escalate, never routine. Accepted by the pc overseer as the founder's delegate, 2026-10-12 (inputs#I6 item 4; approved as written at the 2026-10-12-stdio-agent-reaches-the-door wrap's halt, inputs#I7), PROVISIONAL with the door's batch; deferred since the 2026-10-10-door-inside-the-engine-s-process wrap, where `ANDROMEDA_PULSE_DOOR_RESOLVE` matched both rules with opposite verdicts.

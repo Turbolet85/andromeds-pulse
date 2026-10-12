@@ -1,28 +1,26 @@
 # `snapshot` — Curated Markdown Generator
 
 ## Responsibility
-Generates token-efficient curated markdown snapshots from buffer data. Pipeline: time-window selection → filter → curate (dedup identical spans / anomaly highlighting / critical-path extraction / p50/p95/p99 aggregation / drop verbose attributes) → format hierarchical markdown → enforce token budget (10k / 25k / 50k preset). Hosts `snapshot.{generate,list_recent,copy_to_clipboard}` TauRPC routers.
+Generates token-efficient curated markdown snapshots from buffer data. Pipeline: time-window selection → filter → curate (dedup identical spans / anomaly highlighting / critical-path extraction / p50/p95/p99 aggregation / drop verbose attributes) → format hierarchical markdown → enforce token budget (10k / 25k / 50k preset). The one implemented TauRPC procedure is `snapshot.generate`, hosted at the binary boundary in `pulse-app/src/snapshot_runtime.rs` (window app only — the console program mounts no TauRPC router); `snapshot.list_recent` and `snapshot.copy_to_clipboard` are deferred, with no runtime emitter.
 
 ## Key integrations
 
 ### Consumes from
-- `buffer` crate via DuckDB prepared statements.
-- `viz` crate aggregation utilities for percentile computation.
-- `workspace-detector` for snapshot path resolution (`.andromeda/` marker → `.andromeda/pulse/{timestamp}.md`; else → `~/.cache/andromeda-pulse/snapshots/{timestamp}.md`).
+- Span rows handed in as `curation::contract::SpanRecord` values. The ring-buffer read is not this crate's: `pulse-app/src/snapshot_runtime.rs::load_recent_spans` runs the DuckDB prepared statement at the binary boundary; this crate links no `duckdb` and no `buffer`.
+- `curation` crate (`curation::contract`, re-exported through `snapshot::contract`) for dedup, anomaly, critical-path and percentile aggregation. There is no `viz` dependency.
+- Snapshot files land in `snapshots/` under the resolved data dir (`~/.andromeda-pulse/snapshots/` on Linux; `ANDROMEDA_PULSE_DATA_DIR` overrides the root), resolved in `pulse-app/src/snapshot_runtime.rs` — no `workspace-detector` call, no `.andromeda/pulse/` and no `~/.cache/` location.
 
 ### Publishes to
-- TauRPC routers: `snapshot.generate`, `snapshot.list_recent`, `snapshot.copy_to_clipboard`.
+- TauRPC procedure: `snapshot.generate` (`pulse-app/src/snapshot_runtime.rs`); `snapshot.list_recent` and `snapshot.copy_to_clipboard` deferred — no runtime emitter.
 - Tauri Channel: `pulse://stream/snapshot-progress` (progress events during generation; final completion event).
 - Filesystem: `~/.andromeda-pulse/snapshots/{timestamp}.md` (canonical) + dual `.json` raw OTLP if user enabled.
 - OS notification via `tauri-plugin-notification`: "Snapshot ready ({N} tokens). Paste in {AI tool} to investigate."
 - `tracing` events: `snapshot.generate.request`, `snapshot.render.markdown`, `snapshot.token.count.validate`, `metric.snapshot.token_count_ms`.
 
 ### Dependencies
-- `duckdb` crate (read-side aggregation queries).
-- `arrow-rs` for batch processing.
-- `tauri` 2.x for Channel API + clipboard.
-- `tauri-plugin-notification` 2.x for OS toasts.
-- `tiktoken-rs` (or equivalent) for token counting.
+- `curation` (workspace crate, path dependency) — the curation primitives.
+- `chrono`, `serde`, `thiserror`, `tracing` (workspace-inherited).
+- Not dependencies of this crate (`crates/snapshot/Cargo.toml`): `duckdb`, `arrow`, `tauri`, `tauri-plugin-notification`, `tiktoken-rs`. Token counting is the crate's own `count_tokens` in `markdown.rs`; the DuckDB read, the Channel and the file write belong to `pulse-app/src/snapshot_runtime.rs`.
 
 ## Internal conventions
 - **Pipeline stages (creator brief Section 6):**
@@ -41,14 +39,15 @@ Generates token-efficient curated markdown snapshots from buffer data. Pipeline:
 - **MCP server shares the curation pipeline** — `generate_snapshot` MCP tool method invokes the same pipeline as the TauRPC `snapshot.generate` command. Sequencing: snapshot epoch precedes MCP sub-block (route Phase 6 + 7) so the curation pipeline is testable standalone before MCP wraps it as a JSON-RPC tool method.
 
 ## Entry points for modification
-- **Pipeline orchestrator:** `crates/snapshot/src/pipeline.rs` (5-stage pipeline)
-- **Curation primitives:** `crates/snapshot/src/curate/{dedup,anomaly,critical_path,aggregate}.rs`
-- **Markdown formatter:** `crates/snapshot/src/format.rs`
-- **Token counter + budget enforcer:** `crates/snapshot/src/budget.rs`
-- **Snapshot path resolution:** `crates/snapshot/src/path.rs` (uses `workspace-detector` API)
-- **Clipboard + notification:** `crates/snapshot/src/io.rs`
-- **TauRPC router:** `crates/snapshot/src/router.rs`
-- **Tests:** colocated per module + `tests/integration/snapshot/` for E2E P2
+- **Crate layout:** four files under `crates/snapshot/src/` beside `lib.rs` — `contract.rs` (the only `pub` module), `markdown.rs`, `token_budget.rs`, `attribute_filter.rs`. There is no `pipeline.rs`, `curate/`, `format.rs`, `budget.rs`, `path.rs` or `io.rs`.
+- **Pipeline orchestrator:** `crates/snapshot/src/contract.rs` (`curate`, `GenerationTimer`, `MarkdownReport`, the error enums)
+- **Curation primitives:** the `curation` crate (`crates/curation/`), reached through `curation::contract`
+- **Markdown formatter + token counter:** `crates/snapshot/src/markdown.rs` (`format_markdown`, `count_tokens`)
+- **Token budget presets:** `crates/snapshot/src/token_budget.rs` (`TokenBudget`: 10k / 25k / 50k)
+- **Attribute filter:** `crates/snapshot/src/attribute_filter.rs`
+- **Snapshot path resolution, file write, TauRPC resolver:** `pulse-app/src/snapshot_runtime.rs` (`SnapshotApiImpl`, `snapshot.generate`, `load_recent_spans`) — not this crate, and no `workspace-detector` call
+- **Clipboard + notification:** not in this crate (`snapshot.copy_to_clipboard` is deferred, no runtime emitter)
+- **Tests:** colocated in the four module files; the E2E P2 leg and the runtime's unit tests sit at the binary boundary (`pulse-app/tests/e2e_p2_snapshot_generate.rs`, `pulse-app/tests/unit_snapshot_runtime.rs`). There is no `tests/integration/snapshot/` and no `crates/snapshot/tests/`.
 
 ## Testing this service
 - **Unit tests:** `cargo nextest run --filter-expr 'package(snapshot)'`
@@ -56,7 +55,7 @@ Generates token-efficient curated markdown snapshots from buffer data. Pipeline:
 - **Performance budget (test-plan §10):** snapshot generation p99 <500ms for 25k token budget; chaos test 10k span backlog with 10k token budget asserts aggressive culling still produces valid snapshot.
 
 ## Local development
-- **Manual snapshot:** Click "Investigate" button in compact widget or full dashboard → curated markdown saved to `.andromeda/pulse/{timestamp}.md` (if cwd has `.andromeda/`) or `~/.andromeda-pulse/snapshots/{timestamp}.md`.
+- **Manual snapshot:** Click "Investigate" button in compact widget or full dashboard → curated markdown saved to `snapshots/` under the resolved data dir (`~/.andromeda-pulse/snapshots/` on Linux; `ANDROMEDA_PULSE_DATA_DIR` overrides the root).
 - **Clipboard:** Snapshot generator copies path to clipboard with one of 4 preset prompts (Claude Code default / Cursor / ChatGPT / Custom).
 
 ## References

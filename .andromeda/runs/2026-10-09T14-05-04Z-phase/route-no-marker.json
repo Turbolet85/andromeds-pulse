@@ -1,0 +1,32 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T14:05:56Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-09T14-05-04Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 78 of 78 entries · freight blocks 7 · rows are an INDEX, not the text",
+"11 · WATCH: · 397 chars · 0/3 since 2026-10-09-0-pending-adaptation-wrap · WATCH: boot smoke on ubuntu-22.04 ended exit…",
+"25 · CARRY: · 130 chars · CARRY: this entry's owner-only is P-126's — until another host can reach the door, another ac…",
+"42 · CARRY: · 252 chars · CARRY: the card names the release environment and every secret name the two workflows read (P…",
+"80 · CARRY: · 142 chars · CARRY: the renewal this entry states is P-124's — who renews the channel's private key and by…",
+"108 · CARRY: · 59 chars · CARRY: this entry's rule is P-125's — P-091's text has none",
+"124 · CARRY: · 218 chars · CARRY: the restart between the two readings is done on the engine's host by whoever runs the…",
+"157 · CARRY: · 103 chars · CARRY: the record each raise leaves is read through the door (P-123); this entry's check rea…"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

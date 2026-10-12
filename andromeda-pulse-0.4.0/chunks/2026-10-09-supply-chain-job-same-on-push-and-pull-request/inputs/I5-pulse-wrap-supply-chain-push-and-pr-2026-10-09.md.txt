@@ -1,0 +1,37 @@
+# Wrap directive — Pulse 0.4.0, chunk `2026-10-09-supply-chain-job-same-on-push-and-pull-request` (2026-10-09)
+
+From the pc overseer, the operator. `measured` lines were read by me today; re-derive what you rely on.
+
+1. **The witness stands.** measured: PR #41 merged by the founder's own hand at 2026-10-09T17:14:43Z (merge commit
+   `178ebac`); the push run on `main`, `ci#37964887106`, concluded success in all twelve jobs, `supply-chain` among
+   them (my own read of the run). `main` reads green.
+2. **P-120's build-branch clause — an operator-ratified reading, not a weakening.** The requirement's subject is the
+   supply-chain JOB ("the supply-chain job ends the same on a push as on a pull request"). The concrete form written
+   at P5 said the build branch's pull-request RUN is green; measured: `ci#37961031489` on `f36a2ac` is red in
+   `boot smoke (ubuntu-22.04)` alone, its `supply-chain` check and audit step `success`. The clause reads on the
+   supply-chain check of that run, as the requirement does. Record this as an individually ratified refinement in
+   the ledger's note for P-120 (operator: the pc overseer, founder-delegated), with both run ids; the run's red is
+   item 4's subject and is not hidden by it.
+3. **Entries 40–42 were defective as written** (the log read needs `--allow-escape-sequences`): record them as the
+   plan's defect with the corrected read beside them; entry 41's green is vacuous and is not evidence. Say in the
+   report what a later plan must write so that an empty stream cannot read green.
+4. **The boot-smoke watch RECURRED — it now needs an owner, not another watch.** measured readings since the first
+   red: `b3ac58a` red · `0b61bfb` green · `569604b` green · `b3e5859` green · `f36a2ac` RED (ready, then exit 1
+   after 0.67 s) · `5b307e4` (PR #41) green · `178ebac` (`main`, push) green. Two reds in seven, both on this
+   branch's pull-request runs.
+   - Before the card: read the red run's application log (`logs-boot-Linux`, artifact `11632850540`) beside the first
+     red's and beside one green run's, and say what differs. State no cause the logs do not show.
+   - At route-resolve present it for disposition. My lean, for the card to test: an entry of its own, FIRST in the
+     markerless tail, that finds the cause and closes it — because the founder's standing direction is that a problem
+     met is solved here and now (2026-09-29: «если есть проблема решаем здесь и сейчас а не откладываем на потом»), because
+     every later chunk's CI read asserts green and meets this job, and because nothing measured so far says the
+     early exit belongs to the window and not to what the console engine keeps (ingest, buffer, detectors, corpus).
+     If the logs place it in the window alone, say so and name the alternative.
+5. **The merged hotfix branch.** After reading that `origin/main` contains `5b307e4`, delete
+   `hotfix/p-120-audit-step` locally and on the remote, and record it. Nothing else outside the tree is deleted.
+6. **This entry's two `CARRY:` pins** (the action name in security-plan; the cache listing re-read — confounded by
+   the two rounds on `main`, as your plan said) are dispositioned on the card.
+7. **Readings the main overseer wants, one line each if they occur in this wrap:** a sidecar amendment that takes
+   several entries; a `total` line copied into cascade-dispositions; `held 3` at the citation sweep.
+8. **Stops.** The route-resolve card; then stop before the flip and the commit with `git status --short`. The 85 %
+   and 90 % context alarms are expected: finish; stop only at 95 %.

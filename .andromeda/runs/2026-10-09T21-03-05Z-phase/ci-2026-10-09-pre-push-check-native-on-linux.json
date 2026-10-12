@@ -1,0 +1,45 @@
+[
+{
+"tool": "ci",
+"v": "1.2",
+"sha8": "881cd498",
+"ts": "2026-10-09T21:29:45Z",
+"argv": [
+"conclusion",
+"--sha",
+"8f655caef468e90844fef54dcc33cef7bd4e426c",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"8f655caef468 verdict: green · checks 7/7 · wall 1363 s · runs secret-scan#37990081871 completed/success ci#37990081874 …",
+"runs: secret-scan#37990081871 pull_request completed/success · ci#37990081874 pull_request completed/success",
+"checks: a11y (ubuntu-22.04) · boot smoke (ubuntu-22.04) · coverage gate (line ≥75% / branch ≥70% / function ≥85%)",
+"  gitleaks · lint / test (ubuntu-22.04) · mcp-server tests (ubuntu-22.04) · supply-chain (audit + deny + auditable)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "8f655caef468e90844fef54dcc33cef7bd4e426c",
+"word": "green",
+"polls": [
+"green"
+]
+}
+]
+}
+}
+]

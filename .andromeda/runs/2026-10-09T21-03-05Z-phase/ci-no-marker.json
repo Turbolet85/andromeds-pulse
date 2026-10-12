@@ -1,0 +1,139 @@
+[
+{
+"tool": "ci",
+"v": "1.2",
+"sha8": "881cd498",
+"ts": "2026-10-09T21:03:13Z",
+"argv": [
+"conclusion",
+"--sha",
+"8f655caef468e90844fef54dcc33cef7bd4e426c",
+"--sha",
+"8a89e3681c940bdfe21e9eed50cdfc0547e426df",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"8f655caef468 verdict: in progress · checks 7/7 · runs secret-scan#37990081871 completed/success ci#37990081874 in_progr…",
+"8a89e3681c94 verdict: green · checks 7/7 · wall 1592 s · runs secret-scan#37986543964 completed/success ci#37986543962 …"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "8f655caef468e90844fef54dcc33cef7bd4e426c",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+},
+{
+"sha": "8a89e3681c940bdfe21e9eed50cdfc0547e426df",
+"word": "green",
+"polls": [
+"green"
+]
+}
+]
+}
+},
+{
+"tool": "ci",
+"v": "1.2",
+"sha8": "881cd498",
+"ts": "2026-10-09T21:03:21Z",
+"argv": [
+"conclusion",
+"--sha",
+"8f655caef468e90844fef54dcc33cef7bd4e426c",
+"--name",
+"boot",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`) · names boot",
+"8f655caef468 verdict: in progress · checks 1/7 · runs secret-scan#37990081871 completed/success ci#37990081874 in_progr…",
+"runs: secret-scan#37990081871 pull_request completed/success · ci#37990081874 pull_request in_progress/-",
+"running 1: oldest boot smoke (ubuntu-22.04) 533 s",
+"run open: ci#37990081874 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [
+"boot"
+],
+"shas": [
+{
+"sha": "8f655caef468e90844fef54dcc33cef7bd4e426c",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+},
+{
+"tool": "ci",
+"v": "1.2",
+"sha8": "881cd498",
+"ts": "2026-10-09T21:03:23Z",
+"argv": [
+"conclusion",
+"--sha",
+"8a89e3681c940bdfe21e9eed50cdfc0547e426df",
+"--name",
+"boot",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`) · names boot",
+"8a89e3681c94 verdict: green · checks 1/7 · wall 639 s · runs secret-scan#37986543964 completed/success ci#37986543962 c…",
+"runs: secret-scan#37986543964 pull_request completed/success · ci#37986543962 pull_request completed/success",
+"checks: boot smoke (ubuntu-22.04)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [
+"boot"
+],
+"shas": [
+{
+"sha": "8a89e3681c940bdfe21e9eed50cdfc0547e426df",
+"word": "green",
+"polls": [
+"green"
+]
+}
+]
+}
+}
+]

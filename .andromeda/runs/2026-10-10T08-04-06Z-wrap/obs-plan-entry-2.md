@@ -1,0 +1,11 @@
+
+## 2026-10-10-no-ci-step-reads-nothing — which CI artifacts exist: two log uploads, no test-job log, no snapshot
+**Section:** §9 Telemetry artifact handling (the Log file row, the Snapshot markdown row) · §9 Pipeline integration (the `xtask test`, `xtask test --release` and Integration tests rows) · §9 CI failure → artifact triage workflow
+**Change:**
+- Log file row: was the `lint-test` job (`logs-${{ runner.os }}`) and the `boot` job; now the `boot` job (`logs-boot-${{ runner.os }}`) and the lint-test perf-samples log (`logs-perf-samples-${{ runner.os }}`), two uploads. The `lint-test` job's `logs-${{ runner.os }}` upload found no file (no step of that job writes a log family under its data dir, `ci#38031822696`) and left. Each upload of `ci.yml` now carries `if-no-files-found: error`: an upload that finds no file fails its step, read on a runner only where the producer did not run (`ci#38034700885`), never where one ran and wrote nothing.
+- Snapshot markdown row: was "uploaded as CI artifact" when an integration test fails; now "not produced in CI": no step of `ci.yml` writes or uploads a snapshot on a failed test.
+- Pipeline integration: `xtask test` was "CI artifact `logs/agent-latest.jsonl`"; now the test run uploads nothing and the perf-samples producer after it writes the log `perf:budget` grades. The `xtask test --release` row is gone (no step runs it). Integration tests: was "logs artifact + snapshot markdown artifact"; now none uploaded.
+- Triage workflow: was "Test failure → uploads `logs/agent-latest.jsonl`" and `gh run download <run_id> -n logs`; now a failed `boot` job uploads `logs-boot-Linux`, a failed test in `lint-test` uploads no app log, and the download names the artifact (`-n logs-boot-Linux`; no artifact of a run is named `logs`).
+**Why:** Each sentence named an artifact no step produced. The chunk removed the uploads that found nothing and made the rest fail on nothing; the rows now say what a run keeps.
+**Kept:** §11's two bans, "NEVER lose telemetry artifacts (log file + snapshot on failure)" and "NEVER skip snapshot generation on test failure", are not amended: they are requirements the workflow does not meet, and whether the version keeps them was put to the operator at this wrap's route-resolve card. The Snapshot row says they stand, unmet.
+**Ref:** .andromeda/runs/2026-10-10T08-04-06Z-wrap/

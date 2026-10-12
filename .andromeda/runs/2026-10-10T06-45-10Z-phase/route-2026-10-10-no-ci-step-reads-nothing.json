@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-10T06:47:21Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-10-no-ci-step-reads-nothing",
+"--expect-prefix",
+"No CI step reads nothing",
+"--record-file",
+".andromeda/runs/2026-10-10T06-45-10Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-10T06-45-10Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:23 - [2026-10-10-no-ci-step-reads-nothing]",
+"record master-route.md:112 - appended under `## andromeda-pulse-0.4.0`",
+"promoted 2026-10-10-no-ci-step-reads-nothing - working-route:23 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

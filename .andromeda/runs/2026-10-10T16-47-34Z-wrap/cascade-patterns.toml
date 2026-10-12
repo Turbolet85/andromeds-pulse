@@ -1,0 +1,118 @@
+# Cascade step 2 — the pattern set of this pass (61 amendments, four masters, six key files).
+# Each pattern is the wording or the mechanism of a claim this pass retired or narrowed.
+
+# "no harness verb boots the console engine" / "no harness verb of its own"
+[[pattern]]
+id = "no-harness-verb"
+fixed = 'no harness verb'
+
+# "the harness readers / verbs are not aimed at the console program"
+[[pattern]]
+id = "not-aimed"
+fixed = 'not aimed at'
+
+# "the one the harness builds and spawns" / "`boot` builds and spawns `pulse-app` alone"
+[[pattern]]
+id = "builds-spawns"
+fixed = 'builds and spawns'
+
+# "the window smoke boots `pulse-app` alone" and its siblings
+[[pattern]]
+id = "pulse-app-alone"
+fixed = '`pulse-app` alone'
+
+# `boot` (Tauri `pulse-app`; …) — the one-program summary of the boot verb
+[[pattern]]
+id = "boot-tauri"
+fixed = '`boot` (Tauri'
+
+# the witness arm: "the one spawn command / line"
+[[pattern]]
+id = "one-spawn"
+fixed = 'the one spawn'
+
+# the witness arm: "the app's spawn line alone" / "into the app's spawn alone"
+[[pattern]]
+id = "apps-spawn"
+regex = '''the app's spawn( line)?( alone)?'''
+
+# the witness arm: "read solely by" / "read by `scripts/agent-run.sh boot` alone"
+[[pattern]]
+id = "boot-alone"
+regex = '''read (solely )?by `(scripts/)?agent-run\.sh boot`'''
+
+# the status and readiness verdicts: "four arms"
+[[pattern]]
+id = "four-arms"
+fixed = 'four arms'
+
+# the six-member status object
+[[pattern]]
+id = "status-six"
+fixed = 'pid, ended, log_file_basename'
+
+# the five-member readiness object
+[[pattern]]
+id = "ready-five"
+fixed = 'pid, ended, otlp_grpc'
+
+# the status verb's exits
+[[pattern]]
+id = "exits-0112"
+fixed = '0/1/1/2'
+
+# "NO CI step makes the gap check" / "no CI step makes the heartbeat gap check"
+[[pattern]]
+id = "no-gap-step"
+regex = '''no CI step makes the (heartbeat )?gap check'''
+ignore_case = true
+
+# "its CI enforcement stands unmet" / "is made by no CI step and stands unmet"
+[[pattern]]
+id = "stands-unmet"
+fixed = 'stands unmet'
+
+# "is carried on the working route from that chunk's wrap"
+[[pattern]]
+id = "carried-route"
+fixed = 'carried on the working route'
+
+# "`perf:budget` is the whole perf gate"
+[[pattern]]
+id = "whole-perf-gate"
+fixed = 'the whole perf gate'
+
+# upload counts: "the six uploads", "two uploads"
+[[pattern]]
+id = "upload-count"
+regex = '''(six|two) uploads'''
+
+# "The one app log a run keeps"
+[[pattern]]
+id = "one-app-log"
+fixed = 'one app log'
+
+# "the boot job prints no frame line"
+[[pattern]]
+id = "no-frame-line"
+fixed = 'no frame line'
+
+# the owner clause "which keeps the engine's log in CI"
+[[pattern]]
+id = "keeps-log-ci"
+fixed = '''keeps the engine's log in CI'''
+
+# "with no workflow step and no harness verb of its own"
+[[pattern]]
+id = "no-wf-step"
+fixed = 'no workflow step'
+
+# the progress reading's one asserter
+[[pattern]]
+id = "asserted-by"
+fixed = 'asserted by `cargo xtask check:ingest-progress`'
+
+# sh+ps1 "in lockstep but for the sh-only exit-witness arm"
+[[pattern]]
+id = "lockstep"
+fixed = 'in lockstep'

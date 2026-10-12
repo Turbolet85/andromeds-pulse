@@ -40,12 +40,10 @@ work, not hypothetical.
 ## Encoding & heredocs
 - Heredoc terminators must be column-0 and whitespace-exact — a padded terminator silently
   swallows the rest of the script.
-- The transport collapses a BACKSLASH PAIR `\\` to `\` before bash sees it, inside a quoted heredoc too (measured
-  2026-09-23 on three payloads) — a backslash-bearing payload goes through a scratchpad file written by the
-  Write tool.
 - The repo pins LF through `.gitattributes` (setup appends the lines): `git ls-files --eol` on a pipeline file
   reads `i/lf w/lf`. Never write CRLF into a pipeline file, and never fix a terminator reading with a
   terminator-agnostic script.
 
 ## Session Additions
 - 2026-10-05: On the Linux host the Bash tool's working directory persists across calls and the cwd guard blocks only a LEADING `cd`, so a `cd` inside a loop or a compound command silently moves the session cwd for every later call — use absolute paths or a `( cd DIR && … )` subshell there.
+- 2026-10-10: This host's user git config sets `diff.mnemonicPrefix`, so a commit-to-work-tree `git diff` prints `c/` and `w/` header prefixes where a commit-to-commit diff prints `a/` and `b/`: a probe that parses diff headers pins `--src-prefix=a/ --dst-prefix=b/`, and the host's git config is never changed to make a probe pass.

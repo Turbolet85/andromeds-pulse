@@ -1,0 +1,15 @@
+# Evidence, not a dependency manifest: the red control for `cargo audit --file`.
+# Nothing builds from this file; see audit-control.md beside it.
+version = 3
+
+[[package]]
+name = "control"
+version = "0.0.0"
+dependencies = [
+ "time",
+]
+
+[[package]]
+name = "time"
+version = "0.1.43"
+source = "registry+https://github.com/rust-lang/crates.io-index"

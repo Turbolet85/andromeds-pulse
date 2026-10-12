@@ -1,0 +1,1 @@
+2026-10-10-capability-record-re-based · pending · one current record for all 82 capability ids, each claimed or retired with its surface; the old gate reads it · → andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/

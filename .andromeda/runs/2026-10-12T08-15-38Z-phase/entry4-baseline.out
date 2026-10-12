@@ -1,0 +1,31 @@
+gate v1.15 · 01bedf67
+shell /usr/bin/bash (from $SHELL; -c, non-login)
+root . · marker 2026-10-12-stdio-agent-reaches-the-door · entries 23
+logs $TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/phase-2026-10-12T08-15-38Z · bound: GNU timeout
+delta docs 56 · unmapped 5
+walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 61
+prose L160-166: No window boot smoke: no file on the boot-smoke trigger list changes (`pulse-app/src/main.… (692 chars)
+  1 lint        not run — excluded · cargo fmt --check
+  2 lint        not run — excluded · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)
+  3 probe       not run — excluded · git diff --name-only d3e694d29cf79f27c6d0d7fabbf9b057fddd9… (546 chars)
+  4 unit        red · exit 0 ✗ (exit 94) · exit 94 · 1.78s · 370 B → 4.log · cargo nextest run --workspace --profile ci --no-tests=fail… (185 chars)
+  5 probe       not run — excluded · grep -cE 'init_process|write_pid_file|observability|tracin… (118 chars)
+  6 integration not run — excluded · for i in 1 2 3 4 5 6 7; do cargo nextest run --workspace -… (260 chars)
+  7 lint        not run — excluded · cargo xtask check:english-sources
+  8 probe       not run — excluded · cargo xtask quarantine-tracking
+  9 probe       not run — excluded · cargo xtask capability-widening-check
+ 10 probe       not run — excluded · cargo xtask check:ingest-progress
+ 11 probe       not run — excluded · cargo xtask check:staged-artifacts
+ 12 probe       not run — excluded · cargo xtask capability-drift
+ 13 probe       not run — excluded · cargo xtask verify:capability-matrix
+ 14 unit        not run — excluded · cargo nextest run --workspace --profile ci --no-tests=fail
+ 15 build       not run — excluded · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)
+ 16 probe       not run — excluded · git diff --quiet d3e694d29cf79f27c6d0d7fabbf9b057fddd99d0 … (95 chars)
+ 17 e2e         not run — excluded · d="target/engine-cycle/$(date -u +%Y%m%dT%H%M%SZ)-door" &&… (278 chars)
+ 18 integration not run — excluded · d="$(mise where node@24)" && PATH="$d/bin:$PATH" cargo xta… (75 chars)
+ 19 probe       not run — excluded · test ! -e target/pre-push/run/data/run/andromeda-pulse.pid… (162 chars)
+ 20 probe       not run — excluded · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)
+ 21 probe       not run — excluded · m="$(git ls-remote origin refs/heads/main | cut -f1)" && t… (111 chars)
+ 22 probe       not run — excluded · git diff --quiet && git diff --cached --quiet && git push … (92 chars)
+ 23 probe       not run — excluded · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)
+entries 23 · green 0 · red 1 (4) · recorded 0 · timeout 0 · not-run 22

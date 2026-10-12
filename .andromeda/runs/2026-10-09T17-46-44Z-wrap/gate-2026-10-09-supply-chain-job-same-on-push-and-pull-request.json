@@ -1,0 +1,1341 @@
+[
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T17:49:39Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base b3e58597 (the parent of the oldest pre-CI commit f36a2ac3) · lists new 0 · modify 2 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 2 · listed 2 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 64"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "b3e58597dbe9f10e541c0bc1d122b8647ba8c62a",
+"base_why": "the parent of the oldest pre-CI commit f36a2ac3",
+"counts": {
+"changed": 2,
+"listed": 2,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 64,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T18:12:51Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root . · marker 2026-10-09-supply-chain-job-same-on-push-and-pull-request · entries 45",
+"logs $TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z · bound: GNU timeout",
+"delta docs 62 · python 1 · unmapped 5",
+"walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 68",
+"prose L92-94: The chunk's own probes come first, then the standard gate set in test-plan §3 order: `capa… (326 chars)",
+"prose L96-109: Absences, each with its reason: - No boot-smoke entry: neither file is on the boot-smoke t… (1256 chars)",
+"prose L111-114: The control entry and the three patch entries read files steps 5 and 8 write: on the untou… (375 chars)",
+"prose L116-134: **The operator pass, in this order.** 1. The hygiene entry, then the pre-CI commit, then t… (1791 chars)",
+"prose L136-140: No run is re-run to obtain a green. The witness read is scoped to the `supply-chain` check… (478 chars)",
+"prose L142-143: Evidence files are written by /implement and by the operator pass from the entries' record… (122 chars)",
+"  1 lint        green · exit 0 · 0.93s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 1.35s · 72 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 probe       green · exit 0 · 0.01s · 0 B → 3.log · git diff --name-only b3e58597dbe9f10e541c0bc1d122b8647ba8c… (250 chars)",
+"  4 probe       green · exit 0 · 0.08s · 51 B → 4.log · python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.… (139 chars)",
+"  5 probe       green · exit 0 · 0.06s · 7 B → 5.log · python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.… (251 chars)",
+"  6 probe       green · exit 0 · 0.1s · 75 B → 6.log · python -X utf8 -c \"import subprocess, yaml; b = yaml.safe_… (687 chars)",
+"  7 probe       green · exit 0 · 0.07s · 36 B → 7.log · python -X utf8 -c \"import yaml; w = yaml.safe_load(open('.… (281 chars)",
+"  8 probe       green · exit 1 · 0.0s · 2 B → 8.log · grep -c -E 'rustsec/audit-check|secrets\\.' .github/workflo… (67 chars)",
+"  9 probe       green · exit 1 · 0.01s · 2 B → 9.log · git diff b3e58597dbe9f10e541c0bc1d122b8647ba8c62a -- .gith… (185 chars)",
+" 10 probe       green · exit 0 · 2.34s · 2585 B → 10.log · cargo audit",
+" 11 probe       green · exit 1 · 0.64s · 639 B → 11.log · cargo audit --file andromeda-pulse-0.4.0/chunks/2026-10-09… (133 chars)",
+" 12 probe       green · exit 0 · 0.0s · 2 B → 12.log · grep -c '^diff --git ' andromeda-pulse-0.4.0/chunks/2026-1… (136 chars)",
+" 13 probe       green · exit 0 · 0.04s · 0 B → 13.log · i=\"$(mktemp)\" && GIT_INDEX_FILE=\"$i\" git read-tree 60ef43c… (282 chars)",
+" 14 probe       green · exit 0 · 0.01s · 0 B → 14.log · git apply --check --reverse andromeda-pulse-0.4.0/chunks/2… (141 chars)",
+" 15 lint        green · exit 0 · 0.83s · 100 B → 15.log · cargo xtask check:english-sources",
+" 16 probe       green · exit 0 · 0.49s · 394 B → 16.log · cargo xtask capability-widening-check",
+" 17 probe       green · exit 0 · 0.48s · 99 B → 17.log · cargo xtask check:ingest-progress",
+" 18 probe       green · exit 0 · 0.52s · 342 B → 18.log · cargo xtask check:staged-artifacts",
+" 19 probe       green · exit 0 · 0.6s · 714 B → 19.log · cargo xtask capability-drift",
+" 20 probe       green · exit 0 · 0.49s · 396 B → 20.log · cargo xtask verify:capability-matrix",
+" 21 unit        green · exit 0 · 18.26s · 672723 B → 21.log · cargo nextest run --workspace --profile ci",
+" 22 build       green · exit 0 · 1.61s · 427 B → 22.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 23 probe       green · exit 0 · 0.02s · 0 B → 23.log · git diff --quiet b3e58597dbe9f10e541c0bc1d122b8647ba8c62a … (95 chars)",
+" 24 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)",
+" 25 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (92 chars)",
+" 26 probe       not run — leg operator (the letter drives it) · git fetch origin main && test \"$(git rev-parse origin/main… (543 chars)",
+" 27 probe       not run — leg operator (the letter drives it) · git diff --name-only origin/main hotfix/p-120-audit-step |… (72 chars)",
+" 28 probe       not run — leg operator (the letter drives it) · git merge-tree --write-tree --name-only hotfix/p-120-audit… (68 chars)",
+" 29 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (91 chars)",
+" 30 probe       not run — leg operator (the letter drives it) · gh pr create --repo Turbolet85/andromeds-pulse --base main… (316 chars)",
+" 31 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)",
+" 32 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>… (234 chars)",
+" 33 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>… (159 chars)",
+" 34 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (114 chars)",
+" 35 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>… (234 chars)",
+" 36 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>… (159 chars)",
+" 37 probe       not run — leg operator (the letter drives it) · git fetch origin main && git show origin/main:.github/work… (113 chars)",
+" 38 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (122 chars)",
+" 39 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>… (234 chars)",
+" 40 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/jobs/$(gh… (250 chars)",
+" 41 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/jobs/$(gh… (258 chars)",
+" 42 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/jobs/$(gh… (247 chars)",
+" 43 probe       not run — leg operator (the letter drives it) · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>… (159 chars)",
+" 44 probe       not run — leg operator (the letter drives it) · git merge-tree --write-tree --name-only origin/main HEAD",
+" 45 probe       not run — leg operator (the letter drives it) · gh pr view 40 --repo Turbolet85/andromeds-pulse --json mer… (128 chars)",
+"entries 45 · green 23 · red 0 · recorded 0 · timeout 0 · not-run 22"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"plan": "./andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/plan.md",
+"root": ".",
+"shell": "/usr/bin/bash",
+"out_dir": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z",
+"delta": {
+"docs": [
+".andromeda/architecture-amendments.md",
+".andromeda/architecture.md",
+".andromeda/friction-log.ndjson",
+".andromeda/obs-plan-amendments.md",
+".andromeda/obs-plan.md",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md",
+".andromeda/security-plan-amendments.md",
+".andromeda/security-plan.md",
+".andromeda/state.yaml",
+".andromeda/test-plan-amendments.md",
+".andromeda/test-plan.md",
+".claude/docs/obs-summary.md",
+".claude/docs/security-summary.md",
+".claude/docs/session-learnings.md",
+".claude/rules/observability.md",
+".claude/rules/security.md",
+".claude/rules/testing.md",
+".claude/rules/verification-harness.md",
+".claude/session-handoff.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/evidence/audit-control.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/evidence/operator-pass.md",
+"andromeda-pulse-0.4.0/working-route.md",
+".andromeda/runs/2026-10-09T16-33-10Z-implement/matrix-2026-10-09-supply-chain-job-same-on-push-and-pull-request.json",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/.raw-fanout-a11y-plan.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/.raw-fanout-design-system.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/.raw-fanout-layout-templates.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/a11y-plan-contracts.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/add-boot-smoke.json",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/architecture-contracts.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/architecture-entry-1.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/architecture-entry-2.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/cascade-2026-10-09-supply-chain-job-same-on-push-and-pull-request.json",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/cascade-dispositions.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/cascade-patterns-2.toml",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/cascade-patterns.toml",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/citation-dispositions.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/cites-2026-10-09-supply-chain-job-same-on-push-and-pull-request.json",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/curation.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/evolve-2026-10-09-supply-chain-job-same-on-push-and-pull-request.json",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/fanout-results.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/gate-2026-10-09-supply-chain-job-same-on-push-and-pull-request.json",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/inputs-2026-10-09-supply-chain-job-same-on-push-and-pull-request.json",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/matrix-2026-10-09-supply-chain-job-same-on-push-and-pull-request.json",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/new-text.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/note-P-129.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/obs-plan-contracts.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/obs-plan-entry-1.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/registry-2026-10-09-supply-chain-job-same-on-push-and-pull-request.json",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/relay-1.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/relay-2.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/route-entry.txt",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/route-no-marker.json",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/security-plan-entry-1.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/security-plan-entry-2.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/security-plan-entry-3.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/splice-2026-10-09-supply-chain-job-same-on-push-and-pull-request.json",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/test-plan-contracts.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/test-plan-entry-1.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/test-plan-entry-2.md",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/test-plan-entry-3.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/report.md"
+],
+"python": [
+"andromeda-pulse-0.4.0/requirements.md"
+]
+},
+"unmapped": [
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/inputs/andromeda-inputs.json",
+"andromeda-pulse-0.4.0/verification-matrix.json",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/inputs/I5-pulse-wrap-supply-chain-push-and-pr-2026-10-09.md.txt",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/inputs/I6-relay-1.md.txt",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/inputs/I7-relay-2.md.txt"
+],
+"walk_class": {
+"marked": {
+"rust": [
+"xtask/src/source_lint.rs",
+"xtask/src/staged_gate.rs"
+]
+},
+"uncommitted": 68,
+"problem": null
+},
+"prose": [
+{
+"from": 92,
+"to": 94,
+"text": "The chunk's own probes come first, then the standard gate set in test-plan §3 order: `capability-drift` before the default-features workspace nextest, the `--features mcp-server` bindings regen as the last cargo-adjacent step, and the base-identity bindings close, since the chunk adds no procedure. The operator pass follows."
+},
+{
+"from": 96,
+"to": 109,
+"text": "Absences, each with its reason: - No boot-smoke entry: neither file is on the boot-smoke trigger list (test-plan §3 Per-chunk gate discipline), and   the chunk boots no app. The boot smoke that matters here is the CI job, read in the operator pass. - No webview gate and no headful self-verify: no `pulse-app/ui/**` path is touched. - No local pre-push gate: `cargo xtask pre-push:linux` cannot run on this host (test-plan amendment   `2026-10-02-incident-events-readable-through-mcp`); CI is the gate each push meets. - No liveness probe and no live leg: the chunk drives no external process (research.md, the harness slot). - No targeted nextest entry: steps 2 and 4 run the one binary as the red-before-green pair; the workspace nextest   entry runs the same tests on every re-run. - Step 7's mutations edit the workflow and revert, so they are one-shots at implement; the three tests in the   workspace nextest entry guard the properties on re-run. - No local run of `main`'s tests on the second branch's tree: it would be a cold build of a second checkout. Its   gate is its own pull-request run, which runs `main`'s whole workflow on three systems; the local entries prove   only that the patch applies to `main` and equals what the build tree holds."
+},
+{
+"from": 111,
+"to": 114,
+"text": "The control entry and the three patch entries read files steps 5 and 8 write: on the untouched tree those files are absent and the entries read red. `cargo audit` reads the advisory database over the network. If an advisory is published between two readings, a red there is the gate working, not this chunk's defect: it is recorded, not re-run, and dispositioned at the wrap."
+},
+{
+"from": 116,
+"to": 134,
+"text": "**The operator pass, in this order.** 1. The hygiene entry, then the pre-CI commit, then the build-branch push. 2. The second branch: one entry confirms `main` has not moved, cuts `hotfix/p-120-audit-step` from it in a scratch    worktree, applies the patch, commits with the prepared message and removes the worktree. Two reads follow before    anything else leaves the host: the branch differs from `main` in the two files only, and the build branch    still merges cleanly into it. Then the branch is pushed and its pull request into `main` is opened, ready for    review, not a draft. 3. The build branch's pull-request run is read, whole; then the second branch's pull-request run, whole. Each is    followed by its audit step's conclusion and its report-only jobs listing, by run id, as `<id>`. 4. **The founder-attended stop.** When the second branch's run is green the pass stops and says so, with the pull    request's number. The operator brings it to the founder. Nothing is merged and nothing is pushed to `main` by    the pass. If that run is red in a job the repair does not touch, the reading is recorded as it stands and    brought to the operator the same way; it is not re-run. 5. After his merge, on the operator's word: `main` is fetched and read to hold the repair; the push run on its new    tip is read, scoped to the `supply-chain` check. This is the witness. Then that run by its id, as `<id>`: the    audit step's conclusion, the job log holding cargo audit's scan line, the job log holding no check-run denial,    the runner image lines (report-only, for the evidence), and the jobs listing (report-only). 6. The meeting of the branches on the real commits: the build branch merges cleanly into the new `main`; pull    request #40's own mergeable word is recorded."
+},
+{
+"from": 136,
+"to": 140,
+"text": "No run is re-run to obtain a green. The witness read is scoped to the `supply-chain` check so that it does not hang on a job the repair does not touch; the jobs listing beside it says whether every job of that push run is `success`, and the report states that word for `main` as a whole. `boot smoke (ubuntu-22.04)` and the `a11y` rows are read from all three listings and recorded as read; a red boot smoke on equal source is the folded watch's recurrence and goes to the wrap."
+},
+{
+"from": 142,
+"to": 143,
+"text": "Evidence files are written by /implement and by the operator pass from the entries' recorded outputs; no entry writes one."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.93,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/2.log",
+"bytes": 72,
+"log_sha8": "0f63fad4",
+"exit": 0,
+"seconds": 1.35,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "git diff --name-only b3e58597dbe9f10e541c0bc1d122b8647ba8c62a -- crates pulse-app xtask scripts docs Cargo.toml Cargo.lock deny.toml rust-toolchain.toml .github .cargo .config ':!.github/workflows/ci.yml' ':!pulse-app/tests/quality_gate_workflow.rs' ",
+"run_sha8": "b1601d41",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/3.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.github/workflows/ci.yml', encoding='utf-8')); print(' '.join(sorted(d['jobs'])))\"",
+"run_sha8": "45c4bfe9",
+"expect": [
+"exit 0",
+"last line a11y boot coverage lint-test mcp-test supply-chain"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/4.log",
+"bytes": 51,
+"log_sha8": "1cc58ec9",
+"exit": 0,
+"seconds": 0.08,
+"readings": [
+"exit 0 ✓",
+"last line 'a11y boot coverage lint-test mcp-test supply-chain' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.github/workflows/ci.yml', encoding='utf-8')); print(sum(1 for v in d['jobs'].values() if v.get('runs-on') == 'ubuntu-22.04' and 'strategy' not in v and 'needs' not in v), 'of', len(d['jobs']))\"",
+"run_sha8": "b1a952dd",
+"expect": [
+"exit 0",
+"last line 6 of 6"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/5.log",
+"bytes": 7,
+"log_sha8": "c1ae8e5b",
+"exit": 0,
+"seconds": 0.06,
+"readings": [
+"exit 0 ✓",
+"last line '6 of 6' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "python -X utf8 -c \"import subprocess, yaml; b = yaml.safe_load(subprocess.run(['git', 'show', 'b3e58597dbe9f10e541c0bc1d122b8647ba8c62a:.github/workflows/ci.yml'], capture_output=True, text=True, encoding='utf-8', check=True).stdout); w = yaml.safe_load(open('.github/workflows/ci.yml', encoding='utf-8')); bs, ws = b['jobs']['supply-chain']['steps'], w['jobs']['supply-chain']['steps']; print(sorted(j for j in b['jobs'] if b['jobs'][j] != w['jobs'].get(j)), [s['name'] for s, t in zip(bs, ws) if s != t], len(bs) == len(ws), b['env'] == w['env'], b['permissions'] == w['permissions'] == {'contents': 'read'}, b[True] == w[True] == {'pull_request': {}, 'push': {'branches': ['main']}})\"",
+"run_sha8": "27d43551",
+"expect": [
+"exit 0",
+"last line ['supply-chain'] ['cargo audit (RustSec advisory DB)'] True True True True"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/6.log",
+"bytes": 75,
+"log_sha8": "ff758a7c",
+"exit": 0,
+"seconds": 0.1,
+"readings": [
+"exit 0 ✓",
+"last line \"['supply-chain'] ['cargo audit (RustSec advisory DB)'] True True True True\" ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "python -X utf8 -c \"import yaml; w = yaml.safe_load(open('.github/workflows/ci.yml', encoding='utf-8')); j = w['jobs']['supply-chain']; s = [t for t in j['steps'] if t['name'] == 'cargo audit (RustSec advisory DB)']; print(len(s), sorted(s[0]), s[0].get('run'), 'permissions' in j)\"",
+"run_sha8": "b80e4645",
+"expect": [
+"exit 0",
+"last line 1 ['name', 'run'] cargo audit False"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/7.log",
+"bytes": 36,
+"log_sha8": "001bc989",
+"exit": 0,
+"seconds": 0.07,
+"readings": [
+"exit 0 ✓",
+"last line \"1 ['name', 'run'] cargo audit False\" ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "grep -c -E 'rustsec/audit-check|secrets\\.' .github/workflows/ci.yml",
+"run_sha8": "7dbdf2b5",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/8.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.0,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "git diff b3e58597dbe9f10e541c0bc1d122b8647ba8c62a -- .github/workflows/ci.yml | grep -c -E '^\\+.*(uses:|permissions:|secrets\\.|continue-on-error|needs:|if:|retry|node-version|apt-get)' ",
+"run_sha8": "f156a4d8",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/9.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.01,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "cargo audit",
+"run_sha8": "317b8907",
+"expect": [
+"exit 0",
+"contains Cargo.lock for vulnerabilities"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/10.log",
+"bytes": 2585,
+"log_sha8": "5549ba4f",
+"exit": 0,
+"seconds": 2.34,
+"readings": [
+"exit 0 ✓",
+"contains 'Cargo.lock for vulnerabilities' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "cargo audit --file andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/evidence/audit-control.lock",
+"run_sha8": "2ee7550a",
+"expect": [
+"exit 1",
+"contains RUSTSEC-2020-0071",
+"contains error: 1 vulnerability found!"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/11.log",
+"bytes": 639,
+"log_sha8": "153105a4",
+"exit": 1,
+"seconds": 0.64,
+"readings": [
+"exit 1 ✓",
+"contains 'RUSTSEC-2020-0071' ✓",
+"contains 'error: 1 vulnerability found!' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "grep -c '^diff --git ' andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/evidence/main-hotfix.patch",
+"run_sha8": "ac29dee3",
+"expect": [
+"exit 0",
+"last line 2"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/12.log",
+"bytes": 2,
+"log_sha8": "53c234e5",
+"exit": 0,
+"seconds": 0.0,
+"readings": [
+"exit 0 ✓",
+"last line '2' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "i=\"$(mktemp)\" && GIT_INDEX_FILE=\"$i\" git read-tree 60ef43c6859cb35a9f9ee5664ab892339cffdf4f && GIT_INDEX_FILE=\"$i\" git apply --cached --check andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/evidence/main-hotfix.patch; r=$?; rm -f \"$i\"; exit $r",
+"run_sha8": "7498c5e4",
+"expect": [
+"exit 0"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/13.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.04,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "git apply --check --reverse andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/evidence/main-hotfix.patch",
+"run_sha8": "dfae5d20",
+"expect": [
+"exit 0"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/14.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "lint",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/15.log",
+"bytes": 100,
+"log_sha8": "4c25a869",
+"exit": 0,
+"seconds": 0.83,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/16.log",
+"bytes": 394,
+"log_sha8": "69384cd8",
+"exit": 0,
+"seconds": 0.49,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/17.log",
+"bytes": 99,
+"log_sha8": "09869944",
+"exit": 0,
+"seconds": 0.48,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 18,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/18.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.52,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/19.log",
+"bytes": 714,
+"log_sha8": "fea10e3b",
+"exit": 0,
+"seconds": 0.6,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/20.log",
+"bytes": 396,
+"log_sha8": "2d28963e",
+"exit": 0,
+"seconds": 0.49,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 21,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/21.log",
+"bytes": 672723,
+"log_sha8": "d5e18b96",
+"exit": 0,
+"seconds": 18.26,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 22,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/22.log",
+"bytes": 427,
+"log_sha8": "0b6f8a68",
+"exit": 0,
+"seconds": 1.61,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 23,
+"role": "probe",
+"run": "git diff --quiet b3e58597dbe9f10e541c0bc1d122b8647ba8c62a -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "62f67b58",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-09-supply-chain-job-same-on-push-and-pull-request/wrap-2026-10-09T17-46-44Z/23.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.02,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 24,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "3c62df70",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 25,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin build/andromeda-pulse-0.4.0",
+"run_sha8": "aa77c2b4",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 26,
+"role": "probe",
+"run": "git fetch origin main && test \"$(git rev-parse origin/main)\" = 60ef43c6859cb35a9f9ee5664ab892339cffdf4f && w=\"${TMPDIR:-/tmp}/pulse-p-120-main-hotfix\" && git worktree add -b hotfix/p-120-audit-step \"$w\" origin/main && git -C \"$w\" apply --index \"$PWD/andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/evidence/main-hotfix.patch\" && git -C \"$w\" commit -F \"$PWD/andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/evidence/main-hotfix-commit.txt\" && git worktree remove \"$w\"",
+"run_sha8": "1c04342a",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 27,
+"role": "probe",
+"run": "git diff --name-only origin/main hotfix/p-120-audit-step | paste -sd' ' ",
+"run_sha8": "de780982",
+"expect": [
+"exit 0",
+"last line .github/workflows/ci.yml pulse-app/tests/quality_gate_workflow.rs"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 28,
+"role": "probe",
+"run": "git merge-tree --write-tree --name-only hotfix/p-120-audit-step HEAD",
+"run_sha8": "62cd1ec7",
+"expect": [
+"exit 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 29,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push -u origin hotfix/p-120-audit-step",
+"run_sha8": "7745685e",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 30,
+"role": "probe",
+"run": "gh pr create --repo Turbolet85/andromeds-pulse --base main --head hotfix/p-120-audit-step --title \"fix(ci): cargo audit runs as a plain step, so the supply-chain job ends the same on a push\" --body-file andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/evidence/main-hotfix-pr.md",
+"run_sha8": "f3ff4ad2",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 31,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2700",
+"run_sha8": "d04716c7",
+"expect": [
+"exit 0",
+"contains verdict: green",
+"contains pull_request completed/success"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 32,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | select(.name | startswith(\"supply-chain\")) | .steps[] | select(.name == \"cargo audit (RustSec advisory DB)\") | \"\\(.name) · \\(.conclusion)\"' ",
+"run_sha8": "d6e7f1b3",
+"expect": [
+"exit 0",
+"last line cargo audit (RustSec advisory DB) · success"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 33,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | \"\\(.name) · \\(.conclusion) · \\(.started_at) · \\(.completed_at)\"' ",
+"run_sha8": "a907566f",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 34,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha hotfix/p-120-audit-step --wait 2700",
+"run_sha8": "1018dcb0",
+"expect": [
+"exit 0",
+"contains verdict: green",
+"contains pull_request completed/success"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 35,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | select(.name | startswith(\"supply-chain\")) | .steps[] | select(.name == \"cargo audit (RustSec advisory DB)\") | \"\\(.name) · \\(.conclusion)\"' ",
+"run_sha8": "d6e7f1b3",
+"expect": [
+"exit 0",
+"last line cargo audit (RustSec advisory DB) · success"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 36,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | \"\\(.name) · \\(.conclusion) · \\(.started_at) · \\(.completed_at)\"' ",
+"run_sha8": "a907566f",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 37,
+"role": "probe",
+"run": "git fetch origin main && git show origin/main:.github/workflows/ci.yml | grep -c -E '^        run: cargo audit$' ",
+"run_sha8": "ba4ec07c",
+"expect": [
+"exit 0",
+"last line 1"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 38,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha origin/main --wait 2700 --name supply-chain",
+"run_sha8": "58887f56",
+"expect": [
+"exit 0",
+"contains verdict: green",
+"contains push completed/",
+"lacks pull_request"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 39,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | select(.name | startswith(\"supply-chain\")) | .steps[] | select(.name == \"cargo audit (RustSec advisory DB)\") | \"\\(.name) · \\(.conclusion)\"' ",
+"run_sha8": "d6e7f1b3",
+"expect": [
+"exit 0",
+"last line cargo audit (RustSec advisory DB) · success"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 40,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/jobs/$(gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | select(.name | startswith(\"supply-chain\")) | .id')/logs\" | grep -c 'Cargo.lock for vulnerabilities' ",
+"run_sha8": "123000c5",
+"expect": [
+"exit 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 41,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/jobs/$(gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | select(.name | startswith(\"supply-chain\")) | .id')/logs\" | grep -c 'Resource not accessible by integration' ",
+"run_sha8": "d842a391",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 42,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/jobs/$(gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | select(.name | startswith(\"supply-chain\")) | .id')/logs\" | grep -E 'Image: |Included Software: ' ",
+"run_sha8": "067147f4",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 43,
+"role": "probe",
+"run": "gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] | \"\\(.name) · \\(.conclusion) · \\(.started_at) · \\(.completed_at)\"' ",
+"run_sha8": "a907566f",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 44,
+"role": "probe",
+"run": "git merge-tree --write-tree --name-only origin/main HEAD",
+"run_sha8": "cdc869d5",
+"expect": [
+"exit 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 45,
+"role": "probe",
+"run": "gh pr view 40 --repo Turbolet85/andromeds-pulse --json mergeable,mergeStateStatus --jq '\"\\(.mergeable) · \\(.mergeStateStatus)\"' ",
+"run_sha8": "7083e26e",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T18:13:09Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base b3e58597 (the parent of the oldest pre-CI commit f36a2ac3)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"P1 .andromeda/runs/2026-10-09T17-46-44Z-wrap/.raw-fanout-layout-templates.md:32 ×1 · in-root",
+"in-root: a home path under the root in 1 files — respell: gate.py respell --file {path} (the root prefix dropped, never ~/)",
+"hygiene: refused 1 files — P1 1 · P2 0 · P3 0 · read 94 (runs 77 · evidence 8 · inputs 9) · trails 23 not read · copies 7 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [
+"P1 .andromeda/runs/2026-10-09T17-46-44Z-wrap/.raw-fanout-layout-templates.md:32 ×1 · in-root"
+],
+"counts": {
+"P1": 1,
+"P2": 0,
+"P3": 0,
+"runs": 77,
+"evidence": 8,
+"inputs": 9,
+"trails": 23,
+"copies": 7,
+"kept": 0,
+"binary": 0,
+"in_root": 1
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T18:13:16Z",
+"argv": [
+"respell",
+"--file",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/.raw-fanout-layout-templates.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"respelled .andromeda/runs/2026-10-09T17-46-44Z-wrap/.raw-fanout-layout-templates.md ×1 · −44 B · a7338741→fb26d477"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"path": ".andromeda/runs/2026-10-09T17-46-44Z-wrap/.raw-fanout-layout-templates.md",
+"occurrences": 1,
+"bytes": 44,
+"before": "a7338741",
+"after": "fb26d477"
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T18:13:16Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base b3e58597 (the parent of the oldest pre-CI commit f36a2ac3)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 94 (runs 77 · evidence 8 · inputs 9) · trails 23 not read · copies 7 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 77,
+"evidence": 8,
+"inputs": 9,
+"trails": 23,
+"copies": 7,
+"kept": 0,
+"binary": 0,
+"in_root": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T18:13:17Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base b3e58597 (the parent of the oldest pre-CI commit f36a2ac3) · lists new 0 · modify 2 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 2 · listed 2 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 122"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "b3e58597dbe9f10e541c0bc1d122b8647ba8c62a",
+"base_why": "the parent of the oldest pre-CI commit f36a2ac3",
+"counts": {
+"changed": 2,
+"listed": 2,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 122,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T18:13:32Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base b3e58597 (the parent of the oldest pre-CI commit f36a2ac3)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 95 (runs 78 · evidence 8 · inputs 9) · trails 24 not read · copies 7 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 78,
+"evidence": 8,
+"inputs": 9,
+"trails": 24,
+"copies": 7,
+"kept": 0,
+"binary": 0,
+"in_root": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.13",
+"sha8": "3718c868",
+"ts": "2026-10-09T18:14:13Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base b3e58597 (the parent of the oldest pre-CI commit f36a2ac3)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 95 (runs 78 · evidence 8 · inputs 9) · trails 24 not read · copies 7 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 78,
+"evidence": 8,
+"inputs": 9,
+"trails": 24,
+"copies": 7,
+"kept": 0,
+"binary": 0,
+"in_root": 0
+},
+"indeterminate": 0
+}
+}
+]

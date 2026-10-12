@@ -1,0 +1,365 @@
+[
+{
+"tool": "planlint",
+"v": "1.7",
+"sha8": "3bb54b9c",
+"ts": "2026-10-09T16:13:14Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"fence: 33 entries · plan: andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/plan.m…",
+"check 9 · CI-outcome reads: 6 · leg operator exempt: 6 · Platform issues consulted: filled · `- `repo:rustsec/audit-ch…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: none · `none — no live leg in this chunk (it boots no…`",
+"check 4 (5) · leg entries with a content atom: 6 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 6 · not ci.py conclusion: 4 → HIT",
+"  gate 25 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 28 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 31 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 32 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 4 (15) · grep → wc -l counts asserting exit 0 and last line 0: 0",
+"check 4 (16) · guards whose exclusions leave a new file in: 0 of 1 with an exclusion",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 4 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13)–(16)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "filled",
+"ci_reads": 6,
+"operator": 6,
+"hit": false
+},
+"harness": {
+"slot": "none",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 6,
+"bare": []
+},
+"tool": {
+"operator": 6,
+"hand": [
+25,
+28,
+31,
+32
+]
+},
+"base": {
+"operator": 12,
+"reads": []
+},
+"count": {
+"hits": [],
+"unsplit": []
+},
+"newfiles": {
+"operator": 12,
+"guards": 1,
+"hits": [],
+"abstain": []
+},
+"check2": {
+"entries": 13,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 4
+}
+},
+{
+"tool": "planlint",
+"v": "1.7",
+"sha8": "3bb54b9c",
+"ts": "2026-10-09T16:14:55Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"fence: 33 entries · plan: andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/plan.m…",
+"check 9 · CI-outcome reads: 6 · leg operator exempt: 6 · Platform issues consulted: filled · `- `repo:rustsec/audit-ch…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: none · `none — no live leg in this chunk (it boots no…`",
+"check 4 (5) · leg entries with a content atom: 6 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 6 · not ci.py conclusion: 4 → HIT",
+"  gate 25 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 28 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 31 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 32 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 4 (15) · grep → wc -l counts asserting exit 0 and last line 0: 0",
+"check 4 (16) · guards whose exclusions leave a new file in: 0 of 1 with an exclusion",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 4 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13)–(16)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "filled",
+"ci_reads": 6,
+"operator": 6,
+"hit": false
+},
+"harness": {
+"slot": "none",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 6,
+"bare": []
+},
+"tool": {
+"operator": 6,
+"hand": [
+25,
+28,
+31,
+32
+]
+},
+"base": {
+"operator": 12,
+"reads": []
+},
+"count": {
+"hits": [],
+"unsplit": []
+},
+"newfiles": {
+"operator": 12,
+"guards": 1,
+"hits": [],
+"abstain": []
+},
+"check2": {
+"entries": 13,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 4
+}
+},
+{
+"tool": "planlint",
+"v": "1.7",
+"sha8": "3bb54b9c",
+"ts": "2026-10-09T16:28:09Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"fence: 45 entries · plan: andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/plan.m…",
+"check 9 · CI-outcome reads: 9 · leg operator exempt: 9 · Platform issues consulted: filled · `- `repo:rustsec/audit-ch…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: none · `none — no live leg in this chunk (it boots no…`",
+"check 4 (5) · leg entries with a content atom: 10 · note without `atom from`: 1 → HIT",
+"  gate 34 · leg operator · contains verdict: green · note: after the pull request into main is opened: its whole pull-r…",
+"check 4 (13) · operator CI-outcome reads: 9 · not ci.py conclusion: 6 → HIT",
+"  gate 32 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 33 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 35 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 36 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 39 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 43 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 4 (15) · grep → wc -l counts asserting exit 0 and last line 0: 0",
+"check 4 (16) · guards whose exclusions leave a new file in: 0 of 1 with an exclusion",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 7 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13)–(16)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "filled",
+"ci_reads": 9,
+"operator": 9,
+"hit": false
+},
+"harness": {
+"slot": "none",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 10,
+"bare": [
+34
+]
+},
+"tool": {
+"operator": 9,
+"hand": [
+32,
+33,
+35,
+36,
+39,
+43
+]
+},
+"base": {
+"operator": 22,
+"reads": []
+},
+"count": {
+"hits": [],
+"unsplit": []
+},
+"newfiles": {
+"operator": 22,
+"guards": 1,
+"hits": [],
+"abstain": []
+},
+"check2": {
+"entries": 15,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 7
+}
+},
+{
+"tool": "planlint",
+"v": "1.7",
+"sha8": "3bb54b9c",
+"ts": "2026-10-09T16:29:38Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"fence: 45 entries · plan: andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/plan.m…",
+"check 9 · CI-outcome reads: 9 · leg operator exempt: 9 · Platform issues consulted: filled · `- `repo:rustsec/audit-ch…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: none · `none — no live leg in this chunk (it boots no…`",
+"check 4 (5) · leg entries with a content atom: 10 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 9 · not ci.py conclusion: 6 → HIT",
+"  gate 32 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 33 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 35 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 36 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 39 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"  gate 43 · leg operator · gh api \"repos/Turbolet85/andromeds-pulse/actions/runs/<id>/jobs?per_page=100\" --jq '.jobs[] …",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 4 (15) · grep → wc -l counts asserting exit 0 and last line 0: 0",
+"check 4 (16) · guards whose exclusions leave a new file in: 0 of 1 with an exclusion",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 6 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13)–(16)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "filled",
+"ci_reads": 9,
+"operator": 9,
+"hit": false
+},
+"harness": {
+"slot": "none",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 10,
+"bare": []
+},
+"tool": {
+"operator": 9,
+"hand": [
+32,
+33,
+35,
+36,
+39,
+43
+]
+},
+"base": {
+"operator": 22,
+"reads": []
+},
+"count": {
+"hits": [],
+"unsplit": []
+},
+"newfiles": {
+"operator": 22,
+"guards": 1,
+"hits": [],
+"abstain": []
+},
+"check2": {
+"entries": 15,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 6
+}
+}
+]

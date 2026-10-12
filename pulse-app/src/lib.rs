@@ -4,13 +4,17 @@ pub mod bincode_bounded;
 pub mod cadence_runner;
 pub mod config_router;
 pub mod connection_router;
+pub mod console;
 pub mod corpus_retrieval;
 pub mod degraded_mode_runtime;
 pub mod deterministic_inference;
 pub mod diagnostics_router;
 pub mod digest_runtime;
 pub mod discovery_observer;
+pub mod door;
+pub mod door_bridge;
 pub mod drain_persistence;
+pub mod engine_boot;
 pub mod hardware_profile;
 pub mod heartbeat;
 pub mod incident_observer;
@@ -39,6 +43,7 @@ pub mod tray;
 pub mod viz_routers;
 pub mod window;
 pub mod window_geometry;
+pub mod xlib_threads;
 
 pub fn taurpc_export_config() -> specta_typescript::Typescript {
     specta_typescript::Typescript::default().bigint(specta_typescript::BigIntExportBehavior::Number)

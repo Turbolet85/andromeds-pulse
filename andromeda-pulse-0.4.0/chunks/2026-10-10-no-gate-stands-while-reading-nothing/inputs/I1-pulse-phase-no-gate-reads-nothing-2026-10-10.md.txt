@@ -1,0 +1,27 @@
+# Phase directive — Pulse 0.4.0, eighth chunk: `No gate stands while reading nothing` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on. Nothing here is this
+chunk's design.
+
+1. **The entry's four `CARRY:` blocks are the ground**, and each says how it was read: two gates were read on runs,
+   the others from a step's text or only seen. Before planning, every one is MEASURED: what the gate reads on a run
+   where its input is there, and what it does when its input is empty or absent. A gate described from its text is not
+   yet a reading.
+2. **There is no third state, as at the last chunk.** A gate reads something that can make it fail, or it leaves. A
+   gate that prints NEUTRAL or PASS over nothing is the defect. Which way each falls is a technical fork and mine:
+   bring them at P4 as ONE dialog, each with what repairing costs, what the gate is worth to the version as it will
+   stand, and where it sits.
+3. **Where it sits decides half of it.** Gate 4, the one home of gate 5's check and the a11y upload's path members sit
+   in jobs that leave at `Window's gates retired`. For those the question is not "repair or remove" in the abstract:
+   say what the job loses today if the gate leaves now, and whether a later entry (`Agent harness drives the console
+   engine`, `Engine end-to-end gate reachable`) already owns the same reading over the engine. Nothing is repaired for
+   a surface on its way out unless leaving it would let a defect through before then.
+4. **The branch arm.** measured at the last chunk: "Branch: 0/0 = 100.0% (threshold 70%)" on two runs, the uploaded
+   lcov carrying no branch count. Research says WHY the report holds no branch count before the plan chooses between
+   producing one and retiring the arm; a threshold that can only be met by a toolchain the project does not pin is said
+   so, with its cost.
+5. **P-128 is claimed here** if the plan makes its whole acceptance true, by the reading the entry carries ("produced
+   by a workflow or committed in the tree"). Show the concretization against the acceptance at P5.
+6. **The plan lists the merge-base probe** directly before its push entry (test-plan §3, new at the last wrap).
+7. **A change that needs a new permission, token, trigger or third-party action halts for the founder's own word.**
+8. **At P5** say what `planlint` check 4 listed, print the plan card and stop for my `yes`.

@@ -1,0 +1,1 @@
+2026-10-10 (2026-10-10-engine-harness-proofs-completed): the `ci-gates` stage now runs one real console engine cycle on loopback 24317 and 24318 and reads `ci-gates` over that cycle's log, in place of a seed it wrote; stage names, order and verdict members are as verified; the change is the operator's reading of 2026-10-10, PROVISIONAL, the founder's own word owed.

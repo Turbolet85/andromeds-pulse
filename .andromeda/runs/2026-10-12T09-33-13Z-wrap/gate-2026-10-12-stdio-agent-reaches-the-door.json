@@ -1,0 +1,813 @@
+[
+{
+"tool": "gate",
+"v": "1.15",
+"sha8": "01bedf67",
+"ts": "2026-10-12T09:33:27Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base d3e694d2 (the parent of the oldest pre-CI commit 2595b5cc) · lists new 2 · modify 7 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 9 · listed 9 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 77"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "d3e694d29cf79f27c6d0d7fabbf9b057fddd99d0",
+"base_why": "the parent of the oldest pre-CI commit 2595b5cc",
+"counts": {
+"changed": 9,
+"listed": 9,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 77,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.15",
+"sha8": "01bedf67",
+"ts": "2026-10-12T09:39:37Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base d3e694d2 (the parent of the oldest pre-CI commit 2595b5cc) · lists new 2 · modify 7 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 9 · listed 9 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 88"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "d3e694d29cf79f27c6d0d7fabbf9b057fddd99d0",
+"base_why": "the parent of the oldest pre-CI commit 2595b5cc",
+"counts": {
+"changed": 9,
+"listed": 9,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 88,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.15",
+"sha8": "01bedf67",
+"ts": "2026-10-12T10:16:53Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root . · marker 2026-10-12-stdio-agent-reaches-the-door · entries 23",
+"logs $TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z · bound: GNU timeout",
+"delta docs 98 · unmapped 4",
+"walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 102",
+"prose L167-173: No window boot smoke: no file on the boot-smoke trigger list changes (`pulse-app/src/main.… (692 chars)",
+"  1 lint        green · exit 0 · 0.77s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 0.86s · 72 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 probe       green · exit 0 · 0.01s · 0 B → 3.log · git diff --name-only d3e694d29cf79f27c6d0d7fabbf9b057fddd9… (546 chars)",
+"  4 unit        green · exit 0 · 17.06s · 8270 B → 4.log · cargo nextest run --workspace --profile ci --no-tests=fail… (185 chars)",
+"  5 probe       green · exit 1 · 0.0s · 2 B → 5.log · grep -cE 'init_process|write_pid_file|observability|tracin… (118 chars)",
+"  6 integration green · exit 0 · 121.38s · 90566 B → 6.log · for i in 1 2 3 4 5 6 7; do cargo nextest run --workspace -… (260 chars)",
+"  7 lint        green · exit 0 · 0.47s · 100 B → 7.log · cargo xtask check:english-sources",
+"  8 probe       green · exit 0 · 0.33s · 69 B → 8.log · cargo xtask quarantine-tracking",
+"  9 probe       green · exit 0 · 0.3s · 394 B → 9.log · cargo xtask capability-widening-check",
+" 10 probe       green · exit 0 · 0.31s · 99 B → 10.log · cargo xtask check:ingest-progress",
+" 11 probe       green · exit 0 · 0.33s · 342 B → 11.log · cargo xtask check:staged-artifacts",
+" 12 probe       green · exit 0 · 0.34s · 714 B → 12.log · cargo xtask capability-drift",
+" 13 probe       green · exit 0 · 0.31s · 447 B → 13.log · cargo xtask verify:capability-matrix",
+" 14 unit        green · exit 0 · 33.58s · 769143 B → 14.log · cargo nextest run --workspace --profile ci --no-tests=fail",
+" 15 build       green · exit 0 · 4.31s · 493 B → 15.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 16 probe       green · exit 0 · 0.01s · 0 B → 16.log · git diff --quiet d3e694d29cf79f27c6d0d7fabbf9b057fddd99d0 … (95 chars)",
+" 17 e2e         green · exit 0 · 18.66s · 1854 B → 17.log · d=\"target/engine-cycle/$(date -u +%Y%m%dT%H%M%SZ)-door\" &&… (278 chars)",
+" 18 integration green · exit 0 · 126.72s · 1689175 B → 18.log · d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xta… (75 chars)",
+" 19 probe       green · exit 0 · 0.0s · 0 B → 19.log · test ! -e target/pre-push/run/data/run/andromeda-pulse.pid… (162 chars)",
+" 20 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)",
+" 21 probe       not run — leg operator (the letter drives it) · m=\"$(git ls-remote origin refs/heads/main | cut -f1)\" && t… (111 chars)",
+" 22 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (92 chars)",
+" 23 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)",
+"entries 23 · green 19 · red 0 · recorded 0 · timeout 0 · not-run 4"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-12-stdio-agent-reaches-the-door",
+"plan": "./andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door/plan.md",
+"root": ".",
+"shell": "/usr/bin/bash",
+"out_dir": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z",
+"delta": {
+"docs": [
+".andromeda/architecture-amendments.md",
+".andromeda/architecture.md",
+".andromeda/friction-log.ndjson",
+".andromeda/obs-plan-amendments.md",
+".andromeda/obs-plan.md",
+".andromeda/playbook.md",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md",
+".andromeda/registries/contracts/architecture/deployment-model.md",
+".andromeda/registries/contracts/architecture/project-directory-structure.md",
+".andromeda/registries/contracts/obs-plan/logging-stack.md",
+".andromeda/registries/contracts/obs-plan/snapshot-paste-to-ai-integration.md",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md",
+".andromeda/security-plan-amendments.md",
+".andromeda/security-plan.md",
+".andromeda/state.yaml",
+".andromeda/test-plan-amendments.md",
+".andromeda/test-plan.md",
+".claude/docs/a11y-summary.md",
+".claude/docs/commands.md",
+".claude/docs/conventions.md",
+".claude/docs/design-summary.md",
+".claude/docs/gotchas.md",
+".claude/docs/obs-summary.md",
+".claude/docs/security-summary.md",
+".claude/docs/services/corpus.md",
+".claude/docs/services/mcp-server.md",
+".claude/docs/stack.md",
+".claude/docs/tests-summary.md",
+".claude/rules/a11y.md",
+".claude/rules/design-tokens.md",
+".claude/rules/frontend.md",
+".claude/rules/observability.md",
+".claude/rules/security.md",
+".claude/rules/testing.md",
+".claude/rules/verification-harness.md",
+".claude/session-handoff.md",
+"CLAUDE.md",
+"andromeda-pulse-0.4.0/working-route.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/a11y-plan-contracts.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/architecture-contracts.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/architecture-entry-1.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/architecture-entry-2.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/architecture-entry-3.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/cascade-2026-10-12-stdio-agent-reaches-the-door-pre-pass.json",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/cascade-2026-10-12-stdio-agent-reaches-the-door.json",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/cascade-dispositions.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/cascade-patterns.toml",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/citation-dispositions.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/cites-2026-10-12-stdio-agent-reaches-the-door.json",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/curation.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/evolve-2026-10-12-stdio-agent-reaches-the-door.json",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/fanout-a11y-plan.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/fanout-architecture.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/fanout-design-system.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/fanout-layout-templates.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/fanout-obs-plan.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/fanout-results.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/fanout-security-plan.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/fanout-test-plan.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/gate-2026-10-12-stdio-agent-reaches-the-door.json",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/inputs-2026-10-12-stdio-agent-reaches-the-door.json",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-a11y-plan.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-architecture-1.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-architecture-2.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-architecture-3.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-architecture-4.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-design-system.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-layout-templates.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-obs-plan-1.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-obs-plan-2.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-obs-plan-3.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-security-plan-1.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-security-plan-2.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-security-plan-3.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-test-plan-1.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-test-plan-2.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-test-plan-3.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/leaf-test-plan-4.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/new-text.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/obs-plan-contracts.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/obs-plan-entry-1.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/playbook-rule.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/registry-2026-10-12-stdio-agent-reaches-the-door.json",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/relay-1.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/relay-2.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/report-patterns.toml",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/route-card.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/route-no-marker.json",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/security-plan-entry-1.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/security-plan-entry-2.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/security-plan-entry-3.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/splice-2026-10-12-stdio-agent-reaches-the-door.json",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/sweep-out.txt",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/test-plan-contracts.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/test-plan-entry-1.md",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/test-plan-entry-2.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door/evidence/operator-pass.md",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door/report.md"
+]
+},
+"unmapped": [
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door/inputs/andromeda-inputs.json",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door/inputs/I6-pulse-wrap-stdio-agent-reaches-the-door-2026-10-12.md.txt",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door/inputs/I7-relay-1.md.txt",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door/inputs/I8-relay-2.md.txt"
+],
+"walk_class": {
+"marked": {
+"rust": [
+"xtask/src/source_lint.rs",
+"xtask/src/staged_gate.rs"
+]
+},
+"uncommitted": 102,
+"problem": null
+},
+"prose": [
+{
+"from": 167,
+"to": 173,
+"text": "No window boot smoke: no file on the boot-smoke trigger list changes (`pulse-app/src/main.rs`, `pulse-app/src/engine_boot.rs`, `crates/ui-bridge/src/`, `pulse-app/src/observability.rs`, `tauri.conf.json`, `capabilities/*.json`); `console.rs` takes the spawned-program test as its runtime gate (test-plan §3, Spawned-program witness form), and `integration_console_engine.rs` and the new arms run in the workspace run. No webview path is touched, so the webview gates are not listed. No manifest changes: the scope guard holds `Cargo.toml` and `Cargo.lock` unchanged, so `cargo deny` and `cargo audit` are not listed. No TauRPC procedure is added: the bindings close is the base-identity form."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.77,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/2.log",
+"bytes": 72,
+"log_sha8": "182e0273",
+"exit": 0,
+"seconds": 0.86,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "git diff --name-only d3e694d29cf79f27c6d0d7fabbf9b057fddd99d0 -- crates pulse-app xtask scripts deny.toml rust-toolchain.toml .github .cargo .config Cargo.toml Cargo.lock ':!pulse-app/src/console.rs' ':!pulse-app/src/door_bridge.rs' ':!pulse-app/src/lib.rs' ':!pulse-app/tests/unit_door_bridge.rs' ':!pulse-app/tests/unit_console_commands.rs' ':!pulse-app/tests/integration_console_engine.rs' ':!pulse-app/tests/integration_door.rs' ':!pulse-app/tests/quality_gate_workflow.rs' ':!.github/workflows/ci.yml' ':!pulse-app/ui/src/bindings/index.ts' ",
+"run_sha8": "899c87ec",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/3.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci --no-tests=fail -E 'binary(unit_door_bridge) | binary(unit_console_commands) | binary(integration_door) | binary(integration_console_engine)' ",
+"run_sha8": "c8a4aad5",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/4.log",
+"bytes": 8270,
+"log_sha8": "e6e7a642",
+"exit": 0,
+"seconds": 17.06,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "grep -cE 'init_process|write_pid_file|observability|tracing::|Command::new|set_var|tokio' pulse-app/src/door_bridge.rs",
+"run_sha8": "d8e95034",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/5.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.0,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "integration",
+"run": "for i in 1 2 3 4 5 6 7; do cargo nextest run --workspace --profile ci --no-tests=fail -E 'binary(integration_door) | binary(integration_engine_boot) | binary(integration_console_engine) | binary(agent_run_shell) | binary(engine_cycle_refusals)' || exit 1; done",
+"run_sha8": "07719d92",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/6.log",
+"bytes": 90566,
+"log_sha8": "2fdfae22",
+"exit": 0,
+"seconds": 121.38,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "lint",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/7.log",
+"bytes": 100,
+"log_sha8": "cdf5ae4c",
+"exit": 0,
+"seconds": 0.47,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "cargo xtask quarantine-tracking",
+"run_sha8": "45f2d08d",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/8.log",
+"bytes": 69,
+"log_sha8": "6ac7a4f5",
+"exit": 0,
+"seconds": 0.33,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/9.log",
+"bytes": 394,
+"log_sha8": "9435e60d",
+"exit": 0,
+"seconds": 0.3,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/10.log",
+"bytes": 99,
+"log_sha8": "09869944",
+"exit": 0,
+"seconds": 0.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/11.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.33,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/12.log",
+"bytes": 714,
+"log_sha8": "aab49f5e",
+"exit": 0,
+"seconds": 0.34,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/13.log",
+"bytes": 447,
+"log_sha8": "a60ee5c6",
+"exit": 0,
+"seconds": 0.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci --no-tests=fail",
+"run_sha8": "e4fcdfa3",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/14.log",
+"bytes": 769143,
+"log_sha8": "bf997340",
+"exit": 0,
+"seconds": 33.58,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/15.log",
+"bytes": 493,
+"log_sha8": "575b921c",
+"exit": 0,
+"seconds": 4.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "probe",
+"run": "git diff --quiet d3e694d29cf79f27c6d0d7fabbf9b057fddd99d0 -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "c796dfaa",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/16.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "e2e",
+"run": "d=\"target/engine-cycle/$(date -u +%Y%m%dT%H%M%SZ)-door\" && cargo xtask harness:engine-cycle --data-dir \"$PWD/$d\" && grep -h '\"target\":\"app.boot.door\"' \"$d\"/logs/agent-latest.jsonl* && ! grep -h -e '\"target\":\"door.call\"' -e '\"target\":\"door.refused\"' \"$d\"/logs/agent-latest.jsonl*",
+"run_sha8": "49bdf4bd",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"pass\"",
+"contains \"witness_file\": \"absent\"",
+"contains \"error_records\": 0",
+"contains engine-log: PASS",
+"contains cleanup: clean",
+"contains \"state\":\"listening\""
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/17.log",
+"bytes": 1854,
+"log_sha8": "68c1049f",
+"exit": 0,
+"seconds": 18.66,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"pass\"' ✓",
+"contains '\"witness_file\": \"absent\"' ✓",
+"contains '\"error_records\": 0' ✓",
+"contains 'engine-log: PASS' ✓",
+"contains 'cleanup: clean' ✓",
+"contains '\"state\":\"listening\"' ✓",
+"artifact fresh (target/engine-cycle/ → .)"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 18,
+"role": "integration",
+"run": "d=\"$(mise where node@24)\" && PATH=\"$d/bin:$PATH\" cargo xtask pre-push:linux",
+"run_sha8": "9f639d67",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"green\"",
+"contains \"reason\": \"all-stages-ok\"",
+"lacks \"ok\": false",
+"contains engine-log: PASS",
+"contains cleanup: clean"
+],
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/18.log",
+"bytes": 1689175,
+"log_sha8": "202cbb33",
+"exit": 0,
+"seconds": 126.72,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"green\"' ✓",
+"contains '\"reason\": \"all-stages-ok\"' ✓",
+"lacks '\"ok\": false' ✓",
+"contains 'engine-log: PASS' ✓",
+"contains 'cleanup: clean' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "test ! -e target/pre-push/run/data/run/andromeda-pulse.pid && ! (exec 3<>/dev/tcp/127.0.0.1/24317) 2>/dev/null && ! (exec 3<>/dev/tcp/127.0.0.1/24318) 2>/dev/null",
+"run_sha8": "7ca0e210",
+"expect": null,
+"log": "$TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/wrap-2026-10-12T09-33-13Z/19.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.0,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "3c62df70",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "m=\"$(git ls-remote origin refs/heads/main | cut -f1)\" && test -n \"$m\" && git merge-base --is-ancestor \"$m\" HEAD",
+"run_sha8": "4c1e4d3b",
+"expect": [
+"exit 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin build/andromeda-pulse-0.4.0",
+"run_sha8": "aa77c2b4",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 23,
+"role": "probe",
+"run": "python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2700",
+"run_sha8": "d04716c7",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.15",
+"sha8": "01bedf67",
+"ts": "2026-10-12T10:17:09Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base d3e694d2 (the parent of the oldest pre-CI commit 2595b5cc)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 131 (runs 120 · evidence 1 · inputs 10) · trails 24 not read · copies 8 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 120,
+"evidence": 1,
+"inputs": 10,
+"trails": 24,
+"copies": 8,
+"kept": 0,
+"binary": 0,
+"in_root": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.15",
+"sha8": "01bedf67",
+"ts": "2026-10-12T10:17:09Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · base d3e694d2 (the parent of the oldest pre-CI commit 2595b5cc) · lists new 2 · modify 7 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 9 · listed 9 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 175"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"base": "d3e694d29cf79f27c6d0d7fabbf9b057fddd99d0",
+"base_why": "the parent of the oldest pre-CI commit 2595b5cc",
+"counts": {
+"changed": 9,
+"listed": 9,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 175,
+"unparsed": 0,
+"widening_without_word": 0
+}
+}
+]

@@ -1,0 +1,10 @@
+Entry 24 of the gate block (the merge-base probe, leg = 'operator'), fired once at /implement through the gate tool
+(`gate.py run --operator 24`) on 2026-10-11T00:12Z. Its line and the call's summary line, verbatim, without the header:
+
+ 24 probe       green · exit 0 · 0.54s · 0 B → 24.log · history: unmoved · m="$(git ls-remote origin refs/heads/main | cut -f1)" && t… (111 chars)
+entries 26 · green 1 · red 0 · recorded 0 · timeout 0 · not-run 25
+
+The tool's tripwire line before it read: operator entry 24 · history tripwire: none of 7 forms matched — not a clearance.
+The entry prints nothing (0 B): its verdict is its exit, `expect = ['exit 0']`. The build branch held the remote's `main`
+as it stood at that minute. The operator pass fires the entry again directly before its push; this reading does not
+stand in for that one.

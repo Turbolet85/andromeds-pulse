@@ -1,0 +1,7 @@
+{
+  "title": "The boot smoke's verdict follows the tree, not the run",
+  "requirement": "the CI boot smoke ends the same on equal source: the cause of the app ending by itself shortly after ready on the runner is found and closed, and the job no longer reads red where nothing it builds changed",
+  "observed_gap": "boot smoke (ubuntu-22.04) read red on 2 of 7 runs of 2026-10-09 on source its job does not distinguish (ci#37924991598 on b3ac58a, ci#37961031489 on f36a2ac): boot printed ready and status read the app ended with exit 1 within 0.7 s; the two red application logs hold no record the green logs lack and no app.exit record",
+  "method": "integration",
+  "acceptance": "The cause of the early exit is named from evidence a run produced, not inferred; with it closed, the boot smoke reads green on a stated number of consecutive runs of equal source, and a run in which the app ends by itself says why in what the job keeps."
+}

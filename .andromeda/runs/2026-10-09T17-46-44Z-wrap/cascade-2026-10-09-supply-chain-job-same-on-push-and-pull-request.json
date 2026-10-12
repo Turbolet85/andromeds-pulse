@@ -1,0 +1,237 @@
+[
+{
+"tool": "cascade",
+"v": "1.2",
+"sha8": "89172b3d",
+"ts": "2026-10-09T18:02:24Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"baseline b3e58597 (pre-CI parent — the oldest of 1 pre-CI commit(s), f36a2ac3)",
+"stops-app · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:180 (prose)",
+"before-webview · new 0 · standing 2 · leaf 3 · curation 0 · base 0 · control architecture.md:180 (prose)",
+"only-witness · new 1 · standing 0 · leaf 3 · curation 0 · base 0 · control architecture.md:180 (prose)",
+"no-ci-job · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:447 (pr…",
+"no-webview-rec · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:100 (prose)",
+"no-adapter-rec · new 0 · standing 5 · leaf 3 · curation 0 · base 0 · control architecture.md:249 (prose)",
+"audit-action · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control security-plan.md:216 (prose)",
+"reaches-main · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:226 (prose)",
+"keys-no-job · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control registries/contracts/architecture/ci-cd-appro…",
+"cargo-audit · new 3 · standing 7 · leaf 11 · curation 4 · base 1 · control security-plan.md:216 (prose)",
+".andromeda/security-plan.md:447 stops-app standing edited … that the boot job stops the app before the webview issues a…",
+".claude/rules/observability.md:99 stops-app leaf @c1024/2209 …ause the boot job stops the app before the webview issues…",
+".andromeda/security-plan.md:447 before-webview standing edited …job stops the app before the webview issues any IPC was…",
+".andromeda/obs-plan.md:545 before-webview standing edited @c1819/2846 …topped the app before the webview issued any IPC…",
+".claude/rules/observability.md:64 before-webview leaf …mple` leg (the CI boot job stops the app before any webview IPC).",
+".claude/rules/observability.md:99 before-webview leaf @c1038/2209 …ob stops the app before the webview issues any IPC; …",
+".claude/docs/obs-summary.md:80 before-webview leaf …oot job stops the app before any webview IPC; the dev-host frame le…",
+".andromeda/test-plan.md:142 only-witness new … its live leg), and its only dependable witness is the dev-host `perf:fra…",
+".claude/rules/observability.md:64 only-witness leaf …ame run's cause; its only live witness is the dev-host `perf:frame…",
+".claude/rules/observability.md:99 only-witness leaf @c1120/2209 …adapter record's only live witness. The snapshot sampl…",
+".claude/docs/obs-summary.md:80 only-witness leaf …he dev-host frame leg is the only live witness of the adapter record |",
+".andromeda/obs-plan.md:545 no-webview-rec standing edited @c1885/2846 …ds over 14 ms, 0 webview-originated). That is on…",
+".andromeda/architecture.md:249 no-adapter-rec standing @c13665/15488 …ecords (none → `no adapter record in this log`; a…",
+".andromeda/test-plan.md:100 no-adapter-rec standing edited … `ci#36765040464` `no adapter record in this log`, that run…",
+".andromeda/test-plan.md:135 no-adapter-rec standing ×2 ….adapter` records (`no adapter record in this log` · `adapter o…",
+".andromeda/obs-plan.md:545 no-adapter-rec standing edited mixed ×3 @c1215,1647,2578/2846 … none → `no adapter record in…",
+".andromeda/obs-plan.md:559 no-adapter-rec standing edited …36765040464` as `… no adapter record in this log` on both th…",
+".claude/rules/observability.md:99 no-adapter-rec leaf ×2 @c771,971/2209 …cords (none → `no adapter record in this log`;…",
+".claude/rules/verification-harness.md:89 no-adapter-rec leaf … (`frame_cause`: `no adapter record in this log` · `adapt…",
+".claude/docs/obs-summary.md:80 no-adapter-rec leaf …-evaluate: 0 samples, no adapter record in this log`, never PASS, b…",
+".andromeda/security-plan.md:216 audit-action new …it replaced, `rustsec/audit-check` v2.0.0 handed the workflow token, …",
+".andromeda/security-plan.md:226 reaches-main standing edited … build branch and reaches `main` with the version. One da…",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md:3 keys-no-job standing edited @c3191/4181 … on keys no j…",
+".andromeda/security-plan.md:216 cargo-audit standing edited mixed ×5 - `cargo audit` runs in `ci.yml`'s `supply-chain` …",
+".andromeda/security-plan.md:218 cargo-audit standing - Build fails on any `cargo audit` finding at advisory severity ab…",
+".andromeda/security-plan.md:220 cargo-audit standing ×6 - **`cargo audit` — the standing deferral ENDED (chunk `2026-09…",
+".andromeda/security-plan.md:224 cargo-audit standing …y scanned channel — `cargo audit`, `cargo deny`, Dependabot and t…",
+".andromeda/security-plan.md:226 cargo-audit new … `supply-chain` job's `cargo audit` step reached `main` ahead of the v…",
+".andromeda/security-plan.md:232 cargo-audit standing …ion that pairs with `cargo audit` for post-release CVE scanning o…",
+".andromeda/security-plan.md:236 cargo-audit standing …version. Pairs with `cargo audit bin <bundle>` for post-release s…",
+".andromeda/security-plan.md:259 cargo-audit standing edited mixed ×2 …i-gate:** Wire `cargo audit` + `cargo deny check …",
+".andromeda/test-plan.md:494 cargo-audit new ×4 …s); the job also runs `cargo audit` as the plain step `run: cargo audit…",
+".andromeda/registries/contracts/architecture/ci-cd-approach.md:3 cargo-audit new @c813/4181 …hain` (`cargo audit` as a …",
+".claude/docs/session-learnings.md:1678 cargo-audit curation …ment` time, check `cargo audit` post-add and bump forward …",
+".claude/docs/session-learnings.md:1680 cargo-audit curation … 25.0.3. Post-add `cargo audit` flagged 15 RUSTSEC advisor…",
+".claude/docs/session-learnings.md:1685 cargo-audit curation cargo audit  # flags RUSTSEC advisories",
+".claude/docs/session-learnings.md:1688 cargo-audit curation #   cargo audit must return 0 vulnerabilities before procee…",
+".andromeda/playbook.md:64 cargo-audit base …-key-persistence wrap: `cargo audit` could not load the RustSec DB at all —…",
+"CLAUDE.md:91 cargo-audit leaf - `cargo audit` + `cargo deny check bans licenses sources` — Rust supply-chain gates (cat…",
+".claude/rules/security.md:78 cargo-audit leaf - Run `cargo audit` + `cargo deny check bans licenses sources` in CI on e…",
+".claude/rules/security.md:79 cargo-audit leaf - **`cargo audit` is a plain pass/fail gate again — the standing deferral…",
+".claude/rules/security.md:80 cargo-audit leaf ….rs` and never ships. `cargo audit` / `cargo deny` / Dependabot / the np…",
+".claude/rules/verification-harness.md:86 cargo-audit leaf …ask audit` — wraps `cargo audit` against RustSec advisory DB.",
+".claude/docs/commands.md:96 cargo-audit leaf cargo audit                                                    # RustSec a…",
+".claude/docs/commands.md:98 cargo-audit leaf …ries                                    # Same as cargo audit but via deny",
+".claude/docs/commands.md:112 cargo-audit leaf …sk audit                                              # Wraps cargo audit",
+".claude/docs/security-summary.md:37 cargo-audit leaf …security-ci-gate` — `cargo audit` + `cargo deny check` + `Cargo.l…",
+".claude/docs/workflow.md:45 cargo-audit leaf - `cargo audit` zero findings above warning",
+".claude/docs/workflow.md:65 cargo-audit leaf cargo audit",
+"stops-app · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control architecture.md:180 (prose)",
+"before-webview · new 0 · standing 2 · leaf 3 · curation 0 · base 0 · control architecture.md:180 (prose)",
+"only-witness · new 1 · standing 0 · leaf 3 · curation 0 · base 0 · control architecture.md:180 (prose)",
+"no-ci-job · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:447 (pr…",
+"no-webview-rec · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:100 (prose)",
+"no-adapter-rec · new 0 · standing 5 · leaf 3 · curation 0 · base 0 · control architecture.md:249 (prose)",
+"audit-action · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control security-plan.md:216 (prose)",
+"reaches-main · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:226 (prose)",
+"keys-no-job · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control registries/contracts/architecture/ci-cd-appro…",
+"cargo-audit · new 3 · standing 7 · leaf 11 · curation 4 · base 1 · control security-plan.md:216 (prose)",
+"total (10 patterns) · 49 rows over 15 files",
+"per class · new 5/3 · standing 18/5 · leaf 21/8 · curation 4/1 · base 1/1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "b3e58597dbe9f10e541c0bc1d122b8647ba8c62a",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), f36a2ac3",
+"counts": {
+"stops-app": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"before-webview": {
+"new": 0,
+"standing": 2,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"only-witness": {
+"new": 1,
+"standing": 0,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"no-ci-job": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"no-webview-rec": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"no-adapter-rec": {
+"new": 0,
+"standing": 5,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"audit-action": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"reaches-main": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"keys-no-job": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"cargo-audit": {
+"new": 3,
+"standing": 7,
+"leaf": 11,
+"curation": 4,
+"base": 1
+}
+}
+}
+},
+{
+"tool": "cascade",
+"v": "1.2",
+"sha8": "89172b3d",
+"ts": "2026-10-09T18:10:40Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap/cascade-patterns-2.toml",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"baseline b3e58597 (pre-CI parent — the oldest of 1 pre-CI commit(s), f36a2ac3)",
+"handshake · new 0 · standing 5 · leaf 2 · curation 0 · base 0 · control architecture.md:217 (prose)",
+"ready-signal · new 1 · standing 5 · leaf 1 · curation 0 · base 0 · control architecture.md:249 (prose)",
+".andromeda/architecture.md:217 handshake standing @c1896/3301 …oth spaces plus a TCP handshake on the resolved OTLP por…",
+".andromeda/architecture.md:249 handshake standing @c7516/15488 …ocess` fallback + TCP handshake on the RESOLVED `ANDROM…",
+".andromeda/test-plan.md:66 handshake standing edited …`RUST_LOG`; confirms TCP handshake on `:4317`/`:4318` — the inten…",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md:5 handshake standing edited …nfirm TCP handshake …",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md:34 handshake standing …eness + TCP handshake on t…",
+".claude/rules/verification-harness.md:22 handshake leaf @c1324/2081 …althy`; confirm TCP handshake on `:4317` and `:431…",
+".claude/rules/verification-harness.md:25 handshake leaf …es — pid liveness + TCP handshake on the RESOLVED `ANDROMEDA_P…",
+".andromeda/architecture.md:249 ready-signal standing ×3 @c6197,7140,8181/15488 …e the timed readiness poll) and spawns …",
+".andromeda/test-plan.md:66 ready-signal new …ct; the shipped sh verb reports ready on the `harness:status` verdict alon…",
+".andromeda/test-plan.md:134 ready-signal standing ×2 @c794,1655/2094 …re (on a failed readiness poll it names how the a…",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md:4 ready-signal standing ×2 …— the readiness poll …",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md:5 ready-signal standing edited mixed ×2 …**Readin…",
+".andromeda/registries/test-plan-contracts.toml:9 ready-signal standing …ommand body\", \"Readiness signal\", \"Exit code\", …",
+".claude/rules/verification-harness.md:22 ready-signal leaf @c135/2081 …p xtask` — the readiness poll shells `cargo xtas…",
+"handshake · new 0 · standing 5 · leaf 2 · curation 0 · base 0 · control architecture.md:217 (prose)",
+"ready-signal · new 1 · standing 5 · leaf 1 · curation 0 · base 0 · control architecture.md:249 (prose)",
+"total (2 patterns) · 14 rows over 5 files",
+"per class · new 1/1 · standing 10/4 · leaf 3/1 · curation 0/0 · base 0/0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "b3e58597dbe9f10e541c0bc1d122b8647ba8c62a",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), f36a2ac3",
+"counts": {
+"handshake": {
+"new": 0,
+"standing": 5,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"ready-signal": {
+"new": 1,
+"standing": 5,
+"leaf": 1,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

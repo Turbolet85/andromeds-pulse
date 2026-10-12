@@ -1,0 +1,49 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T17:45:10Z",
+"argv": [
+"implement",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--chunk",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--id",
+"P-120",
+"--ref-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-09T16-33-10Z-implement"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"implement P-120 · status planned → implemented · ref pulse-app/tests/quality_gate_workflow.rs::ci_workflow_audit_step_is_a_plain_run_… (847 chars)",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-120",
+"chunk": "2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The push run on `main` that the founder's merge of the repair's pull request makes reads green in the `supply-chain` che… (961 chars)",
+"notes_chars": 796
+},
+"after": {
+"id": "P-120",
+"chunk": "2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"status": "implemented",
+"method": "integration",
+"ref": "pulse-app/tests/quality_gate_workflow.rs::ci_workflow_audit_step_is_a_plain_run_step · witness: push run ci#37964887106 … (847 chars)",
+"acceptance": "The push run on `main` that the founder's merge of the repair's pull request makes reads green in the `supply-chain` che… (961 chars)",
+"notes_chars": 796
+}
+}
+]

@@ -60,13 +60,12 @@ async function main() {
     process.exit(1);
   }
   if (!(await exists(baselinePath))) {
-    console.error(`regression-detector: baseline not found at ${baselinePath}; treating as empty baseline`);
+    console.error(`regression-detector: baseline not found at ${baselinePath}`);
+    process.exit(1);
   }
 
   const current = JSON.parse(await readFile(currentPath, "utf8"));
-  const baseline = (await exists(baselinePath))
-    ? JSON.parse(await readFile(baselinePath, "utf8"))
-    : { per_surface: {} };
+  const baseline = JSON.parse(await readFile(baselinePath, "utf8"));
 
   const baselineKeys = new Set();
   for (const tuples of Object.values(baseline.per_surface ?? {})) {

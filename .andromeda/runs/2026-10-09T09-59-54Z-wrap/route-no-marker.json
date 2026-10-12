@@ -1,0 +1,94 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T10:08:50Z",
+"argv": [
+"route.py",
+"cursor",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"version andromeda-pulse-0.4.0 · dir present · master master-route.md",
+"version dir andromeda-pulse-0.4.0/ — at --root, beside .andromeda/, never inside it",
+"records 83 · complete 83 · pending 0 · gated 0",
+"done 2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"next working-route.md:11 · Corpus encryption at rest retired · markerless 52 of 52 entries",
+"half-promote 0 of 0 stamped lines vs 83 master records (anchored `{marker} · `, whole file)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T10:08:50Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 52 of 52 entries · freight blocks 10 · rows are an INDEX, not the text",
+"19 · CARRY: · 217 chars · CARRY: critical paths P4 (plugin lifecycle) and P7 (workspace detection) are named for retire…",
+"21 · CARRY: · 1184 chars · CARRY: repair the supply-chain job's red on a push to main — owner pinned here at the 2026-1…",
+"38 · CARRY: · 654 chars · CARRY: what incidents are keyed by once the workspace is gone — for 0.4.0 one engine watches …",
+"40 · CARRY: · 210 chars · CARRY: the departed set now includes the WebAssembly runtime and the supply-chain job's \"Cran…",
+"45 · CARRY: · 300 chars · CARRY: name who terminates the encrypted channel and where its private key lives — never in a…",
+"62 · CARRY: · 230 chars · CARRY: raw telemetry is kept 7 days by default; the term is configurable; a ceiling on the st…",
+"66 · CARRY: · 239 chars · CARRY: measure whether 7 days of raw telemetry fits the node's disk under the load profiles; …",
+"70 · CARRY: · 171 chars · CARRY: the door is encrypted in transit (P-093; PROVISIONAL — the operator's word 2026-10-09,…",
+"70 · CARRY: · 177 chars · CARRY: admission has a lifecycle — how a party is admitted and how it is revoked, as the toke…",
+"116 · CARRY: · 343 chars · CARRY: the founder names the personal data the service's telemetry carries together with the…"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T10:08:50Z",
+"argv": [
+"route.py",
+"epoch",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-09T09-59-54Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"working-route.md · 8 epoch headers · 52 entries · freeze state joined to 83 master records",
+"10 · Epoch 1 — Foundation: readable stores, a he… · entries 7 · markerless 7 · frozen complete 0 · pending 0",
+"25 · Epoch 2 — What leaves: the window and the l… · entries 9 · markerless 9 · frozen complete 0 · pending 0",
+"44 · Epoch 3 — The engine stands on its own node · entries 8 · markerless 8 · frozen complete 0 · pending 0",
+"61 · Epoch 4 — Memory on disk and a working door · entries 8 · markerless 8 · frozen complete 0 · pending 0",
+"78 · Epoch 5 — Keep what OpenTelemetry sends · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"91 · Epoch 6 — Comparisons that work from the fi… · entries 5 · markerless 5 · frozen complete 0 · pending 0",
+"102 · Epoch 7 — The voice · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"115 · Epoch 8 — Polish & ship · entries 3 · markerless 3 · frozen complete 0 · pending 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

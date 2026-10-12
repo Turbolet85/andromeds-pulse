@@ -42,6 +42,18 @@ function Invoke-Status {
     if ($LASTEXITCODE -ne 0) { throw "harness:status returned $LASTEXITCODE" }
 }
 
+$script:LastReady = ''
+function Invoke-Ready {
+    # The boot verb's readiness verdict: the status verdict above AND a TCP
+    # handshake on both resolved OTLP ports (test-plan §3 boot, Readiness
+    # signal). The last verdict is kept so a failed poll can name what it read.
+    $env:ANDROMEDA_PULSE_DATA_DIR = $DataDir
+    $env:ANDROMEDA_PULSE_PIDFILE = $PidFile
+    $env:ANDROMEDA_PULSE_LOGFILE = $LogFile
+    $script:LastReady = (& cargo xtask 'harness:ready') -join "`n"
+    if ($LASTEXITCODE -ne 0) { throw "harness:ready returned $LASTEXITCODE" }
+}
+
 function Invoke-Cleanup {
     # The verdict derives ONLY from independent probes (pid liveness + TCP
     # handshake on the resolved loopback ports), never from the terminate
@@ -125,7 +137,7 @@ switch ($args[0]) {
             Write-Warning "boot: cargo build --bin pulse-app --release failed (log: $buildErr)"
             exit 1
         }
-        # xtask too — the readiness poll runs `cargo xtask harness:status`, so
+        # xtask too — the readiness poll runs `cargo xtask harness:ready`, so
         # a stale xtask would otherwise rebuild INSIDE the timed window.
         $xtaskLog = Join-Path $DataDir 'logs\build-xtask.log'
         $xtaskErr = Join-Path $DataDir 'logs\build-xtask.err.log'
@@ -187,7 +199,7 @@ switch ($args[0]) {
         $deadline = (Get-Date).AddSeconds($StatusTimeoutSec)
         while ((Get-Date) -lt $deadline) {
             try {
-                Invoke-Status | Out-Null
+                Invoke-Ready
                 Write-Output "boot: ready (PID=$appPid, data_dir=$DataDir)"
                 Write-Output "  OTLP gRPC:    127.0.0.1:$GrpcPort"
                 Write-Output "  OTLP HTTP:    127.0.0.1:$HttpPort"
@@ -202,6 +214,9 @@ switch ($args[0]) {
         # nothing of its own, and a clean exit is silent too.
         if (Get-Process -Id $appPid -ErrorAction SilentlyContinue) {
             Write-Output "  app still running (pid $appPid) but never reported healthy"
+            if ($script:LastReady -match '"refusing"') {
+                Write-Output "  the receivers never both accepted: OTLP gRPC 127.0.0.1:$GrpcPort, OTLP HTTP 127.0.0.1:$HttpPort"
+            }
         } else {
             for ($i = 0; $i -lt 20; $i++) {
                 if (Test-Path $exitFile) { break }

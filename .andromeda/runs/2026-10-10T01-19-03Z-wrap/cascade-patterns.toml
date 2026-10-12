@@ -1,0 +1,56 @@
+# Cascade step 2 — the pattern set of this pass, derived from every amendment before the first grep.
+# Each pattern is the OLD wording or the retired mechanism's phrasing; its control is the pre-pass masters.
+
+[[pattern]]
+id = 'wsl'
+fixed = 'wsl'
+ignore_case = true
+
+[[pattern]]
+id = 'pre-push'
+regex = 'pre-push|pre_push'
+ignore_case = true
+
+[[pattern]]
+id = 'clone'
+regex = 'distro clone|in the clone|the clone'
+
+[[pattern]]
+id = 'windows-host'
+fixed = 'Windows host'
+
+[[pattern]]
+id = 'apt-remedy'
+regex = 'apt remediation|apt-get install` remediation|apt list'
+
+[[pattern]]
+id = 'eight-members'
+regex = 'missing\[\], remediation|cache\{bytes'
+
+[[pattern]]
+id = 'viola-node'
+regex = 'viola-node|Viola repo'
+
+[[pattern]]
+id = 'no-new-env'
+fixed = 'reads no new env var'
+
+[[pattern]]
+id = 'cannot-run'
+fixed = 'cannot run on the dev host'
+
+[[pattern]]
+id = 'patch-sync'
+regex = 'binary patch|sync-mismatch|40 GiB'
+
+[[pattern]]
+id = 'stage-5'
+regex = 'pre-push stage 5|stage 5'
+
+[[pattern]]
+id = 'settle-line'
+fixed = 'reaches the settle verdict'
+
+[[pattern]]
+id = 'node-22'
+fixed = 'Node 22'

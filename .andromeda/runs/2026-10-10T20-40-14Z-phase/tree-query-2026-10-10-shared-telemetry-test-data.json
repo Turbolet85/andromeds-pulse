@@ -1,0 +1,135 @@
+[
+{
+"sql": "SELECT caller_name, callee_name, callee_file, file, line FROM calls WHERE callee_name IN ('claim_port','pick_port') AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 5,
+"result": [
+{
+"caller_name": "spawn",
+"callee_name": "claim_port",
+"callee_file": "pulse-app/tests/integration_console_engine.rs",
+"file": "pulse-app/tests/integration_console_engine.rs",
+"line": 124
+},
+{
+"caller_name": "a_rejected_grpc_port_leaves_that_receiver_unstarted_and_the_http_receiver_alone_listening",
+"callee_name": "claim_port",
+"callee_file": "pulse-app/tests/integration_console_engine.rs",
+"file": "pulse-app/tests/integration_console_engine.rs",
+"line": 576
+},
+{
+"caller_name": "boot",
+"callee_name": "pick_port",
+"callee_file": "pulse-app/tests/integration_engine_boot.rs",
+"file": "pulse-app/tests/integration_engine_boot.rs",
+"line": 146
+},
+{
+"caller_name": "boot",
+"callee_name": "pick_port",
+"callee_file": "pulse-app/tests/integration_engine_boot.rs",
+"file": "pulse-app/tests/integration_engine_boot.rs",
+"line": 147
+},
+{
+"caller_name": "new",
+"callee_name": "claim_port",
+"callee_file": "xtask/tests/common/mod.rs",
+"file": "xtask/tests/common/mod.rs",
+"line": 252
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'ingest' OR from_crate = 'ingest'",
+"rows": 4,
+"result": [
+{
+"from_crate": "xtask",
+"to_crate": "ingest"
+},
+{
+"from_crate": "pulse-app",
+"to_crate": "ingest"
+},
+{
+"from_crate": "buffer",
+"to_crate": "ingest"
+},
+{
+"from_crate": "ui-bridge",
+"to_crate": "ingest"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT regexp_extract(file, '^(.*/(src|tests|benches|examples))/', 1) AS from_dir, COUNT(*) AS sites FROM refs WHERE callee_crate = 'ingest' AND callee_file LIKE '%/src/%' AND file NOT LIKE regexp_replace(callee_file, '/src/.*$', '/src/%') AND callee_kind <> 'module' GROUP BY 1 ORDER BY 2 DESC",
+"rows": 5,
+"result": [
+{
+"from_dir": "pulse-app/tests",
+"sites": 181
+},
+{
+"from_dir": "pulse-app/src",
+"sites": 165
+},
+{
+"from_dir": "crates/ingest/tests",
+"sites": 110
+},
+{
+"from_dir": "crates/buffer/src",
+"sites": 48
+},
+{
+"from_dir": "crates/ui-bridge/src",
+"sites": 43
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT name, crate, kind, file FROM symbol WHERE name IN ('test_support','telemetry','ports','PortClaim','SpanBuilder','MetricPointBuilder','LogRecordBuilder','claim_port') AND kind <> 'meta' ORDER BY name, file",
+"rows": 5,
+"result": [
+{
+"name": "PortClaim",
+"crate": "pulse-app",
+"kind": "type",
+"file": "pulse-app/tests/integration_console_engine.rs"
+},
+{
+"name": "PortClaim",
+"crate": "xtask",
+"kind": "type",
+"file": "xtask/tests/common/mod.rs"
+},
+{
+"name": "claim_port",
+"crate": "pulse-app",
+"kind": "fn",
+"file": "pulse-app/tests/integration_console_engine.rs"
+},
+{
+"name": "claim_port",
+"crate": "xtask",
+"kind": "fn",
+"file": "xtask/tests/common/mod.rs"
+},
+{
+"name": "telemetry",
+"crate": "ui-bridge",
+"kind": "module",
+"file": "crates/ui-bridge/src/telemetry.rs"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

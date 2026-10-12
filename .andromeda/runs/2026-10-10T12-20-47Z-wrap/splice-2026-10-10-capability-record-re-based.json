@@ -1,0 +1,199 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T12:25:00Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/report.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/new-text.md",
+"--lines",
+"118",
+"--if-absent-prefix",
+"## New text, by line",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append report.md:+118 at line 303 · lines 302→420 · bytes 27063→34244 · term lf",
+"last line now:   - 784-791 «let counts = serde_json::json!({»"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/report.md"
+],
+"before": {
+"lines": 302,
+"bytes": 27063,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 420,
+"bytes": 34244
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T12:33:52Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/architecture-entry-1.md",
+"--lines",
+"24",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+24 at line 908 · lines 907→931 · bytes 147789→150109 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 907,
+"bytes": 147789,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 931,
+"bytes": 150109
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T12:33:52Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/architecture-entry-2.md",
+"--lines",
+"23",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+23 at line 932 · lines 931→954 · bytes 150109→152266 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 931,
+"bytes": 150109,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 954,
+"bytes": 152266
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T12:33:52Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/test-plan-entry-1.md",
+"--lines",
+"22",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+22 at line 862 · lines 861→883 · bytes 154852→157132 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 861,
+"bytes": 154852,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 883,
+"bytes": 157132
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-10T12:33:52Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/test-plan-entry-2.md",
+"--lines",
+"15",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+15 at line 884 · lines 883→898 · bytes 157132→158501 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-10T12-20-47Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 883,
+"bytes": 157132,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 898,
+"bytes": 158501
+}
+}
+]

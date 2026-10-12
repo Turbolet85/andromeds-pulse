@@ -1,7 +1,7 @@
 # `plugins` — wasmtime Component Model Host
 
 ## Responsibility
-Hosts the WASM Component Model plugin runtime via `wasmtime` 25+. Capability-scoped sandboxing per WIT interface declarations. Loads plugins from `~/.andromeda-pulse/plugins/` (canonicalized + confined). Hosts `plugins.{list,reload,invoke}` TauRPC routers. Three plugin categories: custom dashboard / data transform / snapshot template.
+Hosts the WASM Component Model plugin runtime via `wasmtime` 25+. Capability-scoped sandboxing per WIT interface declarations. Loads plugins from `~/.andromeda-pulse/plugins/` (canonicalized + confined). Hosts `plugins.{list,reload,invoke}` TauRPC routers. Window app only: the console program `andromeda-pulse-engine` has no plugin host and no TauRPC bridge, and never emits `plugins.tick`. Three plugin categories: custom dashboard / data transform / snapshot template.
 
 ## Key integrations
 
@@ -11,11 +11,11 @@ Hosts the WASM Component Model plugin runtime via `wasmtime` 25+. Capability-sco
 
 ### Publishes to
 - TauRPC routers: `plugins.list`, `plugins.reload`, `plugins.invoke`.
-- Tauri Channel: `pulse://stream/plugin-events` (plugin lifecycle events).
+- Tauri Channel: `pulse://stream/plugin-events` — reserved, deferred (no runtime emitter).
 - `tracing` events: `plugin.load.request`, `wasmtime.instantiate`, `plugin.capability.check`, `plugin.invoke.request`, `plugin.invoke.error`, `plugins.tick`.
 
 ### Dependencies
-- `wasmtime` 25+ with `component-model` feature (Cranelift backend on x86_64 — verified).
+- `wasmtime` 25+ family with `component-model` feature — Cargo.toml requirement `"48.0.4"`, lockfile-resolved 48.0.5 as of 2026-10-04; 49.x is out of reach while the toolchain is pinned at 1.95 (Cranelift backend on x86_64 — verified).
 - `wit-bindgen` for guest binding generation (build-time).
 - `std` both-sides-canonicalize for plugin file path canonicalization (the `publish_workspace_key` precedent; `strict-path` dropped 2026-08-29, never used).
 - `tauri` capability `pulse:plugin-fs`.
@@ -25,7 +25,7 @@ Hosts the WASM Component Model plugin runtime via `wasmtime` 25+. Capability-sco
 - **Capability-scoped imports** — guests receive ONLY host imports declared in their WIT. NO syscalls, file, or socket access unless explicitly granted.
 - **`wasmtime::Config` settings (binding):**
   - `epoch_interruption(true)` — call timeout enforcement (2-3× faster than fuel per security-research §wasmtime ResourceLimiter)
-  - `max_wasm_http_fields_size` — set per April 2026 CVE-2026-27572
+  - wasi-http header field size — bounded by the `MAX_WASM_HTTP_FIELDS_SIZE_BYTES` const in `engine.rs` per April 2026 CVE-2026-27572; NOT a `wasmtime::Config` method — enforcement attaches via the wasi-http context (`WasiHttpCtxBuilder::max_field_size`) when wasi-http imports land
   - Cranelift backend on x86_64 — DO NOT switch to Winch; April 2026 sandbox-escape advisories (CVE-2026-34941 / CVE-2026-35195) were Cranelift-unaffected
 - **`wasmtime::ResourceLimiter` per Store:**
   - Memory cap 64 MB

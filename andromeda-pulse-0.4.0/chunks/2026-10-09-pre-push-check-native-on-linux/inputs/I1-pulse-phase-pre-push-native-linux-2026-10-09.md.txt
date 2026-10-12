@@ -1,0 +1,22 @@
+# Phase directive — Pulse 0.4.0, fourth chunk: `Pre-push check native on Linux` (2026-10-09)
+
+From the pc overseer, the operator. `measured` lines come from this pair's own record of running the check by hand on
+this host since 2026-10-03; re-derive what you rely on. Nothing here is this chunk's design.
+
+1. **How the check is run today.** measured (the operator's record): `cargo xtask pre-push:linux` needs `wsl.exe`; on
+   this Linux dev host its six stages have been run natively by hand since the host moved (the founder's ruling at
+   that time). Three things that hand-run had to do, each a fact for the plan and none a design: stage 3 needed a
+   fresh per-run `PUPPETEER_CACHE_DIR` under `target/pre-push/` (the browser's extraction stopped partway even in a
+   fresh cache); the bindings regen had to be re-run after stage 5; stage 5's `env -i` drops the session bus, so the
+   credential-store tests skip there.
+2. **"The surviving stages"** (the entry's words): several of the six exist for the window and leave in Epoch 2
+   (`Window's gates retired`), and the credential store leaves with `Corpus encryption at rest retired`. This chunk
+   makes the check native for what stands TODAY and says, stage by stage, which later entry removes it — it removes
+   no stage for a surface that still exists.
+3. **This entry carries the boot-smoke `WATCH:` at 1 of 11.** Two runs have come since: `ci` on `8a89e36` and on
+   `8f655ca` (a setup re-run: two hook entries in `.claude/settings.json` and three lines of `host-linux.md`, no
+   source). Read both boot-smoke verdicts at Setup and record them; on a red, read what the job kept
+   (`harness-settled.json`, `xvfb.log`) and bring it to me before planning on.
+4. **Scope edge.** `No CI step reads nothing` (P-128) is the next entry; CI's own steps are not this chunk's.
+5. **Host.** Other builders run heavy cargo here; a timing the check takes under that load says so.
+6. **Stops.** A boundary widening halts for the founder's own word. At P5 print the plan card and stop for my `yes`.

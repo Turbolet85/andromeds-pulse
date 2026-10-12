@@ -1,0 +1,32 @@
+# Phase directive — Pulse 0.4.0, fourteenth chunk: `Door inside the engine's process` (2026-10-11)
+
+From the pc overseer, the operator. `measured` lines come from this pair's own reads; re-derive what you rely on.
+Nothing here is this chunk's design.
+
+1. **This entry is where the engine gains its first way IN besides telemetry, so its boundary questions come first and
+   come to me at P4 as ONE dialog, before any design is settled:** what the door listens on (a socket of which kind,
+   where, with what mode and owner), how "owner only" and "own host" are ENFORCED and not merely configured (P-126:
+   another account on the same host is refused), and what a call may reach. Each option says what it opens that is
+   closed today. I answer PROVISIONAL; the founder's own word is owed on the surface itself, and the plan says so.
+2. **What the requirement fixes, so it is not re-decided:** the door is inside the engine's process; until another
+   host can reach it, own host only; it reads the engine's stores and nothing else on the node — not the token, not
+   configuration secrets, not files outside those stores; every answer is bounded in size and in time; the one write
+   it keeps (resolving an incident) is named as a write and can be switched off. Admission, its lifecycle and
+   encryption in transit begin when another host can reach it — a LATER entry; say which, and build none of it here.
+3. **It is a contract with another project.** Conductor reads the engine through this door from its first check and
+   never through the sidecar (its intent, measured in this pair's record). State in the plan the one form an outside
+   reader depends on — how it connects, what a call and an answer look like, what an error looks like — as the thing
+   Conductor's first entry will be written against; a form only this repository's tests can use is half the entry.
+4. **The stdio sidecar and its double gate LEAVE in this entry** (the entry's own words). Research lists what stands
+   on the sidecar today — the binary, its crate's entry point, the window's settings that enable it, tests, docs, the
+   capability record's ids — and for each: removed here, or which later entry removes it and why it cannot go now.
+   Nothing of it is left "for when someone touches it".
+5. **The carry on P-040 is this plan's to settle:** the plan states, as a requirement-level sentence with a check, that
+   the engine starts, detects and reports with no reader at the door — or says the record retires P-040 at this
+   chunk's wrap. Nothing in between.
+6. **Size.** If it does not fit one chunk, propose the cut at P4: a first chunk that ends with a door that answers,
+   is refused to the wrong caller, and is gated — and what the second holds (the sidecar's removal, the remaining
+   tools, the harness and status verbs moving onto the door). The route is mine to change at a wrap.
+7. **P-092, P-093 and P-126:** show at P5 what of each acceptance this chunk shows; claim nothing that was not shown.
+   The plan lists the merge-base probe directly before its push entry; legs bind claimed ports, never 4317 / 4318.
+8. **At P5** say what `planlint` check 4 listed, print the plan card and stop for my `yes`.

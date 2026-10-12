@@ -1,0 +1,29 @@
+# Wrap directive — Pulse 0.4.0, chunk `2026-10-10-boot-smoke-s-self-end-closed` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on.
+
+1. **The operator pass stands.** measured: HEAD = the remote = `4e61553b`; `ci#38026637514` reads success at attempt 3
+   (my own read of the run). Your record holds three attempts, eight boots each, none self-ended. P-129's flip is the
+   coverage step's to make on that ref.
+2. **What the route still says that is no longer true.** The closing entry's standing rule ("until closed the boot
+   job reads red on most runs") is consumed by this chunk: after the flip no line of the tail or of the handoff tells a
+   later chunk to expect a red boot job. Say instead what holds now: the series stays a gating step, and a self-end in
+   it is a new reading, brought to the operator.
+3. **Leaving owners, each pinned.** `pulse-app/src/xlib_threads.rs`, its call in `main` and its test leave with the
+   window (`Window retired`). The carry on `Window's gates retired` already names the witness and the series; read it
+   against what this chunk changed in the series and correct it if a name moved.
+4. **Found and not owned — present for disposition at the card.** The series' first boot builds again on the runner,
+   about 3 to 3.5 minutes in every attempt, cause unmeasured. My lean, for the card to test against the letters:
+   nothing owed as work — the cost ends when the boot job leaves in Epoch 2 — recorded as a fact on that entry's carry,
+   not as an entry of its own.
+5. **Stated as limits in the report, not smoothed:** the before-ready read never ran on a runner; the step inside Xlib
+   that loses the reply is not traced; the close leg takes the mapped library from `ldd`, not from the running process.
+6. **One fact for the record, no ruling here:** the same defect is in the app as published before this chunk, on any
+   host whose Xlib is older than 1.8. Write it where the report lists what it found; what is done about anything
+   published is the founder's and I carry it.
+7. **A proposal a detector grades `escalate` halts at the card for my word.** The witness record's classification
+   stays PROVISIONAL.
+8. **For the main overseer, one line each if they occur:** `REFUSED id:` in a trail, with what the session did next;
+   `held 3` at the citation sweep.
+9. **Stops.** The route-resolve card; then before the flip and the commit with `git status --short`. The 85 % and 90 %
+   context alarms are expected: finish; stop only at 95 %.

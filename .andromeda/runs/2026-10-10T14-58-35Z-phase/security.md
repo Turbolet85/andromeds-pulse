@@ -1,0 +1,37 @@
+# security extract
+
+## Relevance
+partial — the chunk adds no product surface by intent, but it re-aims the harness-only class at a second product binary, drives that binary's command line and ports, and builds checks over its exit and panic records; each of those touches a boundary the security plan states.
+
+## Constraints
+- Everything the five verbs and the four checks read or write must stay inside the harness-only class: never read by a product binary, state files taken only through the existing bounded readers, verdict documents made of closed labels with no value of an environment variable and no path (per security-plan §Security Anti-Patterns → Input). Whether the existing readers already serve the files the console engine leaves is research's question.
+- The console program's command line is a closed two-word grammar with no `stop` word and no word that takes a value; the verbs drive `run` and `version` only and end the engine by signal. A verb that needs a further word is a new question for the operator each time, not a plan decision (per security-plan §Input Validation, the console program command line row).
+- The legs' alternate ports reach the engine only through the two OTLP port variables, which yield validated ports and never a bind host; a rejected port must record the bind as failed and start no receiver, and a harness read of a port value outside the valid range must read `cannot-evaluate` (per security-plan §Input Validation, the CLI / env var inputs row). Whether a test already makes the rejected-port reading (C5) is research's question.
+- The plan states the console program reads neither `ANDROMEDA_PULSE_PIDFILE` nor `ANDROMEDA_PULSE_LOGFILE` nor any of the three L4 path variables, pinned by source text; a verb that locates or steers the engine through one of them steers nothing, and making the engine read a new variable to be found is a boundary widening, not harness work (per security-plan §Input Validation, the CLI / env var inputs row). What the verbs use to find the engine today (C4, the pid file) is research's question.
+- The exit-witness arm is classified PROVISIONAL and is stated for the window app's one spawn command only; it is the one harness member that runs inside a product process. Loading it onto the console engine's spawn line would extend a PROVISIONAL item to a second product binary and halts for the operator's word — it is never inherited silently by retargeting `boot` (per security-plan §Security Anti-Patterns → Input, the exit-witness arm). Whether the retargeted spawn line would carry `LD_PRELOAD` as written is research's question.
+- The process-end check must be built on the record's stated contract: exactly one `app.exit` per process end, a four-field closed leaf, and a stated set of ends it cannot see (SIGKILL, `_exit`, a failure before the sink exists). An end in that set yields zero records by construction, so the check needs a named arm for it rather than a pass or an undifferentiated red (per security-plan §Security Anti-Patterns → Logging, the `app.exit` NO-SCRUB boundary).
+- If the chunk adds or edits a CI step for these checks: a third-party action is pinned by 40-char commit SHA, `harden-runner` stays the first step of the job, and workflow permissions stay `contents: read`; a plain `run:` step triggers no pinning (per security-plan §Bootstrap phases, `dep-security-ci-gate`).
+
+## Patterns to follow
+- Spawned children get a cleared environment plus a pinned set, pinned by set equality, so no leg reaches an OS credential store; the `pre-push:linux` verb is the stated precedent (per security-plan §Security Anti-Patterns → Input).
+- With no credential store and no passphrase the corpus must degrade to absent, never to an invented key; a leg that wants a corpus configures `ANDROMEDA_PULSE_CORPUS_PASSPHRASE`, which is secret-class and is never printed, logged or written into a verdict document (per security-plan §Secret Management, Runtime and "What counts as secret").
+- Bounded reading of harness state: one line of at most 48 printable ASCII bytes for an exit record, closed labels out, anything else read as no record or `unreadable`, and `cannot-evaluate` for an input the verb cannot judge (per security-plan §Input Validation, the CLI / env var inputs row).
+- A new harness reading is recorded with its reader, its date and whose word classified it; in-process harness code is never classed on the operator's reading alone (per security-plan §Security Anti-Patterns → Input).
+- Any record a check or verb causes the engine to emit carries basenames only, through the existing basename helper (per security-plan §Security Anti-Patterns → Logging).
+
+## Anti-patterns to avoid
+- Never bind a receiver to anything but `127.0.0.1`, and never let a harness leg introduce a third listening socket; a socket other than the two loopback receivers halts for the operator (per security-plan §Security Anti-Patterns → API).
+- Never print or keep a full product-consumed path, a raw OTLP attribute value or a value of an environment variable in a verb's output, a check's verdict or a kept file; harness-kept third-party text passes no scrubber, so a kept file is read whole and a line beyond its shape stops the reading (per security-plan §Security Anti-Patterns → Logging).
+- If witnessing the console program's own panic or at-exit record (C4) leads to touching its exit path: never log, or run code that needs thread-locals, from an `atexit` or signal handler on the ending thread, and the signal path must end the process by the same signal, never by an exit code standing in for it (per security-plan §Security Anti-Patterns → Universal).
+
+## Contract bindings
+- security ↔ obs: the `app.exit` and `app.panic.fatal` allowlist leaves and the one-record-per-end contract are what the process-end and panic checks grade; the heartbeat-gap and zero-records readings (C1) are obs-plan §10's, and security only bounds what a graded record may carry.
+- security ↔ tests: verdict-arm pins and the constructed-red logs must hold no real secret or real path; test-plan §1 rows `engine-boot-rejected-port-and-socket-census-coverage` (C5) and `harness-cleanup-verdict-and-boot-spawn-shell-coverage` are the owed carriers of the rejected-port, socket-census and lock-dir readings.
+- security ↔ tests/CI: any new step sits in the one workflow under the supply-chain step rules above.
+- security ↔ arch: a new harness-read variable, kept file or location is an arch §Occupied Resources registration and, under the scope's Boundaries, an operator halt.
+
+## Acceptance criteria contributions
+- A socket census of a harness-spawned console engine shows exactly two listening sockets, both on `127.0.0.1`, at the leg's alternate ports, and none on 4317 / 4318 (per security-plan §Security Anti-Patterns → API)
+- The diff from chunk base `8394da4f` adds no command word to the console program and the console-grammar and engine-boot seam pins stay green (per security-plan §Input Validation)
+- Every verdict document or kept file the chunk adds or changes has a pinned member set, and a scan of each leg's outputs for the data dir's absolute path and for any environment value reads 0 (per security-plan §Security Anti-Patterns → Input)
+- The process-end check is shown red on a constructed log with zero `app.exit` records and on one with two, and a run ended by SIGKILL lands on its own named arm (per security-plan §Security Anti-Patterns → Logging)

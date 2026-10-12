@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T22:55:35Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-10-door-inside-the-engine-s-process",
+"--expect-prefix",
+"Door inside the engine's process",
+"--record-file",
+".andromeda/runs/2026-10-10T22-53-52Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-10T22-53-52Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:37 - [2026-10-10-door-inside-the-engine-s-process]",
+"record master-route.md:119 - appended under `## andromeda-pulse-0.4.0`",
+"promoted 2026-10-10-door-inside-the-engine-s-process - working-route:37 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

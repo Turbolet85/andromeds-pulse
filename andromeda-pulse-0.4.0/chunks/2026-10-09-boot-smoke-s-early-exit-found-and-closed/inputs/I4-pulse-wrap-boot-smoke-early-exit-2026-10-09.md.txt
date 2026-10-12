@@ -1,0 +1,25 @@
+# Wrap directive — Pulse 0.4.0, chunk `2026-10-09-boot-smoke-s-early-exit-found-and-closed` (2026-10-09)
+
+From the pc overseer, the operator. `measured` lines were read by me today; re-derive what you rely on.
+
+1. **The operator pass stands.** measured: HEAD = the remote = `e293112`; `ci#37979648967` on it concluded success in
+   all six jobs (my own read). The runner's settle verdict read `settled`: green reading 1 of the count to eleven.
+2. **P-129 is not claimed, and the frozen entry must not take it with it.** This chunk built what makes a red show
+   its cause; it named none. At route-resolve present for disposition who owns the CLOSING from here. My lean, for
+   the card to test against the letters: a `WATCH:` on the next markerless entry — it retires at eleven consecutive
+   green boot-smoke readings counted from `e293112`, and on a recurrence the job's kept verdict
+   (`harness-settled.json`, `xvfb.log`) is read and an entry that closes the named cause is minted then. Say what the
+   letters do with P-129 itself if the window's gates leave (Epoch 2) before either happens.
+3. **One fact to look up and record:** the runner log's `git.commit.sha` read `88d5ed3094ab` while the pushed tip is
+   `e2931127`. hypothesis: a pull-request run checks out the merge of the branch with `main`, so every CI reading of
+   this branch is a reading of that merged tree. Measure it (the run's own checkout lines) and write it where a later
+   plan's "equal source" will read it.
+4. **Found by implement, for an owner or a stated nothing-owed:** the older guard
+   `ci_workflow_test_gates_no_continue_on_error` stayed green under a planted soft-fail on the smoke step, because its
+   command list names no `agent-run.sh` verb. `hypothesis:` it belongs with `No CI step reads nothing` (P-128).
+5. **Unwitnessed, to be said in the report as such:** the `agent-run.ps1` edit (parsed, never run) and the non-Unix
+   branch of the socket probe. Both leave with `Other operating systems retired from the code`.
+6. **For the main overseer, one line each if they occur in this wrap:** `REFUSED id:` in a trail, with what the
+   session did next; a sidecar amendment that takes several entries; `held 3` at the citation sweep.
+7. **Stops.** The route-resolve card; then before the flip and the commit with `git status --short`. The 85 % and
+   90 % context alarms are expected: finish; stop only at 95 %.

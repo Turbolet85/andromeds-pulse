@@ -1,0 +1,1 @@
+take up `Stdio agent reaches the door` (working-route.md:39). CI on d3e694d2 is read: green (ci#38103099502, ci#38103099479). Directive: ~/dev/projects/additional/pc-overseer/relays/pulse-phase-stdio-agent-reaches-the-door-2026-10-12.md — read it whole at Setup. Stop at P4 with the forms, and at P5 for my yes.

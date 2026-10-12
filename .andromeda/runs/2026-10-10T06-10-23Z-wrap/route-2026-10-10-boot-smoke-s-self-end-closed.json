@@ -1,0 +1,123 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-10T06:41:12Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-10-boot-smoke-s-self-end-closed",
+"--run-dir",
+".andromeda/runs/2026-10-10T06-10-23Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"flip master-route.md:111 - 2026-10-10-boot-smoke-s-self-end-closed pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-10T06:41:12Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-boot-smoke-s-self-end-closed",
+"--date",
+"2026-10-10",
+"--run-dir",
+".andromeda/runs/2026-10-10T06-10-23Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :21 strip CARRY: 541ch \"CARRY: this entry's own first step — the\"",
+"pin :21 strip CARRY: 1178ch \"CARRY: measured on ci#38019133294 (attem\"",
+"pin :21 strip CARRY: 612ch \"CARRY: three questions for this entry's \"",
+"pin :21 strip CARRY: 500ch \"CARRY: until this entry closes the cause\"",
+"pin next markerless :23 holds CARRY:×2",
+"21 · 2026-10-10-boot-smoke-s-self-end-closed · strip 4 block(s) · archive APPEND",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 21,
+"marker": "2026-10-10-boot-smoke-s-self-end-closed",
+"blocks": 4,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-10T06:41:19Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-boot-smoke-s-self-end-closed",
+"--date",
+"2026-10-10",
+"--run-dir",
+".andromeda/runs/2026-10-10T06-10-23Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :21 strip CARRY: 541ch \"CARRY: this entry's own first step — the\"",
+"pin :21 strip CARRY: 1178ch \"CARRY: measured on ci#38019133294 (attem\"",
+"pin :21 strip CARRY: 612ch \"CARRY: three questions for this entry's \"",
+"pin :21 strip CARRY: 500ch \"CARRY: until this entry closes the cause\"",
+"pin next markerless :23 holds CARRY:×2",
+"21 · 2026-10-10-boot-smoke-s-self-end-closed · strip 4 block(s) · archive APPEND",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/route-archive.md",
+"./andromeda-pulse-0.4.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 21,
+"marker": "2026-10-10-boot-smoke-s-self-end-closed",
+"blocks": 4,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+}
+]

@@ -1,0 +1,479 @@
+[
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:24:11Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/architecture-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"bytes 127213 · whole-read bound 120000 · OVER",
+"entries 101 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 2 block(s) — listed below",
+"UNPARSED: :15 ## Registry-closure amendments",
+"UNPARSED: :177 ## Decision-history"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 127213,
+"entries": 101,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": [
+15,
+177
+]
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:24:11Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"bytes 118889 · whole-read bound 120000 · within",
+"entries 69 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 5 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 2 block(s) — listed below",
+"UNPARSED: :45 ## Externalized superseded guidance — reference",
+"UNPARSED: :52 ## Externalized Security Decisions Log (verbatim, formerly the body's final section)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 118889,
+"entries": 69,
+"off_form": 0,
+"set": 0,
+"prunable": 5,
+"unparsed": [
+45,
+52
+]
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:24:11Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/design-system-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"bytes 19769 · whole-read bound 120000 · within",
+"entries 11 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 2 block(s) — listed below",
+"UNPARSED: :32 ## Phase 7 Final Validation — Motion table clarified + Snapshot concept anchored",
+"UNPARSED: :56 ## Downstream Readiness (Phase 5+ Specialist Handoff)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 19769,
+"entries": 11,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": [
+32,
+56
+]
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:24:11Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"bytes 126980 · whole-read bound 120000 · OVER",
+"entries 87 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 1 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 126980,
+"entries": 87,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:24:11Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"bytes 75008 · whole-read bound 120000 · within",
+"entries 56 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 75008,
+"entries": 56,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:24:12Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/a11y-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"bytes 14807 · whole-read bound 120000 · within",
+"entries 11 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 1 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 14807,
+"entries": 11,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:24:18Z",
+"argv": [
+"index",
+"--file",
+".andromeda/architecture-amendments.md",
+"--out",
+".andromeda/runs/2026-10-09T18-17-49Z-phase/arch-history-index.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"wrote .andromeda/runs/2026-10-09T18-17-49Z-phase/arch-history-index.md · 101 entries · 2 unparsed · 22817 B (the sidecar is 127213 B)"
+],
+"stderr": null,
+"wrote": [
+".andromeda/runs/2026-10-09T18-17-49Z-phase/arch-history-index.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:24:18Z",
+"argv": [
+"index",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--out",
+".andromeda/runs/2026-10-09T18-17-49Z-phase/tests-history-index.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"wrote .andromeda/runs/2026-10-09T18-17-49Z-phase/tests-history-index.md · 87 entries · 0 unparsed · 24004 B (the sidecar is 126980 B)"
+],
+"stderr": null,
+"wrote": [
+".andromeda/runs/2026-10-09T18-17-49Z-phase/tests-history-index.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:27:37Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/architecture-amendments.md",
+"--history",
+".andromeda/runs/2026-10-09T18-17-49Z-phase/arch-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"cites: 20 · resolved 20 · UNRESOLVED 0 · not a marker 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 20,
+"UNRESOLVED": 0,
+"not a marker": 0,
+"cites": 20
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:27:37Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-09T18-17-49Z-phase/security-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"cites: 24 · resolved 24 · UNRESOLVED 0 · not a marker 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 24,
+"UNRESOLVED": 0,
+"not a marker": 0,
+"cites": 24
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:27:37Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/design-system-amendments.md",
+"--history",
+".andromeda/runs/2026-10-09T18-17-49Z-phase/design-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"not a marker: **2026-10-09T08-07-22Z-wrap** — history:11",
+"not a marker: **Downstream Readiness (Phase 5+ Specialist Handoff)** — history:12",
+"cites: 8 · resolved 8 · UNRESOLVED 0 · not a marker 2"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 8,
+"UNRESOLVED": 0,
+"not a marker": 2,
+"cites": 8
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:27:37Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-09T18-17-49Z-phase/tests-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"not a marker: **2026-10-09T08-07-22Z-wrap** — history:35",
+"cites: 36 · resolved 36 · UNRESOLVED 0 · not a marker 1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 36,
+"UNRESOLVED": 0,
+"not a marker": 1,
+"cites": 36
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:27:37Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-09T18-17-49Z-phase/obs-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"cites: 35 · resolved 35 · UNRESOLVED 0 · not a marker 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 35,
+"UNRESOLVED": 0,
+"not a marker": 0,
+"cites": 35
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T18:27:37Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/a11y-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-09T18-17-49Z-phase/a11y-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"not a marker: **Kept** — history:10",
+"cites: 8 · resolved 8 · UNRESOLVED 0 · not a marker 1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 8,
+"UNRESOLVED": 0,
+"not a marker": 1,
+"cites": 8
+}
+}
+]

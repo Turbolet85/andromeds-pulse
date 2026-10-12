@@ -1,0 +1,7 @@
+{
+  "title": "The door answers the engine's memory use and the size of its stores",
+  "requirement": "the door answers, as part of the engine's own state, the engine's current memory use and the current size of its stores; the answer is read-only and bounded like every other answer of the door, so a reader outside the engine's process needs no file and no process of the engine's to learn either figure",
+  "observed_gap": "P-093 lets the door read \"the engine's own state\" and P-092 lists telemetry, one incident whole and the curated snapshot; no route entry says the door offers the engine's memory use or the size of its stores — `Engine memory measured` and `Disk store measured under load` are the engine's own readings — while the external harness's long run reads both figures through the door over hours (Conductor `v4-21`).",
+  "method": "integration",
+  "acceptance": "A reader that has only the door asks for the engine's own state and is answered the engine's current memory use and the current size of its stores; the figures agree with what the engine measures of itself; the answer changes nothing and is bounded in size and time like every other answer of the door."
+}

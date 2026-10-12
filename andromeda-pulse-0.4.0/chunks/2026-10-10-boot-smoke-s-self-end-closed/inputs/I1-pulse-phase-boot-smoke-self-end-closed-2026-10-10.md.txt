@@ -1,0 +1,28 @@
+# Phase directive — Pulse 0.4.0, sixth chunk: `Boot smoke's self-end closed` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on. Nothing here is this
+chunk's design.
+
+1. **One more run exists.** measured: the wrap commit `95d17008` was pushed at about 05:58 local and started a
+   pull-request run. Read its boot job's per-boot verdicts and witness files when it has closed; with `ci#38019133294`
+   that is two runs of eight boots, and the entry's question (b) is asked of both.
+2. **What "closed" means here.** The cause is removed and a variation shows it was the cause: on equal source, the
+   series with the change reads no self-end and the series without it reads them. A change after which the symptom is
+   merely rarer, with no variation behind it, is not a close. State before P5 how many boots, over how many runs, the
+   close is read on, and what rate an unclosed job would pass that count at.
+3. **What this chunk must not do.** No retry, no soft-fail key, no filter that reads a self-end as anything but red,
+   and no product change whose only purpose is to keep the app alive past the ending call.
+4. **A question for research, answerable by the kept files:** GDK's handler for this error prints a message before it
+   ends the process. Is that message in `boot.log` of the ended boots; if it is not, where do the app's GLib messages
+   go, and is anything lost at `_exit`.
+5. **`hypothesis:` the `errno` 11 in the witness line may be a stale value** — it says the connection's read ended, not
+   why. Do not build on it without a measurement.
+6. **The instrument.** The series' undercount is this entry's first step (its own `CARRY:`). The witness record's
+   classification is PROVISIONAL: its shape does not grow here. A new member, a new kept file or anything read from
+   inside the app's process beyond the present record halts for the founder's own word.
+7. **If research shows the cause cannot be closed from this repository** (the runner image, the display server, a
+   library the job only consumes): stop at P4 and bring what was measured. Where the boot job goes then is a route
+   question for me, not a design for this plan.
+8. **Scope edge.** The window, its bridge and the boot job leave in Epoch 2. The close is the smallest change that
+   removes the cause; nothing is improved for a surface on its way out.
+9. **At P5** say what `planlint` check 4 listed, print the plan card and stop for my `yes`.

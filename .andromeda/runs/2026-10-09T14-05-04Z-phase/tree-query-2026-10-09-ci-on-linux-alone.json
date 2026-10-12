@@ -1,0 +1,118 @@
+[
+{
+"sql": "SELECT symbol, crate, kind, file, def_line FROM symbol WHERE name IN ('ci_workflow_runs_on_linux_only','ci_workflow_release_job_owns_and_saves_its_cache_key','data_dir_export_precedes_every_consumer','workflow_job_block','apt_packages','node_major') AND kind <> 'meta'",
+"rows": 5,
+"result": [
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 pre_push/node_major().",
+"crate": "xtask",
+"kind": "fn",
+"file": "xtask/src/pre_push.rs",
+"def_line": 526
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 pre_push/apt_packages().",
+"crate": "xtask",
+"kind": "fn",
+"file": "xtask/src/pre_push.rs",
+"def_line": 540
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 workflow_job_block().",
+"crate": "pulse-app",
+"kind": "fn",
+"file": "pulse-app/tests/quality_gate_workflow.rs",
+"def_line": 78
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 ci_workflow_release_job_owns_and_saves_its_cache_key().",
+"crate": "pulse-app",
+"kind": "fn",
+"file": "pulse-app/tests/quality_gate_workflow.rs",
+"def_line": 100
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 data_dir_export_precedes_every_consumer().",
+"crate": "pulse-app",
+"kind": "fn",
+"file": "pulse-app/tests/quality_gate_workflow.rs",
+"def_line": 410
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name IN ('workflow_job_block','apt_packages','node_major') AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 13,
+"result": [
+{
+"caller_name": "ci_workflow_release_job_owns_and_saves_its_cache_key",
+"file": "pulse-app/tests/quality_gate_workflow.rs",
+"line": 101
+},
+{
+"caller_name": "drive",
+"file": "xtask/src/pre_push.rs",
+"line": 154
+},
+{
+"caller_name": "drive",
+"file": "xtask/src/pre_push.rs",
+"line": 154
+},
+{
+"caller_name": "apt_packages_join_continuations_and_drop_flags",
+"file": "xtask/src/pre_push.rs",
+"line": 618
+},
+{
+"caller_name": "apt_packages_join_continuations_and_drop_flags",
+"file": "xtask/src/pre_push.rs",
+"line": 625
+},
+{
+"caller_name": "apt_packages_join_continuations_and_drop_flags",
+"file": "xtask/src/pre_push.rs",
+"line": 626
+},
+{
+"caller_name": "apt_packages_read_the_real_workflow",
+"file": "xtask/src/pre_push.rs",
+"line": 633
+},
+{
+"caller_name": "apt_packages_read_the_real_workflow",
+"file": "xtask/src/pre_push.rs",
+"line": 637
+},
+{
+"caller_name": "node_major_reads_one_agreed_major",
+"file": "xtask/src/pre_push.rs",
+"line": 642
+},
+{
+"caller_name": "node_major_reads_one_agreed_major",
+"file": "xtask/src/pre_push.rs",
+"line": 644
+},
+{
+"caller_name": "node_major_reads_one_agreed_major",
+"file": "xtask/src/pre_push.rs",
+"line": 646
+},
+{
+"caller_name": "node_major_reads_one_agreed_major",
+"file": "xtask/src/pre_push.rs",
+"line": 647
+},
+{
+"caller_name": "node_major_reads_one_agreed_major",
+"file": "xtask/src/pre_push.rs",
+"line": 648
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

@@ -1,0 +1,7 @@
+{
+  "title": "The plugin host is gone",
+  "requirement": "The engine has no plugin host: no crate hosts WebAssembly plugins, the workspace depends on no WebAssembly runtime, and the example plugins are gone from the tree; the critical path that drove the plugin lifecycle is recorded as retired with the surface, not as regressed.",
+  "observed_gap": "A plugin host crate built on a WebAssembly runtime (crates/plugins, the wasmtime dependency), three example plugins under plugins-examples/, and a critical path (P4) that drives the plugin lifecycle.",
+  "method": "integration",
+  "acceptance": "A build of the whole workspace on Linux succeeds with no WebAssembly runtime anywhere in its dependency graph; the tree contains no plugin host and no example plugin; the full remaining gate is green; the headless engine still detects everything it detected in 0.3.0; the plugin-lifecycle critical path reads as retired with the surface, not as regressed."
+}

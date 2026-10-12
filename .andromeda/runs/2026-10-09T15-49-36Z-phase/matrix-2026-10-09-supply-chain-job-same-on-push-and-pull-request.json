@@ -1,0 +1,146 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T16:30:48Z",
+"argv": [
+"coverage",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"verified 0/46 · deferred 0 · planned 46 · implemented 0 · unclaimed 46",
+"unclaimed: P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098",
+"          P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114",
+"          P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122 P-123 P-124 P-125 P-126 P-127 P-128",
+"claimed-unfinished: none",
+"done-test: NO — 46 not verified|deferred · unclaimed 46",
+"chunks referenced: 0 distinct"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T16:30:48Z",
+"argv": [
+"claim",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-120",
+"--chunk",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--acceptance-file",
+".andromeda/runs/2026-10-09T15-49-36Z-phase/acceptance-P-120.md",
+"--method",
+"integration",
+"--note-file",
+".andromeda/runs/2026-10-09T15-49-36Z-phase/note-P-120.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"claim P-120 → chunk 2026-10-09-supply-chain-job-same-on-push-and-pull-request (was null; status planned kept)",
+"acceptance: For the same tree the supply-chain job ends the same on a push as on a… (232 chars)",
+"         → The push run on `main` that the founder's merge of the repair's pull r… (961 chars)",
+"method: integration → integration",
+"notes: +796 chars (total 796)",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 45 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-121 P-122 P-123 P-124 P-125 P-126 P-127 P-128]"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-120",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "For the same tree the supply-chain job ends the same on a push as on a pull request; it fails when there is a finding an… (232 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-120",
+"chunk": "2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "The push run on `main` that the founder's merge of the repair's pull request makes reads green in the `supply-chain` che… (961 chars)",
+"notes_chars": 796
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T16:30:48Z",
+"argv": [
+"audit",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--chunk",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--plan",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"claimed by 2026-10-09-supply-chain-job-same-on-push-and-pull-request: 1 · ## Acceptance Criteria: line 461, 59 lines",
+"P-120: cited in ## Acceptance Criteria (line 462)",
+"pool: unclaimed 45 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-121 P-122 P-123 P-124 P-125 P-126 P-127 P-128]"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T16:30:48Z",
+"argv": [
+"coverage",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"verified 0/46 · deferred 0 · planned 46 · implemented 0 · unclaimed 45",
+"unclaimed: P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098",
+"          P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114",
+"          P-115 P-116 P-117 P-118 P-119 P-121 P-122 P-123 P-124 P-125 P-126 P-127 P-128",
+"claimed-unfinished: 2026-10-09-supply-chain-job-same-on-push-and-pull-request: P-120",
+"done-test: NO — 46 not verified|deferred · unclaimed 45",
+"chunks referenced: 1 distinct"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

@@ -1,0 +1,658 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T00:51:46Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-door-inside-the-engine-s-process/report.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/new-text.md",
+"--lines",
+"390",
+"--if-absent-prefix",
+"## New text, by line",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append report.md:+390 at line 520 · lines 519→909 · bytes 45633→66505 · term lf",
+"last line now:   - 261-263 «let (_, worst_boot) = emitted(BOOT, || {»"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/chunks/2026-10-10-door-inside-the-engine-s-process/report.md"
+],
+"before": {
+"lines": 519,
+"bytes": 45633,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 909,
+"bytes": 66505
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T00:53:11Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-door-inside-the-engine-s-process/report.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/new-text.md",
+"--lines",
+"390",
+"--if-absent-prefix",
+"## New text, by line",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"skipped — '## New text, by line' already at line 520 (the append is idempotent)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:10Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/architecture-entry-1.md",
+"--lines",
+"7",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+7 at line 1061 · lines 1060→1067 · bytes 173684→176254 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 1060,
+"bytes": 173684,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 1067,
+"bytes": 176254
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:10Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/architecture-entry-2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 1068 · lines 1067→1073 · bytes 176254→178986 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 1067,
+"bytes": 176254,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 1073,
+"bytes": 178986
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/architecture-entry-3.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 1074 · lines 1073→1079 · bytes 178986→180784 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 1073,
+"bytes": 178986,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 1079,
+"bytes": 180784
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/architecture-entry-4.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 1080 · lines 1079→1085 · bytes 180784→182754 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 1079,
+"bytes": 180784,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 1085,
+"bytes": 182754
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/security-plan-entry-1.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 736 · lines 735→741 · bytes 141858→144394 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 735,
+"bytes": 141858,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 741,
+"bytes": 144394
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/security-plan-entry-2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 742 · lines 741→747 · bytes 144394→146620 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 741,
+"bytes": 144394,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 747,
+"bytes": 146620
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/security-plan-entry-3.md",
+"--lines",
+"7",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+7 at line 748 · lines 747→754 · bytes 146620→148302 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 747,
+"bytes": 146620,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 754,
+"bytes": 148302
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/security-plan-entry-4.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 755 · lines 754→760 · bytes 148302→150403 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 754,
+"bytes": 148302,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 760,
+"bytes": 150403
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/security-plan-entry-5.md",
+"--lines",
+"7",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+7 at line 761 · lines 760→767 · bytes 150403→152832 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 760,
+"bytes": 150403,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 767,
+"bytes": 152832
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/test-plan-entry-1.md",
+"--lines",
+"7",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+7 at line 1010 · lines 1009→1016 · bytes 181308→183815 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 1009,
+"bytes": 181308,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 1016,
+"bytes": 183815
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/test-plan-entry-2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+6 at line 1017 · lines 1016→1022 · bytes 183815→186274 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 1016,
+"bytes": 183815,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 1022,
+"bytes": 186274
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/obs-plan-entry-1.md",
+"--lines",
+"7",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+7 at line 547 · lines 546→553 · bytes 102299→104752 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 546,
+"bytes": 102299,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 553,
+"bytes": 104752
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/obs-plan-entry-2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+6 at line 554 · lines 553→559 · bytes 104752→107040 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 553,
+"bytes": 104752,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 559,
+"bytes": 107040
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:11Z",
+"argv": [
+"append",
+"--file",
+".andromeda/a11y-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/a11y-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append a11y-plan-amendments.md:+6 at line 113 · lines 112→118 · bytes 17371→17991 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-11T00-46-46Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/a11y-plan-amendments.md"
+],
+"before": {
+"lines": 112,
+"bytes": 17371,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 118,
+"bytes": 17991
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "8e604700",
+"ts": "2026-10-11T01:28:34Z",
+"argv": [
+"append",
+"--file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/fanout-results.md",
+"--payload-file",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/fanout-resolution.md",
+"--lines",
+"15",
+"--run-dir",
+".andromeda/runs/2026-10-11T00-46-46Z-wrap",
+"--marker",
+"2026-10-10-door-inside-the-engine-s-process"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append fanout-results.md:+15 at line 1263 · lines 1262→1277 · bytes 136952→139261 · term lf",
+"last line now: Totals of the pass: 70 amendments (architecture 22, security-plan 22, test-plan "
+],
+"stderr": null,
+"wrote": [
+".andromeda/runs/2026-10-11T00-46-46Z-wrap/fanout-results.md"
+],
+"before": {
+"lines": 1262,
+"bytes": 136952,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 1277,
+"bytes": 139261
+}
+}
+]

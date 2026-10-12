@@ -1,0 +1,33 @@
+# Route-resolve card — 2026-10-10-boot-smoke-s-self-end-named-from-a-run (wrap P5)
+
+State at this card: P1 report written · P2 36 amendments applied, 1 escalation resolved (classification PROVISIONAL), citations 2 re-pointed · P3 one Tier 2 entry · P4 code-graph fresh (rust 9839n/48380e, ts 4164n/7755e, refreshed 2026-10-10T03:29Z). Not yet done: P6 handoff and state, P7 gates, flip, commit. Nothing of the route is written until the operator's word.
+
+## 1. NEW entry, first in the markerless tail (before `No CI step reads nothing`, working-route.md:21) — trajectory, on inputs#I4 item 2
+
+ENTRY-BEGIN
+Boot smoke's self-end closed — every self-end counted with its label; the cause behind the ending call closed; equal source reads the same (P-129) · PREREQ: the series undercounts (measured on ci#38019133294; record: 2026-10-10-boot-smoke-s-self-end-named-from-a-run's report, Insufficient fixes): a boot that ends before the boot verb reads ready takes no settle verdict, so boot-series.json gave four of that run's seven self-ends no label (ended 2, other 4) although each witness file holds the line; the first thing this entry repairs: every self-end is counted with its label (the operator's word, the pc overseer, 2026-10-10, that chunk's inputs#I4 item 4) · CARRY: measured on ci#38019133294 (attempt 1, pushed tip 925be35f, the merge it built ab6a1ae6; record: that chunk's report and evidence/operator-pass.md; artifact logs-boot-Linux 11657059728, expires 2026-10-24): seven of eight boots ended by themselves and one settled (ordinal 6); the seven end lines are equal in every member but the process and thread ids — call _exit, code 1, errno 11, on the main thread, from a static function of libgdk-3.so.0 (+0x76ccc) entered from Xlib's _XIOError, reached from _XReply under XGetWindowProperty under gdk_x11_screen_supports_net_wm_hint, out of a GObject signal emission dispatched from GLib's main loop under gtk_main_iteration_do; the display read reachable after each of the three ends that took a settle verdict, and all eight xvfb.log are 0 B; no ended boot holds app.exit and no boot holds app.panic.fatal; limits, each a limit: why the connection's read failed is not measured; the instrument's reading on green boots on the runner is one boot; seven of eight under the instrument against four of twelve first boots before it is not attributed to the library, the series or the runner; the runner's own GTK build was not read · CARRY: three questions for this entry's own research, each answerable by measurement, none a direction (the operator's word, the pc overseer, 2026-10-10, that chunk's inputs#I4 item 3): (a) which side ended this one client's connection while the display server went on accepting others — the server, another client, or the app's own side; (b) is the self-end a property of the runner a run lands on, read from the per-boot verdicts of the runs that follow; (c) do boots 2 to 8 run the binary boot 1 ran — boot 2 took 3 min 27 s to reach ready against 3 to 12 s for the six after it, and its build log is not kept · CARRY: until this entry closes the cause the boot job reads red on most runs; that red is read by its per-boot verdicts (logs/boot-series.json and each boot's exit-witness.jsonl in the logs-boot-Linux artifact) and is this entry's, never a later chunk's to fix (the operator's word, the pc overseer, 2026-10-10, that chunk's inputs#I4 item 6); the exit-witness arm's classification is PROVISIONAL in security-plan §Security Anti-Patterns → Input, awaiting the founder's own word at the epoch boundary
+ENTRY-END
+
+## 2. `Window's gates retired` (working-route.md:44) — one CARRY added, on inputs#I4 item 5
+
+CARRY-ADD-BEGIN
+ · CARRY: built for the boot job at 2026-10-10-boot-smoke-s-self-end-named-from-a-run and leaving with it here, unless this entry's card names a later gate that takes one over: scripts/exit-witness.c; xtask/src/harness_witness.rs and the exit_witness member of harness:settled; xtask/src/harness_series.rs and the harness:boot-series verb; the boot verb's exit-witness arm in scripts/agent-run.sh (ANDROMEDA_PULSE_EXIT_WITNESS_LIB, ANDROMEDA_PULSE_EXIT_WITNESS_FILE, LD_PRELOAD on the spawn line); the two boot-job steps in ci.yml (Build the exit witness, Boot series (equal source)) with their three pins in pulse-app/tests/quality_gate_workflow.rs; the masters' rows for each (the operator's word, the pc overseer, 2026-10-10, that chunk's inputs#I4 item 5)
+CARRY-ADD-END
+
+## 3. Two stale premises corrected in place (factual)
+
+- `Window's gates retired`, its P-129 CARRY: was "(planned, unclaimed; no run has named a cause), which the entry "Boot smoke's self-end named from a run" owns since the boot-smoke watch retired at a recurrence (2026-10-10, ci#38010977166)"; becomes "(planned, unclaimed; a run named the ending call on ci#38019133294, the cause is not closed), which the entry "Boot smoke's self-end closed" owns since 2026-10-10".
+- `No CI step reads nothing`, its second CARRY: "reads 16 of ci.yml's 51 run steps (measured 2026-10-09 …)" gains "; 53 run steps since 2026-10-10-boot-smoke-s-self-end-named-from-a-run added two, the 16 not re-derived".
+
+## 4. Not route edits, stated for the word
+
+- P-129: not claimed; a dated ledger note at P7.3 (which clause this run showed, for which boots).
+- The master record's desc at the flip: "Boot smoke's self-end named from a run: the job keeps what names who ended the app; the ending call named on ci#38019133294 (seven of eight boots); cause not closed".
+- Epoch 1 would hold 17 entries (12 markerless) after the mint; no split proposed (the operator's earlier word).
+- No gate deferral to pin, no WATCH, no gated record, no new requirement.
+
+## The operator's word, 2026-10-10
+
+"card approved as written, with the three-ends precision. One check before you write it: the undercount is work the closing entry does itself as its first step - if the letters read PREREQ as something that must be cleared before the entry can be taken up, pin it as CARRY instead and say which you used." — the operator, the pc overseer, 2026-10-10, given here.
+
+Used: `CARRY:`. The letters do not make a `PREREQ:` a bar to take-up (that is `BLOCKED-ON:`; phase folds every annotation into scope), but the wrap letter knows two `PREREQ:` classes only, a gate deferral and a standing re-check, each with its own clearing and migration rule at a flip, and this pin is neither. A `CARRY:` is the class a chunk consumes, so the entry line was written with ` · CARRY: this entry's own first step — the series undercounts …` in place of the `PREREQ:` block above; nothing else of the card changed.

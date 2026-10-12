@@ -1,0 +1,233 @@
+[
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "31963ae3",
+"ts": "2026-10-10T01:25:11Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/architecture.md",
+"--out",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/architecture-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"Build system · .andromeda/registries/contracts/architecture/build-system.md · 494 B",
+"Deployment model · .andromeda/registries/contracts/architecture/deployment-model.md · 489 B",
+"Project directory structure · .andromeda/registries/contracts/architecture/project-directory-structure.md · 2461 B",
+"CI/CD approach · .andromeda/registries/contracts/architecture/ci-cd-approach.md · 5583 B",
+"4 keyed contract(s) · architecture.md ## Infrastructure Patterns · wrote .andromeda/runs/2026-10-10T01-19-03Z-wrap/architecture-contracts.md"
+],
+"stderr": null,
+"wrote": [
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/architecture-contracts.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"rows": 4
+}
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "31963ae3",
+"ts": "2026-10-10T01:25:12Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/security-plan.md",
+"--out",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/security-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"security-plan.md: n/a — it carries no keyed-contract section in the map"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "31963ae3",
+"ts": "2026-10-10T01:25:12Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/design-system.md",
+"--out",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/design-system-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"design-system.md: n/a — it carries no keyed-contract section in the map"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "31963ae3",
+"ts": "2026-10-10T01:25:12Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/layout-templates.md",
+"--out",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/layout-templates-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"layout-templates.md: n/a — it carries no keyed-contract section in the map"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "31963ae3",
+"ts": "2026-10-10T01:25:12Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/test-plan.md",
+"--out",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/test-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"5-command implementation · .andromeda/registries/contracts/test-plan/5-command-implementation.md · 13451 B · labels: bo…",
+"Status endpoint shape · .andromeda/registries/contracts/test-plan/status-endpoint-shape.md · 1248 B · labels: Agent rea…",
+"Log format · .andromeda/registries/contracts/test-plan/log-format.md · 968 B · labels: Stream, Format, Example, Agent-p…",
+"PID file · .andromeda/registries/contracts/test-plan/pid-file.md · 1655 B · labels: Location, Lifecycle, Format",
+"Test data bootstrap · .andromeda/registries/contracts/test-plan/test-data-bootstrap.md · 941 B · labels: Strategy, Mech…",
+"Bootstrap phases · .andromeda/registries/contracts/test-plan/bootstrap-phases.md · 1634 B",
+"Per-chunk gate discipline · .andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md · 23479 B · labels: …",
+"7 keyed contract(s) · test-plan.md ## 3. Test Harness Contract · wrote .andromeda/runs/2026-10-10T01-19-03Z-wrap/test-plan-contracts.md"
+],
+"stderr": null,
+"wrote": [
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/test-plan-contracts.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"rows": 7
+}
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "31963ae3",
+"ts": "2026-10-10T01:25:12Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/obs-plan.md",
+"--out",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/obs-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"Tracing init · .andromeda/registries/contracts/obs-plan/tracing-init.md · 2107 B · labels: Crate set, Init order, Init …",
+"Service identity · .andromeda/registries/contracts/obs-plan/service-identity.md · 780 B · labels: service.name, service…",
+"Logging stack · .andromeda/registries/contracts/obs-plan/logging-stack.md · 1692 B · labels: Library, Format, Sink, Fro…",
+"Log format JSON schema · .andromeda/registries/contracts/obs-plan/log-format-json-schema.md · 1103 B",
+"Log file location · .andromeda/registries/contracts/obs-plan/log-file-location.md · 655 B · labels: Path, Rotation",
+"Snapshot / paste-to-AI integration · .andromeda/registries/contracts/obs-plan/snapshot-paste-to-ai-integration.md · 239…",
+"Trace context propagation · .andromeda/registries/contracts/obs-plan/trace-context-propagation.md · 1373 B · labels: HT…",
+"Heartbeat ticks · .andromeda/registries/contracts/obs-plan/heartbeat-ticks.md · 1891 B · labels: Tick interval, Tick ev…",
+"8 keyed contract(s) · obs-plan.md ## 3. Observability Harness Contract · wrote .andromeda/runs/2026-10-10T01-19-03Z-wrap/obs-plan-contracts.md"
+],
+"stderr": null,
+"wrote": [
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/obs-plan-contracts.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"rows": 8
+}
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "31963ae3",
+"ts": "2026-10-10T01:25:12Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/a11y-plan.md",
+"--out",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/a11y-plan-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-19-03Z-wrap",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"A11y testing tool pick · .andromeda/registries/contracts/a11y-plan/a11y-testing-tool-pick.md · 804 B · labels: Primary …",
+"WCAG criteria mapping · .andromeda/registries/contracts/a11y-plan/wcag-criteria-mapping.md · 660 B · labels: Tier cover…",
+"Structured violation JSON schema · .andromeda/registries/contracts/a11y-plan/structured-violation-json-schema.md · 652 …",
+"Focus management test harness · .andromeda/registries/contracts/a11y-plan/focus-management-test-harness.md · 729 B · la…",
+"Keyboard test harness · .andromeda/registries/contracts/a11y-plan/keyboard-test-harness.md · 690 B · labels: Sequences …",
+"Screen reader test pattern · .andromeda/registries/contracts/a11y-plan/screen-reader-test-pattern.md · 647 B · labels: …",
+"Contrast verification harness · .andromeda/registries/contracts/a11y-plan/contrast-verification-harness.md · 1385 B · l…",
+"CI integration · .andromeda/registries/contracts/a11y-plan/ci-integration.md · 2110 B · labels: Pipeline integration, C…",
+"Harness wiring & conventions · .andromeda/registries/contracts/a11y-plan/harness-wiring-conventions.md · 2199 B · label…",
+"Bootstrap phases (derive for route / setup-project) · .andromeda/registries/contracts/a11y-plan/bootstrap-phases-derive…",
+"10 keyed contract(s) · a11y-plan.md ## 3. A11y Assertion Harness Contract · wrote .andromeda/runs/2026-10-10T01-19-03Z-wrap/a11y-plan-contracts.md"
+],
+"stderr": null,
+"wrote": [
+".andromeda/runs/2026-10-10T01-19-03Z-wrap/a11y-plan-contracts.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"rows": 10
+}
+}
+]

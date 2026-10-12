@@ -1,0 +1,35 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T18:10:14Z",
+"argv": [
+"route.py",
+"epoch",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"working-route.md · 10 epoch headers · 80 entries · freeze state joined to 85 master records",
+"10 · Epoch 1 — Foundation: base CI, the capabili… · entries 15 · markerless 13 · frozen complete 1 · pending 1",
+"41 · Epoch 2 — What leaves: the window, its brid… · entries 8 · markerless 8 · frozen complete 0 · pending 0",
+"58 · Epoch 3 — What leaves: the local model, wha… · entries 10 · markerless 10 · frozen complete 0 · pending 0",
+"79 · Epoch 4 — The engine is reached over a netw… · entries 7 · markerless 7 · frozen complete 0 · pending 0",
+"94 · Epoch 5 — The engine lives on a small node · entries 7 · markerless 7 · frozen complete 0 · pending 0",
+"109 · Epoch 6 — Memory on disk and the door's ful… · entries 10 · markerless 10 · frozen complete 0 · pending 0",
+"130 · Epoch 7 — Keep what OpenTelemetry sends · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"143 · Epoch 8 — Comparisons that work from the fi… · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"156 · Epoch 9 — The voice · entries 6 · markerless 6 · frozen complete 0 · pending 0",
+"169 · Epoch 10 — Polish & ship · entries 5 · markerless 5 · frozen complete 0 · pending 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

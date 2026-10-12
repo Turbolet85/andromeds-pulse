@@ -1,0 +1,49 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "a0f3749c",
+"ts": "2026-10-11T00:45:19Z",
+"argv": [
+"implement",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--chunk",
+"2026-10-10-door-inside-the-engine-s-process",
+"--id",
+"P-126",
+"--ref-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-10T23-25-47Z-implement"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"implement P-126 · status planned → implemented · ref pulse-app/tests/integration_door.rs::another_account_is_refused_at_each_of_three… (1410 chars)",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-126",
+"chunk": "2026-10-10-door-inside-the-engine-s-process",
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "Before the door can be reached from another host: on the pull-request run of this chunk's pushed tip, the arm `another_a… (994 chars)",
+"notes_chars": 1407
+},
+"after": {
+"id": "P-126",
+"chunk": "2026-10-10-door-inside-the-engine-s-process",
+"status": "implemented",
+"method": "integration",
+"ref": "pulse-app/tests/integration_door.rs::another_account_is_refused_at_each_of_three_layers · read on ci#38097928056 (pull_r… (1410 chars)",
+"acceptance": "Before the door can be reached from another host: on the pull-request run of this chunk's pushed tip, the arm `another_a… (994 chars)",
+"notes_chars": 1407
+}
+}
+]

@@ -1,0 +1,1 @@
+Operator directive: read ~/dev/projects/additional/pc-overseer/relays/pulse-wrap-ci-on-linux-alone-2026-10-09.md whole first. The CI read is green and the operator pass stands. Four found-standing things need an owner at route-resolve; three readings are wanted in the closing report. Stop before the commit for my read.

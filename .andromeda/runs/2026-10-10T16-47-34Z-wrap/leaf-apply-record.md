@@ -1,0 +1,152 @@
+# Leaf apply record
+
+applied · already applied 36 · anchor absent 5 · applied 75 · by hand 9 · not applied 10 · skipped 13 · blocks 148
+
+- `.claude/rules/security.md:17#1` · stale · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/rules/security.md:17#2` · omission · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/rules/security.md:17#3` · stale · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/rules/security.md:17#4` · omission · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/rules/security.md:17#5` · stale · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/rules/security.md:28#1` · contradicted · **anchor absent** · the leaf-text is not in the generated body
+- `.claude/rules/security.md:32#1` · stale · **anchor absent** · the leaf-text is not in the generated body
+- `.claude/rules/security.md:5#1` · omission · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/security-summary.md:43#1` · stale · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/docs/security-summary.md:43#2` · omission · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/docs/security-summary.md:43#3` · stale · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/docs/security-summary.md:43#4` · omission · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/docs/security-summary.md:26#1` · omission · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/docs/security-summary.md:26#2` · stale · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/docs/security-summary.md:36#1` · retired · **by hand** · leaf-text or replace-with is not a plain quoted string
+- `.claude/docs/security-summary.md:37#1` · omission · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/security-summary.md:3#1` · omission · **already applied** · the leaf-text is not in the generated body
+- `CLAUDE.md:44#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `CLAUDE.md:44#2` · omission · **already applied** · the leaf-text is not in the generated body
+- `CLAUDE.md:44#3` · omission · **already applied** · the leaf-text is not in the generated body
+- `CLAUDE.md:47#1` · stale · **anchor absent** · the leaf-text is not in the generated body
+- `.claude/rules/verification-harness.md:24#1` · stale · **applied** · 147 → 567 chars
+- `.claude/rules/verification-harness.md:24#2` · stale · **applied** · 190 → 453 chars
+- `.claude/rules/verification-harness.md:22#1` · stale · **applied** · 126 → 617 chars
+- `.claude/rules/verification-harness.md:22#2` · omission · **applied** · 101 → 704 chars
+- `.claude/rules/verification-harness.md:22#3` · stale · **applied** · 267 → 431 chars
+- `.claude/rules/verification-harness.md:66#1` · contradicted · **applied** · 269 → 583 chars
+- `.claude/rules/verification-harness.md:85#1` · omission · **applied** · 102 → 2453 chars
+- `.claude/docs/tests-summary.md:146#1` · retired · **by hand** · leaf-text or replace-with is not a plain quoted string
+- `.claude/docs/tests-summary.md:14#1` · stale · **applied** · 144 → 322 chars
+- `.claude/docs/tests-summary.md:14#2` · stale · **applied** · 109 → 381 chars
+- `.claude/docs/tests-summary.md:12#1` · omission · **applied** · 76 → 412 chars
+- `.claude/docs/tests-summary.md:12#2` · stale · **applied** · 62 → 80 chars
+- `.claude/docs/tests-summary.md:86#1` · stale · **applied** · 79 → 235 chars
+- `.claude/docs/tests-summary.md:90#1` · omission · **applied** · 104 → 810 chars
+- `.claude/docs/tests-summary.md:139#1` · stale · **applied** · 120 → 324 chars
+- `.claude/rules/verification-harness.md:103#1` · stale · **applied** · 63 → 338 chars
+- `.claude/rules/verification-harness.md:59#1` · omission · **applied** · 162 → 695 chars
+- `.claude/docs/tests-summary.md:118#1` · retired · **applied** · 287 → 307 chars
+- `testing.md:98-99#1` · retired · **not applied** · no such leaf file `testing.md`
+- `testing.md:91#1` · stale (member set) · **not applied** · no such leaf file `testing.md`
+- `testing.md:91#2` · omission · **not applied** · no such leaf file `testing.md`
+- `testing.md:64#1` · retired · **not applied** · no such leaf file `testing.md`
+- `testing.md:68#1` · stale · **not applied** · no such leaf file `testing.md`
+- `testing.md:74#1` · stale · **not applied** · no such leaf file `testing.md`
+- `testing.md:107#1` · stale · **not applied** · no such leaf file `testing.md`
+- `testing.md:57#1` · stale (pointer) · **not applied** · no such leaf file `testing.md`
+- `testing.md:51#1` · stale (qualifier) — the master is not uniform here · **not applied** · no such leaf file `testing.md`
+- `testing.md:76-80#1` · contradicted — but the master looks like the stale side · **not applied** · no such leaf file `testing.md`
+- `.claude/rules/observability.md:98#1` · contradicted · **by hand** · leaf-text or replace-with is not a plain quoted string
+- `.claude/docs/obs-summary.md:66#1` · contradicted · **by hand** · leaf-text or replace-with is not a plain quoted string
+- `.claude/docs/obs-summary.md:77#1` · contradicted · **applied** · 212 → 466 chars
+- `.claude/rules/observability.md:87#1` · stale · **applied** · 109 → 368 chars
+- `.claude/rules/observability.md:102#1` · stale · **applied** · 210 → 657 chars
+- `.claude/docs/obs-summary.md:89#1` · contradicted · **applied** · 117 → 198 chars
+- `.claude/rules/observability.md:71#1` · contradicted · **applied** · 180 → 402 chars
+- `.claude/docs/obs-summary.md:63#1` · stale · **applied** · 98 → 460 chars
+- `.claude/docs/obs-summary.md:16#1` · stale · **applied** · 38 → 188 chars
+- `.claude/docs/obs-summary.md:18#1` · stale · **applied** · 110 → 232 chars
+- `.claude/docs/obs-summary.md:135#1` · stale · **applied** · 74 → 167 chars
+- `.claude/docs/obs-summary.md:165#1` · stale · **applied** · 99 → 243 chars
+- `.claude/rules/observability.md:100#1` · stale · **applied** · 91 → 380 chars
+- `.claude/docs/obs-summary.md:80#1` · stale · **applied** · 91 → 233 chars
+- `.claude/rules/observability.md:36#1` · stale · **applied** · 122 → 339 chars
+- `.claude/docs/obs-summary.md:54#1` · stale · **by hand** · leaf-text or replace-with is not a plain quoted string
+- `.claude/rules/observability.md:101#1` · omission · **applied** · 56 → 349 chars
+- `.claude/docs/obs-summary.md:81#1` · omission · **applied** · 81 → 330 chars
+- `.claude/rules/observability.md:99#1` · omission · **applied** · 106 → 401 chars
+- `.claude/rules/observability.md:103#1` · omission · **applied** · 78 → 584 chars
+- `.claude/docs/obs-summary.md:87#1` · omission · **applied** · 106 → 485 chars
+- `.claude/rules/observability.md:19#1` · retired · **by hand** · leaf-text or replace-with is not a plain quoted string
+- `.claude/rules/observability.md:92#1` · stale · **applied** · 27 → 16 chars
+- `.claude/docs/obs-summary.md:86#1` · stale · **applied** · 40 → 25 chars
+- `.claude/docs/obs-summary.md:171#1` · stale · **by hand** · leaf-text or replace-with is not a plain quoted string
+- `CLAUDE.md:33#1` · contradicted · **already applied** · the leaf-text is not in the generated body
+- `CLAUDE.md:27#1` · contradicted · **by hand** · leaf-text or replace-with is not a plain quoted string
+- `CLAUDE.md:36#1` · omission · **already applied** · the leaf-text is not in the generated body
+- `CLAUDE.md:25#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `CLAUDE.md:28#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `CLAUDE.md:44#4` · stale   (warning cites security-plan §Input, so this may duplicate the security comparer's; the deciding text is arch's) · **anchor absent** · the leaf-text is not in the generated body
+- `CLAUDE.md:81#1` · stale   (pointer table; checked against the file it points at) · **anchor absent** · the leaf-text is not in the generated body
+- `CLAUDE.md:61#1` · stale   (pointer table; section content) · **already applied** · the leaf-text is not in the generated body
+- `CLAUDE.md:31#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/stack.md:38#1` · contradicted · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/stack.md:21#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/stack.md:77#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/stack.md:37#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/stack.md:37#2` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/stack.md:72#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/stack.md:10#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/stack.md:35#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/stack.md:28#1` · retired · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/conventions.md:21#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/rules/frontend.md:30#1` · omission · **already applied** · the leaf-text is not in the generated body
+- `.claude/rules/frontend.md:28#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/stack.md:67#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/stack.md:20#1` · omission · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/commands.md:100#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/commands.md:101#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/commands.md:88#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/commands.md:86#1` · omission · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/commands.md:103#1` · omission · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/docs/workflow.md:49#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/workflow.md:50#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/gotchas.md:13-14#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/workflow.md:71-72#1` · omission · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/commands.md:73-74#1` · omission · **skipped** · on the orchestrator's skip list (handled by hand or declined)
+- `.claude/docs/workflow.md:44#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/gotchas.md:31#1` · stale · **already applied** · the leaf-text is not in the generated body
+- `.claude/docs/commands.md:62#1` · retired · **by hand** · leaf-text or replace-with is not a plain quoted string
+- `.claude/docs/services/config-watcher.md:21#1` · contradicted · **applied** · 145 → 374 chars
+- `.claude/docs/services/config-watcher.md:36#1` · stale · **applied** · 85 → 248 chars
+- `.claude/docs/services/triage.md:44#1` · stale · **applied** · 124 → 355 chars
+- `.claude/docs/services/interpretation.md:44#1` · omission · **applied** · 129 → 655 chars
+- `.claude/docs/services/interpretation.md:27#1` · omission · **applied** · 127 → 372 chars
+- `.claude/docs/services/interpretation.md:10#1` · omission · **applied** · 93 → 303 chars
+- `.claude/docs/services/ingest.md:51#1` · stale · **applied** · 105 → 313 chars
+- `.claude/docs/services/viz.md:29#1` · omission · **applied** · 83 → 263 chars
+- `.claude/docs/services/plugins.md:4#1` · omission · **applied** · 52 → 187 chars
+- `.claude/docs/services/mcp-server.md:16#1` · omission · **applied** · 80 → 283 chars
+- `.claude/docs/services/ui-bridge.md:9#1` · omission · **applied** · 99 → 222 chars
+- `.claude/docs/services/workspace-detector.md:4#1` · stale · **applied** · 108 → 354 chars
+- `.claude/docs/services/buffer.md:26#1` · contradicted · **applied** · 67 → 344 chars
+- `.claude/docs/services/buffer.md:40#1` · stale · **applied** · 61 → 61 chars
+- `.claude/docs/services/corpus.md:4#1` · stale · **applied** · 138 → 171 chars
+- `.claude/docs/services/corpus.md:27#1` · stale · **applied** · 84 → 164 chars
+- `.claude/docs/services/corpus.md:14#1` · retired · **applied** · 202 → 557 chars
+- `.claude/docs/services/corpus.md:36#1` · contradicted · **applied** · 36 → 301 chars
+- `.claude/docs/services/corpus.md:28#1` · omission · **applied** · 162 → 491 chars
+- `.claude/docs/services/corpus.md:13#1` · stale · **applied** · 105 → 190 chars
+- `.claude/docs/services/triage.md:11#1` · contradicted · **applied** · 143 → 434 chars
+- `.claude/docs/services/triage.md:30#1` · stale · **applied** · 48 → 255 chars
+- `.claude/docs/services/triage.md:39#1` · stale · **applied** · 75 → 196 chars
+- `.claude/docs/services/snapshot.md:4#1` · stale · **applied** · 73 → 289 chars
+- `.claude/docs/services/snapshot.md:14#1` · stale · **applied** · 92 → 165 chars
+- `.claude/docs/services/snapshot.md:11#1` · contradicted · **applied** · 171 → 288 chars
+- `.claude/docs/services/ui-bridge.md:16#1` · stale · **applied** · 151 → 452 chars
+- `.claude/docs/services/ui-bridge.md:17#1` · stale · **applied** · 92 → 126 chars
+- `.claude/docs/services/ui-bridge.md:42#1` · contradicted · **applied** · 98 → 229 chars
+- `.claude/docs/services/ui-bridge.md:43#1` · stale · **applied** · 128 → 169 chars
+- `.claude/docs/services/viz.md:14#1` · stale · **applied** · 121 → 276 chars
+- `.claude/docs/services/plugins.md:28#1` · contradicted · **applied** · 67 → 282 chars
+- `.claude/docs/services/plugins.md:14#1` · stale · **applied** · 74 → 90 chars
+- `.claude/docs/services/workspace-detector.md:13#1` · stale · **applied** · 55 → 141 chars
+- `.claude/docs/services/mcp-server.md:46#1` · stale (tree) · **applied** · 112 → 183 chars
+- `.claude/docs/services/workspace-detector.md:47#1` · stale (tree) · **applied** · 62 → 103 chars
+- `.claude/docs/services/snapshot.md:50#1` · stale (tree) · **applied** · 52 → 109 chars
+- `.claude/docs/services/viz.md:37#1` · stale (tree) · **applied** · 90 → 186 chars

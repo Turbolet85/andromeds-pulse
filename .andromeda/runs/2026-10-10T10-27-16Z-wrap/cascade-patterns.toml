@@ -1,0 +1,80 @@
+# The pattern set of this pass, derived from all 26 amendments before the first grep.
+# Each pattern names the retired claim by its own words; each fires on the pre-pass masters (the tool's control).
+
+[[pattern]]
+id = 'branch70'
+regex = 'branch[^.|]{0,20}70|70 ?%[^.|]{0,12}branch'
+ignore_case = true
+
+[[pattern]]
+id = 'ge70'
+regex = '≥ ?70 ?%'
+
+[[pattern]]
+id = 'no-tests'
+fixed = 'no-tests'
+
+[[pattern]]
+id = 'no-arm-req'
+fixed = 'no arm required'
+
+[[pattern]]
+id = 'pb-neutral'
+fixed = 'perf-budget NEUTRAL'
+
+[[pattern]]
+id = 'boot-line'
+regex = 'boot job.s( `ci-gates`)? line|boot-smoke( `ci-gates`)? line'
+
+[[pattern]]
+id = 'zero-span'
+regex = 'zero[- ]spans?'
+ignore_case = true
+
+[[pattern]]
+id = 'hb-gap'
+regex = 'gap (check|analysis)|heartbeat-gap'
+ignore_case = true
+
+[[pattern]]
+id = 'post-test'
+fixed = 'post-test'
+
+[[pattern]]
+id = 'exit-code-val'
+fixed = 'exit code validation'
+
+[[pattern]]
+id = 'trivially'
+fixed = 'trivially'
+
+[[pattern]]
+id = 'quarantine'
+regex = 'quarantine'
+ignore_case = true
+
+[[pattern]]
+id = 'ci-gates'
+fixed = 'ci-gates'
+
+[[pattern]]
+id = 'cov-gate'
+regex = 'coverage gate|coverage` job|coverage job'
+ignore_case = true
+
+[[pattern]]
+id = 'seed-log'
+fixed = 'seed log'
+
+[[pattern]]
+id = 'perf-samples-cmd'
+fixed = 'profile perf-samples'
+
+[[pattern]]
+id = 'mcp-cmd'
+fixed = 'mcp-server --profile ci'
+
+[[pattern]]
+id = 'ci-greps'
+regex = 'detected in CI logs|CI greps|zero-panic'
+ignore_case = true

@@ -1,0 +1,1 @@
+Operator directive for this phase: read ~/dev/projects/additional/pc-overseer/relays/pulse-phase-door-inside-the-engine-2026-10-11.md first and fold it as an input. At P5 print the plan card and stop for my yes.

@@ -1,0 +1,164 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T15:41:43Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/add-no-ci-step-reads-nothing.json",
+"--dry-run",
+"--marker",
+"2026-10-09-ci-on-linux-alone",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-128 · planned · chunk null · ref null · method integration",
+"title: No CI step reads nothing",
+"requirement: every comparison a CI job makes has a producer for the baseline it compares against, or th… (177 chars)",
+"observed_gap: The three pull-request baseline downloads have no producer in any workflow, and the `logs-… (250 chars)",
+"acceptance: On a CI run of the tree, every comparison against a baseline reads a baseline that a workf… (264 chars)",
+"requirements.md: 45 capability lines · `- **id** · ` 0 · `- id · ` 45",
+"(dry-run) requirements.md carries no line for P-128 — the id is assigned there first (contract §ID scheme) — the write refuses until one line stands",
+"dry-run: nothing written",
+"pool: unclaimed 46 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122 P-123 P-124 P-125 P-126 P-127 P-128]",
+"version: verified 0/46"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": {
+"id": "P-128",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "On a CI run of the tree, every comparison against a baseline reads a baseline that a workflow produced, or the workflow … (264 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T15:42:19Z",
+"argv": [
+"add",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--payload-file",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/add-no-ci-step-reads-nothing.json",
+"--marker",
+"2026-10-09-ci-on-linux-alone",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"add P-128 · planned · chunk null · ref null · method integration",
+"title: No CI step reads nothing",
+"requirement: every comparison a CI job makes has a producer for the baseline it compares against, or th… (177 chars)",
+"observed_gap: The three pull-request baseline downloads have no producer in any workflow, and the `logs-… (250 chars)",
+"acceptance: On a CI run of the tree, every comparison against a baseline reads a baseline that a workf… (264 chars)",
+"requirements.md: 46 capability lines · `- **id** · ` 0 · `- id · ` 46",
+"requirements.md: line 75 carries P-128",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed",
+"pool: unclaimed 46 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122 P-123 P-124 P-125 P-126 P-127 P-128]",
+"version: verified 0/46"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": null,
+"after": {
+"id": "P-128",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "On a CI run of the tree, every comparison against a baseline reads a baseline that a workflow produced, or the workflow … (264 chars)",
+"notes_chars": 0
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T15:42:19Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--id",
+"P-128",
+"--text-file",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/note-P-128.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"note P-128: +983 chars (total 983) · status planned · ref/acceptance untouched",
+"wrote andromeda-pulse-0.4.0/verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.4.0/verification-matrix.json"
+],
+"before": {
+"id": "P-128",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "On a CI run of the tree, every comparison against a baseline reads a baseline that a workflow produced, or the workflow … (264 chars)",
+"notes_chars": 0
+},
+"after": {
+"id": "P-128",
+"chunk": null,
+"status": "planned",
+"method": "integration",
+"ref": "null",
+"acceptance": "On a CI run of the tree, every comparison against a baseline reads a baseline that a workflow produced, or the workflow … (264 chars)",
+"notes_chars": 983
+}
+},
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "bd649850",
+"ts": "2026-10-09T15:45:00Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.4.0",
+"--chunk",
+"2026-10-09-ci-on-linux-alone",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-09-ci-on-linux-alone)",
+"pool: unclaimed 46 [P-083 P-084 P-085 P-086 P-087 P-088 P-089 P-090 P-091 P-092 P-093 P-094 P-095 P-096 P-097 P-098 P-099 P-100 P-101 P-102 P-103 P-104 P-105 P-106 P-107 P-108 P-109 P-110 P-111 P-112 P-113 P-114 P-115 P-116 P-117 P-118 P-119 P-120 P-121 P-122 P-123 P-124 P-125 P-126 P-127 P-128]"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

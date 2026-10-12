@@ -1,0 +1,437 @@
+[
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:11:49Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/architecture-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"bytes 132628 · whole-read bound 120000 · OVER",
+"entries 103 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 2 block(s) — listed below",
+"UNPARSED: :15 ## Registry-closure amendments",
+"UNPARSED: :177 ## Decision-history"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 132628,
+"entries": 103,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": [
+15,
+177
+]
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:11:50Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"bytes 121413 · whole-read bound 120000 · OVER",
+"entries 70 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 5 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 2 block(s) — listed below",
+"UNPARSED: :45 ## Externalized superseded guidance — reference",
+"UNPARSED: :52 ## Externalized Security Decisions Log (verbatim, formerly the body's final section)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 121413,
+"entries": 70,
+"off_form": 0,
+"set": 0,
+"prunable": 5,
+"unparsed": [
+45,
+52
+]
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:11:50Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"bytes 132234 · whole-read bound 120000 · OVER",
+"entries 89 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 1 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 132234,
+"entries": 89,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:11:50Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"bytes 77635 · whole-read bound 120000 · within",
+"entries 57 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 77635,
+"entries": 57,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:11:50Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/a11y-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"bytes 14807 · whole-read bound 120000 · within",
+"entries 11 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 1 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 14807,
+"entries": 11,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:11:56Z",
+"argv": [
+"index",
+"--file",
+".andromeda/architecture-amendments.md",
+"--out",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/arch-history-index.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"wrote .andromeda/runs/2026-10-09T21-03-05Z-phase/arch-history-index.md · 103 entries · 2 unparsed · 23846 B (the sidecar is 132628 B)"
+],
+"stderr": null,
+"wrote": [
+".andromeda/runs/2026-10-09T21-03-05Z-phase/arch-history-index.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:11:56Z",
+"argv": [
+"index",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--out",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/security-history-index.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"wrote .andromeda/runs/2026-10-09T21-03-05Z-phase/security-history-index.md · 70 entries · 2 unparsed · 19521 B (the sidecar is 121413 B)"
+],
+"stderr": null,
+"wrote": [
+".andromeda/runs/2026-10-09T21-03-05Z-phase/security-history-index.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:11:56Z",
+"argv": [
+"index",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--out",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/tests-history-index.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"wrote .andromeda/runs/2026-10-09T21-03-05Z-phase/tests-history-index.md · 89 entries · 0 unparsed · 24869 B (the sidecar is 132234 B)"
+],
+"stderr": null,
+"wrote": [
+".andromeda/runs/2026-10-09T21-03-05Z-phase/tests-history-index.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:15:07Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/architecture-amendments.md",
+"--history",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/arch-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"cites: 25 · resolved 25 · UNRESOLVED 0 · not a marker 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 25,
+"UNRESOLVED": 0,
+"not a marker": 0,
+"cites": 25
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:15:07Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/security-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"not a marker: **Externalized Security Decisions Log (verbatim, formerly the body's final section)** — history:3",
+"cites: 27 · resolved 27 · UNRESOLVED 0 · not a marker 1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 27,
+"UNRESOLVED": 0,
+"not a marker": 1,
+"cites": 27
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:15:07Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/tests-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"not a marker: **2026-10-09T08-07-22Z-wrap** — history:7",
+"not a marker: **2026-10-06T21-47-06Z-wrap** — history:8",
+"cites: 39 · resolved 39 · UNRESOLVED 0 · not a marker 2"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 39,
+"UNRESOLVED": 0,
+"not a marker": 2,
+"cites": 39
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:15:07Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/obs-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"not a marker: **2026-10-06T21-47-06Z-wrap** — history:17",
+"not a marker: **2026-10-09T08-07-22Z-wrap** — history:18",
+"cites: 17 · resolved 17 · UNRESOLVED 0 · not a marker 2"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 17,
+"UNRESOLVED": 0,
+"not a marker": 2,
+"cites": 17
+}
+},
+{
+"tool": "sidecar",
+"v": "1.4",
+"sha8": "c0c52d2b",
+"ts": "2026-10-09T21:15:07Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/a11y-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-09T21-03-05Z-phase/a11y-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-09T21-03-05Z-phase",
+"--marker",
+"2026-10-09-pre-push-check-native-on-linux"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"not a marker: **Kept** — history:9",
+"cites: 7 · resolved 7 · UNRESOLVED 0 · not a marker 1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 7,
+"UNRESOLVED": 0,
+"not a marker": 1,
+"cites": 7
+}
+}
+]

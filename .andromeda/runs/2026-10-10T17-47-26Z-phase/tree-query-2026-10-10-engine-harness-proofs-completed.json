@@ -1,0 +1,150 @@
+[
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name IN ('drive','refusal','child_env','seed','holds_log_family','decide') AND callee_kind = 'fn' AND (callee_file LIKE '%xtask/src/engine_cycle.rs' OR callee_file LIKE '%xtask/src/pre_push.rs') ORDER BY file, line",
+"rows": 28,
+"result": [
+{
+"caller_name": "run",
+"file": "xtask/src/engine_cycle.rs",
+"line": 88
+},
+{
+"caller_name": "run",
+"file": "xtask/src/engine_cycle.rs",
+"line": 95
+},
+{
+"caller_name": "drive",
+"file": "xtask/src/engine_cycle.rs",
+"line": 224
+},
+{
+"caller_name": "drive",
+"file": "xtask/src/engine_cycle.rs",
+"line": 228
+},
+{
+"caller_name": "drive",
+"file": "xtask/src/engine_cycle.rs",
+"line": 240
+},
+{
+"caller_name": "a_host_that_is_not_linux_is_refused",
+"file": "xtask/src/engine_cycle.rs",
+"line": 357
+},
+{
+"caller_name": "a_shared_port_in_either_place_is_refused",
+"file": "xtask/src/engine_cycle.rs",
+"line": 372
+},
+{
+"caller_name": "a_data_dir_that_already_holds_a_log_family_is_refused",
+"file": "xtask/src/engine_cycle.rs",
+"line": 382
+},
+{
+"caller_name": "the_default_ports_on_linux_over_a_fresh_data_dir_are_not_refused",
+"file": "xtask/src/engine_cycle.rs",
+"line": 390
+},
+{
+"caller_name": "the_default_ports_on_linux_over_a_fresh_data_dir_are_not_refused",
+"file": "xtask/src/engine_cycle.rs",
+"line": 393
+},
+{
+"caller_name": "a_log_family_is_read_under_the_data_dir_s_logs_alone",
+"file": "xtask/src/engine_cycle.rs",
+"line": 401
+},
+{
+"caller_name": "a_log_family_is_read_under_the_data_dir_s_logs_alone",
+"file": "xtask/src/engine_cycle.rs",
+"line": 406
+},
+{
+"caller_name": "a_log_family_is_read_under_the_data_dir_s_logs_alone",
+"file": "xtask/src/engine_cycle.rs",
+"line": 409
+},
+{
+"caller_name": "env_of",
+"file": "xtask/src/engine_cycle.rs",
+"line": 415
+},
+{
+"caller_name": "five_zero_exits_no_error_record_and_no_witness_file_pass",
+"file": "xtask/src/engine_cycle.rs",
+"line": 503
+},
+{
+"caller_name": "any_verb_that_exits_one_fails",
+"file": "xtask/src/engine_cycle.rs",
+"line": 511
+},
+{
+"caller_name": "any_verb_that_exits_one_fails",
+"file": "xtask/src/engine_cycle.rs",
+"line": 513
+},
+{
+"caller_name": "an_error_record_fails",
+"file": "xtask/src/engine_cycle.rs",
+"line": 519
+},
+{
+"caller_name": "a_witness_file_fails",
+"file": "xtask/src/engine_cycle.rs",
+"line": 524
+},
+{
+"caller_name": "a_failed_boot_fails_with_the_verbs_between_skipped",
+"file": "xtask/src/engine_cycle.rs",
+"line": 530
+},
+{
+"caller_name": "a_verb_that_could_not_evaluate_is_cannot_evaluate_unless_another_failed",
+"file": "xtask/src/engine_cycle.rs",
+"line": 539
+},
+{
+"caller_name": "a_verb_that_could_not_evaluate_is_cannot_evaluate_unless_another_failed",
+"file": "xtask/src/engine_cycle.rs",
+"line": 543
+},
+{
+"caller_name": "a_verb_that_could_not_evaluate_is_cannot_evaluate_unless_another_failed",
+"file": "xtask/src/engine_cycle.rs",
+"line": 544
+},
+{
+"caller_name": "a_verb_that_could_not_evaluate_is_cannot_evaluate_unless_another_failed",
+"file": "xtask/src/engine_cycle.rs",
+"line": 547
+},
+{
+"caller_name": "a_cycle_that_did_not_run_cannot_be_evaluated",
+"file": "xtask/src/engine_cycle.rs",
+"line": 559
+},
+{
+"caller_name": "a_cycle_that_did_not_run_cannot_be_evaluated",
+"file": "xtask/src/engine_cycle.rs",
+"line": 561
+},
+{
+"caller_name": "run",
+"file": "xtask/src/pre_push.rs",
+"line": 100
+},
+{
+"caller_name": "run",
+"file": "xtask/src/pre_push.rs",
+"line": 278
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

@@ -1,0 +1,116 @@
+[
+{
+"tool": "cascade",
+"v": "1.2",
+"sha8": "fe426974",
+"ts": "2026-10-10T12:31:46Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-10T12-20-47Z-wrap",
+"--marker",
+"2026-10-10-capability-record-re-based"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"baseline 279a477e (pre-CI parent — the oldest of 1 pre-CI commit(s), 923a0dad)",
+"old-path · new 2 · standing 1 · leaf 2 · curation 1 · base 0 · control test-plan.md:535 (prose)",
+"verb · new 2 · standing 1 · leaf 4 · curation 1 · base 0 · control test-plan.md:535 (prose)",
+"matrix-name · new 0 · standing 1 · leaf 2 · curation 1 · base 0 · control test-plan.md:533 (prose)",
+"sixty-range · new 1 · standing 1 · leaf 2 · curation 1 · base 0 · control test-plan.md:535 (prose)",
+"sixty-count · new 0 · standing 0 · leaf 2 · curation 1 · base 0 · control test-plan.md:535 (prose)",
+"extend · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:535 (prose)",
+".andromeda/architecture.md:171 old-path new …-spec.md`, `docs/v0_2_0/capability-verification-matrix.json` and `andromed…",
+".andromeda/architecture.md:263 old-path new @c32997/33118 … read `docs/v0_2_0/capability-verification-matrix.json` (P-0…",
+".andromeda/test-plan.md:536 old-path standing edited @c2339/2506 …nk. `docs/v0_2_0/capability-verification-matrix.json`…",
+".claude/docs/session-learnings.md:420 old-path curation `docs/v0_2_0/capability-verification-matrix.json` is authored w…",
+".claude/rules/testing.md:58 old-path leaf …unk #99):** `docs/v0_2_0/capability-verification-matrix.json` maps every P-0…",
+".claude/docs/tests-summary.md:75 old-path leaf …k #99):** `docs/v0_2_0/capability-verification-matrix.json` (60 P-entri…",
+".andromeda/architecture.md:171 verb new …alidated by `cargo xtask verify:capability-matrix` (§Occupied Resources → xtas…",
+".andromeda/architecture.md:263 verb new ×3 @c30643,31304,31442/33118 …). `cargo xtask verify:capability-matrix` — the c…",
+".andromeda/test-plan.md:536 verb standing edited @c13/2506 `cargo xtask verify:capability-matrix` reads two fixed in-re…",
+".claude/rules/security.md:160 verb curation …trix gate (`cargo xtask verify:capability-matrix`). The body block above i…",
+".claude/rules/testing.md:58 verb leaf …ed-runtime); `cargo xtask verify:capability-matrix` validates ids + file refs + …",
+".claude/rules/testing.md:107 verb leaf …hunk #99):** `cargo xtask verify:capability-matrix` (P-001–P-060 scenario mappi…",
+".claude/docs/tests-summary.md:75 verb leaf …lidated by `cargo xtask verify:capability-matrix` in CI; P-061+ extend the …",
+".claude/docs/tests-summary.md:84 verb leaf …bility-widening-check` → `cargo xtask verify:capability-matrix` (chunk #99).",
+".andromeda/test-plan.md:534 matrix-name standing **Capability verification matrix (CI step, runs after capability-drift…",
+".claude/rules/security.md:160 matrix-name curation …e the new P-001–P-060 capability verification matrix gate (`cargo x…",
+".claude/rules/testing.md:58 matrix-name leaf - **Capability verification matrix (chunk #99):** `docs/v0_2_0/capability-…",
+".claude/docs/tests-summary.md:75 matrix-name leaf - **Capability verification matrix (chunk #99):** `docs/v0_2_0/capabi…",
+".andromeda/architecture.md:263 sixty-range new @c33035/33118 …ion-matrix.json` (P-001…P-060) and exited 0 or 1, an abse…",
+".andromeda/test-plan.md:536 sixty-range standing edited @c2377/2506 …n-matrix.json` (P-001–P-060) and `andromeda-pulse-…",
+".claude/rules/security.md:160 sixty-range curation …k`) alongside the new P-001–P-060 capability verification matrix ga…",
+".claude/rules/testing.md:58 sixty-range leaf …matrix.json` maps every P-001–P-060 capability to a named verification sc…",
+".claude/rules/testing.md:107 sixty-range leaf …fy:capability-matrix` (P-001–P-060 scenario mapping; also a per-PR CI st…",
+".claude/docs/session-learnings.md:1480 sixty-count curation …capability-spec v2 60 P-XXX + distillation-arch v3 6-layer…",
+".claude/docs/andromeda-after-mvp-playbook.md:330 sixty-count leaf …ility-spec.md` — 60 P-XXX capabilities formal contra…",
+".claude/docs/tests-summary.md:75 sixty-count leaf …ication-matrix.json` (60 P-entries → named scenarios) validated by `…",
+".claude/rules/testing.md:58 extend leaf …re capabilities (P-061+) extend the matrix in the same chunk that lands the ca…",
+".claude/docs/tests-summary.md:75 extend leaf …y:capability-matrix` in CI; P-061+ extend the matrix in the landing chunk.",
+"old-path · new 2 · standing 1 · leaf 2 · curation 1 · base 0 · control test-plan.md:535 (prose)",
+"verb · new 2 · standing 1 · leaf 4 · curation 1 · base 0 · control test-plan.md:535 (prose)",
+"matrix-name · new 0 · standing 1 · leaf 2 · curation 1 · base 0 · control test-plan.md:533 (prose)",
+"sixty-range · new 1 · standing 1 · leaf 2 · curation 1 · base 0 · control test-plan.md:535 (prose)",
+"sixty-count · new 0 · standing 0 · leaf 2 · curation 1 · base 0 · control test-plan.md:535 (prose)",
+"extend · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:535 (prose)",
+"total (6 patterns) · 28 rows over 7 files",
+"per class · new 5/1 · standing 4/1 · leaf 14/3 · curation 5/2 · base 0/0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "279a477e9e12a1e76bae3bab3c64e42db9949a8f",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), 923a0dad",
+"counts": {
+"old-path": {
+"new": 2,
+"standing": 1,
+"leaf": 2,
+"curation": 1,
+"base": 0
+},
+"verb": {
+"new": 2,
+"standing": 1,
+"leaf": 4,
+"curation": 1,
+"base": 0
+},
+"matrix-name": {
+"new": 0,
+"standing": 1,
+"leaf": 2,
+"curation": 1,
+"base": 0
+},
+"sixty-range": {
+"new": 1,
+"standing": 1,
+"leaf": 2,
+"curation": 1,
+"base": 0
+},
+"sixty-count": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 1,
+"base": 0
+},
+"extend": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

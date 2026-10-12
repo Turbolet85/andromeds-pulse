@@ -1,0 +1,11 @@
+
+## 2026-10-10-engine-harness-proofs-completed — the pre-push check's sixth stage is classed PROVISIONAL, outside the 2026-10-09 harness reading
+**Section:** §Threat Model Summary → Attack surface (CLI input, the trust boundary) · §Input Validation → the CLI / env var inputs row (`cargo xtask pre-push:linux`) · §Security Anti-Patterns → Input (the `pre-push:linux` harness-class paragraph)
+**Change:**
+- New, beside the harness carve-out and outside the 2026-10-09 "routine harness evidence" reading: the sixth stage of `pre-push:linux` starts the console engine `andromeda-pulse-engine` and binds loopback 24317 and 24318, never 4317 or 4318. Classification PROVISIONAL: a boundary widening, the operator's reading, the founder's own word owed.
+- The stage: the stage data dir removed and created; a cycle port already accepting → `cannot-evaluate` / `engine-port-taken`, nothing started; `harness:engine-cycle --data-dir {that dir}` under the unchanged stage child set; both ports and that data dir's pid file read, the stage ending what it started; cycle exit 2 → `cannot-evaluate` / `engine-cycle-unevaluated`; exit 0 → `ci-gates` over the same data dir. Eleven closed reasons.
+- Three statements of the 2026-10-09 paragraph are bounded: item (b)'s exact child set has one exception (the single `cleanup` child also carries the two cycle port variables); item (c)'s "writes only its per-run area" does not cover the stage's engine, which writes the content-free corpus-key lock file to the system temp dir, nor the cycle's stderr printing the data dir; and the heading's reading does not reach this stage.
+- Nothing product-consumed is added: no `ANDROMEDA_PULSE_*` name, no product port, no file under `pulse-app/src`.
+**Why:** The check gained a crossing the never-routine class names: it starts a program and binds ports where its contract said it did neither. Recorded on the operator's reading (the pc overseer, 2026-10-10, at the plan dialog, relayed verbatim in the wrap directive); a relayed answer on a boundary widening is provisional, and the founder's own later word supersedes it.
+**Kept:** Not read live: a taken port on 24317 / 24318, and the teardown after a cycle that left an engine (pinned at the decision; one pin runs the teardown against a real process).
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/

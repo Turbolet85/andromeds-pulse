@@ -1,0 +1,7 @@
+{
+  "title": "The training export is gone",
+  "requirement": "The engine has no export of its incidents for model training, and nothing it writes lands in the user's Downloads folder.",
+  "observed_gap": "A training export (pulse-app/src/training_export.rs, the storage.export_for_training route) writes the incident corpus as a file under ~/Downloads, one of three places the product writes outside its data dir.",
+  "method": "integration",
+  "acceptance": "The tree contains no training export and no command or route of the engine produces one; a run of the full remaining gate leaves nothing written under the user's Downloads folder; the security master lists the places the engine writes outside its data dir without it."
+}

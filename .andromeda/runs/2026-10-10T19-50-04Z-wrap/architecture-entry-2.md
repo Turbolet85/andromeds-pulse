@@ -1,0 +1,12 @@
+
+## 2026-10-10-engine-harness-proofs-completed — the pre-push check's sixth stage runs a real console engine cycle (PROVISIONAL)
+**Section:** §Occupied Resources → xtask CLI surfaces (`cargo xtask pre-push:linux`; `cargo xtask ci-gates`; `cargo xtask harness:engine-cycle`; the `agent-run` entry's callers) · → Network ports (`:24317` / `:24318`) · → Filesystem locations (the pid file's readers; the harness-made data dirs) · → Environment variables (`PUPPETEER_CACHE_DIR`)
+**Change:**
+- Was "It binds no port and starts no `pulse-app`", stage six reading `ci-gates` over a seed log the stage wrote; now the sixth stage, and no other, starts `andromeda-pulse-engine` and binds loopback 24317 and 24318, never 4317 or 4318. Order: the stage data dir removed and created; a cycle port already accepting → `cannot-evaluate` / `engine-port-taken`, nothing started; `harness:engine-cycle --data-dir {that dir}`; both ports and the stage data dir's pid file read — one accepting or alive → `cleanup` once and `stage-failed:ci-gates` whatever the cycle returned; cycle exit 2 → `cannot-evaluate` / `engine-cycle-unevaluated`; exit 0 → `ci-gates` over the same data dir; any other exit red.
+- Reasons, complete: eleven (was nine): `engine-port-taken`, `engine-cycle-unevaluated` added. Stage names, order and the six verdict members unchanged; a stage stopped `cannot-evaluate` is listed `"ok": false`.
+- The exact child set gains one exception: the stage's single `cleanup` child also carries the two cycle port variables (also registered under Environment variables).
+- `harness:engine-cycle` gains an eighth refusal label, `port-taken` (a cycle port already accepting; read before `HOME`; nothing built or started, no data dir), and a third caller, this stage. `ci-gates`' pre-push caller reads the cycle's log family, only when the cycle exited 0. `agent-run.sh cleanup` gains this stage as a caller; the pid file gains it as a reader.
+- Readings: four green runs, 107.04 to 110.44 s warm with the engine built in release; the stage 18.8 to 19.0 s over 335 records.
+**Why:** A stage that reads a record it wrote itself reads nothing. The change is a boundary widening: the operator's reading (the pc overseer, 2026-10-10, at the plan dialog, relayed verbatim in the wrap directive), PROVISIONAL — the founder's own word is owed and supersedes it.
+**Kept:** P-103's acceptance is not re-worded. Not read live: a taken port on 24317 / 24318, and the teardown after a cycle that left an engine.
+**Ref:** .andromeda/runs/2026-10-10T19-50-04Z-wrap/

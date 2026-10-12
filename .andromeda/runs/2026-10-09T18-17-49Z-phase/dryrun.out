@@ -1,0 +1,37 @@
+gate v1.13 · 3718c868
+shell /usr/bin/bash (from $SHELL; -c, non-login)
+root . · marker 2026-10-09-boot-smoke-s-early-exit-found-and-closed · entries 24
+logs $TMPDIR/andromeda-gate/2026-10-09-boot-smoke-s-early-exit-found-and-closed/run-20261009T190415Z · bound: GNU timeout
+delta docs 52 · unmapped 5
+walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 57
+prose L119-122: The chunk's own probes come first, then the two live legs, then the standard gate set in t… (350 chars)
+prose L124-128: The two live legs boot the release app on this host under a virtual display. Each moves th… (478 chars)
+prose L130-138: Absences, each with its reason: - No webview gate and no headful self-verify: no `pulse-ap… (745 chars)
+prose L140-142: On the untouched tree both live legs read red: `harness:settled` does not exist yet. The c… (250 chars)
+prose L144-154: **The operator pass, in this order.** 1. The hygiene entry, then the pre-CI commit, then t… (1072 chars)
+prose L156-157: Evidence files are written by /implement and by the operator pass from the entries' record… (122 chars)
+  1 lint        not run — dry-run · cargo fmt --check
+  2 lint        not run — dry-run · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)
+  3 probe       not run — dry-run · git diff --name-only 277d65dbb51a72141e092ab37c0951278ed93… (386 chars)
+  4 probe       not run — dry-run · python -X utf8 -c "import yaml; d = yaml.safe_load(open('.… (139 chars)
+  5 probe       not run — dry-run · python -X utf8 -c "import yaml; d = yaml.safe_load(open('.… (251 chars)
+  6 probe       not run — dry-run · python -X utf8 -c "import subprocess, yaml; b = yaml.safe_… (615 chars)
+  7 probe       not run — dry-run · git diff 277d65dbb51a72141e092ab37c0951278ed93a74 -- .gith… (185 chars)
+  8 smoke       not run — dry-run · d="target/boot-smoke/$(date -u +%Y%m%dT%H%M%SZ)-green" && … (479 chars)
+  9 smoke       not run — dry-run · d="target/boot-smoke/$(date -u +%Y%m%dT%H%M%SZ)-display-lo… (589 chars)
+ 10 lint        not run — dry-run · cargo xtask check:english-sources
+ 11 probe       not run — dry-run · cargo xtask capability-widening-check
+ 12 probe       not run — dry-run · cargo xtask check:ingest-progress
+ 13 probe       not run — dry-run · cargo xtask check:staged-artifacts
+ 14 probe       not run — dry-run · cargo xtask capability-drift
+ 15 probe       not run — dry-run · cargo xtask verify:capability-matrix
+ 16 unit        not run — dry-run · cargo nextest run --workspace --profile ci
+ 17 build       not run — dry-run · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)
+ 18 probe       not run — dry-run · git diff --quiet 277d65dbb51a72141e092ab37c0951278ed93a74 … (95 chars)
+ 19 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)
+ 20 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (92 chars)
+ 21 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)
+ 22 probe       not run — leg operator (the letter drives it) · gh api "repos/Turbolet85/andromeds-pulse/actions/runs/<id>… (159 chars)
+ 23 probe       not run — leg operator (the letter drives it) · f="$(mktemp)" && gh api --allow-escape-sequences "repos/Tu… (421 chars)
+ 24 probe       not run — leg operator (the letter drives it) · gh run download <id> -R Turbolet85/andromeds-pulse -n logs… (292 chars)
+entries 24 · green 0 · red 0 · recorded 0 · timeout 0 · not-run 24

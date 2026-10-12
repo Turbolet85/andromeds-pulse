@@ -156,6 +156,34 @@ fn budget_for_count(target: u32) -> TokenBudget {
     }
 }
 
+/// A tool's result with the two values a caller may put in its own call
+/// record: the result's type label and its item count.
+#[derive(Debug)]
+pub struct ToolAnswer {
+    pub value: Value,
+    pub result_type: &'static str,
+    pub result_count: u64,
+}
+
+/// The dispatch with no log record of its own. A caller inside the engine's
+/// process writes its own call record: the three records `dispatch_tool`
+/// writes resolve to no allowlist leaf there, and the error one carries the
+/// error's text.
+pub fn call_tool(
+    conn: &Arc<Mutex<Connection>>,
+    viz_state: &VizState,
+    incident_ctx: Option<&IncidentToolContext>,
+    tool_name: &str,
+    arguments: &Value,
+) -> Result<ToolAnswer, Error> {
+    let value = run_tool(conn, viz_state, incident_ctx, tool_name, arguments)?;
+    Ok(ToolAnswer {
+        result_type: result_type_label(tool_name),
+        result_count: result_count_for(tool_name, &value),
+        value,
+    })
+}
+
 /// Top-level dispatch from the JSON-RPC `tools/call` envelope. `params` is
 /// the `params.arguments` field. Unknown tool names produce
 /// `Error::ToolDispatchFailed` with reason "unknown tool"; malformed args
@@ -168,32 +196,16 @@ pub fn dispatch_tool(
     arguments: &Value,
 ) -> Result<Value, Error> {
     let started = Instant::now();
-    let result = match tool_name {
-        TOOL_QUERY_TRACES => dispatch_query_traces(conn, viz_state, arguments),
-        TOOL_QUERY_METRICS => dispatch_query_metrics(conn, viz_state, arguments),
-        TOOL_QUERY_LOGS => dispatch_query_logs(conn, viz_state, arguments),
-        TOOL_GENERATE_SNAPSHOT => dispatch_generate_snapshot(conn, arguments),
-        TOOL_QUERY_INCIDENT_LIST => dispatch_query_incident_list(incident_ctx),
-        TOOL_RETRIEVE_REPORT => dispatch_retrieve_report(incident_ctx, arguments),
-        TOOL_RETRIEVE_TELEMETRY_SLICE => dispatch_retrieve_telemetry_slice(incident_ctx, arguments),
-        TOOL_MARK_INCIDENT_RESOLVED => dispatch_mark_incident_resolved(incident_ctx, arguments),
-        TOOL_RETRIEVE_INCIDENT_EVENTS => dispatch_retrieve_incident_events(incident_ctx, arguments),
-        other => Err(Error::ToolDispatchFailed {
-            tool_name: other.to_string(),
-            reason: "unknown tool".to_string(),
-        }),
-    };
+    let result = call_tool(conn, viz_state, incident_ctx, tool_name, arguments);
 
     let duration_ms = started.elapsed().as_millis() as u64;
     match &result {
-        Ok(value) => {
-            let result_type = result_type_label(tool_name);
-            let result_count = result_count_for(tool_name, value);
+        Ok(answer) => {
             tracing::info!(
                 target: "mcp.tools.call.response",
                 tool_name = tool_name,
-                result_type = result_type,
-                result_count = result_count,
+                result_type = answer.result_type,
+                result_count = answer.result_count,
                 duration_ms = duration_ms,
                 "tool dispatch ok",
             );
@@ -201,7 +213,7 @@ pub fn dispatch_tool(
                 target: "metric.mcp.tool_call_duration_ms",
                 value = duration_ms,
                 method = tool_name,
-                result_count = result_count,
+                result_count = answer.result_count,
                 "tool call duration metric",
             );
         }
@@ -215,7 +227,31 @@ pub fn dispatch_tool(
             );
         }
     }
-    result
+    result.map(|answer| answer.value)
+}
+
+fn run_tool(
+    conn: &Arc<Mutex<Connection>>,
+    viz_state: &VizState,
+    incident_ctx: Option<&IncidentToolContext>,
+    tool_name: &str,
+    arguments: &Value,
+) -> Result<Value, Error> {
+    match tool_name {
+        TOOL_QUERY_TRACES => dispatch_query_traces(conn, viz_state, arguments),
+        TOOL_QUERY_METRICS => dispatch_query_metrics(conn, viz_state, arguments),
+        TOOL_QUERY_LOGS => dispatch_query_logs(conn, viz_state, arguments),
+        TOOL_GENERATE_SNAPSHOT => dispatch_generate_snapshot(conn, arguments),
+        TOOL_QUERY_INCIDENT_LIST => dispatch_query_incident_list(incident_ctx),
+        TOOL_RETRIEVE_REPORT => dispatch_retrieve_report(incident_ctx, arguments),
+        TOOL_RETRIEVE_TELEMETRY_SLICE => dispatch_retrieve_telemetry_slice(incident_ctx, arguments),
+        TOOL_MARK_INCIDENT_RESOLVED => dispatch_mark_incident_resolved(incident_ctx, arguments),
+        TOOL_RETRIEVE_INCIDENT_EVENTS => dispatch_retrieve_incident_events(incident_ctx, arguments),
+        other => Err(Error::ToolDispatchFailed {
+            tool_name: other.to_string(),
+            reason: "unknown tool".to_string(),
+        }),
+    }
 }
 
 fn dispatch_query_traces(

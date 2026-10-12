@@ -1,0 +1,202 @@
+[
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "2f500b21",
+"ts": "2026-10-12T08:17:06Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-12T08-15-38Z-phase",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2765→2766 · bytes 2851529→2852779 · term lf",
+"ts 2026-10-12T08:16:58Z · clock 2026-10-12T08:17:06Z · bound 2026-10-12T08:14:55Z (line 2765)",
+"ids 2026-10-12T08:16:58Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2765,
+"bytes": 2851529,
+"terminator": "LF",
+"bound": "2026-10-12T08:14:55Z"
+},
+"after": {
+"lines": 2766,
+"bytes": 2852779
+}
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "2f500b21",
+"ts": "2026-10-12T08:23:19Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-12T08-15-38Z-phase",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2766→2767 · bytes 2852779→2854305 · term lf",
+"ts 2026-10-12T08:23:09Z · clock 2026-10-12T08:23:19Z · bound 2026-10-12T08:16:58Z (line 2766)",
+"ids 2026-10-12T08:23:09Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2766,
+"bytes": 2852779,
+"terminator": "LF",
+"bound": "2026-10-12T08:16:58Z"
+},
+"after": {
+"lines": 2767,
+"bytes": 2854305
+}
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "2f500b21",
+"ts": "2026-10-12T08:26:36Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-12T08-15-38Z-phase",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2767→2768 · bytes 2854305→2855466 · term lf",
+"ts 2026-10-12T08:26:27Z · clock 2026-10-12T08:26:35Z · bound 2026-10-12T08:23:09Z (line 2767)",
+"ids 2026-10-12T08:26:27Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2767,
+"bytes": 2854305,
+"terminator": "LF",
+"bound": "2026-10-12T08:23:09Z"
+},
+"after": {
+"lines": 2768,
+"bytes": 2855466
+}
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "2f500b21",
+"ts": "2026-10-12T08:33:12Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-12T08-15-38Z-phase",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2768→2769 · bytes 2855466→2856641 · term lf",
+"ts 2026-10-12T08:32:47Z · clock 2026-10-12T08:33:12Z · bound 2026-10-12T08:26:27Z (line 2768)",
+"ids 2026-10-12T08:32:47Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2768,
+"bytes": 2855466,
+"terminator": "LF",
+"bound": "2026-10-12T08:26:27Z"
+},
+"after": {
+"lines": 2769,
+"bytes": 2856641
+}
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "2f500b21",
+"ts": "2026-10-12T08:39:08Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-12T08-15-38Z-phase",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 2769→2771 · bytes 2856641→2858866 · term lf",
+"ts 2026-10-12T08:38:51Z · clock 2026-10-12T08:39:08Z · bound 2026-10-12T08:32:47Z (line 2769)",
+"ids 2026-10-12T08:38:51Z-a … 2026-10-12T08:38:51Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2769,
+"bytes": 2856641,
+"terminator": "LF",
+"bound": "2026-10-12T08:32:47Z"
+},
+"after": {
+"lines": 2771,
+"bytes": 2858866
+}
+}
+]

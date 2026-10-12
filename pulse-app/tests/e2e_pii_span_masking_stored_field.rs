@@ -17,15 +17,10 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use buffer::{BroadcastSenders, BufferState, create_schema, run_consumer};
 use duckdb::Connection;
 use ingest::channel::build_channel;
-use ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest;
 use ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient;
-use ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest;
 use ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient;
-use ingest::grpc::proto::opentelemetry::proto::common::v1::{AnyValue, KeyValue, any_value};
-use ingest::grpc::proto::opentelemetry::proto::logs::v1::{LogRecord, ResourceLogs, ScopeLogs};
-use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
-use ingest::grpc::proto::opentelemetry::proto::trace::v1::{ResourceSpans, ScopeSpans, Span, span};
 use ingest::state::IngestState;
+use test_support::otlp::{log_record, resource, span, span_event};
 
 /// Synthetic Stripe-shaped secret key — never issued, never valid.
 const BARE_CANARY: &str = "sk_live_51NotARealKeyOnlyForPulseTests00"; // gitleaks:allow
@@ -58,27 +53,6 @@ fn now_ns() -> u64 {
         .duration_since(UNIX_EPOCH)
         .expect("now after epoch")
         .as_nanos() as u64
-}
-
-fn service_resource(service: &str) -> Resource {
-    Resource {
-        attributes: vec![KeyValue {
-            key: "service.name".into(),
-            value: Some(AnyValue {
-                value: Some(any_value::Value::StringValue(service.into())),
-            }),
-        }],
-        dropped_attributes_count: 0,
-    }
-}
-
-fn string_attribute(key: &str, value: &str) -> KeyValue {
-    KeyValue {
-        key: key.into(),
-        value: Some(AnyValue {
-            value: Some(any_value::Value::StringValue(value.into())),
-        }),
-    }
 }
 
 struct Harness {
@@ -205,26 +179,10 @@ async fn span_mask_keeps_context_around_embedded_secrets_in_stored_columns() {
     let value = embedded_value();
     let now = now_ns();
 
-    let logs = ExportLogsServiceRequest {
-        resource_logs: vec![ResourceLogs {
-            resource: Some(service_resource("spanmask-log-svc")),
-            scope_logs: vec![ScopeLogs {
-                scope: None,
-                log_records: vec![LogRecord {
-                    time_unix_nano: now,
-                    observed_time_unix_nano: now,
-                    severity_number: 17,
-                    severity_text: "ERROR".into(),
-                    body: Some(AnyValue {
-                        value: Some(any_value::Value::StringValue(value.clone())),
-                    }),
-                    ..Default::default()
-                }],
-                schema_url: String::new(),
-            }],
-            schema_url: String::new(),
-        }],
-    };
+    let logs = resource()
+        .service("spanmask-log-svc")
+        .log_record(log_record().at(now).severity(17, "ERROR").body(&value))
+        .logs_request();
     LogsServiceClient::connect(h.endpoint.clone())
         .await
         .expect("logs client connects to loopback receiver")
@@ -232,38 +190,16 @@ async fn span_mask_keeps_context_around_embedded_secrets_in_stored_columns() {
         .await
         .expect("log export responds OK");
 
-    let event = span::Event {
-        time_unix_nano: now,
-        name: "exception".into(),
-        attributes: vec![
-            string_attribute("exception.type", "AuthError"),
-            string_attribute("exception.message", &value),
-            string_attribute("exception.stacktrace", &value),
-        ],
-        dropped_attributes_count: 0,
-    };
-    let traces = ExportTraceServiceRequest {
-        resource_spans: vec![ResourceSpans {
-            resource: Some(service_resource(&format!(
-                "{SERVICE_CONTEXT} {EMAIL_CANARY}"
-            ))),
-            scope_spans: vec![ScopeSpans {
-                scope: None,
-                spans: vec![Span {
-                    trace_id: vec![0x5a; 16],
-                    span_id: vec![0x5b; 8],
-                    name: "spanmask-span".into(),
-                    kind: 0,
-                    start_time_unix_nano: now,
-                    end_time_unix_nano: now + 1_000_000,
-                    events: vec![event],
-                    ..Default::default()
-                }],
-                schema_url: String::new(),
-            }],
-            schema_url: String::new(),
-        }],
-    };
+    let event = span_event()
+        .name("exception")
+        .at(now)
+        .attribute("exception.type", "AuthError")
+        .attribute("exception.message", &value)
+        .attribute("exception.stacktrace", &value);
+    let traces = resource()
+        .service(&format!("{SERVICE_CONTEXT} {EMAIL_CANARY}"))
+        .span(span().name("spanmask-span").at(now).event(event))
+        .trace_request();
     TraceServiceClient::connect(h.endpoint.clone())
         .await
         .expect("trace client connects to loopback receiver")

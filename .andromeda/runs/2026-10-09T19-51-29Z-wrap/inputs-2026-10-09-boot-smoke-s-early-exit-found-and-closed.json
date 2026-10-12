@@ -1,0 +1,322 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T19:52:02Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-wrap-boot-smoke-early-exit-2026-10-09.md",
+"--kind",
+"relay",
+"--why",
+"the wrap directive: the pass stands, P-129 is not claimed and its closing needs an owner at route-resolve, the merge-commit sha to measure, the older soft-fail guard to own, two unwitnessed edits to say, two stops",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I4 · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-boot-smoke-early-exit-2026-10-09.md",
+"cite: inputs#I4"
+],
+"stderr": null,
+"wrote": [
+"inputs/I4-pulse-wrap-boot-smoke-early-exit-2026-10-09.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I4",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-wrap-boot-smoke-early-exit-2026-10-09.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "7c9fa2fbbbbcf77324872582ad3a2cb3d304778996e5d2714fb8cd2653a0f583",
+"copy": "I4-pulse-wrap-boot-smoke-early-exit-2026-10-09.md.txt",
+"link": false,
+"read_at": "2026-10-09T19:52:02Z",
+"step": "wrap",
+"why": "the wrap directive: the pass stands, P-129 is not claimed and its closing needs an owner at route-resolve, the merge-commit sha to measure, the older soft-fail guard to own, two unwitnessed edits to say, two stops"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T19:52:08Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--message-file",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap/relay-2.md",
+"--origin",
+"the operator, in this session after the implement report, 2026-10-09",
+"--kind",
+"relay",
+"--why",
+"the operator pass directive: entries 19 to 24 in order, the respell first, stop on an ended or not-settled settle verdict, no skill started",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I5 · copy message · message: the operator, in this session after the implement report, 2026-10-09",
+"cite: inputs#I5"
+],
+"stderr": null,
+"wrote": [
+"inputs/I5-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I5",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator, in this session after the implement report, 2026-10-09",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "16c8ffc74e60c023033289ce38bb10fbbdaa283bfe051006cdca6654026aff5e",
+"copy": "I5-relay-2.md.txt",
+"link": false,
+"read_at": "2026-10-09T19:52:08Z",
+"step": "wrap",
+"why": "the operator pass directive: entries 19 to 24 in order, the respell first, stop on an ended or not-settled settle verdict, no skill started"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T19:52:09Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--message-file",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap/relay-1.md",
+"--origin",
+"the operator, in the /andromeda-wrap-session invocation, 2026-10-09",
+"--kind",
+"relay",
+"--why",
+"the wrap invocation directive: read the relay whole first, P-129 not claimed and its closing owned at route-resolve, stop at the route-resolve card and before the flip and the commit",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I6 · copy message · message: the operator, in the /andromeda-wrap-session invocation, 2026-10-09",
+"cite: inputs#I6"
+],
+"stderr": null,
+"wrote": [
+"inputs/I6-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I6",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator, in the /andromeda-wrap-session invocation, 2026-10-09",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "4c46b82ec62ec2513b85f1173b167aa83ef1fef7e6a1256d4a8523585aea86c9",
+"copy": "I6-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-09T19:52:09Z",
+"step": "wrap",
+"why": "the wrap invocation directive: read the relay whole first, P-129 not claimed and its closing owned at route-resolve, stop at the route-resolve card and before the flip and the commit"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T19:52:09Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--run-dir",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-boot-smoke-early-exit-2026-10-09.md",
+"I1 cited scope.md:17 · scope.md:23 · scope.md:27 · scope.md:29 · scope.md:31 · scope.md:61 · scope.md:68 · scope.md:102 · scope.md:107 · scope.md:111 · scope.md:116 · research.md:9 · plan.md:354 · plan.md:372 · plan.md:385",
+"I2 n/a — a message has no live source · copy message · message: the operator, in the /andromeda-phase invocation, 2026-10-09",
+"I2 cited scope.md:17 · scope.md:117 · research.md:9",
+"I3 n/a — a message has no live source · copy message · message: the operator (pc overseer), answering the two P4 questions in the question dialog, 2026-10-09",
+"I3 cited scope.md:52 · scope.md:96 · scope.md:108 · research.md:97 · research.md:98 · plan.md:16 · plan.md:34 · plan.md:104 · plan.md:312 (in fence) · plan.md:345 · plan.md:357 · plan.md:414",
+"I4 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-boot-smoke-early-exit-2026-10-09.md",
+"I4 UNCITED",
+"I5 n/a — a message has no live source · copy message · message: the operator, in this session after the implement report, 2026-10-09",
+"I5 UNCITED",
+"I6 n/a — a message has no live source · copy message · message: the operator, in the /andromeda-wrap-session invocation, 2026-10-09",
+"I6 UNCITED",
+"inputs: 6 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 4 · uncited 3 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 6,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 4
+},
+"uncited": 3,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T20:17:14Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--message-file",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap/relay-3.md",
+"--origin",
+"the operator (pc overseer), answering the route-resolve card in this session, 2026-10-09",
+"--kind",
+"relay",
+"--why",
+"the route-resolve word: the WATCH to eleven with the retirement clause, three CARRYs, the master description and the P-129 ledger note, the classification kept as not a widening and named as the pc overseer own",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I7 · copy message · message: the operator (pc overseer), answering the route-resolve card in this session, 2026-10-09",
+"cite: inputs#I7"
+],
+"stderr": null,
+"wrote": [
+"inputs/I7-relay-3.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I7",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (pc overseer), answering the route-resolve card in this session, 2026-10-09",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "b65fe4853b57e17a0febc52f99cd389bcf192089929d98a75430dead36d48f6a",
+"copy": "I7-relay-3.md.txt",
+"link": false,
+"read_at": "2026-10-09T20:17:14Z",
+"step": "wrap",
+"why": "the route-resolve word: the WATCH to eleven with the retirement clause, three CARRYs, the master description and the P-129 ledger note, the classification kept as not a widening and named as the pc overseer own"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T20:21:15Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--run-dir",
+".andromeda/runs/2026-10-09T19-51-29Z-wrap",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-boot-smoke-early-exit-2026-10-09.md",
+"I1 cited scope.md:17 · scope.md:23 · scope.md:27 · scope.md:29 · scope.md:31 · scope.md:61 · scope.md:68 · scope.md:102 · scope.md:107 · scope.md:111 · scope.md:116 · research.md:9 · plan.md:354 · plan.md:372 · plan.md:385",
+"I2 n/a — a message has no live source · copy message · message: the operator, in the /andromeda-phase invocation, 2026-10-09",
+"I2 cited scope.md:17 · scope.md:117 · research.md:9",
+"I3 n/a — a message has no live source · copy message · message: the operator (pc overseer), answering the two P4 questions in the question dialog, 2026-10-09",
+"I3 cited scope.md:52 · scope.md:96 · scope.md:108 · research.md:97 · research.md:98 · plan.md:16 · plan.md:34 · plan.md:104 · plan.md:312 (in fence) · plan.md:345 · plan.md:357 · plan.md:414 · report.md:8 · report.md:236",
+"I4 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-boot-smoke-early-exit-2026-10-09.md",
+"I4 cited report.md:107 · report.md:121 · report.md:138 · report.md:236 · report.md:245 · report.md:345",
+"I5 n/a — a message has no live source · copy message · message: the operator, in this session after the implement report, 2026-10-09",
+"I5 cited report.md:123 · report.md:236 · report.md:344",
+"I6 n/a — a message has no live source · copy message · message: the operator, in the /andromeda-wrap-session invocation, 2026-10-09",
+"I6 cited report.md:125 · report.md:138 · report.md:236 · report.md:345",
+"I7 n/a — a message has no live source · copy message · message: the operator (pc overseer), answering the route-resolve card in this session, 2026-10-09",
+"I7 cited report.md:127",
+"inputs: 7 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 5 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 7,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 5
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]

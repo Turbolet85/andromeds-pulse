@@ -1,0 +1,27 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee_name = 'verify_capability_matrix' AND callee_kind = 'fn' ORDER BY file, line;",
+"rows": 1,
+"result": [
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"file": "xtask/src/main.rs",
+"line": 325
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'xtask' OR from_crate = 'xtask';",
+"rows": 1,
+"result": [
+{
+"from_crate": "xtask",
+"to_crate": "ingest"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

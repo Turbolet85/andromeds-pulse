@@ -1,0 +1,44 @@
+[[pattern]]
+id = "two-files"
+regex = 'two harness-(written|WRITTEN)'
+
+[[pattern]]
+id = "five-files"
+regex = '(holds|held) five files|five files as read'
+
+[[pattern]]
+id = "smoke-passes"
+regex = 'smoke step (passes|fails)'
+
+[[pattern]]
+id = "seven-members"
+fixed = 'display, session_bus}'
+
+[[pattern]]
+id = "one-caller"
+fixed = 'Its caller is the "Boot pulse-app smoke"'
+
+[[pattern]]
+id = "not-named"
+regex = 'is not named|no run has named|cause .{0,40}not .{0,12}named'
+
+[[pattern]]
+id = "lockstep"
+fixed = 'in lockstep'
+ignore_case = true
+
+[[pattern]]
+id = "one-shellout"
+regex = '(One|one) unit binary shells out'
+
+[[pattern]]
+id = "boot-job-seq"
+regex = 'boot smoke, then `cargo xtask ci-gates`|"Boot pulse-app smoke" step → `cargo xtask ci-gates`'
+
+[[pattern]]
+id = "settled-json"
+fixed = 'harness-settled.json'
+
+[[pattern]]
+id = "p129"
+fixed = 'P-129'

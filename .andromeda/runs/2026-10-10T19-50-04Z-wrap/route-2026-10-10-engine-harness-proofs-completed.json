@@ -1,0 +1,125 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T20:37:12Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-10-engine-harness-proofs-completed",
+"--run-dir",
+".andromeda/runs/2026-10-10T19-50-04Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"flip master-route.md:117 - 2026-10-10-engine-harness-proofs-completed pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T20:37:12Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-engine-harness-proofs-completed",
+"--date",
+"2026-10-10",
+"--run-dir",
+".andromeda/runs/2026-10-10T19-50-04Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :33 strip CARRY: 618ch \"CARRY: minted at 2026-10-10-agent-harnes\"",
+"pin :33 strip CARRY: 309ch \"CARRY: three readings the engine boot's \"",
+"pin :33 strip CARRY: 395ch \"CARRY: the sixth stage of cargo xtask pr\"",
+"pin :33 strip CARRY: 289ch \"CARRY: the shell-level pins the widened \"",
+"pin :33 strip CARRY: 422ch \"CARRY: the row opened at that wrap owes \"",
+"pin next markerless :35 holds CARRY:×1",
+"33 · 2026-10-10-engine-harness-proofs-completed · strip 5 block(s) · archive APPEND",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 33,
+"marker": "2026-10-10-engine-harness-proofs-completed",
+"blocks": 5,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T20:37:19Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-10-engine-harness-proofs-completed",
+"--date",
+"2026-10-10",
+"--run-dir",
+".andromeda/runs/2026-10-10T19-50-04Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :33 strip CARRY: 618ch \"CARRY: minted at 2026-10-10-agent-harnes\"",
+"pin :33 strip CARRY: 309ch \"CARRY: three readings the engine boot's \"",
+"pin :33 strip CARRY: 395ch \"CARRY: the sixth stage of cargo xtask pr\"",
+"pin :33 strip CARRY: 289ch \"CARRY: the shell-level pins the widened \"",
+"pin :33 strip CARRY: 422ch \"CARRY: the row opened at that wrap owes \"",
+"pin next markerless :35 holds CARRY:×1",
+"33 · 2026-10-10-engine-harness-proofs-completed · strip 5 block(s) · archive APPEND",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/route-archive.md",
+"./andromeda-pulse-0.4.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 33,
+"marker": "2026-10-10-engine-harness-proofs-completed",
+"blocks": 5,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+}
+]

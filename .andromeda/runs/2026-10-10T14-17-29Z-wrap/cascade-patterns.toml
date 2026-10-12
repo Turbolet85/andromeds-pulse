@@ -1,0 +1,90 @@
+# The wordings and mechanisms this pass's 58 amendments retire or re-scope, derived after the last amendment.
+
+[[pattern]]
+id = 'not-a-cli'
+fixed = 'not a CLI'
+
+[[pattern]]
+id = 'one-tauri'
+regex = '(single|one) Tauri (process|binary)'
+
+[[pattern]]
+id = 'tauri-binary'
+regex = '`pulse-app` Tauri binary|Tauri binary crate'
+
+[[pattern]]
+id = 'single-proc'
+fixed = 'single-process desktop app'
+
+[[pattern]]
+id = 'both-bins'
+regex = 'both (shipped|product) binaries'
+
+[[pattern]]
+id = 'by-the-app'
+regex = '(written|published) by the app'
+
+[[pattern]]
+id = 'app-and-mcp'
+regex = 'the app (and|AND) the (MCP|`andromeda-pulse-mcp`) sidecar'
+
+[[pattern]]
+id = 'prod-binary'
+fixed = 'production binary at boot'
+
+[[pattern]]
+id = 'main-hands'
+regex = '`main` (parks|hands)|main\.rs` hands'
+
+[[pattern]]
+id = 'boots-no-app'
+fixed = 'boots no app'
+
+[[pattern]]
+id = 'writes-none'
+fixed = 'that job writes none'
+
+[[pattern]]
+id = 'tick-roster'
+regex = 'ingest, buffer, viz, plugins|`ingest\.tick` ?/ ?`buffer\.tick` ?/ ?`viz\.tick` ?/ ?`plugins\.tick`'
+
+[[pattern]]
+id = 'once-per-boot'
+fixed = 'exactly once per boot'
+ignore_case = true
+
+[[pattern]]
+id = 'sole-caller'
+fixed = 'sole production caller'
+
+[[pattern]]
+id = 'shipped-bin'
+regex = 'the (SHIPPED|shipped) binary'
+
+[[pattern]]
+id = 'spawn-tauri'
+regex = '[Ss]pawn Tauri app'
+
+[[pattern]]
+id = 'pulse-app-boot'
+fixed = 'at `pulse-app` boot'
+
+[[pattern]]
+id = 'bin-target'
+regex = 'the `\[\[bin\]\]` (target|exemption)'
+
+[[pattern]]
+id = 'main-first'
+regex = '(first statement|head) of `main\(\)`'
+
+[[pattern]]
+id = 'main-rs-site'
+regex = 'production `main\.rs|composition in `main\.rs`|out of `main\.rs`'
+
+[[pattern]]
+id = 'writes-pid'
+fixed = '''the app's `write_pid_file`'''
+
+[[pattern]]
+id = 'wires-all'
+fixed = 'Wires all library crates'

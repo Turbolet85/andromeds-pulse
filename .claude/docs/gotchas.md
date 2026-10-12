@@ -10,8 +10,8 @@ Component-specific known issues. Grows over time via `/wrap-session`. Read on de
 ### `rmcp` version reconciliation — CLOSED by measurement (2026-08-29)
 The old "rmcp 1.5.0 vs published 0.3.x" open question is resolved: the published line reached 3.x and the workspace pins requirement `"3"` (lockfile-resolved 3.1.4, chunk 2026-08-29-advisory-backlog). Note the measured mechanism while touching rmcp: the crate is a feature-gated ANCHOR dependency (`use rmcp as _;` is the sole source contact) — the MCP protocol itself is the hand-rolled serde JSON-RPC 2.0 layer at `crates/mcp-server/src/jsonrpc.rs`.
 
-### `rust-toolchain.toml` 1.84 → 1.85 bump
-Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 cannot parse below `1.85.0`. **Bump `rust-toolchain.toml` to `1.85.0` minimum** — the security-positive defaults (`unsafe_op_in_unsafe_fn`, `unsafe extern`, `static mut` reference denial, tightened `if let` temporary scopes) require this. CLAUDE.md universal warnings list the bump as a hard requirement.
+### `rust-toolchain.toml` pin — CLOSED (1.95.0)
+The toolchain is pinned to rustc 1.95.0 and the workspace declares `rust-version = "1.95"` once in `[workspace.package]`, equal to the pin and set by the resolved dependency graph (wasmtime 48.0.5 and its internal crates, cranelift and pulley declare 1.95.0) — no toolchain below 1.95.0 builds the product, though the workspace's own code needs only rustc ≥ 1.89. The xtask test `declared_floor_equals_the_pinned_channel` holds the declared floor equal to the pin. Edition 2024 itself cannot parse below 1.85.0 (security-plan keeps that as the floor never to drift below); wasmtime 49.x is out of reach while the pin is 1.95 (it needs Rust 1.96).
 
 ## DuckDB encryption
 - Do NOT enable DuckDB encryption-at-rest on the in-memory ring buffer — CVE-2025-64429 is documented against the encryption feature. The in-memory `:memory:` connection avoids the entire surface; an unnecessary feature flip would re-introduce it.
@@ -28,7 +28,7 @@ Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 c
 
 ## Self-observation recursion
 - Product IS the local OTLP observer. Pointing the product's own OTel exporter at `:4317`/`:4318` creates an infinite loop AND bypasses the loopback authorization model.
-- The chosen architecture eliminates this concern by construction: NO OTel SDK is linked into the self-observation runtime. `tracing` ecosystem only — the JSON file at `~/.andromeda-pulse/logs/agent-latest.jsonl` IS the agent surface.
+- The chosen architecture eliminates this concern by construction: NO OTel SDK is linked into the self-observation runtime. `tracing` ecosystem only — the JSON log family `~/.andromeda-pulse/logs/agent-latest.jsonl*` (date-suffixed daily, `agent-latest.jsonl.YYYY-MM-DD`; a bare-name read finds nothing) IS the agent surface.
 - Any future `ANDROMEDA_OBSERVER_URL`-shaped variable MUST explicitly distinguish "outbound observer" (we ARE the observer — do not dial) from "inbound receivers" (the OTLP ports we listen on).
 
 ## Tauri capability silent rejections
@@ -42,6 +42,11 @@ Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 c
   - Snapshot files at `~/.andromeda-pulse/snapshots/` MUST surface a user-facing warning (README + first-run UI hint).
   - `snapshot.copy_to_clipboard` MUST emit a `pulse://stream/snapshot-progress` event at clipboard-write time so the UI can show a non-suppressible "X bytes copied" toast.
   - MCP `query_*` and `generate_snapshot` tool responses are the indirect-prompt-injection surface that the calling LLM client must defend against — receiver app cannot fully sanitize OTLP-derived attribute values. Documented behavior, not a defect.
+
+## The door is a second way to the tools (PROVISIONAL)
+- Since chunk 2026-10-10-door-inside-the-engine-s-process the console engine serves the sidecar's nine tools over an owner-only Unix-domain socket (`{data dir}/run/door/sock`), behind neither of the sidecar's gates: `pulse-app` links `mcp-server` in every build, and only `rmcp` and the sidecar binary stay behind `--features mcp-server`; since chunk 2026-10-12-stdio-agent-reaches-the-door a stdio agent also reaches the nine with no feature by starting `andromeda-pulse-engine door`, a relay to the door — so the feature gates the stdio sidecar, not every stdio way to the nine. The same unsanitized OTLP-derived answers leave through it to a caller of the engine's own account.
+- Root is not held by the socket's directory or file mode — only the door's account check refuses it. A test that runs its client as root reads the account check, not the modes.
+- A Unix socket path must be shorter than 108 bytes: a deep data dir boots with no door (`app.boot.door` `state` `path_too_long`, WARN) and the engine goes on.
 
 ## rmcp stdio reservation
 - When running as the `andromeda-pulse-mcp` stdio sidecar, stdout is reserved for JSON-RPC 2.0 framing.

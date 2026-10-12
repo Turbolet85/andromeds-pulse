@@ -1,0 +1,7 @@
+{
+  "title": "The engine reaches a node",
+  "requirement": "The engine is delivered as one Linux binary with a documented way to run it as a service on a node; nothing else is needed to put it there, and the desktop bundles, the updater and their signing that went with the window have this in their place.",
+  "observed_gap": "The product is delivered as signed desktop bundles with an updater; the route retires them with the window and adds nothing in their place.",
+  "method": "manual",
+  "acceptance": "On a clean Linux node, following the documented steps with the one published binary and nothing else, the engine runs as a service, comes back by itself after the node restarts, and receives telemetry; the steps and the binary are what a release of this version publishes."
+}

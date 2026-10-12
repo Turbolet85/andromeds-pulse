@@ -1,0 +1,111 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T09:02:24Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-no-gate-stands-while-reading-nothing",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-phase-no-gate-reads-nothing-2026-10-10.md",
+"--kind",
+"relay",
+"--why",
+"the operator phase directive for this chunk: every carried gate is measured before planning, no third state, where a gate sits decides half, the branch arm cause, P-128 claimed here, the merge-base probe, the founder halt, the P5 stop",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-10T09-01-44Z-phase",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-no-gate-reads-nothing-2026-10-10.md",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-pulse-phase-no-gate-reads-nothing-2026-10-10.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-phase-no-gate-reads-nothing-2026-10-10.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "3a8eabc10538f127c720cd4743293d36d11b986077cf1bf6dffd1e938fcd4a51",
+"copy": "I1-pulse-phase-no-gate-reads-nothing-2026-10-10.md.txt",
+"link": false,
+"read_at": "2026-10-10T09:02:24Z",
+"step": "phase:P1",
+"why": "the operator phase directive for this chunk: every carried gate is measured before planning, no third state, where a gate sits decides half, the branch arm cause, P-128 claimed here, the merge-base probe, the founder halt, the P5 stop"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T09:21:26Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-no-gate-stands-while-reading-nothing",
+"--message-file",
+".andromeda/runs/2026-10-10T09-01-44Z-phase/relay-1.md",
+"--origin",
+"the operator (the pc overseer), in this session at the P4 dialog, 2026-10-10",
+"--kind",
+"relay",
+"--why",
+"the four P4 answers: an empty coverage report fails and the branch arm is retired (PROVISIONAL for the founder); all five empty selections fail; ci-gates is narrowed to its two reading arms; the quarantine check is repaired, the a11y upload and the pre-push stage keep an owner and a stated reading",
+"--step",
+"phase:P4",
+"--run-dir",
+".andromeda/runs/2026-10-10T09-01-44Z-phase",
+"--marker",
+"2026-10-10-no-gate-stands-while-reading-nothing"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: the operator (the pc overseer), in this session at the P4 dialog, 2026-10-10",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (the pc overseer), in this session at the P4 dialog, 2026-10-10",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "6f3564292396f0f4987326232947d30120a71c5a84f31366989b3541b1fd655a",
+"copy": "I2-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-10T09:21:26Z",
+"step": "phase:P4",
+"why": "the four P4 answers: an empty coverage report fails and the branch arm is retired (PROVISIONAL for the founder); all five empty selections fail; ci-gates is narrowed to its two reading arms; the quarantine check is repaired, the a11y upload and the pre-push stage keep an owner and a stated reading"
+}
+}
+]

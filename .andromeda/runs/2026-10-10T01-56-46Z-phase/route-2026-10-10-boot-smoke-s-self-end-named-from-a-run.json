@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-10T01:58:19Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run",
+"--expect-prefix",
+"Boot smoke's self-end named from a run",
+"--record-file",
+".andromeda/runs/2026-10-10T01-56-46Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-10T01-56-46Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:19 - [2026-10-10-boot-smoke-s-self-end-named-from-a-run]",
+"record master-route.md:110 - appended under `## andromeda-pulse-0.4.0`",
+"promoted 2026-10-10-boot-smoke-s-self-end-named-from-a-run - working-route:19 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

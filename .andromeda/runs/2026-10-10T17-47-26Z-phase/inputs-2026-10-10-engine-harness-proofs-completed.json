@@ -1,0 +1,166 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T17:48:18Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-engine-harness-proofs-completed",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-phase-engine-harness-proofs-2026-10-10.md",
+"--kind",
+"relay",
+"--why",
+"the operator phase directive for this chunk: six items on what each proof is read on, the pre-push sixth stage as the P4 design question, shared-host port rules, readings not repairs, boundaries, the P5 stop",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-10T17-47-26Z-phase",
+"--marker",
+"2026-10-10-engine-harness-proofs-completed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-engine-harness-proofs-2026-10-10.md",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-pulse-phase-engine-harness-proofs-2026-10-10.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-phase-engine-harness-proofs-2026-10-10.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "90e9fd79721215381b6e47ed0a458771f5e8d34c60d56f9eefaf4370bfdac294",
+"copy": "I1-pulse-phase-engine-harness-proofs-2026-10-10.md.txt",
+"link": false,
+"read_at": "2026-10-10T17:48:18Z",
+"step": "phase:P1",
+"why": "the operator phase directive for this chunk: six items on what each proof is read on, the pre-push sixth stage as the P4 design question, shared-host port rules, readings not repairs, boundaries, the P5 stop"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T17:48:22Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-engine-harness-proofs-completed",
+"--message-file",
+".andromeda/runs/2026-10-10T17-47-26Z-phase/relay-1.md",
+"--origin",
+"the operator, in the /andromeda-phase invocation message of this session, 2026-10-10",
+"--kind",
+"relay",
+"--why",
+"the invocation directive: it names the relay file as an input to fold and asks for the plan card and a stop for yes at P5",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-10T17-47-26Z-phase",
+"--marker",
+"2026-10-10-engine-harness-proofs-completed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: the operator, in the /andromeda-phase invocation message of this session, 2026-10-10",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator, in the /andromeda-phase invocation message of this session, 2026-10-10",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "79f2e09e52e733331b3bfac298a46ac0e38335043767f48a06aa6dc36fd20068",
+"copy": "I2-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-10T17:48:22Z",
+"step": "phase:P1",
+"why": "the invocation directive: it names the relay file as an input to fold and asks for the plan card and a stop for yes at P5"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T18:10:26Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-engine-harness-proofs-completed",
+"--message-file",
+".andromeda/runs/2026-10-10T17-47-26Z-phase/relay-2.md",
+"--origin",
+"the operator (the pc overseer), at the P4 question dialog of this session, 2026-10-10",
+"--kind",
+"relay",
+"--why",
+"the two P4 answers: stage six runs a real engine cycle then ci-gates over its log (PROVISIONAL, the founder own word owed, four conditions); harness:ready is fixed at the source for both programs; the product-side reading goes to the wrap card with a lean",
+"--step",
+"phase:P4",
+"--run-dir",
+".andromeda/runs/2026-10-10T17-47-26Z-phase",
+"--marker",
+"2026-10-10-engine-harness-proofs-completed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I3 · copy message · message: the operator (the pc overseer), at the P4 question dialog of this session, 2026-10-10",
+"cite: inputs#I3"
+],
+"stderr": null,
+"wrote": [
+"inputs/I3-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I3",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (the pc overseer), at the P4 question dialog of this session, 2026-10-10",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "a0458c4b3c2976e66463b47f1fbfb86094a11374810f85fa3054dd7ba7a2a892",
+"copy": "I3-relay-2.md.txt",
+"link": false,
+"read_at": "2026-10-10T18:10:26Z",
+"step": "phase:P4",
+"why": "the two P4 answers: stage six runs a real engine cycle then ci-gates over its log (PROVISIONAL, the founder own word owed, four conditions); harness:ready is fixed at the source for both programs; the product-side reading goes to the wrap card with a lean"
+}
+}
+]

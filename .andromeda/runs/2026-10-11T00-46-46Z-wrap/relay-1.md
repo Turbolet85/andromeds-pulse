@@ -1,0 +1,1 @@
+Operator directive for this wrap: read ~/dev/projects/additional/pc-overseer/relays/pulse-wrap-door-inside-the-engine-2026-10-11.md first and fold it as an input. Your window reads 67.8 percent: run P1 only (the report, with what curation needs from this conversation written into it), say so and stop - I clear and the wrap resumes from the report.

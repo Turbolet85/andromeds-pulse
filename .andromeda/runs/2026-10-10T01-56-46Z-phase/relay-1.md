@@ -1,0 +1,1 @@
+Operator directive for this phase: read ~/dev/projects/additional/pc-overseer/relays/pulse-phase-boot-smoke-self-end-named-2026-10-10.md first and fold it as an input. At P5 print the plan card and stop for my yes.

@@ -1,0 +1,7 @@
+{
+  "title": "Workspace detection is gone",
+  "requirement": "The engine detects no workspace and reads no project folder; one engine watches one product, its incidents live in its one store and are told apart by cue identity alone, and nothing takes the workspace key's place: in this version a sender's token is not an incident key; incidents are formed, kept, listed and resolved the same from wherever the engine is started; the critical path that drove workspace detection is recorded as retired with the surface, not as regressed.",
+  "observed_gap": "Incidents are stamped with, filtered by and cooled down per the workspace the detector resolves from the process's working directory (a project root, else the data dir), and the agent door's sidecar reads that same key from a file the app publishes; a critical path (P7) drives the detection.",
+  "method": "integration",
+  "acceptance": "A build of the whole workspace on Linux succeeds with no workspace detection anywhere in it; an engine started from any directory forms, keeps, lists and resolves the same incidents; a storm on one service still forms exactly one incident and a storm on a second service forms its own; the same storm sent under two different tokens forms one incident, not two; incidents formed before a restart are found after it; the full remaining gate is green; the workspace-detection critical path reads as retired with the surface, not as regressed."
+}

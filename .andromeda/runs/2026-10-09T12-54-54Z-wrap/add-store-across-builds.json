@@ -1,0 +1,7 @@
+{
+  "title": "A telemetry store written by another build is recognised",
+  "requirement": "a telemetry store written by another build of the engine is recognised as such when it is opened, and is then carried forward or refused by a stated rule; it is never read as if the running build had written it",
+  "observed_gap": "the route entry `Disk store opened across builds` cites P-091, whose text has no such rule.",
+  "method": "integration",
+  "acceptance": "An engine that opens a telemetry store another build wrote recognises it; by the stated rule it either carries the store forward, and what was received before is still readable, or refuses it and says so; in neither case is the store's content misread."
+}

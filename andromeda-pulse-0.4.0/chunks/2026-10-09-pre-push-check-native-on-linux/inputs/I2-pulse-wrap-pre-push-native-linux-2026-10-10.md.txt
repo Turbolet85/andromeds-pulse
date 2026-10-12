@@ -1,0 +1,33 @@
+# Wrap directive — Pulse 0.4.0, chunk `2026-10-09-pre-push-check-native-on-linux` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on.
+
+1. **The operator pass stands, with its red.** measured: HEAD = the remote = `cb8cc4dc`; the six-stage check read green
+   on that committed tree. The CI run on it is red in `boot smoke (ubuntu-22.04)`; your read of what the job kept shows
+   the watch's own signature (`verdict: ended`, `exit 1`, no `app.exit` record). No run is re-run for a green. P-103's
+   subject is the dev-host check, so this red is not a reading of P-103; say in the report which checks of the run were
+   green and that the run was red.
+2. **The watch recurred — the closing entry is minted now.** This is the third red (`ci#37924991598`, `ci#37961031489`,
+   `ci#38010977166`), and the first one the job's own instruments read. At route-resolve present the card for it; my
+   word in advance, for the card to test against the letters: mint the entry that owns P-129, FIRST in the markerless
+   tail, ahead of `No CI step reads nothing`. The `WATCH:` does not go on counting beside it; say what the letters do
+   with the pin when its closing entry exists.
+3. **What that entry's freight must carry, as measured and no further.** From your read of `logs-boot-Linux`: display
+   `reachable`, session bus `reachable`, `windows_settled 0`, `xvfb.log` 0 B, the application log ending 0.072 s after
+   the webview's first call, no `app.boot.window.navigation` record. So the lead recorded at the last wrap (the virtual
+   display stopping) is not what this run shows. Name in the freight what the job still does NOT keep that would name
+   who ended the process. Two questions, each answerable by a read of the harness script and of the kept files, to be
+   answered in the report and not designed here: does `boot.log` hold the application's stderr and stdout whole; and do
+   the green runs' application logs hold an `app.boot.window.navigation` record that this one lacks.
+4. **The two greens before it are recorded too.** measured: boot smoke green on `8a89e36` (`ci#37986543962`) and on
+   `8f655ca` (`ci#37990081874`). Three reds in the readings since `b3ac58a`; write the count with its denominator.
+5. **Implement's six deviations are accepted as recorded.** The amended architecture and test-plan rows state the check
+   as built: the `home-unset` reason, the per-run area reset after the provisioning check, the `missing[]` names.
+6. **The harness-only class (security-plan §Security Anti-Patterns → Input).** The verb's tool-locating read of `PATH`
+   and `HOME` and its per-run area under `target/` are routine harness evidence, not a widening: no stage reaches the
+   credential store and no value is printed or written. Name it as the operator's reading.
+7. **P-113** stays pooled, with a dated note of the item this chunk removed (the `wsl.exe` hop).
+8. **For the main overseer, one line each if they occur:** `REFUSED id:` in a trail, with what the session did next;
+   `held 3` at the citation sweep; the watch's tally line as the wrap writes it and whether the pin moved.
+9. **Stops.** The route-resolve card; then before the flip and the commit with `git status --short`. The 85 % and 90 %
+   context alarms are expected: finish; stop only at 95 %.

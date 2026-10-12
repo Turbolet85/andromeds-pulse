@@ -1,0 +1,111 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T14:59:09Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-agent-harness-drives-the-console-engine",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-phase-agent-harness-console-engine-2026-10-10.md",
+"--kind",
+"relay",
+"--why",
+"the operator phase directive for this chunk: eight points on freight disposition, two programs under one harness, red-before-green pins, signal-only end, the cut, boundaries, P-086 and the P5 stop",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-10T14-58-35Z-phase",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-agent-harness-console-engine-2026-10-10.md",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-pulse-phase-agent-harness-console-engine-2026-10-10.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-phase-agent-harness-console-engine-2026-10-10.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "1ce557aa99ae96418a83603d250cd219edd5bf6f1ce04dcd9c191e91b7809268",
+"copy": "I1-pulse-phase-agent-harness-console-engine-2026-10-10.md.txt",
+"link": false,
+"read_at": "2026-10-10T14:59:09Z",
+"step": "phase:P1",
+"why": "the operator phase directive for this chunk: eight points on freight disposition, two programs under one harness, red-before-green pins, signal-only end, the cut, boundaries, P-086 and the P5 stop"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "a9e1deb2",
+"ts": "2026-10-10T15:15:32Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-10-agent-harness-drives-the-console-engine",
+"--message-file",
+".andromeda/runs/2026-10-10T14-58-35Z-phase/relay-1.md",
+"--origin",
+"the operator (the pc overseer), in session at P4, 2026-10-10",
+"--kind",
+"relay",
+"--why",
+"the P4 fork answers: the cut in two, C4a retired with its reason, the three harness readings classified routine on the operator reading",
+"--step",
+"phase:P4",
+"--run-dir",
+".andromeda/runs/2026-10-10T14-58-35Z-phase",
+"--marker",
+"2026-10-10-agent-harness-drives-the-console-engine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: the operator (the pc overseer), in session at P4, 2026-10-10",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (the pc overseer), in session at P4, 2026-10-10",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "1b7f541e328cc104d3a6182bdb4a0ee8aa01dc84bb961f1c5763edba295e0947",
+"copy": "I2-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-10T15:15:32Z",
+"step": "phase:P4",
+"why": "the P4 fork answers: the cut in two, C4a retired with its reason, the three harness readings classified routine on the operator reading"
+}
+}
+]

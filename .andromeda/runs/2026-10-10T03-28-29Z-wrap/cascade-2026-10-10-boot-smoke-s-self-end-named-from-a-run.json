@@ -1,0 +1,161 @@
+[
+{
+"tool": "cascade",
+"v": "1.2",
+"sha8": "89172b3d",
+"ts": "2026-10-10T03:46:04Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-10T03-28-29Z-wrap",
+"--marker",
+"2026-10-10-boot-smoke-s-self-end-named-from-a-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"baseline 8936f976 (pre-CI parent — the oldest of 1 pre-CI commit(s), 925be35f)",
+"two-files · new 0 · standing 3 · leaf 2 · curation 0 · base 0 · control architecture.md:217 (prose)",
+"five-files · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:217 (prose)",
+"smoke-passes · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control test-plan.md:100 (prose)",
+"seven-members · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control test-plan.md:496 (prose)",
+"one-caller · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:252 (pr…",
+"not-named · 0 rows (control fired) — a statement about this pattern, not the masters · control registries/contracts/tes…",
+"lockstep · new 0 · standing 3 · leaf 1 · curation 0 · base 0 · control architecture.md:252 (prose)",
+"one-shellout · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:188 (pro…",
+"boot-job-seq · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:496 (pro…",
+"settled-json · new 0 · standing 6 · leaf 5 · curation 0 · base 0 · control architecture.md:217 (prose)",
+"p129 · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control registries/contracts/test-plan/5-command-implementat…",
+".andromeda/architecture.md:218 two-files standing edited @c250/5453 …; it also holds two harness-written files the prod…",
+".andromeda/security-plan.md:395 two-files standing edited @c2310/10514 …ed` field; (b) two harness-WRITTEN files under …",
+".andromeda/obs-plan.md:499 two-files standing edited @c464/2306 …`build.log`, and two harness-written files the product…",
+".claude/rules/security.md:17 two-files leaf @c1715/7234 …gated, 2026-10-09): two harness-written files under the data d…",
+".claude/docs/security-summary.md:43 two-files leaf @c736/2360 …since 2026-10-09: two harness-written files under the da…",
+".andromeda/architecture.md:218 five-files standing edited @c661/5453 …nd `build.log`, five files as read on `ci#3797964…",
+".andromeda/obs-plan.md:499 five-files standing edited @c359/2306 …sed the artifact holds five files, as read on `ci#379…",
+".andromeda/obs-plan.md:545 smoke-passes standing edited @c3256/4238 … on a run whose smoke step passes (the settle verd…",
+".claude/rules/observability.md:99 smoke-passes leaf ×2 @c1054,1288/2704 …very run whose smoke step passes, since the sm…",
+".claude/docs/obs-summary.md:80 smoke-passes leaf ×2 …` on every run whose smoke step passes (one run measured, `ci#3797…",
+".claude/rules/verification-harness.md:84 seven-members leaf …, windows_settled, display, session_bus}`, also written to…",
+".andromeda/architecture.md:258 lockstep standing edited @c11626/26420 …t rule; sh+ps1 in lockstep but for the sh-only e…",
+".andromeda/test-plan.md:145 lockstep standing …red) was made gradable in lockstep — gpu-primary budget 10000 ms, neares…",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md:34 lockstep standing …irrored in lockstep, its li…",
+".claude/rules/verification-harness.md:25 lockstep leaf …on sh; ps1 mirrored in lockstep — its live leg owed via test-pl…",
+".andromeda/architecture.md:218 settled-json standing edited mixed ×2 @c331,1314/5453 …s — `logs/harness-settled.json`, …",
+".andromeda/architecture.md:258 settled-json standing edited mixed ×3 @c5131,6899/26420 … to `logs/harness-settled.json`…",
+".andromeda/architecture.md:258 settled-json @c+7951/26420",
+".andromeda/security-plan.md:85 settled-json standing edited @c836/2554 …nder `logs/` (`harness-settled.json`, `xvfb.log…",
+".andromeda/security-plan.md:395 settled-json standing edited mixed ×2 @c2400,8441/10514 … — `logs/harness-settled.json`…",
+".andromeda/test-plan.md:496 settled-json standing edited ×2 @c3133,3278/4758 …ect to `logs/harness-settled.json`; the u…",
+".andromeda/obs-plan.md:499 settled-json standing edited mixed ×3 @c517,1375,1476/2306 … reads — `harness-settled.json`,…",
+"CLAUDE.md:44 settled-json leaf …e the harness-written `logs/harness-settled.json` / `logs/xvfb.log` and xtask's presenc…",
+".claude/rules/security.md:17 settled-json leaf @c1845/7234 …he product — `logs/harness-settled.json` (closed labels, a …",
+".claude/rules/verification-harness.md:84 settled-json leaf …o written to `logs/harness-settled.json`; `display` / `sess…",
+".claude/docs/commands.md:102 settled-json leaf …, also written to logs/harness-settled.json; exit 0 settled / 1 ended o…",
+".claude/docs/security-summary.md:43 settled-json leaf @c861/2360 …y the product — `harness-settled.json` (closed labels…",
+".andromeda/registries/contracts/test-plan/5-command-implementation.md:5 p129 new @c2402/2478 …e rate. P-129 is not clai…",
+"two-files · new 0 · standing 3 · leaf 2 · curation 0 · base 0 · control architecture.md:217 (prose)",
+"five-files · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:217 (prose)",
+"smoke-passes · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control test-plan.md:100 (prose)",
+"seven-members · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control test-plan.md:496 (prose)",
+"one-caller · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:252 (pr…",
+"not-named · 0 rows (control fired) — a statement about this pattern, not the masters · control registries/contracts/tes…",
+"lockstep · new 0 · standing 3 · leaf 1 · curation 0 · base 0 · control architecture.md:252 (prose)",
+"one-shellout · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:188 (pro…",
+"boot-job-seq · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:496 (pro…",
+"settled-json · new 0 · standing 6 · leaf 5 · curation 0 · base 0 · control architecture.md:217 (prose)",
+"p129 · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control registries/contracts/test-plan/5-command-implementat…",
+"total (11 patterns) · 27 rows over 12 files",
+"per class · new 1/1 · standing 15/5 · leaf 11/7 · curation 0/0 · base 0/0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "8936f976b129cdce00a3fc916f3846254e2dce1c",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), 925be35f",
+"counts": {
+"two-files": {
+"new": 0,
+"standing": 3,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"five-files": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"smoke-passes": {
+"new": 0,
+"standing": 1,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"seven-members": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"one-caller": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"not-named": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"lockstep": {
+"new": 0,
+"standing": 3,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"one-shellout": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"boot-job-seq": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"settled-json": {
+"new": 0,
+"standing": 6,
+"leaf": 5,
+"curation": 0,
+"base": 0
+},
+"p129": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

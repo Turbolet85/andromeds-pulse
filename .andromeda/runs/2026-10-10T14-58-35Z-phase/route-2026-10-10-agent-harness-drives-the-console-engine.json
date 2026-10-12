@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "f7323866",
+"ts": "2026-10-10T15:00:07Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-10-agent-harness-drives-the-console-engine",
+"--expect-prefix",
+"Agent harness drives the console engine",
+"--record-file",
+".andromeda/runs/2026-10-10T14-58-35Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-10T14-58-35Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:31 - [2026-10-10-agent-harness-drives-the-console-engine]",
+"record master-route.md:116 - appended under `## andromeda-pulse-0.4.0`",
+"promoted 2026-10-10-agent-harness-drives-the-console-engine - working-route:31 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

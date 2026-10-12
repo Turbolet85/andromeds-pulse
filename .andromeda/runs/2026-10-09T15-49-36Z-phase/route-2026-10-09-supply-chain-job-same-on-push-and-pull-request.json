@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T15:51:18Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+"--expect-prefix",
+"Supply-chain job same on push and pull request",
+"--record-file",
+".andromeda/runs/2026-10-09T15-49-36Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-49-36Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:13 - [2026-10-09-supply-chain-job-same-on-push-and-pull-request]",
+"record master-route.md:107 - appended under `## andromeda-pulse-0.4.0`",
+"promoted 2026-10-09-supply-chain-job-same-on-push-and-pull-request - working-route:13 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

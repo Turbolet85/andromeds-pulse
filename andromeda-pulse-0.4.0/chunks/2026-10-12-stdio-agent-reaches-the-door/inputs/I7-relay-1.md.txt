@@ -1,0 +1,1 @@
+As the founder's delegate, PROVISIONAL with the door's one item: (1) apply all fourteen groups as recommended. (2) arch 16-18: yes, "one engine process per program", the door word as short-lived relay processes that host no engine part. (3) the playbook rule: approve as written, append it. Go on to the route card.

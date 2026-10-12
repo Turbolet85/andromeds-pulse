@@ -1,0 +1,87 @@
+# Cascade step 2 — the pattern set of this pass, derived from every amendment before the first grep.
+# Each pattern is a retired wording or a retired mechanism's phrasing; the tool runs each one's
+# known-positive control against the pre-pass masters and key files.
+
+[[pattern]]
+id = 'listeners'
+regex = 'two receivers and nothing else|no third socket|no socket beyond them|bind these two receivers'
+
+[[pattern]]
+id = 'alone'
+regex = 'receiver alone (listen|stand)|other receiver alone'
+
+[[pattern]]
+id = 'tworecv'
+regex = 'the two (loopback )?receivers, the buffer'
+
+[[pattern]]
+id = 'dispatchsite'
+regex = 'single `dispatch_tool`|`dispatch_tool` emission site|tools\.rs::dispatch_tool'
+
+[[pattern]]
+id = 'stdio'
+regex = 'JSON-RPC 2\.0 over stdio|over stdin/stdout|MCP over stdio|\(no socket\)'
+
+[[pattern]]
+id = 'featgate'
+regex = 'gated by `--features mcp-server`|feature-gated behind|[Oo]nly present when `--features|only when `--features mcp-server`|\(feature-gated[;)]|when feature enabled'
+
+[[pattern]]
+id = 'doublegate'
+regex = '[Dd]ouble-gate|[Dd]ouble gate|BOTH compile-time'
+
+[[pattern]]
+id = 'portbins'
+regex = 'six test binaries|four port-using binaries|four binaries'
+
+[[pattern]]
+id = 'count109'
+regex = '\b109\b'
+
+[[pattern]]
+id = 'stageports'
+regex = 'binds loopback 24317|binds two (loopback )?ports|two loopback ports'
+
+[[pattern]]
+id = 'authnone'
+regex = 'no per-user identity|Auth-specific bans omitted|auth approach ?= ?"?none'
+
+[[pattern]]
+id = 'threebin'
+regex = 'three test binaries'
+
+[[pattern]]
+id = 'surfaces8'
+regex = '8 major surfaces|eight major surfaces'
+
+[[pattern]]
+id = 'eventsreader'
+regex = 'read by the sidecar|one production READER|sidecar.s `retrieve_incident_events`'
+
+[[pattern]]
+id = 'addprops'
+fixed = 'additionalProperties: false'
+
+[[pattern]]
+id = 'seventh'
+regex = 'SEVEN production writers|the seventh'
+
+[[pattern]]
+id = 'lintseq'
+regex = 'cargo xtask test`, then `perf:slo-load`|then, as unconditional steps'
+
+[[pattern]]
+id = 'envsibling'
+fixed = 'ANDROMEDA_PULSE_BASELINE_BOOTSTRAP_SECONDS'
+
+[[pattern]]
+id = 'bootrecord'
+fixed = 'app.boot.engine'
+
+[[pattern]]
+id = 'wskey'
+fixed = 'run/workspace-key'
+
+[[pattern]]
+id = 'testinject'
+regex = 'reads state back from the program.s own log records'

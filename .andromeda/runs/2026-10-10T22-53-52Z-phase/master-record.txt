@@ -1,0 +1,1 @@
+2026-10-10-door-inside-the-engine-s-process · pending · a door inside the engine's process: tools read the engine's stores, owner only, own host, call records allowlisted; the stdio sidecar and its double gate leave · → andromeda-pulse-0.4.0/chunks/2026-10-10-door-inside-the-engine-s-process/

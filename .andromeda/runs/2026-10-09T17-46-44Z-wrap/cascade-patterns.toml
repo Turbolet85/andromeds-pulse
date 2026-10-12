@@ -1,0 +1,39 @@
+[[pattern]]
+id = "stops-app"
+fixed = 'stops the app before the webview issues any IPC'
+
+[[pattern]]
+id = "before-webview"
+regex = 'before (the|any) webview'
+
+[[pattern]]
+id = "only-witness"
+regex = 'only (live |dependable )?witness'
+
+[[pattern]]
+id = "no-ci-job"
+regex = 'no CI job (can )?witness'
+
+[[pattern]]
+id = "no-webview-rec"
+regex = 'holds no webview|0 webview-originated'
+
+[[pattern]]
+id = "no-adapter-rec"
+fixed = 'no adapter record in this log'
+
+[[pattern]]
+id = "audit-action"
+regex = 'actions-rust-lang/audit|audit-check'
+
+[[pattern]]
+id = "reaches-main"
+fixed = 'reaches `main` with the version'
+
+[[pattern]]
+id = "keys-no-job"
+regex = 'keys? no job writes'
+
+[[pattern]]
+id = "cargo-audit"
+regex = 'cargo audit\b(?!able)'

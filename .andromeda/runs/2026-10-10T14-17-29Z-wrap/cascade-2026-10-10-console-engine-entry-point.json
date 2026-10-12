@@ -1,0 +1,271 @@
+[
+{
+"tool": "cascade",
+"v": "1.2",
+"sha8": "fe426974",
+"ts": "2026-10-10T14:43:16Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-10T14-17-29Z-wrap",
+"--marker",
+"2026-10-10-console-engine-entry-point"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"baseline f31027a4 (pre-CI parent — the oldest of 1 pre-CI commit(s), 4f519c94)",
+"not-a-cli · 0 rows (control fired) — a statement about this pattern, not the masters · case-variants +1 · control archi…",
+"one-tauri · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:290 (pro…",
+"tauri-binary · new 0 · standing 1 · leaf 2 · curation 2 · base 0 · control architecture.md:4 (prose)",
+"single-proc · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:29 (prose)",
+"both-bins · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control security-plan.md:84 (prose)",
+"by-the-app · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:223 (pr…",
+"app-and-mcp · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:226 (p…",
+"prod-binary · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:223 (p…",
+"main-hands · new 1 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:245 (prose)",
+"boots-no-app · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:508 (pros…",
+"writes-none · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:523 (prose)",
+"tick-roster · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:145 (prose)",
+"once-per-boot · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control obs-plan.md:329 (prose)",
+"sole-caller · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:140 (prose)",
+"shipped-bin · new 0 · standing 8 · leaf 4 · curation 0 · base 0 · control architecture.md:31 (prose)",
+"spawn-tauri · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:72 (prose)",
+"pulse-app-boot · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:246…",
+"bin-target · new 0 · standing 1 · leaf 1 · curation 1 · base 0 · control test-plan.md:146 (prose)",
+"main-first · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · case-variants +1 · control security-plan.md:84 (prose)",
+"main-rs-site · new 2 · standing 2 · leaf 0 · curation 1 · base 0 · control test-plan.md:136 (prose)",
+"writes-pid · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:223 (prose)",
+"wires-all · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:39 (prose)",
+".andromeda/test-plan.md:39 tauri-binary standing edited | **pulse-app (Tauri binary crate)** | Architecture Workspace/M…",
+".claude/rules/testing.md:161 tauri-binary curation - 2026-05-13: When a Tauri binary crate (e.g. pulse-app) adds `[lib]…",
+".claude/rules/testing.md:165 tauri-binary curation …3: When refactoring a Tauri binary crate's internal `mod xxx;` decl…",
+"CLAUDE.md:13 tauri-binary leaf - `pulse-app/` — Tauri binary crate; `tauri.conf.json` + `capabilities/` JSON + `src/mai…",
+"CLAUDE.md:98 tauri-binary leaf …rary crates linked into the `pulse-app` Tauri binary (sixteen workspace members total: …",
+".claude/docs/stack.md:50 single-proc leaf - **External message broker:** N/A — single-process desktop app.",
+".claude/rules/security.md:17 both-bins leaf @c8003/9796 …tion 2026-10-04):** both shipped binaries read the system `XDG…",
+".andromeda/architecture.md:211 main-hands new …gine-entry-point). Its `main` hands its arguments to `pulse_app::console…",
+".claude/docs/obs-summary.md:17 main-hands leaf   - Between 3 and 4, `main` parks the `WorkerGuard` `init` returns (`hol…",
+".andromeda/obs-plan.md:145 tick-roster standing …) + module boundaries (ingest, buffer, viz, plugins, snapshot) | Stand…",
+".andromeda/obs-plan.md:473 once-per-boot standing edited …root at all). Fires exactly once per boot of the window app; …",
+".claude/rules/observability.md:67 once-per-boot leaf … in both live legs). EXACTLY ONCE per boot, after `observability:…",
+".claude/rules/observability.md:70 once-per-boot leaf …oot_posture`), fired EXACTLY ONCE per boot: WARN when `confinemen…",
+".andromeda/test-plan.md:141 sole-caller standing edited …instance, but their sole production caller — `engine_boot::sta…",
+".andromeda/architecture.md:31 shipped-bin standing …er skips it. Never in the shipped binary; outside cargo-deny's view…",
+".andromeda/architecture.md:32 shipped-bin standing …issing `cc`. Never in the shipped binary; no Cargo dependency, no m…",
+".andromeda/architecture.md:33 shipped-bin standing …er skips it. Never in the shipped binary (chunk 2026-10-10-no-ci-st…",
+".andromeda/architecture.md:34 shipped-bin standing … skips them. Never in the shipped binary (chunk 2026-10-10-no-gate-…",
+".andromeda/architecture.md:245 shipped-bin standing … builds. Not read by the shipped binary at runtime. Registered her…",
+".andromeda/security-plan.md:138 shipped-bin standing edited @c10799/12545 …, all read by the shipped binary via `pulse-…",
+".andromeda/security-plan.md:396 shipped-bin standing edited ×3 @c770,6237,7954/12421 …r reaches the shipped binary, so …",
+".andromeda/security-plan.md:398 shipped-bin standing edited @c2925/4679 … never reaches the shipped binary. It is bound…",
+".claude/rules/security.md:17 shipped-bin leaf ×2 @c940,6165/9796 …ar never reaches the shipped binary. The carve-out is…",
+".claude/docs/stack.md:10 shipped-bin leaf …ary FAIL on a missing `cc`. Never in the shipped binary; no Cargo dependency.",
+".claude/docs/stack.md:11 shipped-bin leaf …est, never skips it. Never in the shipped binary; no npm or Cargo dependency.",
+".claude/docs/stack.md:12 shipped-bin leaf …ver skips them. Never in the shipped binary (chunk 2026-10-10-no-gate-stands…",
+".andromeda/test-plan.md:147 bin-target standing …se` (`main.rs` exempt: the `[[bin]]` target's tests genuinely execute)…",
+".claude/rules/testing.md:185 bin-target curation @c2390/4440 … EXEMPT** — it is the `[[bin]]` target, whose `#[cfg(test…",
+".claude/rules/testing.md:25 bin-target leaf … pulse-app lib source reds the ratchet (`main.rs` the `[[bin]]` exemption).",
+".andromeda/test-plan.md:151 main-first standing edited @c1745/2772 …nd requires the first statement of `main()` to be t…",
+".andromeda/obs-plan.md:329 main-first standing edited @c3959/7556 … is taken at the head of `main()`, where no subscrib…",
+".claude/rules/observability.md:67 main-first leaf …ision is taken at the head of `main()`, where no subscriber exists, …",
+".claude/docs/obs-summary.md:135-136 main-first leaf wrap …it` (decided at the head of `main()`, carried as a value): WA…",
+".andromeda/architecture.md:225 main-rs-site new @c2847/6641 …it_process`, moved out of `main.rs` at chunk 2026-10-10-co…",
+".andromeda/test-plan.md:149 main-rs-site standing edited ×2 @c797,1183/2169 …e production composition in `main.rs` itse…",
+".andromeda/test-plan.md:150 main-rs-site standing edited @c1232/2508 …seam lifting it out of `main.rs`) or a headful Tr…",
+".andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md:46 main-rs-site new …, moved out of `main.rs`), …",
+".claude/rules/security.md:118 main-rs-site curation … — that includes the production `main.rs` setup closure that runs …",
+".andromeda/architecture.md:225 writes-pid standing edited @c3966/6641 …is canonical — the app's `write_pid_file` overwr…",
+"not-a-cli · 0 rows (control fired) — a statement about this pattern, not the masters · case-variants +1 · control archi…",
+"one-tauri · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:290 (pro…",
+"tauri-binary · new 0 · standing 1 · leaf 2 · curation 2 · base 0 · control architecture.md:4 (prose)",
+"single-proc · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:29 (prose)",
+"both-bins · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control security-plan.md:84 (prose)",
+"by-the-app · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:223 (pr…",
+"app-and-mcp · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:226 (p…",
+"prod-binary · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:223 (p…",
+"main-hands · new 1 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:245 (prose)",
+"boots-no-app · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:508 (pros…",
+"writes-none · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:523 (prose)",
+"tick-roster · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:145 (prose)",
+"once-per-boot · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control obs-plan.md:329 (prose)",
+"sole-caller · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:140 (prose)",
+"shipped-bin · new 0 · standing 8 · leaf 4 · curation 0 · base 0 · control architecture.md:31 (prose)",
+"spawn-tauri · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:72 (prose)",
+"pulse-app-boot · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:246…",
+"bin-target · new 0 · standing 1 · leaf 1 · curation 1 · base 0 · control test-plan.md:146 (prose)",
+"main-first · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · case-variants +1 · control security-plan.md:84 (prose)",
+"main-rs-site · new 2 · standing 2 · leaf 0 · curation 1 · base 0 · control test-plan.md:136 (prose)",
+"writes-pid · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:223 (prose)",
+"wires-all · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:39 (prose)",
+"total (22 patterns) · 39 rows over 11 files",
+"per class · new 3/2 · standing 18/4 · leaf 14/6 · curation 4/2 · base 0/0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "f31027a4023fd64e97bff3272d303faa628d2336",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), 4f519c94",
+"counts": {
+"not-a-cli": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"one-tauri": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"tauri-binary": {
+"new": 0,
+"standing": 1,
+"leaf": 2,
+"curation": 2,
+"base": 0
+},
+"single-proc": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"both-bins": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"by-the-app": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"app-and-mcp": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"prod-binary": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"main-hands": {
+"new": 1,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"boots-no-app": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"writes-none": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"tick-roster": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"once-per-boot": {
+"new": 0,
+"standing": 1,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"sole-caller": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"shipped-bin": {
+"new": 0,
+"standing": 8,
+"leaf": 4,
+"curation": 0,
+"base": 0
+},
+"spawn-tauri": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"pulse-app-boot": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"bin-target": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 1,
+"base": 0
+},
+"main-first": {
+"new": 0,
+"standing": 2,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"main-rs-site": {
+"new": 2,
+"standing": 2,
+"leaf": 0,
+"curation": 1,
+"base": 0
+},
+"writes-pid": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"wires-all": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

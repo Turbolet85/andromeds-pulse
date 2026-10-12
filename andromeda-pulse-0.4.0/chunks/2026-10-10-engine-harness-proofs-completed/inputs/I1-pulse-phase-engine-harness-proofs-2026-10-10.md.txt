@@ -1,0 +1,23 @@
+# Phase directive — Pulse 0.4.0, twelfth chunk: `Engine harness proofs completed` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines come from this pair's own reads; re-derive what you rely on.
+Nothing here is this chunk's design.
+
+1. **The entry's carries are the ground**; it claims no capability and discharges test-plan pending rows. Each proof
+   it owes is a reading made on a SPAWNED engine or a real cycle, not on a constructed input alone: the rejected-port
+   arm, the socket census, the lock file's directory, one mutation per arm of `check:engine-log`, the four refusal
+   labels, and the shell-level pins of `cleanup`, `boot` and `logs`.
+2. **The pre-push sixth stage is the one design question, and it comes to me at P4.** measured in the record of the
+   chunk that made the check native (`2026-10-09-pre-push-check-native-on-linux`): its plan states that no stage starts
+   `pulse-app` or binds a port, and P-103 is VERIFIED on six named stages in a named order. A sixth stage that runs a
+   real engine cycle starts a program and binds two ports. Say what the stage becomes, what the check's contract then
+   states (ports, a second engine already running on this host, the time it adds), and show the change against
+   P-103's concretized acceptance — a verified capability is not re-worded by a later chunk's convenience.
+3. **Other builders run on this host.** A stage or leg that binds a port refuses cleanly when the port is taken and
+   says so; it never waits on, kills or reuses another session's process. Ports 4317 / 4318 are not used.
+4. **The socket census and the lock file's place are readings, not repairs.** If a reading shows something that should
+   not stand (a socket beyond the two loopback receivers; a lock file in the shared temp dir, which `One place on a
+   node` owns), record it and bring it at P5; do not build that entry's subject here.
+5. **Boundaries.** A new listening socket, place on disk, credential, command word of the engine, or anything
+   reachable from another host halts for my word. The plan lists the merge-base probe directly before its push entry.
+6. **At P5** say what `planlint` check 4 listed, print the plan card and stop for my `yes`.

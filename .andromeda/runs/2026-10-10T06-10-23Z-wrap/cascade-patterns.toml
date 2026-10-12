@@ -1,0 +1,59 @@
+[[pattern]]
+id = "settle-ended"
+regex = '''settle verdict reads? `ended`'''
+
+[[pattern]]
+id = "limit-sentence"
+regex = '''[Mm]easured limit: a boot that ends before'''
+
+[[pattern]]
+id = "counted-other"
+fixed = '''counted `other`'''
+
+[[pattern]]
+id = "not-closed"
+regex = '''not closed'''
+
+[[pattern]]
+id = "closing-entry"
+fixed = '''closing entry'''
+
+[[pattern]]
+id = "read-failed"
+regex = '''read failed'''
+
+[[pattern]]
+id = "errno-11"
+fixed = '''`errno` 11'''
+
+[[pattern]]
+id = "under-reads"
+regex = '''under-reads?'''
+
+[[pattern]]
+id = "sixteen-pins"
+fixed = '''16 unit pins'''
+
+[[pattern]]
+id = "sole-reader"
+fixed = '''`harness:settled` reads it bounded'''
+
+[[pattern]]
+id = "ordinal-one"
+fixed = '''when the data dir holds one and stays out of the counts'''
+
+[[pattern]]
+id = "not-claimed"
+fixed = '''P-129 is not claimed'''
+
+[[pattern]]
+id = "runner-build"
+regex = '''runner's own (GTK|library) build'''
+
+[[pattern]]
+id = "no-label"
+regex = '''no (`exit_witness` )?label|null `exit_witness`'''
+
+[[pattern]]
+id = "takes-no-settle"
+regex = '''takes? no settle verdict'''

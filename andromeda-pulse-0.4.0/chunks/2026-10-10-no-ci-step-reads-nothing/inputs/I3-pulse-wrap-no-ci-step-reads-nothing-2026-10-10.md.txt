@@ -1,0 +1,39 @@
+# Wrap directive — Pulse 0.4.0, chunk `2026-10-10-no-ci-step-reads-nothing` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on.
+
+1. **The operator pass stands as your record states it.** measured before the pass: the tree held nine changed files
+   and `ci.yml` read 0 downloads, 0 soft-fail keys, 6 uploads each failing on no file. I read the CI verdict of the
+   pre-CI commit myself before my word at the last stop.
+2. **P-128 is not claimed here.** Its closing sentence reaches gates this chunk did not touch.
+3. **The closing entry is minted now, FIRST in the markerless tail** — present its card at route-resolve. It owns
+   P-128's claim and carries, each as measured and marked where it was only seen:
+   - the five gates of `evidence/other-gates.md` (the coverage branch arm passing over 0/0; the thresholds step on an
+     empty lcov; `--no-tests=pass` on three test invocations; the boot job's `perf-budget NEUTRAL` and 0 ms heartbeat
+     gap; no zero-span check in `lint-test`);
+   - the two further `--no-tests=pass` literals implement saw in `xtask/src/main.rs`, seen and not measured;
+   - the a11y upload's three path members: the step reds only when none matches, so one missing member is invisible;
+   - the reading for the claim: a baseline is "produced by a workflow or committed in the tree".
+   Say on the card which of these sit in a job that leaves in Epoch 2, so that entry's plan can weigh removing against
+   repairing.
+4. **The two carries this chunk consumed** (the a11y baseline download on `Window's gates retired`, the `logs-Linux`
+   upload on `Engine end-to-end gate reachable`): strike what is done, and write the false half your plan found into
+   the report as it stands.
+5. **The masters state things that never existed** (a criterion bench, a JUnit file, a coverage baseline artifact).
+   Correct each as measured; where a master's sentence promised a reading the version still needs, say so at the card
+   instead of rewording it away.
+5a. **Added after the operator pass (this directive was written before it).** measured by me: the verdict run is
+   `ci#38035474359` on `2ec4d439`, green 7 of 7; the first run on `3049966f` was red and the chunk's own. The report
+   states both, with the cause as you measured it (the pull-request merge with `main` duplicated a test beside the
+   hotfix hunks), the merge commit that closed the seam (tree unchanged, no force) and the first runner reading of an
+   upload failing on no file — and its limit: no run shows that arm with a producer that ran and wrote nothing.
+5b. **Found and not owned — present for disposition at the card:** the local pre-push check reads the tip, CI reads
+   the tip merged with `main`. With `main` an ancestor the two are equal; they part again the day `main` moves (about
+   thirty dependabot pull requests are open against it). My lean, for the card to test against the letters: a rule
+   where the operator pass will read it — before a pre-CI push, show that the build branch contains `origin/main`,
+   and if it does not, bring it to the operator before pushing — not an entry of its own.
+6. **A proposal a detector grades `escalate` halts at the card for my word.**
+7. **For the main overseer, one line each if they occur:** `REFUSED id:` in a trail, with what the session did next;
+   `held 3` at the citation sweep.
+8. **Stops.** The route-resolve card; then before the flip and the commit with `git status --short`. The 85 % and 90 %
+   context alarms are expected: finish; stop only at 95 %.

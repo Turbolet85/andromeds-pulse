@@ -1,0 +1,29 @@
+# Wrap directive — Pulse 0.4.0, chunk `2026-10-10-console-engine-entry-point` (2026-10-10)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on. This directive names
+only what a wrap's own steps write; it asks for no change to a product file.
+
+1. **The operator pass stands as your record states it.** I read the CI verdict of the pre-CI commit myself before my
+   word at the last stop.
+2. **P-086 is not claimed.** Its dated note says which half of the acceptance this chunk showed (the engine starts as
+   a console program with no display, stays up, answers its commands) and which entries carry the rest.
+3. **The masters now describe two programs.** Where architecture, obs-plan, security-plan and test-plan say "the app",
+   the amended sentence says which program it holds for; a sentence that is true of the window alone says so, and
+   names the entry that removes the window. Nothing is reworded to sound as if the console engine already did what a
+   later entry builds.
+4. **Carries, each on the entry that owns it, as measured:**
+   - the unset arm of the model variable (cues and digests, no incident, the boot record that says why) on `Incident
+     is the engine's own record`;
+   - "what `tauri build` does with a second binary in the crate" — not measured, no step runs the release workflow — on
+     `Desktop distribution retired`;
+   - the console program ends by signal only, its pid file and a `stop` being `One place on a node`'s;
+   - anything your report lists as witnessed one level down (the panic and at-exit records through children) on the
+     entry whose harness reads the console log (`Agent harness drives the console engine`).
+5. **The drift pin.** Say in the report what forbids the two entry points from drifting until the window leaves, and
+   pin on `Window retired` that the shared boot's second caller goes there — so the pin is removed with its subject,
+   not left guarding nothing.
+6. **Found and not owned** goes to the card for disposition, with your lean.
+7. **For the main overseer, one line each if they occur:** `REFUSED id:` in a trail, with what the session did next;
+   `held 3` at the citation sweep.
+8. **Stops.** The route-resolve card; then before the flip and the commit with `git status --short`. The 85 % and 90 %
+   context alarms are expected: finish; stop only at 95 %.

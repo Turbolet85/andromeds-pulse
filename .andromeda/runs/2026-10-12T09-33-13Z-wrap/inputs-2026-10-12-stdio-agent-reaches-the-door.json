@@ -1,0 +1,315 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "3ad6efca",
+"ts": "2026-10-12T09:33:27Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-wrap-stdio-agent-reaches-the-door-2026-10-12.md",
+"--kind",
+"relay",
+"--why",
+"the wrap directive: a split wrap (P1 only in the first window, F252 D2), the fourteen widening amendments halting in the ordinary form, the deferred playbook rule accepted as delegate on 2026-10-12, the step-5 and step-6 reconciliations, two CARRY owners, P-092 unclaimed, and the stops",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I6 · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-stdio-agent-reaches-the-door-2026-10-12.md",
+"cite: inputs#I6"
+],
+"stderr": null,
+"wrote": [
+"inputs/I6-pulse-wrap-stdio-agent-reaches-the-door-2026-10-12.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I6",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-wrap-stdio-agent-reaches-the-door-2026-10-12.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "e5abb72fcdc4884d437640808a81c07949bcadebde24027bceb1de53331da202",
+"copy": "I6-pulse-wrap-stdio-agent-reaches-the-door-2026-10-12.md.txt",
+"link": false,
+"read_at": "2026-10-12T09:33:27Z",
+"step": "wrap",
+"why": "the wrap directive: a split wrap (P1 only in the first window, F252 D2), the fourteen widening amendments halting in the ordinary form, the deferred playbook rule accepted as delegate on 2026-10-12, the step-5 and step-6 reconciliations, two CARRY owners, P-092 unclaimed, and the stops"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "3ad6efca",
+"ts": "2026-10-12T09:33:27Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: the operator (the pc overseer), /andromeda-phase invocation, 2026-10-12",
+"I1 cited scope.md:41 · scope.md:48 · research.md:7 · plan.md:385",
+"I2 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-stdio-agent-reaches-the-door-2026-10-12.md",
+"I2 cited scope.md:41 · scope.md:51 · scope.md:52 · scope.md:55 · scope.md:58 · scope.md:60 · scope.md:63 · scope.md:64 · scope.md:66 · scope.md:68 · scope.md:69 · research.md:7 · plan.md:23 · plan.md:24 · plan.md:385 · plan.md:411 · plan.md:415",
+"I3 n/a — a message has no live source · copy message · message: the operator (the pc overseer), P4 answer, 2026-10-12",
+"I3 cited research.md:67 · plan.md:18 · plan.md:385 · plan.md:404 · plan.md:405 · plan.md:448",
+"I4 n/a — a message has no live source · copy message · message: the operator (the pc overseer), P5 word, 2026-10-12",
+"I4 UNCITED",
+"I5 n/a — a message has no live source · copy message · message: the pc overseer, the founder's delegate, 2026-10-12, in this session",
+"I5 UNCITED",
+"I6 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-stdio-agent-reaches-the-door-2026-10-12.md",
+"I6 UNCITED",
+"inputs: 6 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 4 · uncited 3 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 6,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 4
+},
+"uncited": 3,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "3ad6efca",
+"ts": "2026-10-12T09:38:22Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: the operator (the pc overseer), /andromeda-phase invocation, 2026-10-12",
+"I1 cited scope.md:41 · scope.md:48 · research.md:7 · plan.md:385",
+"I2 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-stdio-agent-reaches-the-door-2026-10-12.md",
+"I2 cited scope.md:41 · scope.md:51 · scope.md:52 · scope.md:55 · scope.md:58 · scope.md:60 · scope.md:63 · scope.md:64 · scope.md:66 · scope.md:68 · scope.md:69 · research.md:7 · plan.md:23 · plan.md:24 · plan.md:385 · plan.md:411 · plan.md:415",
+"I3 n/a — a message has no live source · copy message · message: the operator (the pc overseer), P4 answer, 2026-10-12",
+"I3 cited research.md:67 · plan.md:18 · plan.md:385 · plan.md:404 · plan.md:405 · plan.md:448 · report.md:194 · report.md:218",
+"I4 n/a — a message has no live source · copy message · message: the operator (the pc overseer), P5 word, 2026-10-12",
+"I4 cited report.md:139",
+"I5 n/a — a message has no live source · copy message · message: the pc overseer, the founder's delegate, 2026-10-12, in this session",
+"I5 cited report.md:150 · report.md:179 · report.md:273 · report.md:287 · report.md:338",
+"I6 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-stdio-agent-reaches-the-door-2026-10-12.md",
+"I6 cited report.md:154 · report.md:180 · report.md:195 · report.md:273 · report.md:288 · report.md:290",
+"inputs: 6 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 4 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 6,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 4
+},
+"uncited": 0,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "3ad6efca",
+"ts": "2026-10-12T09:39:37Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: the operator (the pc overseer), /andromeda-phase invocation, 2026-10-12",
+"I1 cited scope.md:41 · scope.md:48 · research.md:7 · plan.md:385",
+"I2 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-stdio-agent-reaches-the-door-2026-10-12.md",
+"I2 cited scope.md:41 · scope.md:51 · scope.md:52 · scope.md:55 · scope.md:58 · scope.md:60 · scope.md:63 · scope.md:64 · scope.md:66 · scope.md:68 · scope.md:69 · research.md:7 · plan.md:23 · plan.md:24 · plan.md:385 · plan.md:411 · plan.md:415",
+"I3 n/a — a message has no live source · copy message · message: the operator (the pc overseer), P4 answer, 2026-10-12",
+"I3 cited research.md:67 · plan.md:18 · plan.md:385 · plan.md:404 · plan.md:405 · plan.md:448 · report.md:194 · report.md:218",
+"I4 n/a — a message has no live source · copy message · message: the operator (the pc overseer), P5 word, 2026-10-12",
+"I4 cited report.md:139",
+"I5 n/a — a message has no live source · copy message · message: the pc overseer, the founder's delegate, 2026-10-12, in this session",
+"I5 cited report.md:150 · report.md:179 · report.md:273 · report.md:287 · report.md:338",
+"I6 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-stdio-agent-reaches-the-door-2026-10-12.md",
+"I6 cited report.md:154 · report.md:180 · report.md:195 · report.md:273 · report.md:288 · report.md:290",
+"inputs: 6 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 4 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 6,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 4
+},
+"uncited": 0,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "3ad6efca",
+"ts": "2026-10-12T09:48:48Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door",
+"--message-file",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/relay-1.md",
+"--origin",
+"the operator (the pc overseer, the founder's delegate), the widening-halt answer, 2026-10-12",
+"--kind",
+"relay",
+"--why",
+"widening halt answered: the fourteen Boundary-widening groups applied as recommended, arch 16-18 one-engine-process clause, the deferred playbook rule appended; PROVISIONAL with the door item",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I7 · copy message · message: the operator (the pc overseer, the founder's delegate), the widening-halt answer, 2026-10-12",
+"cite: inputs#I7"
+],
+"stderr": null,
+"wrote": [
+"inputs/I7-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I7",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (the pc overseer, the founder's delegate), the widening-halt answer, 2026-10-12",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "03960664eee6744e6ca6428ea5b24cbebc062b2ccf659dfd13e8a321bc47dc6c",
+"copy": "I7-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-12T09:48:48Z",
+"step": "wrap",
+"why": "widening halt answered: the fourteen Boundary-widening groups applied as recommended, arch 16-18 one-engine-process clause, the deferred playbook rule appended; PROVISIONAL with the door item"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "3ad6efca",
+"ts": "2026-10-12T10:09:36Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door",
+"--message-file",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap/relay-2.md",
+"--origin",
+"the operator (the pc overseer, the founder's delegate), the route-resolve card answer, 2026-10-12",
+"--kind",
+"relay",
+"--why",
+"route card answered: A1/A2 CARRYs and B as written; C (workflow.md template lines) pinned as a CARRY on Records say what the product is; D no epoch split",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I8 · copy message · message: the operator (the pc overseer, the founder's delegate), the route-resolve card answer, 2026-10-12",
+"cite: inputs#I8"
+],
+"stderr": null,
+"wrote": [
+"inputs/I8-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I8",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (the pc overseer, the founder's delegate), the route-resolve card answer, 2026-10-12",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "c44272728aa0d50d292367e5e09e9023e2eceb103334284a5ffc066570525c88",
+"copy": "I8-relay-2.md.txt",
+"link": false,
+"read_at": "2026-10-12T10:09:36Z",
+"step": "wrap",
+"why": "route card answered: A1/A2 CARRYs and B as written; C (workflow.md template lines) pinned as a CARRY on Records say what the product is; D no epoch split"
+}
+}
+]

@@ -15,7 +15,7 @@ Cross-platform desktop app (Windows / macOS / Linux via Tauri 2.x) with 2 primar
 ## WCAG criteria (Standard tier)
 - **Baseline:** WCAG 2.1 AA full (~50 SCs). axe-core config: `runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] }` (adds SC 2.5.8 target-size from WCAG 2.2 AA).
 - **AAA escalation (motion-sensitive trigger):** **SC 2.3.3 Animation from Interactions** — Lighthouse 13.x prefers-reduced-motion audit + custom Playwright `page.emulateMedia({ reducedMotion: 'reduce' })` assertion.
-- **Explicitly N/A SCs (12 with documented reasons):** SC 1.2.1/1.2.2/1.2.3/1.4.2 (no audio), 1.4.4/1.4.5 (no text-as-image), 1.4.10 (desktop-only viewport), 1.4.13 (re-evaluated chunk #99: the header connection-dot tooltip is a non-interactive `role="img"` summary with an `aria-hidden` decorative tooltip — no hover/focus-triggered ADDITIONAL content in the SC sense; still N/A), 2.2.1/2.2.2 (no time-dependent content), 2.4.4 (verified via 4.1.2), 3.1.1 (single-language), 3.2.1/3.2.2 (covered in P7), 3.3.3/3.3.4 (covered via P2/P7), 4.1.1 (parsing — deprecated WCAG 2.2; React 19 + TS + ESLint enforce).
+- **Explicitly N/A SCs (17 with documented reasons):** SC 1.2.1/1.2.2/1.2.3/1.4.2 (no audio), 1.4.4/1.4.5 (no text-as-image), 1.4.10 (desktop-only viewport), 1.4.13 (re-evaluated chunk #99: the header connection-dot tooltip is a non-interactive `role="img"` summary with an `aria-hidden` decorative tooltip — no hover/focus-triggered ADDITIONAL content in the SC sense; still N/A), 2.2.1/2.2.2 (no time-dependent content), 2.4.4 (verified via 4.1.2), 3.1.1 (single-language), 3.2.1/3.2.2 (covered in P7), 3.3.3/3.3.4 (covered via P2/P7), 4.1.1 (parsing — deprecated WCAG 2.2; React 19 + TS + ESLint enforce).
 
 ## Critical paths (P1–P14 must-be-accessible)
 
@@ -26,7 +26,7 @@ _Extended from P1–P7 to **P1–P12** at chunk #99: **p8** findings dropdown ·
 | **P1** Receive OTLP + visualize | `main` / `button` / native `table` / `region[aria-label="Telemetry traces chart"]` (stable literal name on the canvas wrapper, `aria-describedby` → hidden aggregate summary) all ship as of 2026-08-23-a11y-verification. The earlier "NOT SHIPPED" claim was measurement-disproved: the `table` role was never absent, and the region was checked against `TraceTable.tsx` when it lives on the sibling `ConstellationCanvas.tsx` | Initial focus main content region; **row-level** roving-tabindex traversal (Up/Down/Home/End, Enter investigates, Esc exits; in-row button `tabIndex={-1}`). 2-D cell traversal is deliberately not the contract | 1.3.1 / 2.1.1 / 2.4.3 / 2.4.7 / 1.4.3 / 4.1.2 |
 | **P2** Generate snapshot | `main` / `dialog[aria-label="Investigation Snapshot"]` / `button[aria-busy]` / `slider` / `radiogroup` / `status[aria-live="polite"]` | Generate → budget slider → preset → Generate; on submit → progress message | 2.1.1 / 2.4.3 / 3.3.1 / 3.3.2 / 4.1.2 / 4.1.3 |
 | **P3** MCP toggle in settings | `dialog[aria-label="Settings"]` / `switch[aria-checked]` + OS notification | Tab to MCP switch → Space toggles → focus stays on switch | 2.1.1 / 2.4.3 / 4.1.2 / 4.1.3 |
-| **P4** Real-time push | `region[aria-live="polite"]` / `status` / `table` (incremental rows) | Live updates do NOT steal focus | 2.1.1 / 2.4.3 / 4.1.2 / 4.1.3 / 1.4.3 |
+| **P4** Real-time push | `region[aria-live="polite"]` / `status` / `table` (incremental rows) | Live updates do NOT steal focus; the re-poll preserves the focused row (roving `tabindex` clamped, never reset) | 2.1.1 / 2.4.3 / 4.1.2 / 4.1.3 / 1.4.3 |
 | **P5** Widget ↔ dashboard ↔ tray | `main` / `button[aria-label="Toggle dashboard"]` (opens/hides dashboard, widget stays; also Cmd/Ctrl+Shift+P) / `button[aria-label="Minimize"]` / `button[aria-label="Close to tray"]` (titlebar ✕ → hides widget to tray; Esc also triggers) / tray `menuitem` | Esc minimizes widget; arrow keys nav tray menu; Tab nav dashboard sidebar | 2.1.1 / 2.1.2 / 2.4.3 / 2.4.7 / 4.1.2 |
 | **P6** Snapshot completion | `dialog` / `button[aria-busy]` / `status[aria-live="assertive"]` + OS notification | Focus stays in modal during async; completion announced | 2.1.1 / 2.4.3 / 4.1.2 / 4.1.3 |
 | **P7** Settings form | `dialog` / `form` / `label` / `radiogroup` / `switch` / `button` | Tab theme→position→retention→MCP→preset→Save→Cancel; Esc closes | 2.1.1 / 2.1.2 / 2.4.3 / 2.4.7 / 3.3.1 / 3.3.2 / 4.1.2 |
@@ -41,7 +41,7 @@ _Extended from P1–P7 to **P1–P12** at chunk #99: **p8** findings dropdown ·
 | **visual-focus-appearance** | Layout templates require `--border-focus` token outline | Lighthouse focus-visible audit + Playwright outline computed-style check; SC 2.4.7 + 1.4.11 |
 | **target-size** | Compact widget design implies small form factors | axe-core target-size rule + design token `--target-button-min` / `--target-input-min` ≥24×24 (SC 2.5.8 AA) |
 
-## Bootstrap phases (a11y-plan §3.5)
+## Bootstrap phases (a11y-plan §3, keyed contract `Bootstrap phases (derive for route / setup-project)`)
 1. **a11y-tooling-install:** `@axe-core/playwright@4.11` + `lighthouse@13` + `pa11y@10` + `pa11y-ci@4`
 2. **focus-management-library-install:** `focus-trap-react@12` + `tabbable@6.4`
 3. **aria-component-library-install:** `react-aria-components@1.17` (preferred) OR `@headlessui/react@2.2` — pick ONE; mixing causes conflicts
@@ -77,7 +77,7 @@ Emitted to `~/.andromeda-pulse/logs/a11y-{tool}-results.jsonl`; uploaded as CI a
 
 ## SLO invariants
 - **Zero WCAG AA violations** on must-be-accessible paths.
-- **Zero new violations per PR** — per-PR diff detection vs base branch (`actions/download-artifact@v4` → `jq` filter on `{surface, wcag_criterion, selector, severity}` tuples).
+- **Zero new violations per PR** — the regression detector diffs the run against the baseline committed in the tree (`tests-a11y/baselines/a11y-violations-summary.json`) by `{surface, wcag_criterion, selector, severity, violation_type}` tuple; no artifact is downloaded, and an absent baseline fails (since 2026-10-10).
 - **Performance budget per a11y CI run:** axe-core <30s per surface; Lighthouse a11y <15s per URL; total a11y CI + tests E2E <10 min.
 
 ## CI gate (PR cannot merge if)
@@ -85,7 +85,7 @@ Emitted to `~/.andromeda-pulse/logs/a11y-{tool}-results.jsonl`; uploaded as CI a
 - Lighthouse a11y category score <90 on any URL
 - Keyboard focus order test fails
 - Contrast verification detects token mismatch (actual <required)
-- Per-PR regression — any new tuple `{surface, wcag_criterion, selector, severity}` not in base branch
+- Per-PR regression — any new tuple `{surface, wcag_criterion, selector, severity, violation_type}` not in the baseline committed in the tree, or that baseline absent
 
 ## v0.2.0 re-audit (chunk #99, per a11y-plan §12 2026-06-10)
 - **Harness repaired** — the Playwright a11y suite was silently dead since session 64 (4 infra bugs: stale root-level `../helpers/` import; IPC mock matched `plugin:taurpc|` while taurpc 0.7 invokes `TauRPC__<router.path>`; window-label global never read — production reads `__TAURI_INTERNALS__.metadata.currentWebview.label`; `/#/route` URLs never resolved — TanStack Router uses browser history). Repairs: `helpers/mock-tauri.ts` rewrite + `helpers/v02-fixtures.ts` + `helpers/static-server.mjs` SPA fallback + `pa11y/run-pa11y.mjs` + real route paths in pa11y/Lighthouse configs.

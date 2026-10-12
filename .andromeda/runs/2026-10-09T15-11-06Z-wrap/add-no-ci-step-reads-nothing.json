@@ -1,0 +1,7 @@
+{
+  "title": "No CI step reads nothing",
+  "requirement": "every comparison a CI job makes has a producer for the baseline it compares against, or the comparison is gone; every upload a CI job makes finds its file, or the upload is gone",
+  "observed_gap": "The three pull-request baseline downloads have no producer in any workflow, and the `logs-Linux`, `nextest-Linux` and `criterion-Linux` uploads find no file (the operator's wrap directive of 2026-10-09; read on `ci#37934330231` and `ci#37945548047`).",
+  "method": "integration",
+  "acceptance": "On a CI run of the tree, every comparison against a baseline reads a baseline that a workflow produced, or the workflow no longer makes that comparison; every upload uploads a file, or the workflow no longer makes that upload. No gate stands while reading nothing."
+}
