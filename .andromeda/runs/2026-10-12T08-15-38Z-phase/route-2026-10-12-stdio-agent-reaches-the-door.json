@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "7e4cd318",
+"ts": "2026-10-12T08:16:50Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-12-stdio-agent-reaches-the-door",
+"--expect-prefix",
+"Stdio agent reaches the door",
+"--record-file",
+".andromeda/runs/2026-10-12T08-15-38Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-12T08-15-38Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:39 - [2026-10-12-stdio-agent-reaches-the-door]",
+"record master-route.md:120 - appended under `## andromeda-pulse-0.4.0`",
+"promoted 2026-10-12-stdio-agent-reaches-the-door - working-route:39 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

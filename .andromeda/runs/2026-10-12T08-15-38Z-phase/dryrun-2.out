@@ -1,0 +1,31 @@
+gate v1.15 · 01bedf67
+shell /usr/bin/bash (from $SHELL; -c, non-login)
+root . · marker 2026-10-12-stdio-agent-reaches-the-door · entries 23
+logs $TMPDIR/andromeda-gate/2026-10-12-stdio-agent-reaches-the-door/run-20261012T083534Z · bound: GNU timeout
+delta docs 57 · unmapped 5
+walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 62
+prose L167-173: No window boot smoke: no file on the boot-smoke trigger list changes (`pulse-app/src/main.… (692 chars)
+  1 lint        not run — dry-run · cargo fmt --check
+  2 lint        not run — dry-run · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)
+  3 probe       not run — dry-run · git diff --name-only d3e694d29cf79f27c6d0d7fabbf9b057fddd9… (546 chars)
+  4 unit        not run — dry-run · cargo nextest run --workspace --profile ci --no-tests=fail… (185 chars)
+  5 probe       not run — dry-run · grep -cE 'init_process|write_pid_file|observability|tracin… (118 chars)
+  6 integration not run — dry-run · for i in 1 2 3 4 5 6 7; do cargo nextest run --workspace -… (260 chars)
+  7 lint        not run — dry-run · cargo xtask check:english-sources
+  8 probe       not run — dry-run · cargo xtask quarantine-tracking
+  9 probe       not run — dry-run · cargo xtask capability-widening-check
+ 10 probe       not run — dry-run · cargo xtask check:ingest-progress
+ 11 probe       not run — dry-run · cargo xtask check:staged-artifacts
+ 12 probe       not run — dry-run · cargo xtask capability-drift
+ 13 probe       not run — dry-run · cargo xtask verify:capability-matrix
+ 14 unit        not run — dry-run · cargo nextest run --workspace --profile ci --no-tests=fail
+ 15 build       not run — dry-run · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)
+ 16 probe       not run — dry-run · git diff --quiet d3e694d29cf79f27c6d0d7fabbf9b057fddd99d0 … (95 chars)
+ 17 e2e         not run — dry-run · d="target/engine-cycle/$(date -u +%Y%m%dT%H%M%SZ)-door" &&… (278 chars)
+ 18 integration not run — dry-run · d="$(mise where node@24)" && PATH="$d/bin:$PATH" cargo xta… (75 chars)
+ 19 probe       not run — dry-run · test ! -e target/pre-push/run/data/run/andromeda-pulse.pid… (162 chars)
+ 20 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)
+ 21 probe       not run — leg operator (the letter drives it) · m="$(git ls-remote origin refs/heads/main | cut -f1)" && t… (111 chars)
+ 22 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (92 chars)
+ 23 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)
+entries 23 · green 0 · red 0 · recorded 0 · timeout 0 · not-run 23

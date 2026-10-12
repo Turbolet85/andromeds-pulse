@@ -1,6 +1,8 @@
 //! The console program: the engine with no window, driven by a closed command
 //! grammar. `run` boots the engine through `engine_boot` and stays up until it
-//! is signalled; `version` prints one line; anything else is refused.
+//! is signalled; `version` prints one line; `door` relays standard input to the
+//! door of an engine already running on the data dir (`door_bridge`); anything
+//! else is refused.
 
 use std::ffi::OsStr;
 use std::process::ExitCode;
@@ -9,17 +11,19 @@ use std::sync::Arc;
 use triage::contract::{HardwareProfileSource, UnknownHardwareProfile};
 
 use crate::deterministic_inference::{DeterministicInferenceRunner, deterministic_mode_enabled};
+use crate::door_bridge;
 use crate::engine_boot::{self, EngineConfig, EngineInputs, InterpretationSeat, Program, SeatKind};
 use crate::model_router::tier_for_profile;
 
 pub const PROGRAM_NAME: &str = "andromeda-pulse-engine";
-pub const USAGE: &str = "usage: andromeda-pulse-engine <run|version>";
+pub const USAGE: &str = "usage: andromeda-pulse-engine <run|version|door>";
 pub const EXIT_USAGE: u8 = 2;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Command {
     Run,
     Version,
+    Door,
 }
 
 /// Exactly one word from the closed set; no word, an unknown word or a second
@@ -33,6 +37,7 @@ where
     let command = match args.next()?.as_ref().to_str() {
         Some("run") => Command::Run,
         Some("version") => Command::Version,
+        Some("door") => Command::Door,
         _ => return None,
     };
     if args.next().is_some() {
@@ -57,6 +62,7 @@ where
             println!("{}", version_line());
             ExitCode::SUCCESS
         }
+        Some(Command::Door) => door_bridge::main(),
         None => {
             eprintln!("{USAGE}");
             ExitCode::from(EXIT_USAGE)

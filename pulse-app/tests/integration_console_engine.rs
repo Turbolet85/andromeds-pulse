@@ -902,7 +902,7 @@ fn an_unknown_word_and_no_word_exit_two_with_usage_and_create_nothing() {
         assert_eq!(output.status.code(), Some(2), "{words:?}");
         assert_eq!(
             String::from_utf8_lossy(&output.stderr),
-            "usage: andromeda-pulse-engine <run|version>\n",
+            "usage: andromeda-pulse-engine <run|version|door>\n",
             "{words:?}"
         );
         assert!(output.stdout.is_empty(), "{words:?}: nothing on stdout");

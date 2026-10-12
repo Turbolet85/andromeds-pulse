@@ -939,6 +939,10 @@ const DOOR_OTHER_ACCOUNT_ARM: &str = "another_account_is_refused_at_each_of_thre
 const DOOR_THREE_LAYERS: &str =
     "door other-account arm: directory refused, socket mode refused, account check refused";
 const DOOR_SKIPPED: &str = "door other-account arm: skipped, no second account";
+const DOOR_BRIDGE_ARM: &str = "another_account_through_the_bridge_receives_nothing";
+const DOOR_BRIDGE_REFUSED: &str = "door bridge other-account arm: no byte reached another account \
+     through the bridge, the account check refused";
+const DOOR_BRIDGE_SKIPPED: &str = "door bridge other-account arm: skipped, no second account";
 
 #[test]
 fn ci_workflow_runs_the_door_other_account_arm_after_the_test_step_with_no_soft_fail() {
@@ -968,7 +972,7 @@ fn ci_workflow_runs_the_door_other_account_arm_after_the_test_step_with_no_soft_
 }
 
 #[test]
-fn the_door_other_account_step_runs_its_one_arm_and_reads_the_arms_own_sentence() {
+fn the_door_other_account_step_runs_its_two_arms_and_reads_each_arms_own_sentence() {
     let script = workflow_run_script(&read_workflow(), "lint-test", DOOR_OTHER_ACCOUNT_STEP);
     let cargo_lines: Vec<&str> = script
         .lines()
@@ -979,10 +983,12 @@ fn the_door_other_account_step_runs_its_one_arm_and_reads_the_arms_own_sentence(
         1,
         "the step MUST run one cargo command; script:\n{script}"
     );
-    let selection = format!("binary(integration_door) & test(={DOOR_OTHER_ACCOUNT_ARM})");
+    let selection = format!(
+        "binary(integration_door) & (test(={DOOR_OTHER_ACCOUNT_ARM}) | test(={DOOR_BRIDGE_ARM}))"
+    );
     assert!(
         cargo_lines[0].contains(&selection),
-        "the step MUST select the one arm `{selection}`; line: {}",
+        "the step MUST select the two arms `{selection}`; line: {}",
         cargo_lines[0]
     );
     assert!(
@@ -992,28 +998,38 @@ fn the_door_other_account_step_runs_its_one_arm_and_reads_the_arms_own_sentence(
     );
     assert!(
         !script.contains("sudo"),
-        "the step itself MUST run nothing as another account: the arm's client is the only \
-         thing that is; script:\n{script}"
+        "the step itself MUST run nothing as another account: the arms' client and relay are \
+         the only things that are; script:\n{script}"
     );
-    assert!(
-        script.contains(DOOR_THREE_LAYERS),
-        "the step MUST read the arm's three-layer sentence; script:\n{script}"
-    );
-    // The arm's own spelling: a sentence changed on one side alone reads red.
+    for sentence in [DOOR_THREE_LAYERS, DOOR_BRIDGE_REFUSED] {
+        assert!(
+            script.contains(sentence),
+            "the step MUST read the arm's sentence `{sentence}`; script:\n{script}"
+        );
+    }
+    // The arms' own spelling: a sentence changed on one side alone reads red.
     let arm_path = project_root().join("pulse-app/tests/integration_door.rs");
     let arm = std::fs::read_to_string(&arm_path)
         .unwrap_or_else(|e| panic!("read {} failed: {e}", arm_path.display()));
-    for text in [DOOR_OTHER_ACCOUNT_ARM, DOOR_SKIPPED] {
+    for text in [
+        DOOR_OTHER_ACCOUNT_ARM,
+        DOOR_SKIPPED,
+        DOOR_BRIDGE_ARM,
+        DOOR_BRIDGE_SKIPPED,
+    ] {
         assert!(
             arm.contains(text),
             "pulse-app/tests/integration_door.rs MUST hold `{text}`"
         );
     }
     let spelled: String = arm.split_whitespace().collect::<Vec<&str>>().join(" ");
-    assert!(
-        spelled.contains(&format!("\"{DOOR_THREE_LAYERS}\"")),
-        "pulse-app/tests/integration_door.rs MUST print the sentence the step reads"
-    );
+    for sentence in [DOOR_THREE_LAYERS, DOOR_BRIDGE_REFUSED] {
+        assert!(
+            spelled.contains(&format!("\"{sentence}\"")),
+            "pulse-app/tests/integration_door.rs MUST print the sentence the step reads: \
+             `{sentence}`"
+        );
+    }
 }
 
 // Runs the other-account step as the runner does (`bash -e`), with `cargo`
@@ -1043,34 +1059,44 @@ fn run_door_other_account_step(captured: &str, arm_status: i32) -> (Option<i32>,
     (output.status.code(), printed)
 }
 
-fn arm_output(sentence: &str) -> String {
+fn arm_output(sentence: &str, bridge_sentence: &str) -> String {
     format!(
-        "    Starting 1 test across 1 binary\n\
+        "    Starting 2 tests across 1 binary\n\
          --- STDOUT:              pulse-app::integration_door {DOOR_OTHER_ACCOUNT_ARM} ---\n\
          {sentence}\n\
-         \x20       PASS [   2.113s] pulse-app::integration_door {DOOR_OTHER_ACCOUNT_ARM}\n"
+         \x20       PASS [   2.113s] pulse-app::integration_door {DOOR_OTHER_ACCOUNT_ARM}\n\
+         --- STDOUT:              pulse-app::integration_door {DOOR_BRIDGE_ARM} ---\n\
+         {bridge_sentence}\n\
+         \x20       PASS [   2.402s] pulse-app::integration_door {DOOR_BRIDGE_ARM}\n"
     )
 }
 
 #[test]
-fn door_other_account_step_passes_an_arm_that_read_all_three_layers() {
-    let (code, printed) = run_door_other_account_step(&arm_output(DOOR_THREE_LAYERS), 0);
+fn door_other_account_step_passes_arms_that_read_all_three_layers_and_the_bridge_refused() {
+    let (code, printed) =
+        run_door_other_account_step(&arm_output(DOOR_THREE_LAYERS, DOOR_BRIDGE_REFUSED), 0);
     assert_eq!(code, Some(0), "printed:\n{printed}");
-    assert!(
-        printed.contains(DOOR_THREE_LAYERS),
-        "the step MUST show the arm's output; printed:\n{printed}"
-    );
+    for sentence in [DOOR_THREE_LAYERS, DOOR_BRIDGE_REFUSED] {
+        assert!(
+            printed.contains(sentence),
+            "the step MUST show the arms' output; printed:\n{printed}"
+        );
+    }
 }
 
 #[test]
 fn door_other_account_step_fails_an_arm_that_skipped_or_read_a_layer_open() {
     let cases = [
-        ("the arm skipped", arm_output(DOOR_SKIPPED)),
+        (
+            "the arm skipped",
+            arm_output(DOOR_SKIPPED, DOOR_BRIDGE_REFUSED),
+        ),
         (
             "the socket's mode did not refuse",
             arm_output(
                 "door other-account arm: directory refused, socket mode not refused, account \
                  check refused",
+                DOOR_BRIDGE_REFUSED,
             ),
         ),
     ];
@@ -1090,6 +1116,23 @@ fn door_other_account_step_fails_an_arm_that_skipped_or_read_a_layer_open() {
 }
 
 #[test]
+fn door_other_account_step_fails_a_bridge_arm_that_skipped() {
+    let (code, printed) =
+        run_door_other_account_step(&arm_output(DOOR_THREE_LAYERS, DOOR_BRIDGE_SKIPPED), 0);
+    assert_eq!(
+        code,
+        Some(1),
+        "a passing bridge arm without its sentence MUST fail the step; printed:\n{printed}"
+    );
+    assert!(
+        printed.contains(
+            "::error::the bridge other-account arm did not read the account check refusing"
+        ),
+        "printed:\n{printed}"
+    );
+}
+
+#[test]
 fn door_other_account_step_fails_an_arm_that_printed_nothing() {
     let (code, printed) = run_door_other_account_step("", 0);
     assert_eq!(code, Some(1), "printed:\n{printed}");
@@ -1101,7 +1144,8 @@ fn door_other_account_step_fails_an_arm_that_printed_nothing() {
 
 #[test]
 fn door_other_account_step_fails_a_failed_arm_whatever_it_printed() {
-    let (code, printed) = run_door_other_account_step(&arm_output(DOOR_THREE_LAYERS), 100);
+    let (code, printed) =
+        run_door_other_account_step(&arm_output(DOOR_THREE_LAYERS, DOOR_BRIDGE_REFUSED), 100);
     assert_eq!(code, Some(1), "printed:\n{printed}");
     assert!(
         printed.contains("::error::the other-account arm exited 100"),

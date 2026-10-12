@@ -13,11 +13,12 @@
 #![cfg(unix)]
 
 use std::collections::BTreeSet;
+use std::io::Write as _;
 use std::net::{SocketAddr, TcpStream};
 use std::os::unix::fs::PermissionsExt;
 use std::os::unix::process::ExitStatusExt;
 use std::path::{Path, PathBuf};
-use std::process::{Child, Command, Stdio};
+use std::process::{Child, Command, ExitStatus, Stdio};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient;
@@ -263,6 +264,13 @@ fn tool_call(id: u64, name: &str, arguments: Value) -> Value {
 
 /// One request on a connection of its own, and its one answer line.
 async fn ask(socket: &Path, request: Value) -> Value {
+    serde_json::from_str(&ask_line(socket, request).await)
+        .expect("an answer line is one JSON object")
+}
+
+/// One request on a connection of its own, and its one answer line as sent,
+/// terminator included.
+async fn ask_line(socket: &Path, request: Value) -> String {
     let stream = tokio::net::UnixStream::connect(socket)
         .await
         .expect("the door's socket accepts a connection");
@@ -277,7 +285,7 @@ async fn ask(socket: &Path, request: Value) -> Value {
         .expect("the door answers within the bound")
         .expect("read the answer");
     assert!(read > 0, "the door answered before it closed");
-    serde_json::from_str(&line).expect("an answer line is one JSON object")
+    line
 }
 
 /// Sends `count` log records of one service, each with `body`, stamped now.
@@ -799,4 +807,335 @@ async fn another_account_is_refused_at_each_of_three_layers() {
             "door other-account arm: directory refused, socket mode not refused, account check refused"
         );
     }
+}
+
+// ── the stdio relay, `andromeda-pulse-engine door` ──────────────────────────
+
+const BRIDGE_UNREACHABLE: &str = "andromeda-pulse-engine door: the door cannot be reached";
+const SKIP_BRIDGE_NO_SECOND_ACCOUNT: &str =
+    "door bridge other-account arm: skipped, no second account";
+const BRIDGE_REFUSED: &str = "door bridge other-account arm: no byte reached another account through the bridge, the account check refused";
+
+struct Relayed {
+    status: ExitStatus,
+    stdout: Vec<u8>,
+    stderr: String,
+}
+
+/// Writes `input` to a spawned relay's standard input, closes it and waits.
+fn relay_through(mut command: Command, input: &str) -> Relayed {
+    let streams = tempfile::tempdir().expect("streams dir");
+    let stderr_path = streams.path().join("stderr");
+    let stderr = std::fs::File::create(&stderr_path).expect("stderr file");
+    let mut child = command
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(stderr)
+        .spawn()
+        .expect("spawn the relay");
+    let mut stdin = child.stdin.take().expect("stdin");
+    // A relay that ends before it reads leaves this write refused: no finding.
+    let _ = stdin.write_all(input.as_bytes());
+    drop(stdin);
+    let output = child.wait_with_output().expect("the relay ends");
+    Relayed {
+        status: output.status,
+        stdout: output.stdout,
+        stderr: std::fs::read_to_string(&stderr_path).expect("read the relay's stderr"),
+    }
+}
+
+/// `andromeda-pulse-engine door` as a stdio agent starts it on the engine's
+/// data dir: a cleared environment holding the data dir alone, and a working
+/// directory outside the data dir and the checkout.
+fn owner_relay(data_dir: &Path, input: &str) -> Relayed {
+    let cwd = tempfile::tempdir().expect("relay working dir");
+    let mut command = Command::new(ENGINE);
+    command
+        .env_clear()
+        .env("ANDROMEDA_PULSE_DATA_DIR", data_dir)
+        .current_dir(cwd.path())
+        .arg("door");
+    if let Some(profile) = std::env::var_os("LLVM_PROFILE_FILE") {
+        command.env("LLVM_PROFILE_FILE", profile);
+    }
+    relay_through(command, input)
+}
+
+/// Every path under `dir` but the log family, relative to it.
+fn file_set(dir: &Path) -> BTreeSet<PathBuf> {
+    fn walk(root: &Path, dir: &Path, out: &mut BTreeSet<PathBuf>) {
+        for entry in std::fs::read_dir(dir).expect("read a dir").flatten() {
+            let path = entry.path();
+            let relative = path
+                .strip_prefix(root)
+                .expect("under the root")
+                .to_path_buf();
+            let in_log_family = relative.starts_with("logs")
+                && relative
+                    .file_name()
+                    .is_some_and(|name| name.to_string_lossy().starts_with("agent-latest.jsonl"));
+            if !in_log_family {
+                out.insert(relative);
+            }
+            if entry.file_type().is_ok_and(|kind| kind.is_dir()) {
+                walk(root, &path, out);
+            }
+        }
+    }
+    let mut out = BTreeSet::new();
+    walk(dir, dir, &mut out);
+    out
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_stdio_agent_reaches_the_door_through_the_bridge_and_leaves_one_call_per_request() {
+    const SERVICE: &str = "door-bridge-arm-svc";
+    const MARKER: &str = "door bridge arm marker 51c8 read back through the relay";
+
+    let mut engine = Running::spawn(&[("ANDROMEDA_PULSE_DOOR_RESOLVE", "off")]);
+    engine.wait_until_ready().await;
+    send_logs(&engine, SERVICE, MARKER, 1).await;
+    engine
+        .wait_for_log("the log record is stored", |lines| {
+            appended(lines, "log_records") >= 1
+        })
+        .await;
+
+    let list_request = json!({ "jsonrpc": "2.0", "id": 2, "method": "tools/list" });
+    let requests = [
+        json!({
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {},
+                "clientInfo": { "name": "door-bridge-arm", "version": "0" }
+            }
+        }),
+        json!({ "jsonrpc": "2.0", "method": "notifications/initialized" }),
+        list_request.clone(),
+        tool_call(3, "query_logs", json!({})),
+        tool_call(4, "mark_incident_resolved", json!({ "incident_id": 1 })),
+    ];
+    let input: String = requests
+        .iter()
+        .map(|request| format!("{request}\n"))
+        .collect();
+    let before = file_set(engine.data_dir.path());
+
+    let relayed = owner_relay(engine.data_dir.path(), &input);
+
+    let after = file_set(engine.data_dir.path());
+    assert_eq!(relayed.status.code(), Some(0), "standard input ended");
+    assert!(relayed.stderr.is_empty(), "stderr: {}", relayed.stderr);
+    let stdout = String::from_utf8(relayed.stdout).expect("the answers are UTF-8");
+    let answer_lines: Vec<&str> = stdout.split_inclusive('\n').collect();
+    assert_eq!(
+        answer_lines.len(),
+        4,
+        "one line per request with an id, none for the notification: {stdout}"
+    );
+    let answers: Vec<Value> = answer_lines
+        .iter()
+        .map(|line| serde_json::from_str(line).expect("each line is one JSON object"))
+        .collect();
+    assert_eq!(answers[0]["id"], 1);
+    assert_eq!(
+        answers[0]["result"]["serverInfo"]["name"],
+        "andromeda-pulse-mcp"
+    );
+    assert_eq!(answers[0]["result"]["protocolVersion"], "2024-11-05");
+    let tools = answers[1]["result"]["tools"]
+        .as_array()
+        .unwrap_or_else(|| panic!("a tool list: {}", answers[1]));
+    assert_eq!(tools.len(), 9, "the nine tools");
+    let writes: Vec<&str> = tools
+        .iter()
+        .filter(|tool| tool["write"] == true)
+        .filter_map(|tool| tool["name"].as_str())
+        .collect();
+    assert_eq!(writes, ["mark_incident_resolved"], "the one write");
+    assert!(
+        answers[2]["result"]["items"]
+            .as_array()
+            .is_some_and(|items| items.iter().any(|row| row["body"] == MARKER)),
+        "the relay returns the record the receiver took: {}",
+        answers[2]
+    );
+    assert_eq!(answers[3]["error"]["code"], -32001, "{}", answers[3]);
+    assert_eq!(before, after, "the relay adds nothing to the data dir");
+    let pid = std::fs::read_to_string(engine.data_dir.path().join("run/andromeda-pulse.pid"))
+        .expect("the pid file");
+    assert_eq!(
+        pid.trim(),
+        engine.child.id().to_string(),
+        "the engine's pid"
+    );
+
+    // The same request straight from the socket: the relay's line unchanged.
+    let direct = ask_line(&engine.socket(), list_request).await;
+    assert_eq!(answer_lines[1], direct, "byte for byte");
+
+    let lines = engine.end_by_sigterm().await;
+
+    let calls = records(&lines, "door.call");
+    let shapes: Vec<(&str, &str, &str)> = calls
+        .iter()
+        .map(|call| {
+            assert_nothing_redacted(call);
+            assert_eq!(
+                own_fields(call),
+                BTreeSet::from(CALL_FIELDS.map(String::from)),
+                "every field of the call record, and no other"
+            );
+            (
+                call["fields"]["method"].as_str().expect("method"),
+                call["fields"]["tool"].as_str().expect("tool"),
+                call["fields"]["outcome"].as_str().expect("outcome"),
+            )
+        })
+        .collect();
+    assert_eq!(
+        shapes,
+        [
+            ("initialize", "none", "ok"),
+            ("tools/list", "none", "ok"),
+            ("tools/call", "query_logs", "ok"),
+            ("tools/call", "mark_incident_resolved", "write_off"),
+            ("tools/list", "none", "ok"),
+        ],
+        "one record per answered request: the relay's four, then the direct one"
+    );
+    assert!(
+        records(&lines, "door.refused").is_empty(),
+        "one connection per request leaves no idle refusal"
+    );
+    assert_eq!(records(&lines, "app.boot.engine").len(), 1);
+    assert_eq!(
+        family_text(engine.data_dir.path()).matches(MARKER).count(),
+        0,
+        "what the relay returned is not in the log"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn another_account_through_the_bridge_receives_nothing() {
+    const OTHER: &str = "nobody";
+    let has_second_account = sudo(None)
+        .arg("true")
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .is_ok_and(|status| status.success());
+    if !has_second_account {
+        println!("{SKIP_BRIDGE_NO_SECOND_ACCOUNT}");
+        return;
+    }
+
+    let mut engine = Running::spawn(&[]);
+    engine.wait_until_ready().await;
+    let socket = engine
+        .socket()
+        .canonicalize()
+        .expect("the door's socket resolves");
+    let door_dir = socket.parent().expect("the door dir").to_path_buf();
+    let run_dir = door_dir.parent().expect("the run dir").to_path_buf();
+    let data_dir = run_dir.parent().expect("the data dir").to_path_buf();
+    set_mode(&data_dir, 0o755);
+    set_mode(&run_dir, 0o755);
+
+    // Another account runs a copy from a directory of the arm's own, so the
+    // checkout's modes do not decide whether it can be executed.
+    let own = tempfile::tempdir().expect("the arm's own dir");
+    set_mode(own.path(), 0o755);
+    let copy = own.path().join("andromeda-pulse-engine");
+    std::fs::copy(ENGINE, &copy).expect("copy the built program");
+    set_mode(&copy, 0o755);
+    if !(reachable_by_another_account(&data_dir) && reachable_by_another_account(&copy)) {
+        println!(
+            "door bridge other-account arm: skipped, the temp dir is closed to another account"
+        );
+        engine.end_by_sigterm().await;
+        return;
+    }
+
+    let ping = format!(
+        "{}\n",
+        json!({ "jsonrpc": "2.0", "id": 1, "method": "ping" })
+    );
+    let as_account = |account: Option<&str>| {
+        let mut command = sudo(account);
+        command
+            .arg("env")
+            .arg(format!("ANDROMEDA_PULSE_DATA_DIR={}", data_dir.display()))
+            .arg(&copy)
+            .arg("door")
+            .current_dir(own.path());
+        relay_through(command, &ping)
+    };
+    let read = || [as_account(Some(OTHER)), as_account(None)];
+    // As made: the door directory 0700, the socket 0600.
+    let as_made = read();
+    // Opened: only the account check is left.
+    set_mode(&door_dir, 0o755);
+    set_mode(&socket, 0o666);
+    let opened = read();
+    // The owner, in the same run and with no sudo, is answered.
+    let owner = owner_relay(&data_dir, &ping);
+
+    let readings = [
+        ("nobody as made", &as_made[0]),
+        ("root as made", &as_made[1]),
+        ("nobody opened", &opened[0]),
+        ("root opened", &opened[1]),
+    ];
+    for (case, reading) in readings {
+        println!(
+            "door bridge other-account arm: {case} exit {:?}, {} byte(s) on stdout",
+            reading.status.code(),
+            reading.stdout.len()
+        );
+        assert!(
+            reading.stdout.is_empty(),
+            "{case}: no byte reached another account"
+        );
+        // A connection the door closes unread reads as a failed write or read
+        // on this kernel: the relay ends unreachable.
+        assert_eq!(reading.status.code(), Some(1), "{case}: {}", reading.stderr);
+        assert!(
+            reading
+                .stderr
+                .lines()
+                .any(|line| line == BRIDGE_UNREACHABLE),
+            "{case}: the fixed line, as one line of stderr: {}",
+            reading.stderr
+        );
+    }
+    assert_eq!(owner.status.code(), Some(0), "the owner: {}", owner.stderr);
+    let pong: Value = serde_json::from_slice(&owner.stdout).expect("the owner's answer");
+    assert_eq!(pong["id"], 1, "the owner is answered: {pong}");
+
+    let lines = engine.end_by_sigterm().await;
+
+    // Root passes the modes, so it reaches the door at both readings; `nobody`
+    // only once both outer layers are opened.
+    let refusals = records(&lines, "door.refused");
+    assert_eq!(
+        refusals.len(),
+        3,
+        "one refusal per reading that reached the door: {refusals:?}"
+    );
+    for refusal in &refusals {
+        assert_nothing_redacted(refusal);
+        assert_eq!(refusal["level"], "WARN");
+        assert_eq!(refusal["fields"]["reason"], "other_account");
+        assert_eq!(refusal["fields"]["peer"], "other");
+    }
+    let calls = records(&lines, "door.call");
+    assert_eq!(calls.len(), 1, "the owner's ping and no other: {calls:?}");
+    assert_eq!(calls[0]["fields"]["method"], "ping");
+    assert_eq!(calls[0]["fields"]["outcome"], "ok");
+    println!("{BRIDGE_REFUSED}");
 }

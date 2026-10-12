@@ -1,0 +1,15 @@
+planlint v1.8 · 1091f6e7
+fence: 23 entries · plan: andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door/plan.md · research: andr…
+check 9 · CI-outcome reads: 1 · leg operator exempt: 1 · Platform issues consulted: none · `none — no runner-only bull…`
+check 9 · runner-only scope bullet: not read — the letter's
+check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: filled · ``.claude/rules/verification-harness.md` — r…`
+check 4 (5) · leg entries with a content atom: 2 · note without `atom from`: 0
+check 4 (13) · operator CI-outcome reads: 1 · not ci.py conclusion: 0
+check 4 (14) · base-less git change reads outside the operator and round legs: 0
+check 4 (15) · grep → wc -l counts asserting exit 0 and last line 0: 0
+check 4 (16) · guards whose exclusions leave a new file in: 0 of 1 with an exclusion
+check 4 (17) · entries reading a path the wrap writes: 0 of 19 asserting — listed, P5's read
+check 4 (17) · a path the wrap writes, read from inside a program an entry runs (a suite, the ledger's tool): not read
+check 2 · ledger-note entries (matrix#): 0
+check 5 · placeholders outside code: 0
+hits: 0 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13)–(16)); 0 is not a pass

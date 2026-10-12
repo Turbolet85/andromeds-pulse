@@ -1,7 +1,8 @@
 //! The console program's command grammar (`pulse_app::console`), pinned in
 //! process: each word of the closed set, no word, an unknown word and an extra
-//! word. `run` itself is never called here: the spawned program is driven by
-//! `integration_console_engine.rs`.
+//! word. Neither `run` nor `door` is called here: the spawned program is driven
+//! by `integration_console_engine.rs`, the relay by `unit_door_bridge.rs` and
+//! `integration_door.rs`.
 
 use std::process::ExitCode;
 
@@ -25,6 +26,11 @@ fn version_is_the_version_command() {
 }
 
 #[test]
+fn door_is_the_door_command() {
+    assert_eq!(parse(["door"]), Some(Command::Door));
+}
+
+#[test]
 fn no_word_is_refused() {
     assert_eq!(parse(NO_WORDS), None);
 }
@@ -42,6 +48,8 @@ fn an_unknown_word_is_refused() {
         "Run",
         "run ",
         " version",
+        "door ",
+        "Door",
         "",
     ] {
         assert_eq!(parse([word]), None, "`{word}` is outside the closed set");
@@ -53,6 +61,7 @@ fn an_extra_word_is_refused() {
     assert_eq!(parse(["run", "extra"]), None);
     assert_eq!(parse(["version", "run"]), None);
     assert_eq!(parse(["run", "run"]), None);
+    assert_eq!(parse(["door", "extra"]), None);
 }
 
 #[cfg(unix)]
@@ -85,7 +94,7 @@ fn version_exits_zero_and_names_the_program_and_its_version() {
 }
 
 #[test]
-fn the_usage_line_names_the_program_and_both_words() {
+fn the_usage_line_names_the_program_and_its_three_words() {
     assert_eq!(PROGRAM_NAME, "andromeda-pulse-engine");
-    assert_eq!(USAGE, "usage: andromeda-pulse-engine <run|version>");
+    assert_eq!(USAGE, "usage: andromeda-pulse-engine <run|version|door>");
 }

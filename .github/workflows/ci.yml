@@ -111,18 +111,21 @@ jobs:
       - name: cargo xtask test
         run: cargo xtask test
 
-      # The one reading of a second account: the arm connects to the door as
-      # `nobody` and as root through sudo, and prints its three-layer sentence
-      # only when each layer refused. Where no second account can be driven it
-      # prints a skip sentence and passes, so this step fails without the
-      # three-layer sentence. Selects its one test under --workspace, so it
-      # reuses the test build above; sudo runs nothing but the arm's client.
+      # The one reading of a second account, in two arms. The first connects to
+      # the door as `nobody` and as root through sudo, and prints its
+      # three-layer sentence only when each layer refused. The second runs the
+      # stdio relay `andromeda-pulse-engine door` as `nobody` and as root, and
+      # prints its sentence only when no byte reached either. Where no second
+      # account can be driven each arm prints a skip sentence and passes, so
+      # this step fails without both sentences. Selects its two tests under
+      # --workspace, so it reuses the test build above; sudo runs nothing but
+      # the first arm's client and the second arm's relay.
       - name: Door refuses another account
         run: |
           set -uo pipefail
           out="$RUNNER_TEMP/door-other-account.txt"
           status=0
-          cargo nextest run --workspace --profile ci --no-tests=fail --success-output immediate -E 'binary(integration_door) & test(=another_account_is_refused_at_each_of_three_layers)' > "$out" 2>&1 || status=$?
+          cargo nextest run --workspace --profile ci --no-tests=fail --success-output immediate -E 'binary(integration_door) & (test(=another_account_is_refused_at_each_of_three_layers) | test(=another_account_through_the_bridge_receives_nothing))' > "$out" 2>&1 || status=$?
           cat "$out"
           if [ "$status" -ne 0 ]; then
             echo "::error::the other-account arm exited ${status}"
@@ -134,6 +137,10 @@ jobs:
           fi
           if ! grep -qF 'door other-account arm: directory refused, socket mode refused, account check refused' "$out"; then
             echo "::error::the other-account arm did not read all three layers refusing"
+            exit 1
+          fi
+          if ! grep -qF 'door bridge other-account arm: no byte reached another account through the bridge, the account check refused' "$out"; then
+            echo "::error::the bridge other-account arm did not read the account check refusing"
             exit 1
           fi
 

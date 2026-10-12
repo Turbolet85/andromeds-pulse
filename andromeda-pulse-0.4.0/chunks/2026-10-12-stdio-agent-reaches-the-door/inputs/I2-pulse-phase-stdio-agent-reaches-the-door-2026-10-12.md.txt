@@ -1,0 +1,27 @@
+# Phase directive — Pulse 0.4.0: `Stdio agent reaches the door` (2026-10-12)
+
+From the pc overseer, the operator. `measured` lines were read by me; re-derive what you rely on. Nothing here is this
+chunk's design.
+
+1. **What Setup's CI read will meet.** measured 2026-10-12: HEAD = origin = `d3e694d2`, CI green on it
+   (`ci#38103099502`, `ci#38103099479`, pull_request). `origin/main` is `178ebac5` (PR #41, merged by the founder).
+2. **This entry's form is a boundary widening its own P4 brings to me** (the entry's CARRY): nothing was chosen when it
+   was minted. At P4 lay out the forms with their alternatives (for example a stdio bridge inside the engine binary, a
+   separate thin bridge program, the agent dialling the socket itself), what each adds as a new process, file, command
+   word or place on disk, and your lean, and STOP. My answer there is PROVISIONAL: the founder's word on the door's
+   surface is still owed (the door itself is PROVISIONAL — a Unix-domain socket under `run/`, owner only by three
+   layers, always on), so this chunk builds on that surface without widening it.
+3. **The door's surface does not move here.** No new listening socket, port, credential, tool or argument that reaches
+   a path, and the nine tools answer as they do. If the form you lean to needs any of these, it is a separate widening:
+   say so at P4.
+4. **The stdio sidecar stays in this chunk.** Its removal is `Stdio sidecar retired` (the next entry). For this
+   interval the engine has two ways in; say at P5 what the stdio agent and the sidecar each reach, so nothing is
+   reachable through one and not the other by accident.
+5. **Conductor is not touched.** Conductor still reads Pulse as it did at 0.3.0; its read through the door is its own
+   later entry. If this chunk changes what a Conductor run sees, stop at P4 and say where.
+6. **The acts that may meet your auto-mode classifier** (PC70 at Conductor: a directory delete and a CI-job cut were
+   refused and the founder ran them by hand): list them at P5, so they are prepared before implement.
+7. **A merge-base probe runs before every push** (GitHub builds the PR tip merged with `main`).
+8. **Ports 4317 / 4318** are shared with Conductor's builder on this host: ask before a run that binds them.
+9. **At P5** say what `planlint` check 4 listed, show P-092's concretization against its acceptance, print the plan
+   card and stop for my `yes`.
