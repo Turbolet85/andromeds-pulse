@@ -158,5 +158,45 @@
 "lines": 2782,
 "bytes": 2871727
 }
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "2f500b21",
+"ts": "2026-10-12T10:18:21Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-12T09-33-13Z-wrap",
+"--marker",
+"2026-10-12-stdio-agent-reaches-the-door"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2782→2783 · bytes 2871727→2872740 · term lf",
+"ts 2026-10-12T10:18:14Z · clock 2026-10-12T10:18:21Z · bound 2026-10-12T10:09:59Z (line 2782)",
+"ids 2026-10-12T10:18:14Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2782,
+"bytes": 2871727,
+"terminator": "LF",
+"bound": "2026-10-12T10:09:59Z"
+},
+"after": {
+"lines": 2783,
+"bytes": 2872740
+}
 }
 ]
