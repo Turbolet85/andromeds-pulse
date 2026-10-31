@@ -1,0 +1,34 @@
+[
+{
+"tool": "rec",
+"v": "1.1",
+"sha8": "c8c6a15a",
+"ts": "2026-10-31T14:29:54Z",
+"argv": [
+"migrate",
+"--root",
+".",
+"--family",
+"spine",
+"--work",
+"~/.cache/andromeda-door/andromeda-pulse-spine",
+"--apply",
+"--run-dir",
+".andromeda/runs/2026-10-31T14-29-53Z-records-door-spine"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"moved: spine · 326 line(s) · 319ab55b · 2026-10-31T14-27-08-door-spine.ndjson · nothing committed"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/coverage.md",
+"./andromeda-pulse-0.4.0/coverage.md",
+"./.andromeda/db/log/2026-10-31T14-27-08-door-spine.ndjson",
+"./.andromeda/db/moved"
+],
+"before": null,
+"after": null
+}
+]
