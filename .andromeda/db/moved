@@ -1,2 +1,3 @@
 friction	.andromeda/friction-log.ndjson	2783	bc438deb
 spine	.andromeda/master-route.md,andromeda-pulse-0.3.0/coverage.md,andromeda-pulse-0.3.0/requirements.md,andromeda-pulse-0.3.0/verification-matrix.json,andromeda-pulse-0.3.0/working-route.md,andromeda-pulse-0.4.0/coverage.md,andromeda-pulse-0.4.0/requirements.md,andromeda-pulse-0.4.0/verification-matrix.json,andromeda-pulse-0.4.0/working-route.md	326	319ab55b
+docs	andromeda-pulse-0.3.0/chunks/**,andromeda-pulse-0.3.0/vision.md,andromeda-pulse-0.3.0/census.md,andromeda-pulse-0.4.0/chunks/**,andromeda-pulse-0.4.0/vision.md,andromeda-pulse-0.4.0/census.md	24360	2791ce9b
