@@ -1,6 +1,76 @@
 # Session Learnings
 
 
+## 2026-11-03 — A `git diff` scope guard cannot read a recorded companion
+
+A plan's scope-guard entry written as `git diff --name-only {base} -- {dirs}`, with research's file list as its exclusions, reads every changed file outside that list as out of scope — including one the operator recorded as a companion in the chunk's scope record, which the guard never reads. `gate.py scope` reads the scope record and is the authoritative scope read: a plan either excludes recorded companions from its guard or lets `gate.py scope` stand as the scope gate. Where it applies: any chunk whose scope record gains a companion after research listed the files.
+
+---
+
+## 2026-10-10 — A gate entry that is wrong by its own text is corrected by an operator edit of the plan between runs
+
+When a plan's gate entry cannot read its subject for a reason in the entry itself (not in the tree), the run
+finishes its block and reports the entry as surfaced. The implement step edits no plan on its own, and the host
+is not reconfigured to make the entry pass. The operator then gives one edit of the plan between runs; it is
+typed as the operator's, recorded in the chunk's evidence with the line before and after, and the entry is fired
+again. The verdict the report carries is the re-fired one, with the first red named as the entry's and not the
+tree's. Two chunks have taken this course. Where it applies: any plan entry whose probe turns out to depend on
+something the plan author did not pin, such as a host setting or the output form of a tool.
+
+---
+
+## 2026-10-10 — A hand-copied evidence line is checked against its log before the record closes
+
+An evidence record that copies a tool's output by hand can carry a wrong character that nothing downstream
+reads. At the capability-record chunk's operator pass one job's completion time was typed seventy minutes off
+in `evidence/operator-pass.md`. It was caught because every copied line was then checked against its source: a
+loop that takes each line of the entry's log and looks for it in the record with a fixed-string grep, and the
+same check for each entry line of the gate tool's output. Do this for any evidence file that quotes a log,
+before the commit that carries it; a line the loop reports missing is copied again from the log, never adjusted
+by eye.
+
+---
+
+## 2026-10-09 — A red CI read returns while the run is still open
+
+`ci.py conclusion --wait` returns at the first failed check, not when the run settles. A step read or a jobs listing
+taken right after a red verdict reads an unfinished run: the other jobs show no conclusion yet. Wait for the run to
+settle first (`gh run watch {id}` is a read), then take the step and jobs reads, and say in the record that the run
+had settled.
+
+Two readings of its output mislead. Its `runs:` line lists every workflow run on the commit, so the words
+`pull_request completed/success` can be the secret-scan run's while the `ci` run is still `in_progress`; an atom on
+those words holds over a red verdict. And on a pull-request event the run's own commit sha is the pull request's merge
+commit, not the branch tip the read named.
+
+---
+
+## 2026-10-09 — A thing found standing gets an owner at route-resolve; a mention in the report is not one
+
+When research or a wrap finds a defect that predates the chunk and the chunk does not change it (a CI download with
+no producer, an upload step that finds no file, a gate no workflow runs), "carried to the report as found" does not
+own it. At the wrap's route-resolve each such thing is presented to the operator for a disposition, and none is
+placed in advance. The disposition is one of three: an existing route entry owns it (pinned there as a `CARRY:`), it
+leaves with a named entry that retires its subject, or nothing is owed and the reason is stated.
+
+The spec masters follow the same line. A master claim that such a finding measures false is corrected as measured
+only once an owner entry can be named in the amendment; until then the claim is handed to the route and the
+sidecar's `Kept` field says so. Corrected by the operator at the first chunk wrap of 0.4.0.
+
+---
+
+## 2026-10-09 — A verbatim relay kept in a run dir can fail the hygiene read at the pre-CI commit
+
+A skill writes an operator message verbatim to its run dir (`relay-{n}.md`) before it snapshots it as an input. When
+the message names a file by an absolute path under the home directory, that run-dir copy is a hygiene row of the
+`home` form at the operator pass, and the pre-CI commit cannot proceed on it. The manifest-listed copy under the
+chunk's `inputs/` is exempt and keeps the path as given. `gate.py respell` rewrites only a path under the repository
+root, so this row is settled by hand, on the operator's word: the home prefix of that one path becomes `~`, nothing
+else in the line changes, and the operator-pass record says so. A message that already spells the path with `~`
+raises no row.
+
+---
+
 ## 2026-10-08 — Moved from the host leaf: stop the rust-analyzer flycheck cargo tree before a cargo clean or a long build
 - 2026-10-01: The session's own rust-analyzer LSP runs a `cargo check --workspace --all-targets` flycheck into the shared `target/` and respawns after source edits; before a `cargo clean` or a long build, stop that flycheck cargo tree by PID — never rust-analyzer itself — and re-check for a respawn, or the two contend for the build lock and the disk. Extended 2026-10-01: `cargo clippy` spawns its own `cargo check` child, which looks like the flycheck, so identify the flycheck by its `rust-analyzer.exe` parent (`Get-CimInstance Win32_Process` ParentProcessId) before stopping anything. Extended 2026-10-04: on a Linux host select it by process name and arguments (`ps -eo pid,comm,args` with `comm == cargo` and `--message-format=json`), never `pgrep -f` / `pkill -f` on a pattern your own shell's command line contains — it matches and kills the invoking shell.
 
@@ -566,7 +636,7 @@ When a chunk lands webview/UI changes and the user wants to *see* the app workin
 3. **Bound ports are the definitive "app works" proof.** `netstat -ano | grep 127.0.0.1:431[78]` showing both `:4317` + `:4318` LISTENING under the pulse-app PID confirms the OTLP receivers are live + loopback-bound — stronger than any stdout line (the app's JSON logs go to its file sink and are often buffered out of the piped stderr, so the dev logfile may show only the cargo `Running` line).
 4. **Capture ONLY the app window** (privacy — not the whole desktop) via PowerShell P/Invoke `GetWindowRect` on `(Get-Process pulse-app).MainWindowHandle` + `System.Drawing.Graphics.CopyFromScreen` → PNG, then Read the PNG to verify the render (dot color/position, footer absence, canvas reflow). The compact-widget is `visible:false` in config but `window.rs::w.show()` displays it at boot, so it is capturable.
 5. **Teardown cleanly:** `TaskStop` the watcher + dev launcher, then `Stop-Process pulse-app` (gentle, NOT `-Force` — a responsive GUI app, unlike the session-144 hung-llama no-force rule), verify ports released.
-6. **Regenerate `bindings.ts` after:** the dev binary rewrites `ui/src/bindings/index.ts` to the no-mcp shape at boot (default features), so re-run the mcp-server-feature `emit_taurpc_bindings` regen + verify `grep -c '"mcp":' >= 1` before commit (per testing.md 2026-05-17/25).
+6. **Regenerate `bindings.ts` after:** the dev binary rewrites `ui/src/bindings/index.ts` to the no-mcp shape at boot (default features), so re-run the mcp-server-feature `emit_taurpc_bindings` regen + verify `grep -c '"mcp":' >= 1` before commit (per testing.md 2026-05-17/25). **[corrected 2026-11-03: the `mcp-server` feature, its `mcp.*` router and the `andromeda-pulse-mcp` sidecar left at chunk `2026-11-03-stdio-sidecar-retired` — every regenerating op now writes the one bindings shape, so the no-mcp shape, the `--features mcp-server` regen and the `grep -c '"mcp":'` probe no longer exist; the order that stands is test-plan's per-chunk gate discipline (`capability-drift` before the workspace run, the featureless `emit_taurpc_bindings` regen last, `git diff --quiet {chunk-base} -- pulse-app/ui/src/bindings/index.ts` closing), green at chunk `2026-11-03-advisories-since-2026-10-12-closed`]**
 
 Write smoke artifacts under `target/` (gitignored) to avoid polluting `git status`. Recurs on remaining v0.2.0 GUI chunks (Halo refactor etc.).
 

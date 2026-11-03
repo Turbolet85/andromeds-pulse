@@ -16,6 +16,30 @@
       "owner": "2026-09-29-p-025-hue-shift-observable-made-gradable",
       "closing_condition": "upstream publishes a fixed extract-zip (or the advisory range narrows) and the puppeteer chains move onto it, or both consuming chains (webdriverio, pa11y-ci) drop extract-zip; prune when the gate runs green without this entry",
       "added": "2026-09-29"
+    },
+    {
+      "ghsa": "GHSA-g3hv-75wg-m249",
+      "package": "minimatch",
+      "reason": "fixed only at >=11.0.1 and no holder admits 11: minimatch 3.1.5 under eslint 9 / @eslint/config-array / @eslint/eslintrc (^3.1.5) and eslint-plugin-react / eslint-plugin-jsx-a11y (^3.1.2), 9.0.9 under @wdio/config's glob 10.5.0 (^9.0.4), 10.2.5 under @typescript-eslint/typescript-estree and 10.2.6 under readdir-glob (^10.2.2); every holder's latest release, eslint 10 included, still requires 3.x or 10.x. npm's suggested remediations are major DOWNGRADES (eslint 4.0.0, webdriverio 8.6.1, pa11y-ci 1.2.0), rejected, as is an override to 11 under holders that do not admit it. Dev-only lint and harness chains, no runtime or bundle path.",
+      "owner": "2026-11-03-advisories-since-2026-10-12-closed",
+      "closing_condition": "the lint and harness holders (eslint and its plugins, typescript-estree, readdir-glob, @wdio/config's glob) move onto minimatch >=11.0.1 or drop it; prune when the gate runs green without this entry",
+      "added": "2026-11-03"
+    },
+    {
+      "ghsa": "GHSA-3g3m-2fjr-6pw4",
+      "package": "glob",
+      "reason": "vulnerable >=9.0.0 <=14.0.1; glob 10.5.0 is held by @wdio/config 9 (^10.2.2), and @wdio/config's latest release still requires ^13.0.6, inside the range. glob 7.2.3 under globby is outside the advisory. npm's suggested remediation is a major DOWNGRADE of webdriverio (8.6.1), rejected, as is an override to glob 14 under a holder that does not admit it. Dev-only harness chain (webdriverio), no runtime or bundle path.",
+      "owner": "2026-11-03-advisories-since-2026-10-12-closed",
+      "closing_condition": "@wdio/config (webdriverio) moves onto glob >=14.0.2 or drops it; prune when the gate runs green without this entry",
+      "added": "2026-11-03"
+    },
+    {
+      "ghsa": "GHSA-mrhx-c7xc-m3w5",
+      "package": "zod",
+      "reason": "fixed only at >=4.6.6; zod 3.25.76 is held by chromium-bidi 14.0.0 and 17.0.2 (^3.24.1), pinned exactly by puppeteer / puppeteer-core 24.43.1 (pa11y-ci 4.1.1 and its nested pa11y 9) and 25.9.0 (pa11y 10, lighthouse 13); only a newer chromium-bidi (zod ^4.6.5) reaches zod 4, through puppeteer releases those harness tools do not admit. npm's suggested remediation is a major DOWNGRADE (pa11y-ci 1.2.0), rejected, as is an override to zod 4 under a holder that requires 3.x. Dev-only a11y harness chains, no runtime or bundle path.",
+      "owner": "2026-11-03-advisories-since-2026-10-12-closed",
+      "closing_condition": "the puppeteer chains under pa11y-ci, pa11y and lighthouse move onto a chromium-bidi that requires zod >=4.6.6, or drop chromium-bidi; prune when the gate runs green without this entry",
+      "added": "2026-11-03"
     }
   ],
   "license_allow": {

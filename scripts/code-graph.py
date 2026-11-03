@@ -24,15 +24,19 @@ PLANES = {
         "recipe": "install rust-analyzer (rustup component add rust-analyzer, or a release binary on PATH)",
         "globs": ["*.rs"],
         "scip": "index.scip",
-        "argv": lambda exe, rt, out, roots: [exe, "scip", rt, "--output", out],
+        # Every Cargo feature on: a target behind `#[cfg(feature = ...)]` is a module with no symbols otherwise, and
+        # the indexer takes a feature set from --config-path alone (measured; a root rust-analyzer.toml is not read).
+        "config": {"cargo": {"features": "all"}},
+        "argv": lambda exe, rt, out, roots, cfg: [exe, "scip", rt, "--output", out]
+                                                  + (["--config-path", cfg] if cfg else []),
     },
     "ts": {
         "tool": "scip-typescript",
         "recipe": "npm i -g @sourcegraph/scip-typescript",
         "globs": ["*.ts", "*.tsx"],
         "scip": "index-ts.scip",
-        "argv": lambda exe, rt, out, roots: [exe, "index", "--cwd", rt, "--output", out,
-                                             "--no-progress-bar", *roots],
+        "argv": lambda exe, rt, out, roots, cfg: [exe, "index", "--cwd", rt, "--output", out,
+                                                  "--no-progress-bar", *roots],
     },
 }
 
@@ -136,8 +140,24 @@ def build_plane(rt, cache, plane, roots):
         for f in os.listdir(pd):          # pre-delete transients: parse only THIS run's file
             if f.endswith(".scip"):
                 os.remove(os.path.join(pd, f))
-        r = subprocess.run(spec["argv"](exe, rt, scip_path, roots), cwd=rt,
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        cfg, note = None, ""
+        if spec.get("config"):            # a transient beside the SCIP dump, removed when the indexer returns
+            cfg = os.path.join(pd, "indexer.json")
+            with open(cfg, "w", encoding="utf-8") as f:
+                json.dump(spec["config"], f)
+
+        def index(c):
+            return subprocess.run(spec["argv"](exe, rt, scip_path, roots, c), cwd=rt,
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        r = index(cfg)
+        if cfg and (r.returncode != 0 or not os.path.exists(scip_path)):   # a workspace all features break
+            r, note = index(None), " (default features - the all-features index failed)"
+        if cfg:
+            try:
+                os.remove(cfg)
+            except OSError:
+                pass
         if r.returncode != 0 or not os.path.exists(scip_path):
             return f"{plane} SKIPPED (indexer failed rc={r.returncode})"
 
@@ -191,8 +211,8 @@ def build_plane(rt, cache, plane, roots):
         with open(os.path.join(pd, "built.views"), "w", encoding="utf-8") as f:
             f.write(_views_hash() + "\n")   # a changed views file rebuilds the plane at the next query
         secs = int(time.time() - t0)
-        print(f"tree-refresh[{plane}]: {nodes} nodes / {edges} edges - {secs}s")
-        return f"{plane} ok {secs}s {nodes}/{edges}"
+        print(f"tree-refresh[{plane}]: {nodes} nodes / {edges} edges - {secs}s{note}")
+        return f"{plane} ok {secs}s {nodes}/{edges}{note}"
     finally:
         _unlock(pd)
 

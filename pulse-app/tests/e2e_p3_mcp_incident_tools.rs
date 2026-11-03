@@ -9,10 +9,8 @@
 //! the same Incident + parsed L4Output.
 //!
 //! Deterministic + in-process: uses an in-memory corpus with a fake keychain
-//! (no OS keychain, no subprocess). The cross-process subprocess framing is
-//! covered separately by `crates/mcp-server/tests/sidecar_subprocess.rs`.
-
-#![cfg(feature = "mcp-server")]
+//! (no OS keychain, no subprocess). The framing over the console engine's
+//! door is covered by `pulse-app/tests/integration_door.rs`.
 
 use std::sync::Arc;
 
@@ -21,7 +19,7 @@ use interpretation::markdown::{
     PreviouslySeenMatch, assemble_report, previously_seen_from_incidents, serialize_report,
 };
 use interpretation::schema::L4Output;
-use mcp_server_crate::tools::{IncidentToolContext, dispatch_tool};
+use mcp_server_crate::tools::{IncidentToolContext, call_tool};
 use serde_json::json;
 use triage::contract::{
     CueKind, CueScope, DIGEST_CORPUS_RETRIEVAL_LIMIT, EvidenceRefs, Incident, IncidentStatus,
@@ -140,14 +138,15 @@ fn mcp_retrieve_report_markdown_is_byte_identical_to_resolver() {
 
     let conn = fresh_buffer();
     let state = VizState::new();
-    let value = dispatch_tool(
+    let value = call_tool(
         &conn,
         &state,
         Some(&ctx),
         "retrieve_report",
         &json!({ "incident_id": id }),
     )
-    .expect("dispatch ok");
+    .expect("dispatch ok")
+    .value;
     let mcp_markdown = value["markdown"].as_str().expect("markdown string");
 
     assert_eq!(
@@ -232,14 +231,15 @@ fn mcp_retrieve_report_previously_seen_matches_resolver_selection() {
 
     let conn = fresh_buffer();
     let state = VizState::new();
-    let value = dispatch_tool(
+    let value = call_tool(
         &conn,
         &state,
         Some(&ctx),
         "retrieve_report",
         &json!({ "incident_id": id }),
     )
-    .expect("dispatch ok");
+    .expect("dispatch ok")
+    .value;
     let mcp_markdown = value["markdown"].as_str().expect("markdown string");
     assert!(
         mcp_markdown.contains("## Previously Seen"),
@@ -264,14 +264,15 @@ fn mcp_retrieve_report_markdown_parses_as_commonmark_with_six_sections() {
     let (ctx, id) = seed_corpus(&incident);
     let conn = fresh_buffer();
     let state = VizState::new();
-    let value = dispatch_tool(
+    let value = call_tool(
         &conn,
         &state,
         Some(&ctx),
         "retrieve_report",
         &json!({ "incident_id": id }),
     )
-    .expect("dispatch ok");
+    .expect("dispatch ok")
+    .value;
     let markdown = value["markdown"].as_str().expect("markdown string");
 
     let mut h1_count = 0_usize;
@@ -346,8 +347,9 @@ fn mcp_query_incident_list_returns_seeded_incident() {
 
     let conn = fresh_buffer();
     let state = VizState::new();
-    let value = dispatch_tool(&conn, &state, Some(&ctx), "query_incident_list", &json!({}))
-        .expect("dispatch ok");
+    let value = call_tool(&conn, &state, Some(&ctx), "query_incident_list", &json!({}))
+        .expect("dispatch ok")
+        .value;
     assert_eq!(value["total"].as_u64(), Some(1));
     let items = value["items"].as_array().expect("items");
     assert_eq!(items[0]["severity"].as_str(), Some("warn"));
@@ -505,14 +507,15 @@ fn mcp_retrieve_telemetry_slice_returns_the_deterministic_evidence_refs() {
 
     let conn = fresh_buffer();
     let state = VizState::new();
-    let value = dispatch_tool(
+    let value = call_tool(
         &conn,
         &state,
         Some(&ctx),
         "retrieve_telemetry_slice",
         &json!({ "incident_id": id }),
     )
-    .expect("dispatch ok");
+    .expect("dispatch ok")
+    .value;
 
     let refs: Vec<String> = value["fingerprint_refs"]
         .as_array()
@@ -539,14 +542,15 @@ fn mcp_retrieve_report_renders_the_deterministic_evidence_section() {
 
     let conn = fresh_buffer();
     let state = VizState::new();
-    let value = dispatch_tool(
+    let value = call_tool(
         &conn,
         &state,
         Some(&ctx),
         "retrieve_report",
         &json!({ "incident_id": id }),
     )
-    .expect("dispatch ok");
+    .expect("dispatch ok")
+    .value;
     let markdown = value["markdown"].as_str().expect("markdown string");
 
     assert!(

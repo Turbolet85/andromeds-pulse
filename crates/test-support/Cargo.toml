@@ -1,0 +1,14 @@
+[package]
+name = "test-support"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+# Test support only: a member takes this crate under its `[dev-dependencies]`
+# and nowhere else, and this crate depends on nothing but the types it builds.
+# Both are held by the xtask test module `test_support_edges`.
+[dependencies]
+ingest = { path = "../ingest" }

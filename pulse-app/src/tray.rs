@@ -11,8 +11,7 @@
 // Menu items wire to existing infrastructure (Open / Open Settings →
 // window focus; Quit → app.exit) or emit `tray.menu.interaction`
 // placeholders for handlers awaiting their epochs (Snapshot defers to
-// epoch 6's snapshot.generate; MCP toggle defers to chunk #46's rmcp
-// lifecycle but the menu item exists when --features mcp-server is built).
+// epoch 6's snapshot.generate).
 //
 // Halo state encoding via icon swap (Q1 Option C from research.md) is
 // intentionally NOT implemented in this chunk — Q1 Option D fallback
@@ -42,7 +41,7 @@ const MAIN_WINDOW_LABEL: &str = "main";
 
 // Bounded enum of menu item IDs. Matches obs allowlist `menu_item` field
 // values per `pulse-app/src/observability.rs::AllowList::production()`
-// chunks #4/#7 pre-allocations: {open, snapshot, mcp_toggle, quit}.
+// chunks #4/#7 pre-allocations: {open, snapshot, quit}.
 // `open_settings` extends the canonical set per design plan §Surface:
 // desktop-native canonical menu; the allowlist treats menu_item values as
 // bounded but does not pin the value-set to specific identifiers.
@@ -52,9 +51,6 @@ pub const MENU_ID_OPEN: &str = "open";
 pub const MENU_ID_SUMMARY: &str = "summary";
 #[doc(hidden)]
 pub const MENU_ID_SNAPSHOT: &str = "snapshot";
-#[cfg(feature = "mcp-server")]
-#[doc(hidden)]
-pub const MENU_ID_MCP_TOGGLE: &str = "mcp_toggle";
 #[doc(hidden)]
 pub const MENU_ID_OPEN_SETTINGS: &str = "open_settings";
 #[doc(hidden)]
@@ -188,28 +184,16 @@ fn build_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
 
     let quit_item = MenuItemBuilder::with_id(MENU_ID_QUIT, "Quit").build(app)?;
 
-    let mut builder = MenuBuilder::new(app)
+    MenuBuilder::new(app)
         .item(&open_item)
         .item(&PredefinedMenuItem::separator(app)?)
         .item(&summary_item)
         .item(&PredefinedMenuItem::separator(app)?)
-        .item(&snapshot_item);
-
-    #[cfg(feature = "mcp-server")]
-    {
-        let mcp_toggle_item =
-            tauri::menu::CheckMenuItemBuilder::with_id(MENU_ID_MCP_TOGGLE, "Toggle MCP Server")
-                .checked(false)
-                .build(app)?;
-        builder = builder.item(&mcp_toggle_item);
-    }
-
-    builder = builder
+        .item(&snapshot_item)
         .item(&open_settings_item)
         .item(&PredefinedMenuItem::separator(app)?)
-        .item(&quit_item);
-
-    builder.build()
+        .item(&quit_item)
+        .build()
 }
 
 fn handle_menu_event<R: Runtime>(app: &AppHandle<R>, menu_id: &str) {
@@ -240,20 +224,6 @@ fn handle_menu_event<R: Runtime>(app: &AppHandle<R>, menu_id: &str) {
                     "failed to emit tray://open-settings event",
                 );
             }
-        }
-        #[cfg(feature = "mcp-server")]
-        MENU_ID_MCP_TOGGLE => {
-            // Settings.mcp_server_enabled flip via existing update_settings
-            // procedure is the design intent (Q3 path 3a). Actual rmcp
-            // sidecar lifecycle is chunk #46's territory; this only flips
-            // the persisted flag. Wiring to Settings persistence helper
-            // is a follow-up enhancement for this chunk's scope.
-            warn!(
-                target: "tray.menu.interaction",
-                menu_item = "mcp_toggle",
-                deferred_to = "chunk_46_rmcp_lifecycle",
-                "MCP toggle: Settings.mcp_server_enabled flip not yet wired",
-            );
         }
         MENU_ID_SNAPSHOT => {
             // Defers to epoch 6's snapshot.generate per Q2 path 2a.
@@ -316,8 +286,6 @@ pub fn sanitize_menu_id(id: &str) -> &'static str {
     match id {
         MENU_ID_OPEN => "open",
         MENU_ID_SNAPSHOT => "snapshot",
-        #[cfg(feature = "mcp-server")]
-        MENU_ID_MCP_TOGGLE => "mcp_toggle",
         MENU_ID_OPEN_SETTINGS => "open_settings",
         MENU_ID_QUIT => "quit",
         _ => "unknown",

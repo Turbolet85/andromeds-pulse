@@ -9,7 +9,6 @@ import { useMemo, type RefObject } from "react";
 import { Modal } from "../components/Modal";
 import { ReportRenderer } from "./ReportRenderer";
 import { useReport } from "./use-report";
-import { useMcpDelivery } from "./use-mcp-delivery";
 import { COPY_LIVE_REGION_MESSAGES } from "./report-types";
 
 export interface ReportProps {
@@ -24,7 +23,6 @@ export function Report({ isOpen, onClose, incidentId, triggerRef, variant }: Rep
   const { report, loading, error, copyState, copyMarkdown } = useReport(
     isOpen ? incidentId : null,
   );
-  const mcpDelivery = useMcpDelivery(isOpen && report !== null);
 
   const liveMessage = useMemo(() => {
     return COPY_LIVE_REGION_MESSAGES[copyState];
@@ -66,9 +64,6 @@ export function Report({ isOpen, onClose, incidentId, triggerRef, variant }: Rep
           report={report}
           onCopyMarkdown={handleCopy}
           copyState={copyState}
-          mcpDeliveryAvailable={mcpDelivery.available}
-          sendState={mcpDelivery.sendState}
-          onSendToAgent={() => mcpDelivery.send(report.markdown)}
         />
       ) : null}
     </Modal>

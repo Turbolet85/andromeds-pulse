@@ -1,23 +1,7 @@
 # Master Route — andromeda-pulse
 
-<!--
-Cross-version immutable index. APPEND-ONLY via promotion in /andromeda-phase — route never adds records.
-One record per promoted chunk, grouped under its version section `## {project}-{version}`:
-  {marker} · {status: pending|complete} · {super-laconic description} · → {chunk folder link}
-marker = {date}-{slug} (e.g. 2026-06-28-otlp-batching), minted at promotion in /andromeda-phase.
-
-Pre-v3 history (v0.1.0 + v0.2.0) was built under the v2 pipeline and is NOT recorded per-chunk here
-(see the forensic note below). v3 chunk records accumulate forward under `## andromeda-pulse-0.3.0`
-and later version sections. Only `## {project}-{version}` headings are version sections — the
-version-cursor scan reads those exclusively; the forensic note is a blockquote, not a section.
--->
-
-> **Pre-v3 history (forensic — NOT a version section):** v0.1.0 + v0.2.0 shipped 100 chunks across
-> Epochs 1–9, route complete 100/100 (through session 185), all built under the v2 pipeline. Not
-> retro-converted to v3 per-chunk records. Full history lives in `.andromeda/route.md` (flat route +
-> amendment log) + `.andromeda/phases/` (per-chunk research + plan).
-
 ## andromeda-pulse-0.3.0
+
 2026-06-28-deterministic-env-gated-l4-mode · complete · Deterministic env-gated L4 mode (canned L4Output, no GPU/3B) · → andromeda-pulse-0.3.0/chunks/2026-06-28-deterministic-env-gated-l4-mode/
 2026-06-28-tier1-incident-path-reliability · complete · Tier1 incident-path reliability — thread triggering cue cadence→digest so a storm yields one reliable incident · → andromeda-pulse-0.3.0/chunks/2026-06-28-tier1-incident-path-reliability/
 2026-06-28-investigate-actions-functional · complete · Investigate actions functional — 4 buttons run real L4-backed analysis with visible progress + result/error · → andromeda-pulse-0.3.0/chunks/2026-06-28-investigate-actions-functional/
@@ -101,3 +85,23 @@ version-cursor scan reads those exclusively; the forensic note is a blockquote, 
 2026-10-06-npm-supply-chain-gate-is-green-again · complete · the npm supply-chain gate reads green again: seroval and source-map-js advisories fixed at source or excepted with a closing condition · → andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again/
 2026-10-06-l4-first-hypothesis-names-the-triggering-service · complete · the L4 framing instruction obliges the first hypothesis to name the triggering cue's scope_id (prompt v2.6); the pre-registered real-model reading read PASS with the baseline arm also meeting the bar, so the d3 fix itself is unmeasured · → andromeda-pulse-0.3.0/chunks/2026-10-06-l4-first-hypothesis-names-the-triggering-service/
 2026-10-07-l4-probe-reproduces-the-canary-history-miss · complete · the canary-history miss did not reproduce on a corpus-block shape (199 of 200) and reproduced on a captured product prompt (11 misses of 20); the pre-registered order selected CO and the founder chose CX, so a cue-bearing digest's corpus block keeps the triggering service's own history; the probe keeps no durable known-positive · → andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/
+
+## andromeda-pulse-0.4.0
+
+2026-10-09-ci-on-linux-alone · complete · CI on Linux alone: Windows and macOS legs leave lint-test and a11y, the release job whole; per-job wall-clock recorded · → andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/
+2026-10-09-supply-chain-job-same-on-push-and-pull-request · complete · Supply-chain job same on push and pull request: the audit step fails on a finding, never on its own reporting; repair witnessed on a push · → andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/
+2026-10-09-boot-smoke-s-early-exit-found-and-closed · complete · Boot smoke's early exit: no cause named — boot ready waits for the receivers; the CI smoke reads the app past its settle and keeps what a run that ends would show; P-129 not claimed · → andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed/
+2026-10-09-pre-push-check-native-on-linux · complete · Pre-push check native on Linux: the surviving stages run on the dev host; the wsl.exe hop and its distro clone leave · → andromeda-pulse-0.4.0/chunks/2026-10-09-pre-push-check-native-on-linux/
+2026-10-10-boot-smoke-s-self-end-named-from-a-run · complete · Boot smoke's self-end named from a run: the job keeps what names who ended the app (an exit witness, eight boots a run); the ending call named on ci#38019133294 in seven of eight boots; cause not closed · → andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-named-from-a-run/
+2026-10-10-boot-smoke-s-self-end-closed · complete · Boot smoke's self-end closed: every self-end counted with its label; the cause behind the ending call closed; equal source reads the same (P-129) · → andromeda-pulse-0.4.0/chunks/2026-10-10-boot-smoke-s-self-end-closed/
+2026-10-10-no-ci-step-reads-nothing · complete · No CI step reads nothing: every comparison has a producer for its baseline or is gone; every upload finds its file or is gone (P-128) · → andromeda-pulse-0.4.0/chunks/2026-10-10-no-ci-step-reads-nothing/
+2026-10-10-no-gate-stands-while-reading-nothing · complete · No gate stands while reading nothing: coverage branch and empty-report arms, empty test selections, boot budget and heartbeat reads, zero-span check: each reads something or leaves (P-128) · → andromeda-pulse-0.4.0/chunks/2026-10-10-no-gate-stands-while-reading-nothing/
+2026-10-10-capability-record-re-based · complete · one current record for all 82 capability ids, each claimed or retired with its surface; the old gate reads it · → andromeda-pulse-0.4.0/chunks/2026-10-10-capability-record-re-based/
+2026-10-10-console-engine-entry-point · complete · one console program boots ingest, buffer, detectors, corpus with no display, driven by commands; its log, identity, panic, heartbeat, process-end records kept · → andromeda-pulse-0.4.0/chunks/2026-10-10-console-engine-entry-point/
+2026-10-10-agent-harness-drives-the-console-engine · complete · the agent harness's five verbs drive the console engine and four checks grade its log · → andromeda-pulse-0.4.0/chunks/2026-10-10-agent-harness-drives-the-console-engine/
+2026-10-10-engine-harness-proofs-completed · complete · rejected port, socket census, lock-file place read on a spawned engine; pre-push reads a real engine cycle; cleanup, boot, logs verbs pinned in shell · → andromeda-pulse-0.4.0/chunks/2026-10-10-engine-harness-proofs-completed/
+2026-10-10-shared-telemetry-test-data · complete · spans, metric points and log records from one set of test factories in the dev-only member test-support; event time, service and attributes settable, the version setter carried to Span keeps its identity; one port claim for the port-using tests; engine-boot tests on claimed ports · → andromeda-pulse-0.4.0/chunks/2026-10-10-shared-telemetry-test-data/
+2026-10-10-door-inside-the-engine-s-process · complete · a door inside the console engine's process: the sidecar's nine tools read the engine's stores over an owner-only Unix socket on the engine's own host, calls bounded and their records allowlisted, the one write switchable; the stdio sidecar and its double gate stay until Stdio sidecar retired (P-126 verified; P-092 and P-093 advanced, not claimed) · → andromeda-pulse-0.4.0/chunks/2026-10-10-door-inside-the-engine-s-process/
+2026-10-12-stdio-agent-reaches-the-door · complete · a stdio agent reaches the door's tools with no sidecar · → andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door/
+2026-11-03-stdio-sidecar-retired · complete · the stdio sidecar, its double gate, its window side and CI job leave; its tests read through the door · → chk:2026-11-03-stdio-sidecar-retired
+2026-11-03-advisories-since-2026-10-12-closed · complete · Advisories since 2026-10-12 closed — cargo audit green by upgrade, no ignore where a safe upgrade is stated; the supply-chain job's hidden steps read · → chk:2026-11-03-advisories-since-2026-10-12-closed

@@ -483,16 +483,16 @@ mod tests {
     }
 
     #[test]
-    fn classify_reds_when_staged_bindings_lack_the_mcp_namespace() {
-        let without_mcp: Vec<&str> = crate::EXPECTED_PROCEDURES
+    fn classify_reds_when_staged_bindings_lack_the_plugins_namespace() {
+        let without_plugins: Vec<&str> = crate::EXPECTED_PROCEDURES
             .iter()
             .copied()
-            .filter(|p| !p.starts_with("mcp."))
+            .filter(|p| !p.starts_with("plugins."))
             .collect();
-        let bindings = SubjectContent::Present(bindings_content_for(&without_mcp));
+        let bindings = SubjectContent::Present(bindings_content_for(&without_plugins));
         let findings = classify(&bindings, &clean_capabilities(), &[]);
         assert!(!findings.is_clean());
-        for name in ["mcp.start", "mcp.status", "mcp.stop"] {
+        for name in ["plugins.list", "plugins.reload", "plugins.invoke"] {
             assert!(
                 findings.bindings_missing.iter().any(|m| m == name),
                 "missing set must name {name}: {:?}",
@@ -685,7 +685,7 @@ mod tests {
         assert_eq!(clean.arm, "staged-clean");
         assert_eq!(clean.exit, 0);
         let drift = report_for(&StagedFindings {
-            bindings_missing: vec!["mcp.start".to_string()],
+            bindings_missing: vec!["plugins.list".to_string()],
             ..StagedFindings::default()
         });
         assert_eq!(drift.arm, "staged-drift");
@@ -742,13 +742,13 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn fixture_repo_with_staged_no_mcp_bindings_reports_staged_drift() {
-        let without_mcp: Vec<&str> = crate::EXPECTED_PROCEDURES
+    async fn fixture_repo_with_staged_no_plugins_bindings_reports_staged_drift() {
+        let without_plugins: Vec<&str> = crate::EXPECTED_PROCEDURES
             .iter()
             .copied()
-            .filter(|p| !p.starts_with("mcp."))
+            .filter(|p| !p.starts_with("plugins."))
             .collect();
-        let dir = fixture_repo(&bindings_content_for(&without_mcp)).await;
+        let dir = fixture_repo(&bindings_content_for(&without_plugins)).await;
         let report = evaluate_at(dir.path()).await;
         assert_eq!(report.arm, "staged-drift", "{}", report.payload);
         assert_eq!(report.exit, 1);
@@ -758,7 +758,7 @@ mod tests {
             .iter()
             .filter_map(Value::as_str)
             .collect::<Vec<_>>();
-        assert!(missing.contains(&"mcp.start"), "{missing:?}");
+        assert!(missing.contains(&"plugins.list"), "{missing:?}");
     }
 
     #[tokio::test]
@@ -805,12 +805,16 @@ mod tests {
         // add — a worktree-reading check would false-RED here.
         let dir = fixture_repo(&bindings_content_for(crate::EXPECTED_PROCEDURES)).await;
         let root = dir.path();
-        let without_mcp: Vec<&str> = crate::EXPECTED_PROCEDURES
+        let without_plugins: Vec<&str> = crate::EXPECTED_PROCEDURES
             .iter()
             .copied()
-            .filter(|p| !p.starts_with("mcp."))
+            .filter(|p| !p.starts_with("plugins."))
             .collect();
-        write_fixture(root, BINDINGS_SUBJECT, &bindings_content_for(&without_mcp));
+        write_fixture(
+            root,
+            BINDINGS_SUBJECT,
+            &bindings_content_for(&without_plugins),
+        );
         let report = evaluate_at(root).await;
         assert_eq!(report.arm, "staged-clean", "{}", report.payload);
     }
@@ -819,12 +823,12 @@ mod tests {
     async fn fixture_repo_reds_when_only_the_index_carries_the_clobber() {
         // Fifth-occurrence shape: the worktree was repaired after staging, so
         // the commit would still ship the clobbered copy.
-        let without_mcp: Vec<&str> = crate::EXPECTED_PROCEDURES
+        let without_plugins: Vec<&str> = crate::EXPECTED_PROCEDURES
             .iter()
             .copied()
-            .filter(|p| !p.starts_with("mcp."))
+            .filter(|p| !p.starts_with("plugins."))
             .collect();
-        let dir = fixture_repo(&bindings_content_for(&without_mcp)).await;
+        let dir = fixture_repo(&bindings_content_for(&without_plugins)).await;
         let root = dir.path();
         write_fixture(
             root,

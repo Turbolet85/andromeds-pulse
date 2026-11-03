@@ -6,7 +6,7 @@
 //! - **hot_applied** — re-applied live this chunk (cadence + lifecycle keys);
 //!   their consumers re-read from the `watch` channel within ~2s.
 //! - **restart_required** — raise a notice but DO NOT apply live (Drain
-//!   params, retention, MCP sidecar toggle map to arch-locked one-time-init
+//!   params, retention map to arch-locked one-time-init
 //!   substrate per arch §Established Decisions).
 //! - **silent** — UI preferences / per-use values that need no notice (they
 //!   are normally changed via the Settings modal + picked up on next read).
@@ -54,7 +54,7 @@ pub fn partition_changed_keys(old: &Settings, new: &Settings) -> ChangedKeys {
 
     // Restart-required (notice only): Drain template-miner knobs are
     // captured at boot per the contract.rs comment ("changes require
-    // restart to apply"); retention + MCP sidecar likewise bind at boot.
+    // restart to apply"); retention likewise binds at boot.
     if old.drain_depth != new.drain_depth {
         c.restart_required.push("drain_depth");
     }
@@ -66,9 +66,6 @@ pub fn partition_changed_keys(old: &Settings, new: &Settings) -> ChangedKeys {
     }
     if old.retention_seconds != new.retention_seconds {
         c.restart_required.push("retention_seconds");
-    }
-    if old.mcp_server_enabled != new.mcp_server_enabled {
-        c.restart_required.push("mcp_server_enabled");
     }
 
     // Silent (no notice): UI prefs / per-use values.
@@ -121,18 +118,16 @@ mod tests {
     }
 
     #[test]
-    fn drain_retention_mcp_changes_land_in_restart_bucket() {
+    fn drain_retention_changes_land_in_restart_bucket() {
         let old = Settings::default();
         let new = Settings {
             drain_depth: 5,
             retention_seconds: old.retention_seconds + 30,
-            mcp_server_enabled: !old.mcp_server_enabled,
             ..old.clone()
         };
         let c = partition_changed_keys(&old, &new);
         assert!(c.restart_required.contains(&"drain_depth"));
         assert!(c.restart_required.contains(&"retention_seconds"));
-        assert!(c.restart_required.contains(&"mcp_server_enabled"));
         assert!(c.hot_applied.is_empty());
     }
 

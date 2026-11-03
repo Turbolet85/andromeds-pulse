@@ -405,7 +405,6 @@ mod runtime {
                     IngestChannelStatus::Saturated { capacity_pct } => capacity_pct as u32,
                 })
                 .unwrap_or(0);
-            let mcp_server_enabled = self.features.iter().any(|f| f == "mcp-server");
             // Live buffer stats for the P-070 status line. buffer_used_seconds
             // is the span of currently-buffered data (now - first-append),
             // eviction-capped at the retention window so it never claims more
@@ -431,7 +430,6 @@ mod runtime {
                 // plugins_loaded stays 0 until plugins crate ships the real
                 // host-loaded count surface (Epoch 7).
                 plugins_loaded: 0,
-                mcp_server_enabled,
                 rows_ingested,
                 buffer_used_seconds,
                 retention_seconds: self.retention_seconds,
@@ -476,7 +474,7 @@ mod runtime {
                 target: "ui-bridge.update_settings",
                 method_name = "update_settings",
                 result_type = "()",
-                setting_keys_changed = "theme,widget_position,retention_seconds,mcp_server_enabled,notifications_enabled,always_on_top",
+                setting_keys_changed = "theme,widget_position,retention_seconds,notifications_enabled,always_on_top",
                 "introspection invoked",
             );
             settings.validate()?;
@@ -807,15 +805,18 @@ mod introspection_tests {
     #[tokio::test]
     async fn app_info_returns_andromeda_pulse_name_and_compile_time_versions() {
         let dir = tempfile::tempdir().expect("tempdir");
-        let api = make_impl(dir.path().to_path_buf(), vec!["mcp-server".to_string()]);
+        let api = make_impl(
+            dir.path().to_path_buf(),
+            vec!["example-feature".to_string()],
+        );
         let info = api.app_info().await.expect("app_info ok");
         assert_eq!(info.name, "andromeda-pulse");
         assert!(!info.version.is_empty());
         assert!(!info.rust_version.is_empty());
         assert!(!info.tauri_version.is_empty());
         assert!(
-            info.features.iter().any(|f| f == "mcp-server"),
-            "features should contain mcp-server when constructor passes it"
+            info.features.iter().any(|f| f == "example-feature"),
+            "features should carry what the constructor passes"
         );
     }
 
@@ -855,7 +856,6 @@ mod introspection_tests {
             "ingest_mpsc_capacity_pct",
             "broadcast_subscribers",
             "plugins_loaded",
-            "mcp_server_enabled",
             "rows_ingested",
             "buffer_used_seconds",
             "retention_seconds",
@@ -865,14 +865,6 @@ mod introspection_tests {
                 "ready envelope checks missing key {key}"
             );
         }
-    }
-
-    #[tokio::test]
-    async fn ready_reports_mcp_server_enabled_from_features() {
-        let dir = tempfile::tempdir().expect("tempdir");
-        let api = make_impl(dir.path().to_path_buf(), vec!["mcp-server".to_string()]);
-        let env = api.ready().await.expect("ready ok");
-        assert!(env.checks.mcp_server_enabled);
     }
 
     #[tokio::test]
@@ -914,7 +906,6 @@ mod introspection_tests {
             theme: Theme::Light,
             widget_position: WidgetPosition::BottomLeft,
             retention_seconds: 300,
-            mcp_server_enabled: true,
             notifications_enabled: false,
             always_on_top: false,
             snapshot_preset: SnapshotPreset::Detailed,

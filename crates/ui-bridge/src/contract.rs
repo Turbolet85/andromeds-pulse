@@ -114,8 +114,6 @@ pub struct Settings {
     pub widget_position: WidgetPosition,
     #[serde(default = "default_retention_seconds")]
     pub retention_seconds: u64,
-    #[serde(default)]
-    pub mcp_server_enabled: bool,
     #[serde(default = "default_notifications_enabled")]
     pub notifications_enabled: bool,
     #[serde(default = "default_always_on_top")]
@@ -228,7 +226,6 @@ impl Default for Settings {
             theme: Theme::default(),
             widget_position: WidgetPosition::default(),
             retention_seconds: default_retention_seconds(),
-            mcp_server_enabled: false,
             notifications_enabled: default_notifications_enabled(),
             always_on_top: default_always_on_top(),
             snapshot_preset: SnapshotPreset::default(),
@@ -380,7 +377,6 @@ pub struct ReadyChecks {
     pub ingest_mpsc_capacity_pct: u32,
     pub broadcast_subscribers: u32,
     pub plugins_loaded: u32,
-    pub mcp_server_enabled: bool,
     // Live buffer stats backing the plain-language connection-status line
     // (P-070). `rows_ingested` is the cumulative appended-span counter (the
     // webview derives spans/s from its delta); `buffer_used_seconds` is the
@@ -774,21 +770,8 @@ impl From<WorkspaceDetectorError> for AppError {
 impl From<McpServerError> for AppError {
     fn from(e: McpServerError) -> Self {
         let (message, source_kind) = match e {
-            McpServerError::FeatureNotEnabled { .. } => (
-                "mcp-server: feature not enabled at compile time",
-                "feature_not_enabled",
-            ),
-            McpServerError::EnvVarDisabled => (
-                "mcp-server: sidecar disabled (env var unset or not truthy)",
-                "env_var_disabled",
-            ),
-            McpServerError::RmcpInit { .. } => ("mcp-server: rmcp server init failed", "rmcp_init"),
             McpServerError::JsonRpcFraming { .. } => {
                 ("mcp-server: JSON-RPC framing error", "json_rpc_framing")
-            }
-            McpServerError::Io { .. } => ("mcp-server: I/O error during sidecar run", "io"),
-            McpServerError::TracingInit { .. } => {
-                ("mcp-server: tracing subscriber init failed", "tracing_init")
             }
             McpServerError::ToolDispatchFailed { .. } => {
                 ("mcp-server: tool dispatch failed", "tool_dispatch_failed")
@@ -1469,37 +1452,6 @@ mod tests {
     }
 
     #[test]
-    fn from_mcp_server_env_var_disabled_collapses_to_constant_message_no_leak() {
-        let e = AppError::from(McpServerError::EnvVarDisabled);
-        match e {
-            AppError::Internal { message } => {
-                assert_eq!(
-                    message,
-                    "mcp-server: sidecar disabled (env var unset or not truthy)"
-                );
-                assert!(!message.contains('/'));
-                assert!(!message.contains("::"));
-            }
-            other => panic!("expected AppError::Internal, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn from_mcp_server_rmcp_init_collapses_to_constant_message_no_leak() {
-        let e = AppError::from(McpServerError::RmcpInit {
-            detail: "stdio transport unavailable at /private/path/secret-canary".into(),
-        });
-        match e {
-            AppError::Internal { message } => {
-                assert_eq!(message, "mcp-server: rmcp server init failed");
-                assert!(!message.contains('/'));
-                assert!(!message.contains("secret-canary"));
-            }
-            other => panic!("expected AppError::Internal, got {other:?}"),
-        }
-    }
-
-    #[test]
     fn from_mcp_server_json_rpc_framing_collapses_to_constant_message_no_leak() {
         let e = AppError::from(McpServerError::JsonRpcFraming {
             detail: "parse error at crate::module::Type secret".into(),
@@ -1827,36 +1779,6 @@ mod tests {
         );
     }
 
-    #[test]
-    fn from_mcp_server_env_var_disabled_emits_tracing_warn_at_internal_target() {
-        let events = capture(|| {
-            let _ = AppError::from(McpServerError::EnvVarDisabled);
-        });
-        assert!(
-            events
-                .iter()
-                .any(|(target, level)| target == "ui-bridge.error.internal"
-                    && *level == tracing::Level::WARN),
-            "expected WARN at ui-bridge.error.internal; got {events:?}"
-        );
-    }
-
-    #[test]
-    fn from_mcp_server_io_error_emits_tracing_warn_at_internal_target() {
-        let events = capture(|| {
-            let _ = AppError::from(McpServerError::Io {
-                source: std::io::Error::new(std::io::ErrorKind::BrokenPipe, "stdin closed"),
-            });
-        });
-        assert!(
-            events
-                .iter()
-                .any(|(target, level)| target == "ui-bridge.error.internal"
-                    && *level == tracing::Level::WARN),
-            "expected WARN at ui-bridge.error.internal; got {events:?}"
-        );
-    }
-
     // ===== Chunk #27 introspection contracts =====
 
     #[test]
@@ -1878,10 +1800,9 @@ mod tests {
     }
 
     #[test]
-    fn settings_default_notifications_enabled_true_mcp_disabled() {
+    fn settings_default_notifications_enabled_true() {
         let s = Settings::default();
         assert!(s.notifications_enabled);
-        assert!(!s.mcp_server_enabled);
     }
 
     #[test]
@@ -1890,7 +1811,6 @@ mod tests {
             theme: Theme::Auto,
             widget_position: WidgetPosition::BottomLeft,
             retention_seconds: 300,
-            mcp_server_enabled: true,
             notifications_enabled: false,
             always_on_top: false,
             snapshot_preset: SnapshotPreset::Detailed,
@@ -2343,7 +2263,7 @@ mod tests {
             version: "0.1.0".to_string(),
             rust_version: "1.85".to_string(),
             tauri_version: "2.11".to_string(),
-            features: vec!["mcp-server".to_string()],
+            features: Vec::new(),
             build_profile: "release".to_string(),
         };
         let v: serde_json::Value =
@@ -2372,7 +2292,6 @@ mod tests {
                 ingest_mpsc_capacity_pct: 5,
                 broadcast_subscribers: 2,
                 plugins_loaded: 0,
-                mcp_server_enabled: false,
                 rows_ingested: 1234,
                 buffer_used_seconds: 120,
                 retention_seconds: 600,
@@ -2386,7 +2305,6 @@ mod tests {
             "ingest_mpsc_capacity_pct",
             "broadcast_subscribers",
             "plugins_loaded",
-            "mcp_server_enabled",
             "rows_ingested",
             "buffer_used_seconds",
             "retention_seconds",

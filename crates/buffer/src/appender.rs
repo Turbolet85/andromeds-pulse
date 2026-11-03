@@ -940,6 +940,7 @@ mod tests {
     };
     use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
     use ingest::grpc::proto::opentelemetry::proto::trace::v1::{ScopeSpans, Span, span};
+    use test_support::otlp::{GaugeBuilder, MetricPointBuilder, gauge, metric_point, resource};
 
     fn fresh_conn_with_schema() -> Connection {
         let conn = Connection::open_in_memory().expect("open_in_memory");
@@ -1590,49 +1591,28 @@ mod tests {
         );
     }
 
-    fn gauge_point(ts: u64, value: i64, label: Option<(&str, &str)>) -> NumberDataPoint {
-        NumberDataPoint {
-            attributes: label
-                .map(|(k, v)| {
-                    vec![KeyValue {
-                        key: k.into(),
-                        value: Some(AnyValue {
-                            value: Some(any_value::Value::StringValue(v.into())),
-                        }),
-                    }]
-                })
-                .unwrap_or_default(),
-            start_time_unix_nano: 0,
-            time_unix_nano: ts,
-            exemplars: Vec::new(),
-            flags: 0,
-            value: Some(number_data_point::Value::AsInt(value)),
+    fn gauge_point(ts: u64, value: i64, label: Option<(&str, &str)>) -> MetricPointBuilder {
+        let point = metric_point().at(ts).value(value);
+        match label {
+            Some((key, label_value)) => point.attribute(key, label_value),
+            None => point,
         }
     }
 
-    fn gauge_metric(name: &str, data_points: Vec<NumberDataPoint>) -> Metric {
-        Metric {
-            name: name.into(),
-            description: String::new(),
-            unit: String::new(),
-            metadata: Vec::new(),
-            data: Some(metric::Data::Gauge(Gauge { data_points })),
-        }
+    fn gauge_metric(name: &str, data_points: Vec<MetricPointBuilder>) -> GaugeBuilder {
+        gauge().name(name).points(data_points)
     }
 
-    fn append_metrics_on_worker(metrics: Vec<Metric>) -> (Result<u64, String>, Vec<(String, f64)>) {
+    fn append_metrics_on_worker(
+        metrics: Vec<GaugeBuilder>,
+    ) -> (Result<u64, String>, Vec<(String, f64)>) {
         let (tx, rx) = std::sync::mpsc::channel();
         std::thread::spawn(move || {
             let conn = fresh_conn_with_schema();
-            let batch = vec![ResourceMetrics {
-                resource: Some(make_resource("svc-collide")),
-                scope_metrics: vec![ScopeMetrics {
-                    scope: None,
-                    metrics,
-                    schema_url: String::new(),
-                }],
-                schema_url: String::new(),
-            }];
+            let batch = resource()
+                .service("svc-collide")
+                .gauges(metrics)
+                .resource_metrics();
 
             let appended = append_metrics_batch(&conn, &batch).map_err(|e| e.to_string());
             let rows: Vec<(String, f64)> = conn
@@ -1816,42 +1796,18 @@ mod tests {
 
     /// One gauge whose points differ ONLY by their attribute set.
     fn labelled_metric_batch(name: &str, labels: &[&[(&str, &str)]]) -> Vec<ResourceMetrics> {
-        let data_points: Vec<NumberDataPoint> = labels
-            .iter()
-            .enumerate()
-            .map(|(i, pairs)| NumberDataPoint {
-                attributes: pairs
-                    .iter()
-                    .map(|(k, v)| KeyValue {
-                        key: (*k).into(),
-                        value: Some(AnyValue {
-                            value: Some(any_value::Value::StringValue((*v).into())),
-                        }),
-                    })
-                    .collect(),
-                start_time_unix_nano: 0,
-                time_unix_nano: 1_700_000_000_000_000_000,
-                exemplars: Vec::new(),
-                flags: 0,
-                value: Some(number_data_point::Value::AsInt(i as i64)),
-            })
-            .collect();
+        let points = labels.iter().zip(0..).map(|(pairs, ordinal)| {
+            pairs
+                .iter()
+                .fold(metric_point().value(ordinal), |point, (key, value)| {
+                    point.attribute(key, value)
+                })
+        });
 
-        vec![ResourceMetrics {
-            resource: Some(make_resource("svc-labels")),
-            scope_metrics: vec![ScopeMetrics {
-                scope: None,
-                metrics: vec![Metric {
-                    name: name.into(),
-                    description: String::new(),
-                    unit: String::new(),
-                    metadata: Vec::new(),
-                    data: Some(metric::Data::Gauge(Gauge { data_points })),
-                }],
-                schema_url: String::new(),
-            }],
-            schema_url: String::new(),
-        }]
+        resource()
+            .service("svc-labels")
+            .gauge(gauge().name(name).points(points))
+            .resource_metrics()
     }
 
     fn stored_labels(batch: &[ResourceMetrics]) -> Vec<String> {

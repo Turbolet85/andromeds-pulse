@@ -1,5 +1,0 @@
-[
-  {
-    "post_test_zero_ref": 1125
-  }
-]

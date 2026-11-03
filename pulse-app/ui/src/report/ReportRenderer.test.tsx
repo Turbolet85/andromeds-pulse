@@ -1,7 +1,6 @@
 // Copy control name/role/state contract (a11y-plan §4 ARIA Patterns, Button
 // row): the acting button reports `aria-busy` while the clipboard write is in
-// flight, and drops it in every settled state. The sibling SendToAgentButton
-// pins the same shape for the MCP delivery control.
+// flight, and drops it in every settled state.
 //
 // The headful `report-copy` stage cannot cover this: the write settles faster
 // than its 250ms poll, so the transient `copying` state is never sampled there.

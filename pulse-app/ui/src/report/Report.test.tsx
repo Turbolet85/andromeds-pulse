@@ -9,17 +9,14 @@ import { createRef } from "react";
 
 const mocks = vi.hoisted(() => ({
   useReport: vi.fn(),
-  useMcpDelivery: vi.fn(),
 }));
 
 vi.mock("./use-report", () => ({ useReport: mocks.useReport }));
-vi.mock("./use-mcp-delivery", () => ({ useMcpDelivery: mocks.useMcpDelivery }));
 
 import { Report } from "./Report";
 
 afterEach(() => {
   mocks.useReport.mockReset();
-  mocks.useMcpDelivery.mockReset();
 });
 
 function renderLoadError() {
@@ -29,11 +26,6 @@ function renderLoadError() {
     error: "Failed to load report",
     copyState: "idle",
     copyMarkdown: vi.fn(),
-  });
-  mocks.useMcpDelivery.mockReturnValue({
-    available: false,
-    sendState: "idle",
-    send: vi.fn(),
   });
   const triggerRef = createRef<HTMLElement>();
   return render(

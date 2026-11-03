@@ -108,9 +108,9 @@ pub enum IncidentWriteOutcome {
 
 /// Read port over durable storage answering "which incidents does the durable
 /// store still consider active?" — the input to reconciling the in-memory
-/// registry against writers OUTSIDE this process (the `andromeda-pulse-mcp`
-/// sidecar resolves rows via its own connection, and the registry has no other
-/// way to learn of it: the boot restore is its only durable read).
+/// registry against writers that bypass it (the door's `mark_incident_resolved`
+/// resolves rows through the corpus handle directly, and the registry has no
+/// other way to learn of it: the boot restore is its only durable read).
 ///
 /// Deliberately narrower than `IncidentPersistence`: ids ONLY, so nothing
 /// decrypts or decodes a payload here and no storage type crosses into

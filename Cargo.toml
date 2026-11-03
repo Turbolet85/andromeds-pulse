@@ -15,6 +15,7 @@ members = [
     "crates/mcp-server",
     "crates/interpretation",
     "crates/config-watcher",
+    "crates/test-support",
     "pulse-app",
     "xtask",
 ]
@@ -103,18 +104,6 @@ tower_governor = { version = "0.8", default-features = false, features = ["axum"
 duckdb = { version = "1.10500", features = ["bundled", "appender-arrow"] }
 arrow = "58"
 
-# rmcp stdio sidecar (route#48 origin; re-pinned at 2026-08-29-advisory-backlog).
-# Bumped 0.6 → 3 to close RUSTSEC-2026-0189 (DNS rebinding, Streamable HTTP
-# transport; stated safe upgrade >=1.4.0 — the 3.x line is the current major,
-# so the bump does not land on an already-superseded line). This also retires
-# the chunk #48 reconciliation note: the old "rmcp 1.5.0 not sourceable, pin
-# the 0.x line" caveat (arch §Established Decisions [MCP Server Surface]) is
-# obsolete by measurement — the published line reached 3.x.
-# `optional = true` per arch §Cross-cutting Patterns "Feature-gate hygiene" —
-# rmcp only enters the build graph under `--features mcp-server`. Feature set
-# kept minimal: `server` + `transport-io` (both verified present at 3.1.4).
-rmcp = { version = "3", features = ["server", "transport-io"] }
-
 # Plugin host runtime (route#45 — Epoch 7 Plugin runtime + MCP server opens).
 # wasmtime 25+ with WASM Component Model per arch §Stack and Technologies + §Established
 # Decisions [Plugin Runtime]. Cranelift backend stays default on x86_64 (security plan
@@ -137,7 +126,14 @@ rmcp = { version = "3", features = ["server", "transport-io"] }
 # stack overflow); stated safe upgrade >=48.0.4, <49.0.0 or >=49.0.2. 49.x
 # needs rustc 1.96 while the toolchain is pinned at 1.95. The lockfile
 # resolves 48.0.5, which differs from 48.0.4 only by an artifact-publishing fix.
-wasmtime = { version = "48.0.4", features = ["component-model"] }
+# 2026-11-03: 48.0.4 -> 48.0.8 for RUSTSEC-2026-0353 ... -0359, -0361 ... -0364,
+# -0378, -0379, -0422, -0423 and -0424 (component-model host panics, an
+# unenforced async-entrypoint requirement, uncharged handle tables, unaligned
+# exception-tag data, an aarch64 `br_table` mis-jump, cross-engine type
+# confusion, unchecked borrowed-resource transfer); stated safe upgrade on the
+# 48 line >=48.0.8, <49.0.0. 49.x still needs rustc 1.96 while the toolchain is
+# pinned at 1.95.
+wasmtime = { version = "48.0.8", features = ["component-model"] }
 wat = "1"
 
 # Triage baseline trackers + corpus persistence (route#61 — Epoch 9 Foundation v0.2.0 fifth chunk).

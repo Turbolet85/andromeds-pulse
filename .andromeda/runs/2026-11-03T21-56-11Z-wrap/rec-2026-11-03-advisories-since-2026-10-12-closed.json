@@ -1,0 +1,1971 @@
+[
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:02:26Z",
+"argv": [
+"put",
+"--root",
+".",
+"--doc",
+"report",
+"--owner",
+"chk:2026-11-03-advisories-since-2026-10-12-closed",
+"--file",
+".andromeda/cache/docs/2026-11-03-advisories-since-2026-10-12-closed/report.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 2026-11-03-advisories-since-2026-10-12-closed/report rev 1 · 36 new · 0 revised · 0 retired · 0 kept · tx 112"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:02:31Z",
+"argv": [
+"put",
+"--root",
+".",
+"--doc",
+"report",
+"--owner",
+"chk:2026-11-03-advisories-since-2026-10-12-closed",
+"--section-file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/new-text.md",
+"--heading",
+"## New text, by line",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 2026-11-03-advisories-since-2026-10-12-closed/report rev 2 · 12 new · 0 revised · 0 retired · 36 kept · tx 113"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:04:52Z",
+"argv": [
+"put",
+"--root",
+".",
+"--doc",
+"report",
+"--owner",
+"chk:2026-11-03-advisories-since-2026-10-12-closed",
+"--section-file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/addendum-1.md",
+"--heading",
+"## Addendum 1 — resumed 2026-11-03",
+"--before",
+"## New text, by line",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 2026-11-03-advisories-since-2026-10-12-closed/report rev 3 · 2 new · 0 revised · 0 retired · 48 kept · tx 116"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:05:18Z",
+"argv": [
+"cites-land",
+"--root",
+".",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/cites-land-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"--base",
+"4080303a15c7b20416a8d6b695887fe625d4896a",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would land 0 fact(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:05:27Z",
+"argv": [
+"cites-land",
+"--root",
+".",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/cites-land-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"--base",
+"4080303a15c7b20416a8d6b695887fe625d4896a",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 0 fact(s) · 0 edge(s) · tx 117"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:14:08Z",
+"argv": [
+"put",
+"--root",
+".",
+"--doc",
+"report",
+"--owner",
+"chk:2026-11-03-advisories-since-2026-10-12-closed",
+"--section-file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/addendum-2.md",
+"--heading",
+"## Addendum 2 — resumed 2026-11-03",
+"--before",
+"## New text, by line",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 2026-11-03-advisories-since-2026-10-12-closed/report rev 4 · 2 new · 0 revised · 0 retired · 50 kept · tx 119"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:22:58Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/apply-architecture.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-wn2ucoyt",
+"E2 · applied · fct-moirbwp3",
+"E3 · applied · fct-xsj444ab",
+"E4 · applied · fct-jcbi3j36",
+"E5 · applied · fct-6y2lp7rz",
+"E6 · applied · fct-rj5pbaue",
+"E7 · applied · fct-a62vsmwv",
+"E8 · applied · fct-s36jrtky",
+"E9 · applied · fct-s765xh2i",
+"E10 · applied · fct-qiuibtut",
+"E11 · applied · fct-twrv2qiu",
+"E12 · applied · fct-rjyoe4ax",
+"E13 · applied · fct-bka6rc62",
+"E14 · applied · fct-wdpv3pq2",
+"E15 · applied · fct-rkbubyxp",
+"E16 · applied · fct-rsvfsams",
+"E17 · applied · fct-syp7tq5s",
+"E18 · applied · fct-wzk2x6ka",
+"E19 · applied · fct-3k7t2g4l",
+"E20 · applied · fct-ob4ts4xm",
+"E21 · applied · fct-qsvopkhj",
+"E22 · applied · fct-4nu3wh7b",
+"E23 · applied · fct-hgj34est",
+"E24 · applied · fct-wuyupllp",
+"E25 · applied · fct-ulzkjofc",
+"E26 · applied · fct-g7bqq44n",
+"E27 · applied · fct-r6qmu7wo",
+"E28 · applied · fct-x56az6wm",
+"dry-run · would land 28 record(s) · 1 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:22:58Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/apply-security-plan.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-tg5z4vbe",
+"E2 · applied · fct-3ey2oony",
+"E3 · applied · fct-kmsyqgta",
+"E4 · applied · fct-6geshnvr",
+"E5 · applied · fct-gn744k3z",
+"E6 · applied · fct-lwwyrpa6",
+"E7 · applied · fct-ty7icrgc",
+"E8 · applied · fct-j4oj6ftt",
+"E9 · applied · fct-inw2zo7r",
+"E10 · applied · fct-ashdoovw",
+"E11 · applied · fct-xsadt7mu",
+"E12 · applied · fct-ixrmtmoe",
+"E13 · applied · fct-cvhwrox6",
+"E14 · applied · fct-y6svlsyp",
+"dry-run · would land 14 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:22:58Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/apply-test-plan.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-ahyhfjr6",
+"E2 · applied · fct-ylz3qbha",
+"E3 · applied · fct-uo3y5o44",
+"E4 · applied · fct-35qjdhiv",
+"E5 · applied · fct-ep45valw",
+"E6 · applied · fct-mqmrzd2o",
+"dry-run · would land 6 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:22:58Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/apply-obs-plan.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-4vrfwv27",
+"E2 · applied · fct-c6we2ewi",
+"E3 · applied · fct-sjvcbexl",
+"E4 · applied · fct-rq75gb6d",
+"E5 · applied · fct-fzliht4o",
+"E6 · applied · fct-liu5ghst",
+"E7 · applied · fct-anuozml7",
+"E8 · applied · fct-udg32czu",
+"dry-run · would land 8 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:22:59Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/edits-main.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-z32zdd7c",
+"E2 · applied · fct-35cgfrz4",
+"E3 · applied · fct-b7qfcqmm",
+"E4 · applied · fct-65zmgzbk",
+"dry-run · would land 4 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:23:07Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/apply-architecture.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-wn2ucoyt",
+"E2 · applied · fct-moirbwp3",
+"E3 · applied · fct-xsj444ab",
+"E4 · applied · fct-jcbi3j36",
+"E5 · applied · fct-6y2lp7rz",
+"E6 · applied · fct-rj5pbaue",
+"E7 · applied · fct-a62vsmwv",
+"E8 · applied · fct-s36jrtky",
+"E9 · applied · fct-s765xh2i",
+"E10 · applied · fct-qiuibtut",
+"E11 · applied · fct-twrv2qiu",
+"E12 · applied · fct-rjyoe4ax",
+"E13 · applied · fct-bka6rc62",
+"E14 · applied · fct-wdpv3pq2",
+"E15 · applied · fct-rkbubyxp",
+"E16 · applied · fct-rsvfsams",
+"E17 · applied · fct-syp7tq5s",
+"E18 · applied · fct-wzk2x6ka",
+"E19 · applied · fct-3k7t2g4l",
+"E20 · applied · fct-ob4ts4xm",
+"E21 · applied · fct-qsvopkhj",
+"E22 · applied · fct-4nu3wh7b",
+"E23 · applied · fct-hgj34est",
+"E24 · applied · fct-wuyupllp",
+"E25 · applied · fct-ulzkjofc",
+"E26 · applied · fct-g7bqq44n",
+"E27 · applied · fct-r6qmu7wo",
+"E28 · applied · fct-x56az6wm",
+"landed 28 record(s) · 1 edge(s) · tx 120"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:23:08Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/apply-security-plan.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-tg5z4vbe",
+"E2 · applied · fct-3ey2oony",
+"E3 · applied · fct-kmsyqgta",
+"E4 · applied · fct-6geshnvr",
+"E5 · applied · fct-gn744k3z",
+"E6 · applied · fct-lwwyrpa6",
+"E7 · applied · fct-ty7icrgc",
+"E8 · applied · fct-j4oj6ftt",
+"E9 · applied · fct-inw2zo7r",
+"E10 · applied · fct-ashdoovw",
+"E11 · applied · fct-xsadt7mu",
+"E12 · applied · fct-ixrmtmoe",
+"E13 · applied · fct-cvhwrox6",
+"E14 · applied · fct-y6svlsyp",
+"landed 14 record(s) · 0 edge(s) · tx 121"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:23:08Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/apply-test-plan.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-ahyhfjr6",
+"E2 · applied · fct-ylz3qbha",
+"E3 · applied · fct-uo3y5o44",
+"E4 · applied · fct-35qjdhiv",
+"E5 · applied · fct-ep45valw",
+"E6 · applied · fct-mqmrzd2o",
+"landed 6 record(s) · 0 edge(s) · tx 122"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:23:08Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/apply-obs-plan.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-4vrfwv27",
+"E2 · applied · fct-c6we2ewi",
+"E3 · applied · fct-sjvcbexl",
+"E4 · applied · fct-rq75gb6d",
+"E5 · applied · fct-fzliht4o",
+"E6 · applied · fct-liu5ghst",
+"E7 · applied · fct-anuozml7",
+"E8 · applied · fct-udg32czu",
+"landed 8 record(s) · 0 edge(s) · tx 123"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:23:09Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/edits-main.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-z32zdd7c",
+"E2 · applied · fct-35cgfrz4",
+"E3 · applied · fct-b7qfcqmm",
+"E4 · applied · fct-65zmgzbk",
+"landed 4 record(s) · 0 edge(s) · tx 124"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:24:38Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/edits-main-2.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 3,
+"stdout": [
+"E1 · applied · fct-6y2lp7rz",
+"E2 · digit moved · a citation of Cargo.lock: its digits move by the sweep alone",
+"E3 · applied · fct-rj5pbaue",
+"E4 · applied · fct-xsj444ab",
+"E5 · applied · fct-a62vsmwv",
+"E6 · applied · fct-jcbi3j36"
+],
+"stderr": "1 record(s) refused — nothing written",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:24:55Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/edits-main-2.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-6y2lp7rz",
+"E2 · applied · fct-wn2ucoyt",
+"E3 · applied · fct-rj5pbaue",
+"E4 · applied · fct-xsj444ab",
+"E5 · applied · fct-a62vsmwv",
+"E6 · applied · fct-jcbi3j36",
+"dry-run · would land 6 record(s) · 1 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:25:01Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/edits-main-2.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-6y2lp7rz",
+"E2 · applied · fct-wn2ucoyt",
+"E3 · applied · fct-rj5pbaue",
+"E4 · applied · fct-xsj444ab",
+"E5 · applied · fct-a62vsmwv",
+"E6 · applied · fct-jcbi3j36",
+"landed 6 record(s) · 1 edge(s) · tx 125"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:29:31Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"architecture",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/architecture-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-advisories-since-2026-10-12-closed — the engine door's one item ratified · on-form · 2685 B · amd-vp7gaatl",
+"2026-11-03-advisories-since-2026-10-12-closed — wasmtime 48.0.8 and the declared Rust floo · on-form · 1776 B · amd-ohvkeuit",
+"2026-11-03-advisories-since-2026-10-12-closed — DuckDB lockfile-resolved 1.10506.1 · on-form · 693 B · amd-h7rhblia",
+"2026-11-03-advisories-since-2026-10-12-closed — Tauri 2.12.5: version-bound readings dated · on-form · 1608 B · amd-dc3h2cav",
+"dry-run · would land 4 entr(ies) · 29 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:29:32Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"security-plan",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/security-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-advisories-since-2026-10-12-closed — the door's one item ratified · on-form · 2433 B · amd-kgul7jlf",
+"2026-11-03-advisories-since-2026-10-12-closed — the npm gate's current state, five advisor · on-form · 1322 B · amd-en2hqtop",
+"2026-11-03-advisories-since-2026-10-12-closed — the zip crate is in the dependency graph · on-form · 828 B · amd-dwlfjsh3",
+"dry-run · would land 3 entr(ies) · 18 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:29:32Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"test-plan",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/test-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-advisories-since-2026-10-12-closed — vitest's resolved patch 4.1.12 · on-form · 995 B · amd-uk2npful",
+"2026-11-03-advisories-since-2026-10-12-closed — wasmtime, cranelift and pulley as the lock · on-form · 1259 B · amd-cimgv4xp",
+"2026-11-03-advisories-since-2026-10-12-closed — the door's item ratified · on-form · 1782 B · amd-bvo6pska",
+"dry-run · would land 3 entr(ies) · 21 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:29:32Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"obs-plan",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/obs-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-advisories-since-2026-10-12-closed — the door's one item, ratified · on-form · 1538 B · amd-tsozbq5s",
+"2026-11-03-advisories-since-2026-10-12-closed — the door's PROVISIONAL pointer marks dropp · on-form · 1589 B · amd-hw2krqvl",
+"dry-run · would land 2 entr(ies) · 14 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:29:38Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"architecture",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/architecture-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-advisories-since-2026-10-12-closed — the engine door's one item ratified · on-form · 2685 B · amd-xkio272j",
+"2026-11-03-advisories-since-2026-10-12-closed — wasmtime 48.0.8 and the declared Rust floo · on-form · 1776 B · amd-uvdm4ydf",
+"2026-11-03-advisories-since-2026-10-12-closed — DuckDB lockfile-resolved 1.10506.1 · on-form · 693 B · amd-pqfdvcnu",
+"2026-11-03-advisories-since-2026-10-12-closed — Tauri 2.12.5: version-bound readings dated · on-form · 1608 B · amd-ktviaihv",
+"landed 4 entr(ies) · 29 edge(s) · tx 126"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:29:38Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"security-plan",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/security-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-advisories-since-2026-10-12-closed — the door's one item ratified · on-form · 2433 B · amd-yccyotgy",
+"2026-11-03-advisories-since-2026-10-12-closed — the npm gate's current state, five advisor · on-form · 1322 B · amd-uey5ghrb",
+"2026-11-03-advisories-since-2026-10-12-closed — the zip crate is in the dependency graph · on-form · 828 B · amd-6knb4k2x",
+"landed 3 entr(ies) · 18 edge(s) · tx 127"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:29:38Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"test-plan",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/test-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-advisories-since-2026-10-12-closed — vitest's resolved patch 4.1.12 · on-form · 995 B · amd-ynzniy6a",
+"2026-11-03-advisories-since-2026-10-12-closed — wasmtime, cranelift and pulley as the lock · on-form · 1259 B · amd-qjcwudic",
+"2026-11-03-advisories-since-2026-10-12-closed — the door's item ratified · on-form · 1782 B · amd-b7xpudtv",
+"landed 3 entr(ies) · 21 edge(s) · tx 128"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:29:39Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"obs-plan",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/obs-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-advisories-since-2026-10-12-closed — the door's one item, ratified · on-form · 1538 B · amd-g7egjww7",
+"2026-11-03-advisories-since-2026-10-12-closed — the door's PROVISIONAL pointer marks dropp · on-form · 1589 B · amd-dnujqfsp",
+"landed 2 entr(ies) · 14 edge(s) · tx 129"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:29Z",
+"argv": [
+"harness",
+"land",
+".claude/docs/conventions.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__docs__conventions.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/conventions.md rev 2 · 0 new · 1 revised · 0 retired · tx 130"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/conventions.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:30Z",
+"argv": [
+"harness",
+"land",
+".claude/docs/gotchas.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__docs__gotchas.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/gotchas.md rev 2 · 0 new · 1 revised · 0 retired · tx 131"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/gotchas.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:30Z",
+"argv": [
+"harness",
+"land",
+".claude/docs/services/corpus.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__docs__services__corpus.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/services/corpus.md rev 2 · 0 new · 1 revised · 0 retired · tx 132"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/services/corpus.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:30Z",
+"argv": [
+"harness",
+"land",
+".claude/docs/services/buffer.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__docs__services__buffer.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/services/buffer.md rev 2 · 0 new · 1 revised · 0 retired · tx 133"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/services/buffer.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:31Z",
+"argv": [
+"harness",
+"land",
+".claude/docs/services/mcp-server.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__docs__services__mcp-server.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/services/mcp-server.md rev 2 · 0 new · 1 revised · 0 retired · tx 134"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/services/mcp-server.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:31Z",
+"argv": [
+"harness",
+"land",
+".claude/docs/services/plugins.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__docs__services__plugins.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/services/plugins.md rev 2 · 0 new · 1 revised · 0 retired · tx 135"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/services/plugins.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:31Z",
+"argv": [
+"harness",
+"land",
+".claude/docs/stack.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__docs__stack.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/stack.md rev 2 · 0 new · 8 revised · 0 retired · tx 136"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/stack.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:32Z",
+"argv": [
+"harness",
+"land",
+"CLAUDE.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-CLAUDE.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed CLAUDE.md rev 2 · 0 new · 4 revised · 0 retired · tx 137"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./CLAUDE.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:32Z",
+"argv": [
+"harness",
+"land",
+".claude/docs/commands.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__docs__commands.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/commands.md rev 2 · 0 new · 1 revised · 0 retired · tx 138"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/commands.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:32Z",
+"argv": [
+"harness",
+"land",
+".claude/docs/obs-summary.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__docs__obs-summary.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/obs-summary.md rev 2 · 0 new · 3 revised · 0 retired · tx 139"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/obs-summary.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:33Z",
+"argv": [
+"harness",
+"land",
+".claude/rules/observability.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__rules__observability.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/rules/observability.md rev 2 · 0 new · 2 revised · 0 retired · tx 140"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/rules/observability.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:33Z",
+"argv": [
+"harness",
+"land",
+".claude/docs/security-summary.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__docs__security-summary.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/security-summary.md rev 2 · 0 new · 4 revised · 0 retired · tx 141"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/security-summary.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:33Z",
+"argv": [
+"harness",
+"land",
+".claude/rules/security.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__rules__security.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/rules/security.md rev 2 · 0 new · 3 revised · 0 retired · tx 142"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/rules/security.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:34Z",
+"argv": [
+"harness",
+"land",
+".claude/docs/tests-summary.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__docs__tests-summary.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/tests-summary.md rev 2 · 0 new · 1 revised · 0 retired · tx 143"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/tests-summary.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:33:34Z",
+"argv": [
+"harness",
+"land",
+".claude/rules/testing.md",
+"--file",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap/leaf-.claude__rules__testing.md",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/rules/testing.md rev 2 · 0 new · 2 revised · 0 retired · tx 144"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/rules/testing.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:34:13Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/docs/commands.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-docs-commands.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would land .claude/docs/commands.md rev 3 · 2 node(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:34:13Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/docs/gotchas.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-docs-gotchas.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would land .claude/docs/gotchas.md rev 3 · 3 node(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:34:13Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/docs/services/mcp-server.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-docs-services-mcp-server.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would land .claude/docs/services/mcp-server.md rev 3 · 2 node(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:34:13Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/rules/security.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-rules-security.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would land .claude/rules/security.md rev 3 · 3 node(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:34:28Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/docs/commands.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-docs-commands.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/commands.md rev 3 · 0 new · 1 revised · 0 retired · tx 145"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/commands.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:34:28Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/docs/gotchas.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-docs-gotchas.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/gotchas.md rev 3 · 0 new · 0 revised · 0 retired · tx 146"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/gotchas.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:34:29Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/docs/services/mcp-server.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-docs-services-mcp-server.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/services/mcp-server.md rev 3 · 0 new · 0 revised · 0 retired · tx 147"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/services/mcp-server.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:34:29Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/rules/security.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-rules-security.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/rules/security.md rev 3 · 0 new · 0 revised · 0 retired · tx 148"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/rules/security.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:38:55Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/rules/security.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-rules-security.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would land .claude/rules/security.md rev 4 · 5 node(s) · 1 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:38:55Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/rules/testing.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-rules-testing.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would land .claude/rules/testing.md rev 3 · 9 node(s) · 1 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:38:55Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/docs/session-learnings.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-docs-session-learnings.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would land .claude/docs/session-learnings.md rev 2 · 5 node(s) · 3 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:39:02Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/rules/security.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-rules-security.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/rules/security.md rev 4 · 1 new · 3 revised · 0 retired · tx 151"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/rules/security.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:39:03Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/rules/testing.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-rules-testing.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/rules/testing.md rev 3 · 1 new · 7 revised · 0 retired · tx 152"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/rules/testing.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:39:03Z",
+"argv": [
+"harness",
+"land",
+"--root",
+".",
+".claude/docs/session-learnings.md",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/draft-.claude-docs-session-learnings.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed .claude/docs/session-learnings.md rev 2 · 2 new · 1 revised · 0 retired · tx 153"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"./.claude/docs/session-learnings.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:39:11Z",
+"argv": [
+"put",
+"--root",
+".",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/bases-batch.txt",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would land 1 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:39:19Z",
+"argv": [
+"put",
+"--root",
+".",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/bases-batch.txt",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 1 record(s) · 0 edge(s) · tx 154 · rul-47x4hguw … rul-47x4hguw"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:41:39Z",
+"argv": [
+"put",
+"--root",
+".",
+"--file",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap/run-node.txt",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 1 record(s) · 0 edge(s) · tx 157 · run-xk42bbf5 … run-xk42bbf5"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:48:20Z",
+"argv": [
+"land",
+"--root",
+".",
+"--chunk",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"unchanged · 9 file(s) of 2026-11-03-advisories-since-2026-10-12-closed"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

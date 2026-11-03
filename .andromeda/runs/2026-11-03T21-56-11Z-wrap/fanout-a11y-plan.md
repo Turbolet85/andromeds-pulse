@@ -1,0 +1,2 @@
+proposals: []
+note: D-a11y-surface not fired (report fct-n4vfhiep: no new UI element; no a11y tool moved per fct-w7imi2kp); D-a11y-obs-schema not fired (no a11y violation or obs log schema change; fct-xzasqnwq, fct-vk5yisc4 touch only deny.toml / npm-policy.json); Retired none (fct-tl6ynbme); the npm-exc sweep's a11y-plan site fct-rujmfwpg (extract-zip exception under pa11y-ci 4.1.1) is dispositioned true by the report, no edit.

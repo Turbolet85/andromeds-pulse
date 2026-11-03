@@ -1,0 +1,130 @@
+[
+{
+"tool": "evolve",
+"v": "1.4",
+"sha8": "2599845e",
+"ts": "2026-11-03T22:02:57Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 2 record(s) in the store · tx 114 · 2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"ts 2026-11-03T22:02:46Z · clock 2026-11-03T22:02:57Z · bound 2026-11-03T21:17:32Z (line 2826)",
+"ids 2026-11-03T22:02:46Z-a … 2026-11-03T22:02:46Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "evolve",
+"v": "1.4",
+"sha8": "2599845e",
+"ts": "2026-11-03T22:35:53Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"11",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 11 record(s) in the store · tx 149 · 2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"ts 2026-11-03T22:34:59Z · clock 2026-11-03T22:35:53Z · bound 2026-11-03T22:02:46Z (line 2828)",
+"ids 2026-11-03T22:34:59Z-a … 2026-11-03T22:34:59Z-k (11)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "evolve",
+"v": "1.4",
+"sha8": "2599845e",
+"ts": "2026-11-03T22:40:29Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"4",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 4 record(s) in the store · tx 155 · 2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"ts 2026-11-03T22:40:14Z · clock 2026-11-03T22:40:29Z · bound 2026-11-03T22:34:59Z (line 2839)",
+"ids 2026-11-03T22:40:14Z-a … 2026-11-03T22:40:14Z-d (4)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "evolve",
+"v": "1.4",
+"sha8": "2599845e",
+"ts": "2026-11-03T22:41:21Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 2 record(s) in the store · tx 156 · 2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson",
+"ts 2026-11-03T22:41:10Z · clock 2026-11-03T22:41:21Z · bound 2026-11-03T22:40:14Z (line 2843)",
+"ids 2026-11-03T22:41:10Z-a … 2026-11-03T22:41:10Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-33-13-2026-11-03-advisories-since-2026-10-12-closed.ndjson"
+],
+"before": null,
+"after": null
+}
+]

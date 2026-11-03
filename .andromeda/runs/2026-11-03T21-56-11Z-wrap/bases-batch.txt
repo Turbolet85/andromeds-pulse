@@ -1,0 +1,1 @@
+@rule id=rul-47x4hguw status=superseded expect_rev=1

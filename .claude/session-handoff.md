@@ -1,81 +1,50 @@
 # Session Handoff
 
-**Last Updated:** 2026-10-09T08:20:29Z
-**Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (this wrap's commit and its push follow it)
-**Status:** clean
-**Last Commit:** 0-pending wrap — chore(route): operator-requested adaptation, 0.3.0 closed as it stands (after `18a872d`)
+**Last Updated:** 2026-11-03T22:42:00Z
+**Branch:** build/andromeda-pulse-0.4.0 · 0 ahead of origin as read at this wrap (HEAD `36a41022`, the operator pass's
+pre-CI commit, pushed)
+**Status:** clean once this wrap's commit lands
+**Last Commit:** this wrap's commit — 2026-11-03-advisories-since-2026-10-12-closed (after `36a41022`)
 
 ## Position
-- **Done:** andromeda-pulse 0.3.0 is closed as it stands, on the founder's ruling of 2026-10-09 (his pick «Закрыть
-  как есть (Рекомендую)», relayed verbatim by the pc overseer). Master reads 83 of 83 complete, the matrix 22 of 22
-  verified, the working route 0 markerless and 0 gated: version-done by the letters, with no chunk of its own.
-- **Next:** `/andromeda-route` for the next version, when the founder says so. Its Phase A intake dispositions the 15
-  `open` lines of `.andromeda/residuals.md`.
-- **The founder's own hand, not done here:** PR #39 (`chore/migrate-pulse-to-v3` into `main`) is merged by him at the
-  close (his ruling of 2026-10-07 12:14). This wrap did not merge it, mark it ready or rebase it. No tag, no release,
-  no version bump.
+- **Done:** `2026-11-03-advisories-since-2026-10-12-closed`. `cargo audit` 42 → 0 vulnerabilities by upgrade (wasmtime
+  48.0.8, rustls 0.23.46, quinn-proto 0.11.19, tokio 1.54.1, duckdb 1.10506.1, Tauri 2.12.5 under
+  tauri-plugin-updater 2.14.1, zip 9.3.0, notify-rust 4.18.2 in range); `deny.toml` ignores 18 → 6 (the withdrawn GTK3
+  and the unic-* ids pruned, the zbus family added on the founder's word), skips 60 → 53; the npm gate's exceptions
+  2 → 5. CI `ci#41720832757` on `36a41022` green 6/6, the supply-chain steps 10–18 read for the first time since
+  `ci#41582102601`. Report: `doc:2026-11-03-advisories-since-2026-10-12-closed/report` (two addenda).
+- **No capability claimed.**
+- **Next:** `/andromeda-phase` — the next markerless entry is «Scenario legs driven against the console engine»
+  (`chk-iq6dukmi`).
 
 ## Work done
-- The five markerless entries left the route: three retired unbuilt ("The Linux boot smoke is deterministic", "L4
-  generation records render unredacted", "Model observations without a cue surface quietly"), two carried to the
-  next version as residuals ("Without a GPU, L4 analysis is programmatic" as the report without a model;
-  "pre-push:linux runs natively on Linux" as the local pre-push check without WSL). Their text is copied whole in
-  `.andromeda/runs/2026-10-09T08-07-22Z-wrap/retired-entries.md`.
-- Eleven residual lines appended: the quiet-observations ruling, the two carried entries, the stale doc comment above
-  `select_corpus_matches`, and seven known limits of 0.3.0 (the boot smoke, the half-hour digest's rate, commits in
-  the digest, the MCP telemetry tools, what a span keeps, metrics and logs, model grading). The Halo residual's text
-  was corrected (its sketch folder is gone) and it stays `open`.
-- The dispositions, the authority behind each and every re-derived relay claim: that run dir's
-  `adaptation-record.md`.
+Lockfile, manifest requirement and policy files only (`Cargo.toml`, `Cargo.lock`, `deny.toml`, the npm lockfile,
+`npm-policy.json`). This wrap also took the carry `cry-rdhtyshr` rev 3 (the stdio-sidecar wrap's skipped steps).
 
 ## Drift resolved
-- No report and no fan-out on this path. Five amendments recording facts this wrap produced or measured
-  (architecture, design-system, layout-templates, test-plan with one key file, obs-plan), each with its sidecar
-  entry; eight leaf passages re-derived; the sweep's rows are in that run dir's `cascade-dispositions.md`.
+- 28 doc-agent proposals (architecture 10 · security-plan 14 · test-plan 4) + 6 raised by main; 1 escalation (Q1: the
+  door's PROVISIONAL item), resolved by the overseer reading the founder's 2026-11-02 confirmation of shaping-0.4.0
+  items 27 and 28 against the source: **the door's one item is ratified**, and every door PROVISIONAL mark left the
+  masters, their key files and the leaves (~60 sites). 0 rejected. Landed TX 120–125 (66 records), sidecars TX 126–129
+  (12 entries, read back). Read-backs: `detail.py check --all --growth` 0 defects, `GROWTH: 0 flag(s) · 0 warning(s)`;
+  `classify.py check` PASS on the four masters and four key files (after main removed six provenance dates the writer
+  added). Citations: 0 re-pointed, 1 changed (the false `Cargo.lock:1394` removed), 0 stretched.
+- Cascade: step-2 sweep 26 patterns, 58 rows; leaves 13 groups / 28 leaves, 39 findings by the tool, 2 headings plus
+  the carry's three headings and `commands.md`'s `--features mcp-server` lines by hand (`harness land`, TX 145–148).
 
 ## Notes
-- **Five master citations stand wrong, known and left on the operator's word:** `architecture.md:242` cites
-  `agent-run.sh:22` and `agent-run.ps1:15` (the reads are at `:29` and `:24`), `architecture.md:243` cites
-  `agent-run.sh:23` and `agent-run.ps1:16` (`:30` and `:25`), `test-plan.md:493` cites `xtask/src/main.rs:174`
-  (`:306`). The 0-pending path runs no citation sweep; the first sweep is the next chunk wrap's, and
-  `first-sweep-read.md` in this wrap's run dir holds the reading.
-- **`architecture-amendments.md` is past the whole-read bound** (121,849 B against 120,000 B): a history read goes
-  through its index. A consolidation would not shrink it (set 0, nothing prunable). `test-plan-amendments.md`
-  118,000 B, `security-plan-amendments.md` 112,285 B.
-- **The next dashboard will nudge an evolve diagnosis of Epoch 4** (complete now; only an epoch-to-date diagnosis
-  exists). It is the founder's to invoke.
-- **The Halo residual's disposition** (`dropped` is the pc overseer's expectation: the next version has no window)
-  belongs to the next version's route intake, on the founder's say-so.
-- **Boot smoke:** the artifact `logs-boot-Linux` (`11504892957`) expires 2026-10-21T19:04:35Z; nothing owns reading
-  it now.
-- **Outside the tree:** `andromeda-pulse-0.4.0-incubator/` (gitignored) holds four files; `signature-orb/` is gone.
-  The captures were deleted on 2026-10-08 (the operator's word). Conductor 0.3.0 is closed at `97dea7f` (the
-  operator's word; that sha is its HEAD).
-- **Host:** ports 4317/4318 are shared with conductor-builder: ask the operator before any run that binds them. A
-  failed job's log reads through `gh api --allow-escape-sequences repos/{owner}/{repo}/actions/jobs/{id}/logs`. The
-  cwd guard refuses a leading `cd` out of the project: use a `( cd DIR && … )` subshell. `grep` is ugrep here and
-  refuses a bounded-repeat window.
-- **Pre-existing tool verdicts (seen again):** `route.py` UNPARSED/INDETERMINATE on frozen lines 52–125;
-  `matrix.py` `UNPARSED: P-072 — legacy notes placement`.
-- **Carried, not re-read this wrap** (the operator's word: it keeps riding the handoff): `test-plan-amendments.md`
-  carries one UNRESOLVED `Supersedes` (and `a11y-plan-amendments.md` one, as `sidecar.py summary` printed at this
-  wrap); upgrade items U09, U10, U36; CLAUDE.md's pointer-table rows cite `test-plan.md §3` / `§Infrastructure
-  Patterns` through each section's stub line; obs-plan §8 has no row for `interpretation.hardware.detect`; the
-  `contract.jointly-contradictory-instructions` evolve record; the `sidecar.py` Ref defect relayed to overseer1; the
-  `.gitattributes` re-checkout (the founder's hand); `digest.corpus.retrieve`'s `row_count_returned` counts
-  candidates, so no record carries the lines kept after the narrowing; what happens to a critical advisory disclosed
-  before the first release and still open at it (not ruled); `architecture.md:73` still calls Conductor's sixth
-  series "the first live reading" in the future sense.
+- **Curation:** T2 2 · T3 1 · 11 corrections in place (the «no-mcp shape» / `--features mcp-server` lines, the
+  designed-red advisories line). `rul-47x4hguw` superseded (the founder's word). Log:
+  `.andromeda/runs/2026-11-03T21-56-11Z-wrap/curation.md`.
+- **Deferred learnings — recurrence-despite-learning:** `rules/security.md` 2026-08-29 (derive a holder from the
+  lockfile and the registry, never recall) — two provenance sentences drafted from recall were false at implement;
+  `rules/host-linux.md` 2026-10-05 (a leading `cd`) — the guard refused it twice in this window, twice at the prior
+  implement.
+- **PROVISIONAL, still owed the founder's word:** `rul-kzdqmcs7` (the escalate-only switch rule, accepted by the
+  overseer as delegate 2026-10-12 — the overseer puts it to the founder, inputs#I7); the pre-push sixth stage; the
+  exit-witness arm; the test-support dev-only edge; the retired branch threshold. Confirmed by the founder and no
+  longer PROVISIONAL: the door's item (27, 28) and the stdio-sidecar chunk's answers (I2, I3, I5).
+- **Epoch growth:** Epoch 1 stands at 17 chunks (16 frozen + this one) via insertions; a boundary would restore the
+  diagnose / audit cadence — the split is the operator's.
+- **Host:** as before (ports 4317/4318 shared; harness 14317/14318, 24317/24318; no passwordless second account).
 - **Last failed command:** none.
-
-## Deferred learnings
-- **This wrap:** one candidate, rejected at the confidence filter and not written: a disposition that stands in the
-  option text the founder himself picked is his own word, not the relay's application.
-- **Still open from prior wraps:** `recurrence-despite-learning: host leaf Session Additions 2026-10-05` (the Bash
-  guard refuses a leading `cd` out of the project); a job's log is readable while its run is in progress through
-  `gh api repos/{repo}/actions/jobs/{id}/logs`; the evidence path-scan sweep hazard; the selection-optimism reading;
-  the plan-authoring operator-pass CHECK; the `producer | grep -q` under pipefail CHECK; the scope guard omitting new
-  files; mutation applied?; run-dir hygiene trip; bindings clobber; a writer census at the wrong layer; targeted
-  nextest `timeout` sizing; the implement report-step CHECK; the bindings-regen PIPELINE half; macOS `SystemTime` µs
-  ticks; Windows `.ico` vs palette PNG; the deferral-destination generalization; `inject_demo --sustained` cannot
-  form an incident.

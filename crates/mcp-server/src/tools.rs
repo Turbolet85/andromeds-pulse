@@ -11,14 +11,10 @@
 //! primitive. No duplication.
 //!
 //! Per security plan §Logging Vector 4: tool response bodies NEVER appear
-//! in tracing fields. The dispatch span emits `tool_name` + `result_type` +
-//! `result_count` + `duration_ms` only; `result_content` / params bodies
-//! are excluded by `skip_all` on the instrument macro AND defended in depth
-//! by the `AllowList::for_mcp_server` scrubber at the subscriber layer
-//! (chunk #48 substrate, extended in tracing_setup.rs).
+//! in tracing fields. `call_tool` writes no record of its own; the engine's
+//! door, its one caller, records `result_type` + `result_count` only.
 
 use std::sync::{Arc, Mutex};
-use std::time::Instant;
 
 use corpus::contract::{CorpusWriter, IncidentRowRaw};
 use duckdb::Connection;
@@ -63,12 +59,10 @@ pub const ALL_TOOL_NAMES: &[&str] = &[
     TOOL_RETRIEVE_INCIDENT_EVENTS,
 ];
 
-/// Cross-process corpus access for the chunk #94 incident/report/telemetry
-/// tools. The sidecar is a separate process with no handle on the main
-/// process's in-memory `IncidentRegistry`, so these tools read/write the
-/// on-disk `corpus/corpus.db` directly. `None` when corpus open failed at
-/// boot (keychain unavailable etc.) — the incident tools then return a
-/// JSON-RPC error rather than crashing the sidecar.
+/// Corpus access for the chunk #94 incident/report/telemetry tools, handed
+/// in by the engine's door from the engine's own corpus handle. `None` when
+/// corpus open failed at boot (keychain unavailable etc.) — the incident
+/// tools then return a JSON-RPC error rather than crashing the engine.
 #[derive(Clone)]
 pub struct IncidentToolContext {
     pub corpus: Arc<dyn CorpusWriter>,
@@ -156,19 +150,40 @@ fn budget_for_count(target: u32) -> TokenBudget {
     }
 }
 
-/// Top-level dispatch from the JSON-RPC `tools/call` envelope. `params` is
-/// the `params.arguments` field. Unknown tool names produce
-/// `Error::ToolDispatchFailed` with reason "unknown tool"; malformed args
-/// produce `Error::ToolArgsInvalid`.
-pub fn dispatch_tool(
+/// A tool's result with the two values a caller may put in its own call
+/// record: the result's type label and its item count.
+#[derive(Debug)]
+pub struct ToolAnswer {
+    pub value: Value,
+    pub result_type: &'static str,
+    pub result_count: u64,
+}
+
+/// The dispatch with no log record of its own: the caller writes its own
+/// call record, which never carries a tool's error text.
+pub fn call_tool(
+    conn: &Arc<Mutex<Connection>>,
+    viz_state: &VizState,
+    incident_ctx: Option<&IncidentToolContext>,
+    tool_name: &str,
+    arguments: &Value,
+) -> Result<ToolAnswer, Error> {
+    let value = run_tool(conn, viz_state, incident_ctx, tool_name, arguments)?;
+    Ok(ToolAnswer {
+        result_type: result_type_label(tool_name),
+        result_count: result_count_for(tool_name, &value),
+        value,
+    })
+}
+
+fn run_tool(
     conn: &Arc<Mutex<Connection>>,
     viz_state: &VizState,
     incident_ctx: Option<&IncidentToolContext>,
     tool_name: &str,
     arguments: &Value,
 ) -> Result<Value, Error> {
-    let started = Instant::now();
-    let result = match tool_name {
+    match tool_name {
         TOOL_QUERY_TRACES => dispatch_query_traces(conn, viz_state, arguments),
         TOOL_QUERY_METRICS => dispatch_query_metrics(conn, viz_state, arguments),
         TOOL_QUERY_LOGS => dispatch_query_logs(conn, viz_state, arguments),
@@ -182,40 +197,7 @@ pub fn dispatch_tool(
             tool_name: other.to_string(),
             reason: "unknown tool".to_string(),
         }),
-    };
-
-    let duration_ms = started.elapsed().as_millis() as u64;
-    match &result {
-        Ok(value) => {
-            let result_type = result_type_label(tool_name);
-            let result_count = result_count_for(tool_name, value);
-            tracing::info!(
-                target: "mcp.tools.call.response",
-                tool_name = tool_name,
-                result_type = result_type,
-                result_count = result_count,
-                duration_ms = duration_ms,
-                "tool dispatch ok",
-            );
-            tracing::info!(
-                target: "metric.mcp.tool_call_duration_ms",
-                value = duration_ms,
-                method = tool_name,
-                result_count = result_count,
-                "tool call duration metric",
-            );
-        }
-        Err(e) => {
-            tracing::warn!(
-                target: "mcp.tools.call.error",
-                tool_name = tool_name,
-                duration_ms = duration_ms,
-                error_detail = %e,
-                "tool dispatch failed",
-            );
-        }
     }
-    result
 }
 
 fn dispatch_query_traces(
@@ -392,7 +374,7 @@ fn dispatch_retrieve_report(
     Ok(json!({ "markdown": markdown, "degraded_mode": degraded_mode }))
 }
 
-/// P-036 candidate retrieval for the sidecar's `retrieve_report`. Mirrors
+/// P-036 candidate retrieval for `retrieve_report`. Mirrors
 /// the in-app resolver: same workspace, last 30 days, fingerprint/scope
 /// match, top-5. Any failure (query or per-row decode) degrades to an
 /// empty section — history never blocks report delivery.
@@ -487,7 +469,7 @@ const INCIDENT_EVENTS_READ_LIMIT: u32 = 256;
 const UNKNOWN_EVENT_KIND: &str = "unknown";
 
 // Coerce on egress: only the shared event vocabulary — the one the producer
-// writes from — leaves the sidecar.
+// writes from — leaves the engine.
 fn coerce_event_kind(kind: &str) -> &'static str {
     triage::contract::incident_event_kinds()
         .into_iter()
@@ -752,6 +734,16 @@ mod tests {
     use buffer::schema::create_schema;
     use serde_json::json;
 
+    fn call_value(
+        conn: &Arc<Mutex<Connection>>,
+        viz_state: &VizState,
+        incident_ctx: Option<&IncidentToolContext>,
+        tool_name: &str,
+        arguments: &Value,
+    ) -> Result<Value, Error> {
+        call_tool(conn, viz_state, incident_ctx, tool_name, arguments).map(|answer| answer.value)
+    }
+
     fn fresh_buffer() -> Arc<Mutex<Connection>> {
         let conn = Connection::open_in_memory().expect("open in-memory duckdb");
         create_schema(&conn).expect("schema init");
@@ -763,7 +755,7 @@ mod tests {
         let conn = fresh_buffer();
         let state = VizState::new();
         let value =
-            dispatch_tool(&conn, &state, None, TOOL_QUERY_TRACES, &json!({})).expect("dispatch ok");
+            call_value(&conn, &state, None, TOOL_QUERY_TRACES, &json!({})).expect("dispatch ok");
         let items = value
             .get("items")
             .and_then(|v| v.as_array())
@@ -776,8 +768,8 @@ mod tests {
     fn dispatch_query_metrics_returns_empty_paginated_response_on_empty_buffer() {
         let conn = fresh_buffer();
         let state = VizState::new();
-        let value = dispatch_tool(&conn, &state, None, TOOL_QUERY_METRICS, &json!({}))
-            .expect("dispatch ok");
+        let value =
+            call_value(&conn, &state, None, TOOL_QUERY_METRICS, &json!({})).expect("dispatch ok");
         let items = value
             .get("items")
             .and_then(|v| v.as_array())
@@ -790,7 +782,7 @@ mod tests {
         let conn = fresh_buffer();
         let state = VizState::new();
         let value =
-            dispatch_tool(&conn, &state, None, TOOL_QUERY_LOGS, &json!({})).expect("dispatch ok");
+            call_value(&conn, &state, None, TOOL_QUERY_LOGS, &json!({})).expect("dispatch ok");
         let items = value
             .get("items")
             .and_then(|v| v.as_array())
@@ -802,7 +794,7 @@ mod tests {
     fn dispatch_generate_snapshot_returns_envelope_on_empty_buffer() {
         let conn = fresh_buffer();
         let state = VizState::new();
-        let value = dispatch_tool(&conn, &state, None, TOOL_GENERATE_SNAPSHOT, &json!({}))
+        let value = call_value(&conn, &state, None, TOOL_GENERATE_SNAPSHOT, &json!({}))
             .expect("dispatch ok");
         assert!(value.get("markdown").and_then(|v| v.as_str()).is_some());
         assert_eq!(
@@ -815,7 +807,7 @@ mod tests {
     fn dispatch_unknown_tool_returns_tool_dispatch_failed_unknown_tool() {
         let conn = fresh_buffer();
         let state = VizState::new();
-        let err = dispatch_tool(&conn, &state, None, "nonexistent_tool", &json!({}))
+        let err = call_value(&conn, &state, None, "nonexistent_tool", &json!({}))
             .expect_err("unknown tool errors");
         match err {
             Error::ToolDispatchFailed { tool_name, reason } => {
@@ -830,7 +822,7 @@ mod tests {
     fn dispatch_query_traces_rejects_malformed_arguments() {
         let conn = fresh_buffer();
         let state = VizState::new();
-        let err = dispatch_tool(
+        let err = call_value(
             &conn,
             &state,
             None,
@@ -850,7 +842,7 @@ mod tests {
     fn dispatch_query_traces_clamps_limit_above_max() {
         let conn = fresh_buffer();
         let state = VizState::new();
-        let value = dispatch_tool(
+        let value = call_value(
             &conn,
             &state,
             None,
@@ -1033,11 +1025,11 @@ mod tests {
     }
 
     #[test]
-    fn dispatch_tool_routes_incident_tools_through_context() {
+    fn call_tool_routes_incident_tools_through_context() {
         let conn = fresh_buffer();
         let state = VizState::new();
         let (ctx, _id) = incident_ctx_with_one_incident();
-        let value = dispatch_tool(
+        let value = call_value(
             &conn,
             &state,
             Some(&ctx),
@@ -1074,7 +1066,7 @@ mod tests {
             .update_incident_status(id, "resolved", 1_700_000_000_222, Some(1), b"p")
             .expect("resolve");
 
-        let value = dispatch_tool(
+        let value = call_value(
             &conn,
             &state,
             Some(&ctx),

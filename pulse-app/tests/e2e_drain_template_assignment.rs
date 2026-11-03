@@ -31,40 +31,15 @@ use buffer::{BroadcastSenders, BufferState, DrainConfig, DrainMiner, create_sche
 use duckdb::Connection;
 use ingest::channel::build_channel;
 use ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest;
-use ingest::grpc::proto::opentelemetry::proto::common::v1::{AnyValue, KeyValue, any_value};
-use ingest::grpc::proto::opentelemetry::proto::logs::v1::{LogRecord, ResourceLogs, ScopeLogs};
-use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
 use ingest::state::IngestState;
 use prost::Message;
+use test_support::otlp::{LogRecordBuilder, log_record, resource};
 
 const CANARY_EMAIL_BODY: &str =
     "user signup from canary-secret-email@example.com on beta-tier startup";
 
-fn str_attr(key: &str, value: &str) -> KeyValue {
-    KeyValue {
-        key: key.into(),
-        value: Some(AnyValue {
-            value: Some(any_value::Value::StringValue(value.into())),
-        }),
-    }
-}
-
-fn make_log_record(body: &str, ts_nano: u64) -> LogRecord {
-    LogRecord {
-        time_unix_nano: ts_nano,
-        observed_time_unix_nano: 0,
-        severity_number: 9,
-        severity_text: "INFO".into(),
-        body: Some(AnyValue {
-            value: Some(any_value::Value::StringValue(body.into())),
-        }),
-        attributes: Vec::new(),
-        dropped_attributes_count: 0,
-        flags: 0,
-        trace_id: Vec::new(),
-        span_id: Vec::new(),
-        event_name: String::new(),
-    }
+fn make_log_record(body: &str, ts_nano: u64) -> LogRecordBuilder {
+    log_record().body(body).at(ts_nano)
 }
 
 /// Build the 100-record diverse log batch:
@@ -79,7 +54,7 @@ fn make_log_record(body: &str, ts_nano: u64) -> LogRecord {
 /// Expected post-ingest state: ≥3 templates persisted in `log_templates`;
 /// the email-bearing one stored as `[REDACTED:email]` per scrubber.
 fn make_diverse_logs_request() -> ExportLogsServiceRequest {
-    let mut log_records: Vec<LogRecord> = Vec::with_capacity(100);
+    let mut log_records: Vec<LogRecordBuilder> = Vec::with_capacity(100);
     let base_ts: u64 = 1_700_000_000_000;
     for i in 0..50 {
         log_records.push(make_log_record(
@@ -101,21 +76,10 @@ fn make_diverse_logs_request() -> ExportLogsServiceRequest {
     }
     log_records.push(make_log_record(CANARY_EMAIL_BODY, base_ts + 3000));
 
-    let resource = Resource {
-        attributes: vec![str_attr("service.name", "drain-e2e-app")],
-        dropped_attributes_count: 0,
-    };
-    ExportLogsServiceRequest {
-        resource_logs: vec![ResourceLogs {
-            resource: Some(resource),
-            scope_logs: vec![ScopeLogs {
-                scope: None,
-                log_records,
-                schema_url: String::new(),
-            }],
-            schema_url: String::new(),
-        }],
-    }
+    resource()
+        .service("drain-e2e-app")
+        .log_records(log_records)
+        .logs_request()
 }
 
 async fn wait_for_log_rows(conn: &Arc<Mutex<Connection>>, target: i64, timeout: Duration) -> bool {

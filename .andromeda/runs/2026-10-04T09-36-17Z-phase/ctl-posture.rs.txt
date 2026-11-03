@@ -1,2 +1,0 @@
-let a = std::env::var_os(LEVER_ENV);
-tracing::warn!(v = ?std::env::var_os(LEVER_ENV), "x");

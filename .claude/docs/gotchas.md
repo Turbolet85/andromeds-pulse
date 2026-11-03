@@ -8,10 +8,10 @@ Component-specific known issues. Grows over time via `/wrap-session`. Read on de
 `opentelemetry-otlp 0.31` still pins `tonic 0.13` in some feature combinations. The workspace targets `tonic 0.14.x` for the OTLP receiver server. **Resolution required before tagging v0.1.0** — `cargo deny check bans` (`multiple-versions = "deny"`) is the enforcement mechanism. If the duplicate cannot be resolved at lock time, the documented fallback is to downgrade Stack to `tonic 0.13.x` (matching `opentelemetry-otlp`) rather than fork or wait for upstream; the Stack/Decisions/Defaults rows are then re-pinned in the same iteration. Note: the receiver path doesn't actually use `opentelemetry-otlp` (we parse OTLP via `prost` + `opentelemetry-proto` directly), so the duplicate is purely transitive.
 
 ### `rmcp` version reconciliation — CLOSED by measurement (2026-08-29)
-The old "rmcp 1.5.0 vs published 0.3.x" open question is resolved: the published line reached 3.x and the workspace pins requirement `"3"` (lockfile-resolved 3.1.4, chunk 2026-08-29-advisory-backlog). Note the measured mechanism while touching rmcp: the crate is a feature-gated ANCHOR dependency (`use rmcp as _;` is the sole source contact) — the MCP protocol itself is the hand-rolled serde JSON-RPC 2.0 layer at `crates/mcp-server/src/jsonrpc.rs`.
+The old "rmcp 1.5.0 vs published 0.3.x" open question is resolved: the published line reached 3.x (chunk 2026-08-29-advisory-backlog). `rmcp` is no longer linked: no manifest and no `Cargo.lock` entry names it — the MCP protocol itself is the hand-rolled serde JSON-RPC 2.0 layer at `crates/mcp-server/src/jsonrpc.rs`.
 
-### `rust-toolchain.toml` 1.84 → 1.85 bump
-Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 cannot parse below `1.85.0`. **Bump `rust-toolchain.toml` to `1.85.0` minimum** — the security-positive defaults (`unsafe_op_in_unsafe_fn`, `unsafe extern`, `static mut` reference denial, tightened `if let` temporary scopes) require this. CLAUDE.md universal warnings list the bump as a hard requirement.
+### `rust-toolchain.toml` pin — CLOSED (1.95.0)
+The toolchain is pinned to rustc 1.95.0 and the workspace declares `rust-version = "1.95"` once in `[workspace.package]`, equal to the pin and set by the resolved dependency graph (wasmtime and its internal crates, cranelift and pulley declare 1.95.0, as measured on wasmtime 48.0.5; not re-read on the resolved wasmtime 48.0.8, which the pinned 1.95.0 toolchain builds with `declared_floor_equals_the_pinned_channel` passing) — no toolchain below 1.95.0 builds the product, though the workspace's own code needs only rustc ≥ 1.89. The xtask test `declared_floor_equals_the_pinned_channel` holds the declared floor equal to the pin. Edition 2024 itself cannot parse below 1.85.0 (security-plan keeps that as the floor never to drift below); wasmtime 49.x is out of reach while the pin is 1.95 (it needs Rust 1.96).
 
 ## DuckDB encryption
 - Do NOT enable DuckDB encryption-at-rest on the in-memory ring buffer — CVE-2025-64429 is documented against the encryption feature. The in-memory `:memory:` connection avoids the entire surface; an unnecessary feature flip would re-introduce it.
@@ -28,7 +28,7 @@ Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 c
 
 ## Self-observation recursion
 - Product IS the local OTLP observer. Pointing the product's own OTel exporter at `:4317`/`:4318` creates an infinite loop AND bypasses the loopback authorization model.
-- The chosen architecture eliminates this concern by construction: NO OTel SDK is linked into the self-observation runtime. `tracing` ecosystem only — the JSON file at `~/.andromeda-pulse/logs/agent-latest.jsonl` IS the agent surface.
+- The chosen architecture eliminates this concern by construction: NO OTel SDK is linked into the self-observation runtime. `tracing` ecosystem only — the JSON log family `~/.andromeda-pulse/logs/agent-latest.jsonl*` (date-suffixed daily, `agent-latest.jsonl.YYYY-MM-DD`; a bare-name read finds nothing) IS the agent surface.
 - Any future `ANDROMEDA_OBSERVER_URL`-shaped variable MUST explicitly distinguish "outbound observer" (we ARE the observer — do not dial) from "inbound receivers" (the OTLP ports we listen on).
 
 ## Tauri capability silent rejections
@@ -43,10 +43,15 @@ Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 c
   - `snapshot.copy_to_clipboard` MUST emit a `pulse://stream/snapshot-progress` event at clipboard-write time so the UI can show a non-suppressible "X bytes copied" toast.
   - MCP `query_*` and `generate_snapshot` tool responses are the indirect-prompt-injection surface that the calling LLM client must defend against — receiver app cannot fully sanitize OTLP-derived attribute values. Documented behavior, not a defect.
 
-## rmcp stdio reservation
-- When running as the `andromeda-pulse-mcp` stdio sidecar, stdout is reserved for JSON-RPC 2.0 framing.
+## The door is the one way to the tools
+- Since chunk 2026-10-10-door-inside-the-engine-s-process the console engine serves the nine tools over an owner-only Unix-domain socket (`{data dir}/run/door/sock`), behind no feature gate: `pulse-app` links `mcp-server` in every build, and there is no stdio sidecar and no `rmcp`; since chunk 2026-10-12-stdio-agent-reaches-the-door a stdio agent reaches the nine by starting `andromeda-pulse-engine door`, a relay to the door — the one stdio way to the nine. The same unsanitized OTLP-derived answers leave through it to a caller of the engine's own account.
+- Root is not held by the socket's directory or file mode — only the door's account check refuses it. A test that runs its client as root reads the account check, not the modes.
+- A Unix socket path must be shorter than 108 bytes: a deep data dir boots with no door (`app.boot.door` `state` `path_too_long`, WARN) and the engine goes on.
+
+## The door relay's stdout
+- There is no `andromeda-pulse-mcp` stdio sidecar: a stdio MCP client starts `andromeda-pulse-engine door`, whose stdout carries only the door's answer lines, unchanged — the relay parses nothing and writes no answer of its own.
 - ANY accidental `println!` / `dbg!` / library stdout write corrupts the protocol and silently disconnects the MCP client.
-- ALL `tracing` output forced to stderr (JSON formatter); TTY check disabled for the sidecar.
+- The relay writes no log record and no file; a failure is exit 1 with the one fixed standard-error line `andromeda-pulse-engine door: the door cannot be reached` and nothing on stdout from the failed connection.
 
 ## Tauri updater Minisign keypair rotation
 - No hot key rotation path without a transitional release.

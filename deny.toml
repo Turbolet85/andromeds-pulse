@@ -6,36 +6,34 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 yanked = "warn"
 # All ignored advisories below are unmaintained-warnings on transitive deps with
 # "No safe upgrade is available!" — i.e. no actionable fix at the source. Reviewed
-# 2026-05-20; holders re-derived 2026-08-29-advisory-backlog. Revisit when Tauri 2
-# migrates to GTK4 (closes 10 GTK3 IDs + frees proc-macro-error) OR when
-# tauri-utils swaps urlpattern → icu_properties (closes 5 unic-* IDs) OR when
-# tokenizers / specta migrate off paste.
+# 2026-05-20; holders re-derived 2026-08-29-advisory-backlog and
+# 2026-11-03-advisories-since-2026-10-12-closed. Revisit when Tauri 2 migrates to
+# GTK4 (frees proc-macro-error) OR when tokenizers / specta migrate off paste OR
+# when the zbus 4 / 5 holders reach a maintained zvariant line.
 # The lru 0.12.5 UNSOUND advisory (RUSTSEC-2026-0002) is NOT in this list — it
 # was fixed at the source via `lru = "0.16"` workspace dep bump (2026-05-20).
 ignore = [
-    # Tauri 2.11 GTK3 Linux UI stack (10 IDs) — transitive via tray-icon /
-    # libappindicator / wry / webkit2gtk → gtk 0.18.2 on Linux only. Upstream
-    # archived; gtk4-rs is the migration target but Tauri 2 LTS has not moved.
-    # Closes when Tauri ships GTK4-based tray + window backends.
-    "RUSTSEC-2024-0411",  # gdkwayland-sys 0.18.2
-    "RUSTSEC-2024-0412",  # gdk 0.18.2
-    "RUSTSEC-2024-0413",  # atk 0.18.2
-    "RUSTSEC-2024-0414",  # gdkx11-sys 0.18.2
-    "RUSTSEC-2024-0415",  # gtk 0.18.2
-    "RUSTSEC-2024-0416",  # atk-sys 0.18.2
-    "RUSTSEC-2024-0417",  # gdkx11 0.18.2
-    "RUSTSEC-2024-0418",  # gdk-sys 0.18.2
-    "RUSTSEC-2024-0419",  # gtk3-macros 0.18.2
-    "RUSTSEC-2024-0420",  # gtk-sys 0.18.2
-    # rust-unic Unicode crates (5 IDs) — transitive via tauri-utils →
-    # urlpattern 0.3 → unic-ucd-ident 0.9. Upstream open-i18n/rust-unic archived;
-    # icu_properties / unicode-ident are the migration targets but urlpattern has
-    # not moved. Closes when tauri-utils replaces its urlpattern dep chain.
-    "RUSTSEC-2025-0075",  # unic-char-range 0.9.0
-    "RUSTSEC-2025-0080",  # unic-common 0.9.0
-    "RUSTSEC-2025-0081",  # unic-char-property 0.9.0
-    "RUSTSEC-2025-0098",  # unic-ucd-version 0.9.0
-    "RUSTSEC-2025-0100",  # unic-ucd-ident 0.9.0
+    # The ten GTK3 ignores (RUSTSEC-2024-0411 ... -0420, gtk / gdk / atk 0.18.2
+    # family) were REMOVED at 2026-11-03-advisories-since-2026-10-12-closed: the
+    # advisory database withdrew all ten on 2026-08-14, so they ignored nothing
+    # and cargo-deny flagged them advisory-not-detected. The five rust-unic
+    # ignores (RUSTSEC-2025-0075 / -0080 / -0081 / -0098 / -0100) were removed at
+    # the same chunk: their closing condition fired — tauri-utils 2.10 moved to
+    # urlpattern 0.6 and every unic-* crate left the lockfile. A stale ignore
+    # would hide a re-filed advisory.
+    #
+    # zbus_names / zvariant / zvariant_derive unmaintained (3 IDs; no stated
+    # solution in any of the three advisories). Held at two versions each:
+    # zbus 4.4.0 <- secret-service 4.0.0 <- keyring's `sync-secret-service`
+    # feature (the corpus key's Linux backend, which must not be dropped — it
+    # would leave a per-process corpus key) and zbus 5.15.0 <- notify-rust
+    # 4.17.0 <- tauri-plugin-notification. No zbus 4.x / 5.x release clears
+    # them. Owner: 2026-11-03-advisories-since-2026-10-12-closed (the founder's
+    # word, 2026-11-03). Closes when a maintained replacement reaches those
+    # holders, or the holders leave the graph.
+    "RUSTSEC-2026-0370",  # zvariant
+    "RUSTSEC-2026-0371",  # zbus_names
+    "RUSTSEC-2026-0372",  # zvariant_derive
     # proc-macro-error 1.0.4 unmaintained — transitive via glib-macros 0.18.5 +
     # gtk3-macros 0.18.2 (GTK3 stack ONLY: the rmcp 3 bump at
     # 2026-08-29-advisory-backlog re-derived the holders and rmcp / specta no
@@ -122,11 +120,6 @@ skip = [
     { crate = "hashbrown" },
     { crate = "heck" },
     { crate = "indexmap" },
-    { crate = "phf" },
-    { crate = "phf_generator" },
-    { crate = "phf_macros" },
-    { crate = "phf_shared" },
-    { crate = "png" },
     { crate = "proc-macro-crate" },
     { crate = "r-efi" },
     { crate = "serde_spanned" },
@@ -136,7 +129,6 @@ skip = [
     { crate = "toml" },
     { crate = "toml_datetime" },
     { crate = "toml_edit" },
-    { crate = "windows-link" },
     { crate = "windows-sys" },
     { crate = "windows-targets" },
     { crate = "windows_aarch64_gnullvm" },
@@ -187,9 +179,15 @@ skip = [
     # Revisit when keyring consolidates on a single security-framework major.
     { crate = "core-foundation" },
     { crate = "security-framework" },
-    # duckdb 1.10502 / libduckdb-sys 1.10502 bundled C++ build pulls zip 6 via libduckdb-sys
-    # build script; tauri-plugin-updater 2.10 keeps zip 4 for archive extraction (route#20, 2026-05-06)
-    { crate = "zip" },
+    # The zip, phf / phf_generator / phf_macros / phf_shared and png skips were
+    # REMOVED at 2026-11-03-advisories-since-2026-10-12-closed: duckdb 1.10506.1
+    # and tauri-plugin-updater 2.14.1 converged on a single zip 9.3.0, Tauri 2.12
+    # dropped phf 0.11 and png 0.17, and cargo-deny flagged the entries
+    # unnecessary-skip. The windows 0.61 / 0.62 split Tauri 2.12 brought was
+    # closed at the source in the same chunk (notify-rust 4.18.2 takes
+    # tauri-winrt-notification 0.8.1 on windows 0.62), so it takes no skip, and
+    # with windows 0.61 gone windows-link stands at one version: its skip was
+    # removed too.
     # libduckdb-sys 1.10502 build script transitively pulls a newer reqwest / rustix /
     # linux-raw-sys; tauri-plugin-updater 2.10 + axum-test 18 keep older versions of the
     # same crates in the runtime graph. Build-time vs runtime split, not a real conflict
@@ -214,17 +212,14 @@ skip = [
     { crate = "fixedbitset" },
     { crate = "petgraph" },
     { crate = "target-lexicon" },
-    # rmcp 3.1.4 transitive deps under --features mcp-server (chunk #48 origin;
-    # re-derived at 2026-08-29-advisory-backlog): rmcp-macros 3 pulls darling
-    # 0.24.x; serde_with pulls 0.23.x; derive_builder pulls 0.20.x. schemars
-    # splits the same way — rmcp 3 pulls schemars 1.x against the tauri-build
-    # 0.8.x chain. Build-time only via proc-macro crates; no runtime impact.
-    # Closes if the ecosystems converge on one darling / schemars major.
+    # darling splits across two proc-macro holders (chunk #48 origin; rmcp, the
+    # third holder, left the graph with the stdio sidecar): serde_with pulls
+    # 0.23.x, derive_builder pulls 0.20.x. Build-time only via proc-macro
+    # crates; no runtime impact. Closes if the holders converge on one darling
+    # major.
     { crate = "darling" },
     { crate = "darling_core" },
     { crate = "darling_macro" },
-    { crate = "schemars" },
-    { crate = "schemars_derive" },
     # blake3 1.8.5 transitive dep under chunk #66 (2026-05-17): pulls cpufeatures
     # 0.3.x for SIMD detection; sha2 0.10 (existing transitive via tauri-codegen +
     # wasmtime + wry) keeps cpufeatures 0.2.x. Pure ABI bump in the cpufeatures

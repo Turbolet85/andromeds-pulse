@@ -485,7 +485,6 @@ fn allowlist_for_target_resolves_introspection_namespace() {
         "ingest_mpsc_capacity_pct",
         "broadcast_subscribers",
         "plugins_loaded",
-        "mcp_server_enabled",
     ] {
         assert!(
             ready.contains(required),
