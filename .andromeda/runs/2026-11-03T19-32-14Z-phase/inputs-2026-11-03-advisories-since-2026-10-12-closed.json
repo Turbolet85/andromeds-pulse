@@ -1,0 +1,155 @@
+[
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "8811349b",
+"ts": "2026-11-03T19:33:20Z",
+"argv": [
+"snap",
+"--chunk",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--message-file",
+".andromeda/runs/2026-11-03T19-32-14Z-phase/relay-1.md",
+"--origin",
+"the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"--kind",
+"relay",
+"--why",
+"a major upgrade or an advisory with no safe upgrade is a product fork asked of the founder by dialog; lean checks",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-11-03T19-32-14Z-phase",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy message · message: the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "message: the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "00864c4b29ee2e72cd97ad3c47654cba23ad1d2ddce10643c9e7236c50d2ac72",
+"copy": "I1-relay-1.md.txt",
+"link": false,
+"read_at": "2026-11-03T19:33:19Z",
+"step": "phase:P1",
+"why": "a major upgrade or an advisory with no safe upgrade is a product fork asked of the founder by dialog; lean checks"
+}
+},
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "8811349b",
+"ts": "2026-11-03T20:47:35Z",
+"argv": [
+"snap",
+"--chunk",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--message-file",
+".andromeda/runs/2026-11-03T19-32-14Z-phase/relay-2.md",
+"--origin",
+"the founder, by dialog 2026-11-03, relayed by pc-overseer, the P4 fork dialog",
+"--kind",
+"relay",
+"--why",
+"four forks answered by the founder himself: take duckdb 1.10506.1; take the Tauri 2.12 bump for updater 2.14.1; ignore-list the three zbus-family ids with provenance; GHSA-scoped npm exceptions for minimatch, glob, zod",
+"--step",
+"phase:P4",
+"--run-dir",
+".andromeda/runs/2026-11-03T19-32-14Z-phase",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: the founder, by dialog 2026-11-03, relayed by pc-overseer, the P4 fork dialog",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: the founder, by dialog 2026-11-03, relayed by pc-overseer, the P4 fork dialog",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "486ef42b5335e00bc7169d221ffd7546eb80edd9d1216893c740f8f4ec549e27",
+"copy": "I2-relay-2.md.txt",
+"link": false,
+"read_at": "2026-11-03T20:47:34Z",
+"step": "phase:P4",
+"why": "four forks answered by the founder himself: take duckdb 1.10506.1; take the Tauri 2.12 bump for updater 2.14.1; ignore-list the three zbus-family ids with provenance; GHSA-scoped npm exceptions for minimatch, glob, zod"
+}
+},
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "8811349b",
+"ts": "2026-11-03T20:57:08Z",
+"argv": [
+"verify",
+"--chunk",
+"2026-11-03-advisories-since-2026-10-12-closed",
+"--run-dir",
+".andromeda/runs/2026-11-03T19-32-14Z-phase",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"I1 cited scope.md:35 · research.md:15 · research.md:119 · plan.md:122 · plan.md:427",
+"I2 n/a — a message has no live source · copy message · message: the founder, by dialog 2026-11-03, relayed by pc-overseer, the P4 fork dialog",
+"I2 cited plan.md:16 · plan.md:23 · plan.md:25 · plan.md:41 · plan.md:44 · plan.md:75 · plan.md:85 · plan.md:386 · plan.md:391 · plan.md:395 · plan.md:427 · plan.md:432 · plan.md:436 · plan.md:437 · plan.md:441",
+"inputs: 2 entries — unchanged 0 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 2,
+"counts": {
+"unchanged": 0,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]

@@ -1,0 +1,1 @@
+«Advisories since 2026-10-12 closed» (chk-yno3lncd). Card verified. A major upgrade (e.g. zip ≥9) or any advisory with no safe upgrade is a product fork: ask it as a dialog for the founder (he is at home). Store defect or refused write you cannot place: stop and tell me. Lean checks. — overseer (founder-delegated)

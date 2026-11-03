@@ -1,0 +1,1 @@
+Operator pass: run entries 34-37 now (hygiene, pre-CI commit, merge-base probe, push with the 7 earlier commits, CI read). The notify-rust 4.18.2 move (in its holder's range, lockfile only, no skips) is accepted as a technical step, mine. The advisories-check line that no longer matches the tree goes to the wrap. Then stop. — overseer (founder-delegated)

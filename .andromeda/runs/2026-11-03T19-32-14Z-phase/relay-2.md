@@ -1,0 +1,6 @@
+The P4 fork dialog of 2026-11-03-advisories-since-2026-10-12-closed, answered by the founder, by dialog 2026-11-03 (relayed by pc-overseer); his own word on each, not a delegate's.
+
+1. zip >= 9 on the DuckDB path (duckdb / libduckdb-sys 1.10505.0 -> 1.10506.1, zip 6.0.0 -> 9.3.0 as a build dependency, DuckDB 1.5.x kept): "Take duckdb 1.10506.1 (Recommended)" — notes: "The FOUNDER, by dialog 2026-11-03 (relayed by pc-overseer)."
+2. zip >= 9 on the updater path (tauri-plugin-updater 2.10.1 -> 2.14.1, tauri 2.11.0 -> 2.12.5, tao 0.35 -> 0.37, about 60 lockfile moves inside the current requirements): "Take the Tauri 2.12 bump (Recommended)" — notes: "The FOUNDER, by dialog 2026-11-03."
+3. zbus_names RUSTSEC-2026-0371, zvariant RUSTSEC-2026-0370, zvariant_derive RUSTSEC-2026-0372 (unmaintained, no solution): "Ignore-list with provenance (Recommended)" — ID-scoped deny.toml [advisories] ignore entries naming the holders and the closing condition — notes: "The FOUNDER, by dialog 2026-11-03."
+4. npm minimatch GHSA-g3hv-75wg-m249, glob GHSA-3g3m-2fjr-6pw4, zod GHSA-mrhx-c7xc-m3w5 (dev-only, no forward fix in their holders' ranges): "GHSA-scoped exceptions (Recommended)" — three npm-policy.json entries with reason, owner and closing condition — notes: "The FOUNDER, by dialog 2026-11-03: his own word on each, not a delegate's."

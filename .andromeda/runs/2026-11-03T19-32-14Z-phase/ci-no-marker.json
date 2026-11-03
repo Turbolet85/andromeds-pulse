@@ -1,0 +1,152 @@
+[
+{
+"tool": "ci",
+"v": "1.3",
+"sha8": "328a86d6",
+"ts": "2026-11-03T19:32:27Z",
+"argv": [
+"conclusion",
+"--sha",
+"0e13e255b4c56026d656a535834f3d623678060e",
+"--sha",
+"236f507c13925c91edb6b654f2e1d22a2ca84555",
+"--sha",
+"0693e7136cdb0100dfdced9d3fd2ad3329f251df",
+"--sha",
+"6d9fc93db77d25a36326d490659bcccb5da73375",
+"--sha",
+"e7690feff04927a8c9e7b0a7e2263b11073a0b60",
+"--sha",
+"c574cb214228c3a3f92c868a397bb4f7b91f62e3",
+"--sha",
+"341c19f124bad2cfbe9a6f42e5894e35dab5f5d4",
+"--sha",
+"4080303a15c7b20416a8d6b695887fe625d4896a",
+"--run-dir",
+".andromeda/runs/2026-11-03T19-32-14Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"0e13e255b4c5 verdict: not on the remote",
+"236f507c1392 verdict: not on the remote",
+"0693e7136cdb verdict: not on the remote",
+"6d9fc93db77d verdict: not on the remote",
+"e7690feff049 verdict: not on the remote",
+"c574cb214228 verdict: not on the remote",
+"341c19f124ba verdict: not on the remote",
+"4080303a15c7 verdict: red · checks 6/6 · first-fail +87 s supply-chain (audit + deny + auditable) · wall 1841 s · runs … · red by: supply-chain (audit + deny + auditable)=failure · run ci#41582102601=failure"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "0e13e255b4c56026d656a535834f3d623678060e",
+"word": "not on the remote",
+"polls": [
+"not on the remote"
+]
+},
+{
+"sha": "236f507c13925c91edb6b654f2e1d22a2ca84555",
+"word": "not on the remote",
+"polls": [
+"not on the remote"
+]
+},
+{
+"sha": "0693e7136cdb0100dfdced9d3fd2ad3329f251df",
+"word": "not on the remote",
+"polls": [
+"not on the remote"
+]
+},
+{
+"sha": "6d9fc93db77d25a36326d490659bcccb5da73375",
+"word": "not on the remote",
+"polls": [
+"not on the remote"
+]
+},
+{
+"sha": "e7690feff04927a8c9e7b0a7e2263b11073a0b60",
+"word": "not on the remote",
+"polls": [
+"not on the remote"
+]
+},
+{
+"sha": "c574cb214228c3a3f92c868a397bb4f7b91f62e3",
+"word": "not on the remote",
+"polls": [
+"not on the remote"
+]
+},
+{
+"sha": "341c19f124bad2cfbe9a6f42e5894e35dab5f5d4",
+"word": "not on the remote",
+"polls": [
+"not on the remote"
+]
+},
+{
+"sha": "4080303a15c7b20416a8d6b695887fe625d4896a",
+"word": "red",
+"polls": [
+"red"
+]
+}
+]
+}
+},
+{
+"tool": "ci",
+"v": "1.3",
+"sha8": "328a86d6",
+"ts": "2026-11-03T20:52:43Z",
+"argv": [
+"conclusion",
+"--sha",
+"4080303a15c7b20416a8d6b695887fe625d4896a",
+"--run-dir",
+".andromeda/runs/2026-11-03T19-32-14Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"4080303a15c7 verdict: red · checks 6/6 · first-fail +87 s supply-chain (audit + deny + auditable) · wall 1841 s · runs …",
+"runs: secret-scan#41582102597 pull_request completed/success · ci#41582102601 pull_request completed/failure",
+"failed 1: supply-chain (audit + deny + auditable) (failure)",
+"log: gh api --allow-escape-sequences repos/Turbolet85/andromeds-pulse/actions/jobs/125739055926/logs",
+"run failed: ci#41582102601 failure"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "4080303a15c7b20416a8d6b695887fe625d4896a",
+"word": "red",
+"polls": [
+"red"
+]
+}
+]
+}
+}
+]
