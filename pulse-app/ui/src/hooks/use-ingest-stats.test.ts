@@ -12,7 +12,6 @@ function readyEnv(rows: number, used = 120, retention = 600): ReadyEnvelope {
       ingest_mpsc_capacity_pct: 0,
       broadcast_subscribers: 0,
       plugins_loaded: 0,
-      mcp_server_enabled: false,
       rows_ingested: rows,
       buffer_used_seconds: used,
       retention_seconds: retention,

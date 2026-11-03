@@ -8,9 +8,6 @@ use pulse_app::tray::{
     TRAY_GLYPH_SIZE, TrayError, build_glyph_image, build_glyph_pixels, sanitize_menu_id,
 };
 
-#[cfg(feature = "mcp-server")]
-use pulse_app::tray::MENU_ID_MCP_TOGGLE;
-
 #[test]
 fn build_glyph_pixels_returns_32x32_rgba_buffer() {
     let pixels = build_glyph_pixels();
@@ -84,12 +81,6 @@ fn sanitize_menu_id_collapses_unknown_to_constant() {
     assert_eq!(sanitize_menu_id("summary"), "unknown");
 }
 
-#[cfg(feature = "mcp-server")]
-#[test]
-fn sanitize_menu_id_mcp_toggle_under_feature_flag() {
-    assert_eq!(sanitize_menu_id("mcp_toggle"), "mcp_toggle");
-}
-
 #[test]
 fn menu_id_constants_align_with_obs_allowlist_value_set() {
     // The obs allowlist at pulse-app/src/observability.rs pre-allocates the
@@ -102,12 +93,6 @@ fn menu_id_constants_align_with_obs_allowlist_value_set() {
     assert_eq!(MENU_ID_OPEN_SETTINGS, "open_settings");
     assert_eq!(MENU_ID_QUIT, "quit");
     assert_eq!(MENU_ID_SUMMARY, "summary");
-}
-
-#[cfg(feature = "mcp-server")]
-#[test]
-fn menu_id_mcp_toggle_const_under_feature_flag() {
-    assert_eq!(MENU_ID_MCP_TOGGLE, "mcp_toggle");
 }
 
 #[test]

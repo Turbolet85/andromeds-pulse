@@ -1,197 +1,332 @@
-//! Chunk #77 — Test (c) MCP response body redaction PII vector test.
+//! Security vector (security-plan §Security Anti-Patterns → Logging, obs-plan
+//! §1 Vector 4): an MCP tool's answer body never reaches the log. A planted
+//! marker answered by `query_traces` through the console engine's door stands
+//! 0 times in the engine's log family, beside the one `door.call` record that
+//! carries only `result_type` and `result_count` of the answer.
 //!
-//! Per pulse-v0_2_0-route §77 Part 2 third sub-bullet + acceptance criterion
-//! #6 item (c) + security plan §Anti-Pattern Logging row 1 ("NEVER log ...
-//! MCP tool response bodies") + obs-plan §5 Section 5 Vector 4:
-//!
-//! Spawn the `andromeda-pulse-mcp` rmcp sidecar subprocess (feature-gated by
-//! `mcp-server` per chunk #50 precedent), invoke a `query_traces` JSON-RPC
-//! tool call, capture the sidecar's stderr (JSON-formatted `tracing` output
-//! per obs-plan §3 sidecar discipline), and assert the captured stderr does
-//! NOT contain a verbatim copy of the response body — only structured
-//! metadata fields (`result_type` / `result_count` / etc.) per the
-//! redaction discipline.
-//!
-//! Note: this test extends the chunk #49 e2e_p3 sidecar-subprocess precedent.
-//! The sidecar boots with its OWN ephemeral DuckDB; query_* tools return empty
-//! `items` per the e2e_p3 docstring. The test's negative-canary discipline
-//! is that EVEN the empty response shape doesn't surface the raw response
-//! object in stderr tracing — only the structured-metadata form.
+//! Each arm spawns the built `andromeda-pulse-engine run` under a cleared
+//! environment, sends telemetry over the real gRPC receiver, asks the door's
+//! socket, and ends the engine by SIGTERM before it reads the log family.
+#![cfg(unix)]
 
-#![cfg(feature = "mcp-server")]
+use std::net::{SocketAddr, TcpStream};
+use std::os::unix::process::ExitStatusExt;
+use std::path::{Path, PathBuf};
+use std::process::{Child, Command, Stdio};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-use std::process::Stdio;
-use std::time::Duration;
-
+use ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient;
+use serde_json::{Value, json};
+use test_support::otlp::{resource, span};
+use test_support::ports::{PortClaim, claim_port};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::process::Command;
 
-fn sidecar_binary_path() -> std::path::PathBuf {
-    let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
-    let target_dir = manifest
-        .parent()
-        .expect("workspace root")
-        .join("target")
-        .join("debug");
-    let binary_name = if cfg!(target_os = "windows") {
-        "andromeda-pulse-mcp.exe"
-    } else {
-        "andromeda-pulse-mcp"
-    };
-    target_dir.join(binary_name)
+const ENGINE: &str = env!("CARGO_BIN_EXE_andromeda-pulse-engine");
+const PASSPHRASE: &str = "door-redaction-corpus-passphrase-a37e";
+const BOOT_WAIT: Duration = Duration::from_secs(60);
+const END_WAIT: Duration = Duration::from_secs(30);
+const ANSWER_WAIT: Duration = Duration::from_secs(60);
+
+fn loopback(port: u16) -> SocketAddr {
+    SocketAddr::from(([127, 0, 0, 1], port))
 }
 
-/// Spawn the sidecar, send a JSON-RPC tools/call request, collect both the
-/// JSON-RPC response on stdout AND any tracing output on stderr (the sidecar
-/// writes tracing JSON to stderr per obs-plan §3 sidecar discipline).
-async fn spawn_and_collect(
-    tmp_path: &std::path::Path,
-    request_id: u64,
-    tool_name: &str,
-    arguments: serde_json::Value,
-) -> (serde_json::Value, String) {
-    let mut child = Command::new(sidecar_binary_path())
-        .env("ANDROMEDA_PULSE_MCP_ENABLED", "true")
-        .env("ANDROMEDA_PULSE_DATA_DIR", tmp_path)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .expect("spawn sidecar");
+fn accepts(port: u16) -> bool {
+    TcpStream::connect_timeout(&loopback(port), Duration::from_millis(250)).is_ok()
+}
 
-    let mut stdin = child.stdin.take().expect("stdin handle");
-    let stdout = child.stdout.take().expect("stdout handle");
-    let stderr = child.stderr.take().expect("stderr handle");
-    let mut stdout_reader = BufReader::new(stdout).lines();
-    let mut stderr_reader = BufReader::new(stderr).lines();
+fn now_ns() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("now after epoch")
+        .as_nanos() as u64
+}
 
-    let frame = serde_json::json!({
-        "jsonrpc": "2.0",
-        "id": request_id,
-        "method": "tools/call",
-        "params": {
-            "name": tool_name,
-            "arguments": arguments,
+struct Engine {
+    child: Child,
+    data_dir: tempfile::TempDir,
+    grpc: u16,
+    http: u16,
+    _ports: [PortClaim; 2],
+}
+
+impl Drop for Engine {
+    fn drop(&mut self) {
+        if matches!(self.child.try_wait(), Ok(None)) {
+            let _ = self.child.kill();
+            let _ = self.child.wait();
         }
-    });
-    let bytes = serde_json::to_vec(&frame).expect("frame bytes");
-    stdin.write_all(&bytes).await.expect("write");
-    stdin.write_all(b"\n").await.expect("newline");
-    stdin.flush().await.expect("flush");
+    }
+}
 
-    let response_line = tokio::time::timeout(Duration::from_secs(10), stdout_reader.next_line())
-        .await
-        .expect("response within 10s")
-        .expect("read")
-        .expect("line present");
-    let parsed: serde_json::Value =
-        serde_json::from_str(&response_line).expect("response is JSON-RPC envelope");
-
-    let mut stderr_collected = String::new();
-    let deadline = tokio::time::Instant::now() + Duration::from_millis(800);
-    while tokio::time::Instant::now() < deadline {
-        match tokio::time::timeout(Duration::from_millis(100), stderr_reader.next_line()).await {
-            Ok(Ok(Some(line))) => {
-                stderr_collected.push_str(&line);
-                stderr_collected.push('\n');
-            }
-            _ => break,
+impl Engine {
+    fn spawn() -> Self {
+        let data_dir = tempfile::tempdir().expect("data dir");
+        let ports = [claim_port(), claim_port()];
+        let (grpc, http) = (ports[0].number, ports[1].number);
+        let mut command = Command::new(ENGINE);
+        command
+            .env_clear()
+            .env("ANDROMEDA_PULSE_DATA_DIR", data_dir.path())
+            .env("ANDROMEDA_PULSE_OTLP_GRPC_PORT", grpc.to_string())
+            .env("ANDROMEDA_PULSE_OTLP_HTTP_PORT", http.to_string())
+            .env("ANDROMEDA_PULSE_CORPUS_PASSPHRASE", PASSPHRASE)
+            .current_dir(data_dir.path())
+            .arg("run")
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null());
+        if let Some(profile) = std::env::var_os("LLVM_PROFILE_FILE") {
+            command.env("LLVM_PROFILE_FILE", profile);
+        }
+        let child = command.spawn().expect("spawn the console program");
+        Self {
+            child,
+            data_dir,
+            grpc,
+            http,
+            _ports: ports,
         }
     }
 
-    let _ = child.kill().await;
-    (parsed, stderr_collected)
-}
+    fn socket(&self) -> PathBuf {
+        self.data_dir.path().join("run").join("door").join("sock")
+    }
 
-#[tokio::test(flavor = "multi_thread")]
-async fn mcp_query_traces_stderr_does_not_leak_response_body_verbatim() {
-    let tmp = tempfile::tempdir().expect("tempdir");
-    let (parsed, stderr) = spawn_and_collect(
-        tmp.path(),
-        1,
-        "query_traces",
-        serde_json::json!({
-            "time_window_seconds": 60,
-            "limit": 10,
-        }),
-    )
-    .await;
+    fn still_running(&mut self) -> bool {
+        matches!(self.child.try_wait(), Ok(None))
+    }
 
-    // The JSON-RPC response body shape. Per the e2e_p3 docstring, query_traces
-    // returns empty `items` because the sidecar boots with its own ephemeral
-    // DuckDB. Verify the shape is a valid JSON-RPC envelope with a result or
-    // an error.
-    assert!(
-        parsed.get("result").is_some() || parsed.get("error").is_some(),
-        "MCP response should have result or error: {parsed}"
-    );
-
-    // The KEY redaction invariant per security plan §Anti-Pattern Logging row 1
-    // + obs-plan §5 Vector 4: the FULL response body MUST NOT appear verbatim
-    // in stderr tracing. Serialize the response to its byte representation
-    // and grep stderr for the substring.
-    let response_serialized = serde_json::to_string(&parsed).expect("serialize response");
-
-    // The full serialized response (~50-200 bytes for empty result) should not
-    // appear verbatim in the stderr tracing stream.
-    assert!(
-        !stderr.contains(&response_serialized),
-        "stderr tracing leaked verbatim MCP response body per Vector 4. \
-         response: {response_serialized}\n stderr (truncated): {}",
-        stderr.chars().take(2000).collect::<String>()
-    );
-
-    // Stronger: if the response carries a `content` / `result_content` /
-    // `text` field (rmcp tool-result frame), assert that specific field's
-    // value substring is NOT in stderr. Empty-items result is ~"[]" string;
-    // exercise the assertion for whatever shape rmcp emits.
-    if let Some(result) = parsed.get("result")
-        && let Some(content) = result.get("content")
-    {
-        let content_serialized = serde_json::to_string(content).expect("serialize content");
-        // For empty content this may be "[]" which trivially appears in
-        // most stderr — skip the assertion if content is empty array.
-        if content_serialized != "[]" && content_serialized.len() > 4 {
+    async fn wait_for_log(&mut self, what: &str, condition: impl Fn(&[Value]) -> bool) {
+        let deadline = Instant::now() + BOOT_WAIT;
+        while !condition(&family_lines(self.data_dir.path())) {
             assert!(
-                !stderr.contains(&content_serialized),
-                "stderr tracing leaked verbatim MCP result.content per Vector 4. \
-                     content: {content_serialized}\n stderr (truncated): {}",
-                stderr.chars().take(2000).collect::<String>()
+                self.still_running(),
+                "the program ended while awaited: {what}"
             );
+            assert!(
+                Instant::now() < deadline,
+                "not in the log within {BOOT_WAIT:?}: {what}"
+            );
+            tokio::time::sleep(Duration::from_millis(100)).await;
         }
+    }
+
+    async fn wait_until_ready(&mut self) {
+        let deadline = Instant::now() + BOOT_WAIT;
+        while !(accepts(self.grpc) && accepts(self.http)) {
+            assert!(self.still_running(), "the program ended before it listened");
+            assert!(
+                Instant::now() < deadline,
+                "both ports accept within {BOOT_WAIT:?}"
+            );
+            tokio::time::sleep(Duration::from_millis(50)).await;
+        }
+        self.wait_for_log("the door's boot record", |lines| {
+            !records(lines, "app.boot.door").is_empty()
+        })
+        .await;
+    }
+
+    async fn end_by_sigterm(&mut self) -> Vec<Value> {
+        let pid = libc::pid_t::try_from(self.child.id()).expect("pid fits pid_t");
+        // SAFETY: signals the one child this test spawned, by its own pid.
+        let sent = unsafe { libc::kill(pid, libc::SIGTERM) };
+        assert_eq!(sent, 0, "the signal was delivered to the child");
+        let deadline = Instant::now() + END_WAIT;
+        let status = loop {
+            if let Some(status) = self.child.try_wait().expect("try_wait") {
+                break status;
+            }
+            assert!(
+                Instant::now() < deadline,
+                "the program ends within {END_WAIT:?}"
+            );
+            tokio::time::sleep(Duration::from_millis(50)).await;
+        };
+        assert_eq!(status.signal(), Some(15), "ended by SIGTERM");
+        family_lines(self.data_dir.path())
     }
 }
 
-#[tokio::test(flavor = "multi_thread")]
-async fn mcp_invalid_tool_call_stderr_does_not_leak_full_request_arguments() {
-    // Send a tool call with a distinctive canary marker in the `arguments` field
-    // to a valid tool that will likely reject the unrecognized argument shape.
-    // The sidecar's tracing of the error MUST NOT echo the verbatim arguments
-    // value into stderr — only structured error type + tool name metadata.
-    let tmp = tempfile::tempdir().expect("tempdir");
-    let canary = "secret-canary-mcp-arg-token-XYZ-67890";
+fn family_paths(dir: &Path) -> Vec<PathBuf> {
+    let Ok(entries) = std::fs::read_dir(dir.join("logs")) else {
+        return Vec::new();
+    };
+    let mut paths: Vec<PathBuf> = entries
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| {
+            path.file_name()
+                .is_some_and(|name| name.to_string_lossy().starts_with("agent-latest.jsonl"))
+        })
+        .collect();
+    paths.sort();
+    paths
+}
 
-    let (parsed, stderr) = spawn_and_collect(
-        tmp.path(),
-        2,
-        "query_traces",
-        serde_json::json!({
-            "time_window_seconds": 60,
-            "limit": 10,
-            "deliberately_unrecognized_field_with_canary": canary,
-        }),
+fn family_lines(dir: &Path) -> Vec<Value> {
+    let mut out = Vec::new();
+    for path in family_paths(dir) {
+        let text = std::fs::read_to_string(path).unwrap_or_default();
+        // A line still being written has no terminator yet and is not read.
+        let complete = match text.rfind('\n') {
+            Some(end) => &text[..end],
+            None => "",
+        };
+        for line in complete.lines().filter(|l| !l.trim().is_empty()) {
+            out.push(serde_json::from_str(line).expect("every sink line is one JSON object"));
+        }
+    }
+    out
+}
+
+fn family_text(dir: &Path) -> String {
+    family_paths(dir)
+        .iter()
+        .map(|path| std::fs::read_to_string(path).expect("read a member"))
+        .collect()
+}
+
+fn records<'a>(lines: &'a [Value], target: &str) -> Vec<&'a Value> {
+    lines
+        .iter()
+        .filter(|v| v.get("target").and_then(Value::as_str) == Some(target))
+        .collect()
+}
+
+fn appended(lines: &[Value], table: &str) -> u64 {
+    records(lines, "duckdb.append")
+        .iter()
+        .filter(|record| record["fields"]["table_name"] == table)
+        .filter_map(|record| record["fields"]["rows_appended"].as_u64())
+        .sum()
+}
+
+fn tool_call(id: u64, name: &str, arguments: Value) -> Value {
+    json!({
+        "jsonrpc": "2.0",
+        "id": id,
+        "method": "tools/call",
+        "params": { "name": name, "arguments": arguments }
+    })
+}
+
+/// One request on a connection of its own, and its one answer line.
+async fn ask(socket: &Path, request: Value) -> Value {
+    let stream = tokio::net::UnixStream::connect(socket)
+        .await
+        .expect("the door's socket accepts a connection");
+    let (read_half, mut writer) = stream.into_split();
+    writer
+        .write_all(format!("{request}\n").as_bytes())
+        .await
+        .expect("write the request");
+    let mut line = String::new();
+    let read = tokio::time::timeout(ANSWER_WAIT, BufReader::new(read_half).read_line(&mut line))
+        .await
+        .expect("the door answers within the bound")
+        .expect("read the answer");
+    assert!(read > 0, "the door answered before it closed");
+    serde_json::from_str(&line).expect("an answer line is one JSON object")
+}
+
+// The marker rides the `service.name` resource attribute: of a stored span,
+// that attribute's value is the user content `query_traces` answers with.
+const MARKER: &str = "door-redaction-marker-svc-5e7a";
+
+async fn engine_with_marked_spans() -> Engine {
+    let mut engine = Engine::spawn();
+    engine.wait_until_ready().await;
+    let start = now_ns();
+    TraceServiceClient::connect(format!("http://{}", loopback(engine.grpc)))
+        .await
+        .expect("the gRPC receiver accepts a trace client")
+        .export(tonic::Request::new(
+            resource()
+                .service(MARKER)
+                .spans((0..3).map(|offset| span().name("redaction-span").at(start + offset)))
+                .trace_request(),
+        ))
+        .await
+        .expect("the span export is accepted");
+    engine
+        .wait_for_log("the spans are stored", |lines| {
+            appended(lines, "spans") >= 3
+        })
+        .await;
+    engine
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn query_traces_through_the_door_answers_the_marker_and_the_log_holds_none_of_it() {
+    let mut engine = engine_with_marked_spans().await;
+
+    let answer = ask(
+        &engine.socket(),
+        tool_call(
+            1,
+            "query_traces",
+            json!({ "time_window_seconds": 300, "limit": 10 }),
+        ),
     )
     .await;
-
-    // The response may be a successful envelope (rmcp ignores extra fields)
-    // OR an error. Either way, stderr MUST NOT contain the canary verbatim
-    // per security plan §Anti-Pattern Logging row 1 + Vector 4 discipline
-    // (response/request bodies are not loggable verbatim).
-    let _ = parsed;
+    let items = answer["result"]["items"]
+        .as_array()
+        .unwrap_or_else(|| panic!("a result with items: {answer}"));
     assert!(
-        !stderr.contains(canary),
-        "stderr tracing leaked verbatim MCP request argument canary `{canary}` per Vector 4. \
-         stderr (truncated): {}",
-        stderr.chars().take(2000).collect::<String>()
+        items.iter().any(|row| row["service"] == MARKER),
+        "the door answers with the planted marker: {answer}"
+    );
+
+    let lines = engine.end_by_sigterm().await;
+    let calls = records(&lines, "door.call");
+    assert_eq!(calls.len(), 1, "exactly one call record: {calls:?}");
+    let call = calls[0];
+    assert_eq!(call["fields"]["tool"], "query_traces");
+    assert_eq!(call["fields"]["outcome"], "ok");
+    assert_eq!(call["fields"]["result_type"], "paginated_traces");
+    assert_eq!(call["fields"]["result_count"], items.len() as u64);
+
+    let log = family_text(engine.data_dir.path());
+    assert_eq!(
+        log.matches(MARKER).count(),
+        0,
+        "the answer's marker is not in the engine's log family"
+    );
+    let answer_text = answer["result"].to_string();
+    assert!(
+        !log.contains(&answer_text),
+        "the answer body is not in the log verbatim"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_refused_argument_canary_is_neither_answered_nor_logged() {
+    const CANARY: &str = "secret-canary-mcp-arg-token-XYZ-67890";
+    let mut engine = engine_with_marked_spans().await;
+
+    let answer = ask(
+        &engine.socket(),
+        tool_call(
+            2,
+            "query_traces",
+            json!({
+                "time_window_seconds": 60,
+                "limit": 10,
+                "deliberately_unrecognized_field_with_canary": CANARY,
+            }),
+        ),
+    )
+    .await;
+    assert_eq!(answer["error"]["code"], -32602, "{answer}");
+    assert!(!answer.to_string().contains(CANARY), "{answer}");
+
+    engine.end_by_sigterm().await;
+    let log = family_text(engine.data_dir.path());
+    assert_eq!(
+        log.matches(CANARY).count(),
+        0,
+        "the canary is not in the log"
     );
 }

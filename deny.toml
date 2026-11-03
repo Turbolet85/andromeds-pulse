@@ -214,17 +214,14 @@ skip = [
     { crate = "fixedbitset" },
     { crate = "petgraph" },
     { crate = "target-lexicon" },
-    # rmcp 3.1.4 transitive deps under --features mcp-server (chunk #48 origin;
-    # re-derived at 2026-08-29-advisory-backlog): rmcp-macros 3 pulls darling
-    # 0.24.x; serde_with pulls 0.23.x; derive_builder pulls 0.20.x. schemars
-    # splits the same way — rmcp 3 pulls schemars 1.x against the tauri-build
-    # 0.8.x chain. Build-time only via proc-macro crates; no runtime impact.
-    # Closes if the ecosystems converge on one darling / schemars major.
+    # darling splits across two proc-macro holders (chunk #48 origin; rmcp, the
+    # third holder, left the graph with the stdio sidecar): serde_with pulls
+    # 0.23.x, derive_builder pulls 0.20.x. Build-time only via proc-macro
+    # crates; no runtime impact. Closes if the holders converge on one darling
+    # major.
     { crate = "darling" },
     { crate = "darling_core" },
     { crate = "darling_macro" },
-    { crate = "schemars" },
-    { crate = "schemars_derive" },
     # blake3 1.8.5 transitive dep under chunk #66 (2026-05-17): pulls cpufeatures
     # 0.3.x for SIMD detection; sha2 0.10 (existing transitive via tauri-codegen +
     # wasmtime + wry) keeps cpufeatures 0.2.x. Pure ABI bump in the cpufeatures

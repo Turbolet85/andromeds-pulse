@@ -88,7 +88,6 @@ export const readyPayload = {
     ingest_mpsc_capacity_pct: 4,
     broadcast_subscribers: 2,
     plugins_loaded: 0,
-    mcp_server_enabled: false,
     rows_ingested: 12_000,
     buffer_used_seconds: 120,
     retention_seconds: 600,

@@ -125,11 +125,11 @@ describe("TauRPC bindings (chunks #25 + #27 + #29)", () => {
       version: "0.1.0",
       rust_version: "1.85",
       tauri_version: "2.11",
-      features: ["mcp-server"],
+      features: [],
       build_profile: "release",
     };
     expect(info.name).toBe("andromeda-pulse");
-    expect(info.features).toContain("mcp-server");
+    expect(info.features).toEqual([]);
   });
 
   it("Theme is a literal union of dark | light | auto", () => {
@@ -159,7 +159,6 @@ describe("TauRPC bindings (chunks #25 + #27 + #29)", () => {
       theme: "dark",
       widget_position: "top-right",
       retention_seconds: 600,
-      mcp_server_enabled: false,
       notifications_enabled: true,
     };
     expect(full.retention_seconds).toBe(600);
@@ -174,7 +173,6 @@ describe("TauRPC bindings (chunks #25 + #27 + #29)", () => {
         ingest_mpsc_capacity_pct: 5,
         broadcast_subscribers: 2,
         plugins_loaded: 0,
-        mcp_server_enabled: false,
         rows_ingested: 1234,
         buffer_used_seconds: 120,
         retention_seconds: 600,

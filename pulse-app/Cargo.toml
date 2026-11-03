@@ -84,5 +84,4 @@ test-support = { path = "../crates/test-support" }
 
 [features]
 default = []
-mcp-server = ["mcp-server-crate/mcp-server"]
 otap-ingest = []

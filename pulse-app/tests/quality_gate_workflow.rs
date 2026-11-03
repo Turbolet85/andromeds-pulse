@@ -146,9 +146,25 @@ fn ci_workflow_keeps_the_linux_release_build_witnesses() {
     );
     let boot = workflow_job_block(&content, "boot");
     assert!(
-        boot.contains("cargo build --workspace --release --features mcp-server"),
-        "the boot job MUST keep `cargo build --workspace --release --features mcp-server` \
+        boot.contains("cargo build --workspace --release"),
+        "the boot job MUST keep `cargo build --workspace --release` \
          (test-plan §9 Pipeline structure, Release build row); block:\n{boot}"
+    );
+}
+
+// The stdio sidecar left with its feature and its job.
+#[test]
+fn ci_workflow_holds_no_mcp_test_job_and_no_mcp_server_feature() {
+    let content = read_workflow();
+    assert!(
+        !content.lines().any(|line| line == "  mcp-test:"),
+        "ci.yml holds no `mcp-test` job"
+    );
+    // Spelled in two halves so this source holds no copy of the flag.
+    let feature_flag = ["--features ", "mcp-server"].concat();
+    assert!(
+        !content.contains(&feature_flag),
+        "ci.yml builds and tests no `mcp-server` feature"
     );
 }
 
@@ -1286,7 +1302,7 @@ fn workflow_env_references_no_step_only_context() {
 #[test]
 fn data_dir_export_precedes_every_consumer() {
     let expected = [
-        ("ci.yml", 6),
+        ("ci.yml", 5),
         ("release.yml", 1),
         ("update-channels.yml", 2),
     ];

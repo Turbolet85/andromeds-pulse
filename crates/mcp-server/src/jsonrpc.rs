@@ -116,10 +116,10 @@ pub fn empty_tools_list() -> Value {
     json!({ "tools": [] })
 }
 
-// Enumerate the #[tool] methods exposed by the rmcp sidecar. Schema follows
-// the MCP `Tool` shape (name + description + inputSchema). Input schemas are
-// JSON Schema draft-07 fragments; `additionalProperties: false` rejects
-// unknown args for `tools/call`. Chunk #49 shipped the first 4 (live-buffer
+// Enumerate the nine tools the engine's door serves. Schema follows the MCP
+// `Tool` shape (name + description + inputSchema). Input schemas are JSON
+// Schema draft-07 fragments; the door refuses a `tools/call` argument member
+// a tool's `properties` does not declare. Chunk #49 shipped the first 4 (live-buffer
 // query tools); chunk #94 adds the 4 corpus-backed incident/report tools.
 // `write` marks the one tool that changes what the engine stores.
 pub fn tools_list_manifest() -> Value {
@@ -219,7 +219,7 @@ pub fn tools_list_manifest() -> Value {
             {
                 "name": "mark_incident_resolved",
                 "write": true,
-                "description": "Mark an incident resolved in the persistent corpus by id. The main app's in-memory registry reflects the change on next launch (eventual consistency).",
+                "description": "Mark an incident resolved in the persistent corpus by id. The running engine drops it from its active set within one persist cycle.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {

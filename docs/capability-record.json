@@ -786,14 +786,14 @@
       "verification_mode": "automated-nextest",
       "scenarios": [
         {
-          "kind": "ui-test",
-          "ref": "pulse-app/ui/src/report/use-mcp-delivery.test.ts",
-          "contains": "visibility gate"
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/integration_door.rs",
+          "contains": "a_stdio_agent_reaches_the_door_through_the_bridge_and_leaves_one_call_per_request"
         },
         {
-          "kind": "ui-test",
-          "ref": "pulse-app/ui/src/report/SendToAgentButton.test.tsx",
-          "contains": "connected"
+          "kind": "nextest-file",
+          "ref": "pulse-app/tests/integration_door.rs",
+          "contains": "the_write_switch_is_read_from_the_environment_and_a_value_outside_the_set_leaves_it_off"
         },
         {
           "kind": "nextest-file",

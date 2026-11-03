@@ -1,0 +1,58 @@
+[
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "896e145b",
+"ts": "2026-11-03T02:20:30Z",
+"argv": [
+"snap",
+"--chunk",
+"2026-11-03-stdio-sidecar-retired",
+"--message-file",
+".andromeda/runs/2026-11-03T02-18-46Z-phase/relay-1.md",
+"--origin",
+"the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"--kind",
+"relay",
+"--why",
+"lean verification: the gates the plan requires, no extra verification runs; product questions and hand steps halt as dialogs for the founder",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-11-03T02-18-46Z-phase",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy message · message: the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "message: the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "a9be262e5a41f2617ebb8a3ce9ab424c4d2e5d5956013d8499de5e83ac4540e7",
+"copy": "I1-relay-1.md.txt",
+"link": false,
+"read_at": "2026-11-03T02:20:30Z",
+"step": "phase:P1",
+"why": "lean verification: the gates the plan requires, no extra verification runs; product questions and hand steps halt as dialogs for the founder"
+}
+}
+]

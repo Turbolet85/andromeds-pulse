@@ -17,7 +17,7 @@ env:
 
 # Independent jobs: a round lasts as long as its longest job, not the sum.
 # Cache keys are budgeted against the 10 GB repository cap: one target cache for
-# lint-test and one for boot; a11y, mcp-test and supply-chain restore read-only,
+# lint-test and one for boot; a11y and supply-chain restore read-only,
 # and coverage keeps only the registry.
 jobs:
   lint-test:
@@ -105,9 +105,8 @@ jobs:
       - name: cargo xtask verify:capability-matrix (reads the capability record — P-001..P-082, each claimed or retired)
         run: cargo xtask verify:capability-matrix
 
-      # Runs after the drift checks: the default-features test run rewrites
-      # pulse-app/ui/src/bindings/index.ts without the feature-gated mcp
-      # namespace, which capability-drift would then read as drift.
+      # Runs after the drift checks, which read the committed bindings: the
+      # test run regenerates pulse-app/ui/src/bindings/index.ts in the work tree.
       - name: cargo xtask test
         run: cargo xtask test
 
@@ -173,63 +172,6 @@ jobs:
           path: target/capability-drift/report.json
           if-no-files-found: error
           retention-days: 14
-
-  mcp-test:
-    name: mcp-server tests (ubuntu-22.04)
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Harden runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
-        with:
-          egress-policy: audit
-
-      - name: Export ANDROMEDA_PULSE_DATA_DIR
-        shell: bash
-        run: echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-ci-data" >> "$GITHUB_ENV"
-
-      - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-
-      - name: Install Rust toolchain (respects rust-toolchain.toml)
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
-
-      # The default-features test build's dependencies; only the feature-gated
-      # workspace crates compile here.
-      - name: Cache cargo (restore only)
-        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
-        with:
-          shared-key: lint-test-${{ runner.os }}
-          save-if: false
-
-      - name: Install cargo-nextest
-        uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
-        with:
-          tool: cargo-nextest
-
-      # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
-      # the build scripts find them through pkg-config.
-      - name: Install Linux system libraries (Tauri + dbus)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \
-            libdbus-1-dev libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev \
-            libjavascriptcoregtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev xvfb
-
-      - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: '24'
-
-      - name: npm ci (pulse-app/ui)
-        working-directory: pulse-app/ui
-        run: npm ci
-
-      - name: npm run build (ui/dist, embedded by tauri::generate_context!)
-        working-directory: pulse-app/ui
-        run: npm run build
-
-      - name: cargo nextest run --features mcp-server
-        run: cargo nextest run --workspace --features mcp-server --profile ci --no-tests=fail
 
   a11y:
     name: a11y (ubuntu-22.04)
@@ -356,8 +298,8 @@ jobs:
         working-directory: pulse-app/ui
         run: npm run build
 
-      - name: cargo build --features mcp-server (feature-gated binary build smoke)
-        run: cargo build --workspace --release --features mcp-server
+      - name: cargo build --workspace --release (release build smoke)
+        run: cargo build --workspace --release
 
       # scripts/exit-witness.c records the call that ends the app process,
       # with its caller. The boot verb loads the built library onto the app

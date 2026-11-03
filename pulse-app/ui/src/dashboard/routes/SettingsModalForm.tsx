@@ -16,7 +16,6 @@ import {
   Label,
   Radio,
   RadioGroup,
-  Switch,
 } from "react-aria-components";
 import { Modal } from "../../components/Modal";
 import {
@@ -37,7 +36,6 @@ const DEFAULT_SETTINGS: SettingsResolved = {
   theme: "dark",
   widget_position: "top-right",
   retention_seconds: 600,
-  mcp_server_enabled: false,
   notifications_enabled: true,
   always_on_top: true,
   snapshot_preset: "balanced",
@@ -412,32 +410,6 @@ export function SettingsModalForm({
               {errors.retention_seconds}
             </span>
           ) : null}
-        </div>
-
-        <div style={fieldGroupStyle}>
-          <Switch
-            isSelected={formState.mcp_server_enabled}
-            onChange={(value) =>
-              setFormState((prev) => ({ ...prev, mcp_server_enabled: value }))
-            }
-            isDisabled={loading || saving}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "var(--spacing-sm)",
-            }}
-          >
-            <span style={labelStyle}>MCP server</span>
-            <span
-              data-testid="mcp-toggle-state-label"
-              style={{
-                fontSize: "12px",
-                color: "var(--color-text-secondary)",
-              }}
-            >
-              {formState.mcp_server_enabled ? "On" : "Off"}
-            </span>
-          </Switch>
         </div>
 
         <RadioGroup

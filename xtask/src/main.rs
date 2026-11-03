@@ -1074,10 +1074,9 @@ async fn run_npm_script(script: &str, extra: Vec<String>) -> Result<ExitCode> {
 // EXPECTED_PROCEDURES tracks the TauRPC procedure surface arch §Occupied
 // Resources Tauri IPC routes legitimizes for the current commit. New chunks
 // extend this list as their crates ship. Future-deferred procedures
-// (other snapshot/workspace verbs, mcp.*) commented out until their owning
+// (other snapshot/workspace verbs) commented out until their owning
 // chunks land — uncommenting prematurely produces "missing" drift noise
-// that hides real drift. mcp.* additionally gated by --features mcp-server
-// at the binary level.
+// that hides real drift.
 const EXPECTED_PROCEDURES: &[&str] = &[
     "app_info",
     "health",
@@ -1111,9 +1110,6 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "plugins.list",
     "plugins.reload",
     "plugins.invoke",
-    "mcp.status",
-    "mcp.start",
-    "mcp.stop",
     "model.current_profile",
     "telemetry.frontend.record_constellation_discovery_latency",
     "telemetry.frontend.record_constellation_hue_latency",
@@ -1509,17 +1505,6 @@ mod capability_drift_tests {
             assert!(
                 expected.contains(proc),
                 "EXPECTED_PROCEDURES must include {proc} (chunk #47 plugins router)"
-            );
-        }
-    }
-
-    #[test]
-    fn expected_procedures_includes_mcp_namespace_at_chunk_49() {
-        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
-        for proc in ["mcp.status", "mcp.start", "mcp.stop"] {
-            assert!(
-                expected.contains(proc),
-                "EXPECTED_PROCEDURES must include {proc} (chunk #49 mcp router)"
             );
         }
     }

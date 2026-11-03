@@ -23,8 +23,6 @@ use pulse_app::engine_boot::{EngineConfig, EngineInputs, InterpretationSeat, Pro
 use pulse_app::incidents_router::{IncidentsApi, IncidentsApiImpl};
 use pulse_app::investigate_router::{InvestigateApi, InvestigateApiImpl};
 use pulse_app::llamacli_inference::LlamaCliInference;
-#[cfg(feature = "mcp-server")]
-use pulse_app::mcp_router::{McpApi, McpApiImpl};
 use pulse_app::model_router::{ModelApi, ModelApiImpl, tier_for_profile};
 use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
 use pulse_app::services_router::{ServicesApi, ServicesApiImpl};
@@ -34,26 +32,6 @@ use pulse_app::streams::{StreamsApi, StreamsApiImpl};
 use pulse_app::viz_routers::{
     LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl,
 };
-
-// Resolves the path to the andromeda-pulse-mcp sidecar binary. Sibling of
-// the current executable (same dir, with .exe on Windows). Falls back to a
-// non-resolving placeholder if the current binary path cannot be read —
-// `mcp.start` then surfaces AppError::Internal at spawn time. Chunk #49.
-#[cfg(feature = "mcp-server")]
-fn resolve_mcp_sidecar_binary_path() -> std::path::PathBuf {
-    let binary_name = if cfg!(target_os = "windows") {
-        "andromeda-pulse-mcp.exe"
-    } else {
-        "andromeda-pulse-mcp"
-    };
-    match std::env::current_exe()
-        .ok()
-        .and_then(|p| p.parent().map(|d| d.to_path_buf()))
-    {
-        Some(dir) => dir.join(binary_name),
-        None => std::path::PathBuf::from(binary_name),
-    }
-}
 
 fn main() {
     let render_posture = render_posture::apply_linux_default();
@@ -196,11 +174,7 @@ fn main() {
         Arc::clone(&hardware_profile),
     );
 
-    // features array surfaces in `app_info.features`; populated from compile-time
-    // cfg!() checks. mcp-server is the only known opt-in feature at chunk #27.
-    #[cfg(feature = "mcp-server")]
-    let features: Vec<String> = vec!["mcp-server".to_string()];
-    #[cfg(not(feature = "mcp-server"))]
+    // features array surfaces in `app_info.features`; no opt-in feature exists.
     let features: Vec<String> = Vec::new();
     let introspection_impl = IntrospectionApiImpl::new(
         data_dir.clone(),
@@ -259,17 +233,6 @@ fn main() {
         Arc::clone(&canonical_plugin_dir),
     );
 
-    // Chunk #49: mcp.* router wiring. The sidecar binary path is resolved
-    // by joining the current binary's parent directory with the sidecar
-    // executable name (with .exe extension on Windows). If the current
-    // binary's path cannot be resolved, fall back to a relative name that
-    // will fail at spawn time (mcp.start surfaces AppError::Internal then).
-    #[cfg(feature = "mcp-server")]
-    let mcp_impl = {
-        let mcp_sidecar_binary_path = Arc::new(resolve_mcp_sidecar_binary_path());
-        McpApiImpl::new(Arc::clone(&mcp_sidecar_binary_path))
-    };
-
     let invoke_router = match buffer_conn.as_ref() {
         Some(conn) => {
             let base = taurpc::Router::new()
@@ -293,13 +256,10 @@ fn main() {
                 Some(s) => base.merge(s.clone().into_handler()),
                 None => base,
             };
-            let base = match incidents_impl.as_ref() {
+            match incidents_impl.as_ref() {
                 Some(i) => base.merge(i.clone().into_handler()),
                 None => base,
-            };
-            #[cfg(feature = "mcp-server")]
-            let base = base.merge(mcp_impl.clone().into_handler());
-            base
+            }
         }
         None => {
             let base = taurpc::Router::new()
@@ -320,13 +280,10 @@ fn main() {
                 Some(s) => base.merge(s.clone().into_handler()),
                 None => base,
             };
-            let base = match incidents_impl.as_ref() {
+            match incidents_impl.as_ref() {
                 Some(i) => base.merge(i.clone().into_handler()),
                 None => base,
-            };
-            #[cfg(feature = "mcp-server")]
-            let base = base.merge(mcp_impl.clone().into_handler());
-            base
+            }
         }
     };
 
@@ -599,42 +556,25 @@ mod tests {
             )),
         );
 
-        // Chunk #49: McpApiImpl participates in the emit so the bindings.ts
-        // ARGS_MAP includes mcp.status / mcp.start / mcp.stop (4th binding
-        // per .claude/rules/security.md Session Additions 2026-05-12).
-        #[cfg(feature = "mcp-server")]
-        let mcp_impl = {
-            let mcp_sidecar_path =
-                Arc::new(std::env::temp_dir().join("andromeda-pulse-mcp-bindings-test"));
-            McpApiImpl::new(mcp_sidecar_path)
-        };
-
-        let router: taurpc::Router<tauri::Wry> = {
-            let base = taurpc::Router::new()
-                .export_config(taurpc_export_config())
-                .merge(introspection_impl.into_handler())
-                .merge(TracesApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
-                .merge(
-                    MetricsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler(),
-                )
-                .merge(LogsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
-                .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
-                .merge(TelemetryApiImpl::new().into_handler())
-                .merge(snapshot_impl.into_handler())
-                .merge(WorkspaceApiImpl::new().into_handler())
-                .merge(plugins_impl.into_handler())
-                .merge(connection_impl.into_handler())
-                .merge(services_impl.into_handler())
-                .merge(storage_impl.into_handler())
-                .merge(diagnostics_impl.into_handler())
-                .merge(incidents_impl.into_handler())
-                .merge(model_impl.into_handler())
-                .merge(investigate_impl.into_handler())
-                .merge(config_impl.into_handler());
-            #[cfg(feature = "mcp-server")]
-            let base = base.merge(mcp_impl.into_handler());
-            base
-        };
+        let router: taurpc::Router<tauri::Wry> = taurpc::Router::new()
+            .export_config(taurpc_export_config())
+            .merge(introspection_impl.into_handler())
+            .merge(TracesApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
+            .merge(MetricsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
+            .merge(LogsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
+            .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
+            .merge(TelemetryApiImpl::new().into_handler())
+            .merge(snapshot_impl.into_handler())
+            .merge(WorkspaceApiImpl::new().into_handler())
+            .merge(plugins_impl.into_handler())
+            .merge(connection_impl.into_handler())
+            .merge(services_impl.into_handler())
+            .merge(storage_impl.into_handler())
+            .merge(diagnostics_impl.into_handler())
+            .merge(incidents_impl.into_handler())
+            .merge(model_impl.into_handler())
+            .merge(investigate_impl.into_handler())
+            .merge(config_impl.into_handler());
 
         // into_handler() triggers export_types() in dev mode.
         let _handler = router.into_handler();

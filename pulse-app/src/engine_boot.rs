@@ -250,33 +250,6 @@ pub fn write_pid_file(data_dir: &Path) {
     );
 }
 
-/// Publish the resolved incident workspace key so the MCP stdio sidecar —
-/// a separate process that shares only the data dir — filters incidents by
-/// the identity this process stamps them with. Non-fatal: on failure the
-/// sidecar falls back to `data_dir`, which is the pre-publication behaviour.
-///
-/// Basename only in the log line (obs-plan §5 Vector 5).
-#[doc(hidden)]
-pub fn publish_workspace_key_for_sidecar(data_dir: &Path, key: &str) {
-    match workspace_detector::contract::publish_workspace_key(data_dir, key) {
-        Ok(()) => tracing::info!(
-            target: "app.boot.workspace_key",
-            workspace_root_basename = Path::new(key)
-                .file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("unknown"),
-            key_bytes = key.len(),
-            "workspace key published for sidecar",
-        ),
-        Err(e) => tracing::warn!(
-            target: "app.boot.workspace_key",
-            error_category = "publish_failed",
-            error_detail = %e,
-            "workspace key publish failed; sidecar will fall back to data dir",
-        ),
-    }
-}
-
 #[doc(hidden)]
 pub fn init_buffer(heartbeat_state: &Arc<HeartbeatState>) -> Option<Arc<Mutex<Connection>>> {
     let start = Instant::now();
@@ -767,7 +740,6 @@ pub fn start(config: EngineConfig, inputs: EngineInputs) -> EngineHandles {
             .and_then(|cwd| workspace_detector::detect::detect(&cwd).ok());
         digest_runtime::resolve_workspace_for_incidents(detected.as_ref(), &data_dir)
     };
-    publish_workspace_key_for_sidecar(&data_dir, &incident_workspace_key);
     let incident_broadcast = Arc::new(IncidentLifecycleBroadcast::new());
     // One adapter instance, two trait views (write + the reconciliation read
     // port) — the concrete Arc is the intermediate so both views share the

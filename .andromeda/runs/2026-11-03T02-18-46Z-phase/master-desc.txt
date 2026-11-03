@@ -1,0 +1,1 @@
+the stdio sidecar, its double gate, its window side and CI job leave; its tests read through the door

@@ -35,7 +35,6 @@ const sampleSettings: Required<Settings> = {
   theme: "dark",
   widget_position: "top-right",
   retention_seconds: 600,
-  mcp_server_enabled: false,
   notifications_enabled: true,
   always_on_top: true,
   snapshot_preset: "balanced",
@@ -121,19 +120,6 @@ describe("SettingsModalForm", () => {
       const helpText = document.getElementById("retention-help-text");
       expect(helpText?.textContent).toMatch(/range 60.*86400/i);
     });
-
-    it("MCP toggle renders as switch with paired text label", async () => {
-      render(<Harness open={true} onClose={vi.fn()} />);
-      const toggle = await screen.findByRole("switch");
-      expect(toggle).toBeDefined();
-      // react-aria-components renders Switch as a native <input role="switch">;
-      // initial unchecked state is reflected via the input's `checked` property.
-      expect((toggle as HTMLInputElement).checked).toBe(false);
-      // Paired text label "Off" reflects current state (not color alone) per
-      // design-system §Color Palette anti-pattern + a11y SC 1.4.1.
-      const stateLabel = screen.getByTestId("mcp-toggle-state-label");
-      expect(stateLabel.textContent).toBe("Off");
-    });
   });
 
   describe("keyboard navigation (P7 surrogate)", () => {
@@ -145,17 +131,16 @@ describe("SettingsModalForm", () => {
       // Additions 2026-05-09 (jsdom returns 0×0 layout).
       await waitFor(() => {
         const focusables = tabbable(dialog, { displayCheck: "none" });
-        // Close button + at least one radio per group + MCP switch + retention
-        // input + Save + Cancel = ≥7 tabbable elements.
+        // Close button + at least one radio per group + retention input +
+        // Save + Cancel = ≥7 tabbable elements.
         expect(focusables.length).toBeGreaterThanOrEqual(7);
       });
       const focusables = tabbable(dialog, { displayCheck: "none" });
       // Modal close button reachable
       const closeButton = screen.getByRole("button", { name: "Close" });
       expect(focusables).toContain(closeButton);
-      // MCP switch reachable
-      const switchEl = screen.getByRole("switch");
-      expect(focusables).toContain(switchEl);
+      // No switch remains in the modal
+      expect(screen.queryByRole("switch")).toBeNull();
       // Save + Cancel buttons reachable
       const saveButton = screen.getByRole("button", { name: /save/i });
       const cancelButton = screen.getByRole("button", { name: "Cancel" });

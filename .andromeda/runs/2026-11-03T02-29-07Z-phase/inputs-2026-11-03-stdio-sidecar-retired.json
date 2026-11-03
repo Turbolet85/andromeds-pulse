@@ -1,0 +1,265 @@
+[
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "896e145b",
+"ts": "2026-11-03T02:30:09Z",
+"argv": [
+"snap",
+"--chunk",
+"2026-11-03-stdio-sidecar-retired",
+"--message-file",
+".andromeda/runs/2026-11-03T02-29-07Z-phase/relay-1.md",
+"--origin",
+"the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"--kind",
+"relay",
+"--why",
+"lean verification: the gates the plan requires, no extra verification runs; product questions and hand steps halt as dialogs for the founder",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-11-03T02-29-07Z-phase",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy message · message: the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "message: the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "22b7e3377db9be752796bf84d95741b220e97cf951fb7caef3d0fc3c4b3df953",
+"copy": "I1-relay-1.md.txt",
+"link": false,
+"read_at": "2026-11-03T02:30:09Z",
+"step": "phase:P1",
+"why": "lean verification: the gates the plan requires, no extra verification runs; product questions and hand steps halt as dialogs for the founder"
+}
+},
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "896e145b",
+"ts": "2026-11-03T02:41:41Z",
+"argv": [
+"snap",
+"--chunk",
+"2026-11-03-stdio-sidecar-retired",
+"--message-file",
+".andromeda/runs/2026-11-03T02-29-07Z-phase/relay-2.md",
+"--origin",
+"the overseer, founder-delegated, the P4 dialog, 2026-11-03",
+"--kind",
+"relay",
+"--why",
+"argument-member refusal stays at the door alone, the nine-tool committed test its proof; serverInfo.name stays andromeda-pulse-mcp; both PROVISIONAL, delegate overseer",
+"--step",
+"phase:P4",
+"--run-dir",
+".andromeda/runs/2026-11-03T02-29-07Z-phase",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: the overseer, founder-delegated, the P4 dialog, 2026-11-03",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: the overseer, founder-delegated, the P4 dialog, 2026-11-03",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "4825de611e9f9e03b5a72ab54e43c24e489d536a1ab9f2356a3f556c93e36ef9",
+"copy": "I2-relay-2.md.txt",
+"link": false,
+"read_at": "2026-11-03T02:41:40Z",
+"step": "phase:P4",
+"why": "argument-member refusal stays at the door alone, the nine-tool committed test its proof; serverInfo.name stays andromeda-pulse-mcp; both PROVISIONAL, delegate overseer"
+}
+},
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "896e145b",
+"ts": "2026-11-03T02:52:24Z",
+"argv": [
+"snap",
+"--chunk",
+"2026-11-03-stdio-sidecar-retired",
+"--message-file",
+".andromeda/runs/2026-11-03T02-29-07Z-phase/relay-3.md",
+"--origin",
+"the overseer, founder-delegated, the P5 dialog, 2026-11-03",
+"--kind",
+"relay",
+"--why",
+"cargo audit external decay: this chunk goes on, audit and CI read report-only, the wrap mints the owner entry Advisories since 2026-10-12 closed right after this one; PROVISIONAL, delegate overseer",
+"--step",
+"phase:P5",
+"--run-dir",
+".andromeda/runs/2026-11-03T02-29-07Z-phase",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I3 · copy message · message: the overseer, founder-delegated, the P5 dialog, 2026-11-03",
+"cite: inputs#I3"
+],
+"stderr": null,
+"wrote": [
+"inputs/I3-relay-3.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I3",
+"kind": "relay",
+"repo": null,
+"path": "message: the overseer, founder-delegated, the P5 dialog, 2026-11-03",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "07a9738fba26d8b26394babe47d6018b372da7e196ee98b31fb454d553749673",
+"copy": "I3-relay-3.md.txt",
+"link": false,
+"read_at": "2026-11-03T02:52:24Z",
+"step": "phase:P5",
+"why": "cargo audit external decay: this chunk goes on, audit and CI read report-only, the wrap mints the owner entry Advisories since 2026-10-12 closed right after this one; PROVISIONAL, delegate overseer"
+}
+},
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "896e145b",
+"ts": "2026-11-03T02:59:47Z",
+"argv": [
+"verify",
+"--chunk",
+"2026-11-03-stdio-sidecar-retired",
+"--run-dir",
+".andromeda/runs/2026-11-03T02-29-07Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"I1 cited scope.md:7 · research.md:7 · plan.md:226 · plan.md:233 · plan.md:458 (in fence) · plan.md:497 · plan.md:506",
+"I2 n/a — a message has no live source · copy message · message: the overseer, founder-delegated, the P4 dialog, 2026-11-03",
+"I2 cited research.md:113 · plan.md:23 · plan.md:110 · plan.md:480 · plan.md:497 · plan.md:500 · plan.md:501 · plan.md:515",
+"I3 n/a — a message has no live source · copy message · message: the overseer, founder-delegated, the P5 dialog, 2026-11-03",
+"I3 cited plan.md:242 · plan.md:371 (in fence) · plan.md:372 (in fence) · plan.md:474 (in fence) · plan.md:481 · plan.md:492 · plan.md:521",
+"inputs: 3 entries — unchanged 0 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 3 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 3,
+"counts": {
+"unchanged": 0,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 3
+},
+"uncited": 0,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "896e145b",
+"ts": "2026-11-03T03:00:59Z",
+"argv": [
+"snap",
+"--chunk",
+"2026-11-03-stdio-sidecar-retired",
+"--message-file",
+".andromeda/runs/2026-11-03T02-29-07Z-phase/relay-4.md",
+"--origin",
+"the operator, the P5 review prompt, 2026-11-03",
+"--kind",
+"relay",
+"--why",
+"the P5 word on .andromeda/runs/2026-11-03T02-29-07Z-phase/p5-card-1.md, the operator's own word in this session: approves the plan rev 2 and the Beyond-the-plan row, the route insertion Advisories since 2026-10-12 closed directly after this entry, minted by the wrap",
+"--step",
+"phase:P5",
+"--run-dir",
+".andromeda/runs/2026-11-03T02-29-07Z-phase",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I4 · copy message · message: the operator, the P5 review prompt, 2026-11-03",
+"cite: inputs#I4"
+],
+"stderr": null,
+"wrote": [
+"inputs/I4-relay-4.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I4",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator, the P5 review prompt, 2026-11-03",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "5040625b1fb6fa4af07226683f6e6003b29e5e70b16f8cfb24be7a752393f0ee",
+"copy": "I4-relay-4.md.txt",
+"link": false,
+"read_at": "2026-11-03T03:00:58Z",
+"step": "phase:P5",
+"why": "the P5 word on .andromeda/runs/2026-11-03T02-29-07Z-phase/p5-card-1.md, the operator's own word in this session: approves the plan rev 2 and the Beyond-the-plan row, the route insertion Advisories since 2026-10-12 closed directly after this entry, minted by the wrap"
+}
+}
+]

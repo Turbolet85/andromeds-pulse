@@ -536,7 +536,6 @@ impl AllowList {
                 "ingest_mpsc_capacity_pct",
                 "broadcast_subscribers",
                 "plugins_loaded",
-                "mcp_server_enabled",
             ]
             .iter()
             .copied()
@@ -583,19 +582,6 @@ impl AllowList {
             .copied()
             .collect(),
         );
-        by_target.insert(
-            "mcp-server",
-            [
-                "method",
-                "result_type",
-                "result_count",
-                "feature_flag_enabled",
-                "duration_ms",
-            ]
-            .iter()
-            .copied()
-            .collect(),
-        );
 
         // App-internal targets (chunk #4 + chunk #7-8 boot/panic events)
         by_target.insert(
@@ -632,21 +618,6 @@ impl AllowList {
         by_target.insert(
             "app.boot.buffer.degraded",
             ["reason", "consequence"].iter().copied().collect(),
-        );
-        // Explicit leaf entry, same fallback hazard. Basename only — the full
-        // workspace path is never permitted here (obs-plan §5 Vector 5, the
-        // chunk #43 `workspace.detect` precedent).
-        by_target.insert(
-            "app.boot.workspace_key",
-            [
-                "workspace_root_basename",
-                "key_bytes",
-                "error_category",
-                "error_detail",
-            ]
-            .iter()
-            .copied()
-            .collect(),
         );
         by_target.insert(
             "app.boot.otlp.http.bind",

@@ -608,6 +608,42 @@ async fn a_request_outside_the_tool_set_is_refused_with_a_fixed_message_and_no_t
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn an_undeclared_argument_member_is_refused_for_each_of_the_nine_tools() {
+    const UNDECLARED: &str = "undeclared_member_canary_9f3b";
+    let manifest = mcp_server_crate::jsonrpc::tools_list_manifest();
+    let tools = manifest["tools"].as_array().expect("the manifest's tools");
+    assert_eq!(tools.len(), 9, "the manifest lists nine tools");
+    let seated = seat(ResolveWrite::On);
+    let mut caller = Caller::connect(&seated.socket).await;
+
+    for (id, tool) in (1u64..).zip(tools) {
+        let name = tool["name"].as_str().expect("a tool name");
+        let declared = tool["inputSchema"]["properties"]
+            .as_object()
+            .expect("the tool's declared properties");
+        assert!(
+            !declared.contains_key(UNDECLARED),
+            "{name} does not declare the canary member"
+        );
+
+        let answer = caller
+            .ask(tool_call(id, name, json!({ UNDECLARED: 1 })))
+            .await;
+
+        assert_eq!(answer["id"], id, "{name}");
+        assert_eq!(answer["error"]["code"], -32602, "{name}: {answer}");
+        assert_eq!(answer["error"]["message"], "invalid arguments", "{name}");
+        let text = answer.to_string();
+        assert!(!text.contains(UNDECLARED), "{name}: the member in {text}");
+    }
+    assert_eq!(
+        seated.tools.calls.load(Ordering::SeqCst),
+        0,
+        "no tool ran for any of the nine refusals"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn a_request_with_no_id_is_not_answered() {
     let seated = seat(ResolveWrite::On);
     let mut caller = Caller::connect(&seated.socket).await;

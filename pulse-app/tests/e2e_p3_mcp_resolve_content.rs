@@ -1,59 +1,130 @@
-//! Cross-process CONTENT assertion for `mark_incident_resolved` — discharges
-//! the `mcp-incident-read-back-cross-process-coverage` trigger (test-plan §1)
-//! and §6 P3's Current residual.
+//! `mark_incident_resolved` CONTENT through the console engine's door, in both
+//! arms the corpus monotonic guard can produce (test-plan §1, the door row;
+//! §6 P3). A revert of the tool to an unconditional `{"resolved": true}` would
+//! pass every name-only assertion; this reads the answer body and the row.
 //!
-//! The standing gap: the 4 incident tools appeared cross-process only as
-//! `tools/list` NAME assertions, so a revert of `mark_incident_resolved` to its
-//! pre-guard unconditional `{"resolved": true}` shape would have passed every
-//! committed cross-process test. This asserts the RESPONSE BODY of a real
-//! subprocess `tools/call`, in both arms the guard can produce.
-//!
-//! The process boundary is the point (test-plan §4 corpus-crate precedent): the
-//! sidecar opens its OWN corpus connection over the same on-disk database, so an
-//! in-process double would not exercise what an agent actually reaches.
-//!
-//! Key custody is what makes the shared database readable across the two
-//! processes: both sides open with `OsKeychainBackend::new("com.andromeda.pulse")`,
-//! which resolves the same persisted key (chunk 2026-08-15-corpus-key-persistence).
-//! On a host with no credential store the open fails and each test SKIPS
-//! cleanly rather than failing — CI has no store.
+//! The console program's engine boots in this process through
+//! `engine_boot::start` with the fake key backend, so the corpus is the engine's
+//! own and no OS credential store is needed; the incident is seeded through the
+//! engine's own `corpus_writer` under its `incident_workspace_key`, and every
+//! call goes over the door's socket as a caller's does.
+#![cfg(unix)]
 
-#![cfg(feature = "mcp-server")]
-
-use std::process::Stdio;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 
-use corpus::contract::{Corpus, CorpusWriter, KeychainBackend, OsKeychainBackend};
+use corpus::contract::{CorpusWriter, FakeKeychainBackend};
+use ingest::contract::OtlpPort;
+use pulse_app::door::ResolveWrite;
+use pulse_app::engine_boot::{self, EngineConfig, EngineHandles, EngineInputs, Program};
+use serde_json::{Value, json};
+use test_support::ports::{PortClaim, claim_port};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::process::Command;
 use triage::contract::{
     CueKind, CueScope, EvidenceRefs, Incident, IncidentStatus, PriorityTier, Severity,
+    UnknownHardwareProfile,
 };
 
-const WS: &str = "ws-mcp-resolve-content";
+const WAIT: Duration = Duration::from_secs(30);
 
-fn sidecar_binary_path() -> std::path::PathBuf {
-    // `CARGO_BIN_EXE_*` is exposed only to the crate declaring the [[bin]]
-    // (crates/mcp-server), so derive from CARGO_MANIFEST_DIR instead.
-    let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
-    let target_dir = manifest
-        .parent()
-        .expect("workspace root")
-        .join("target")
-        .join("debug");
-    let binary_name = if cfg!(target_os = "windows") {
-        "andromeda-pulse-mcp.exe"
-    } else {
-        "andromeda-pulse-mcp"
-    };
-    target_dir.join(binary_name)
+struct Booted {
+    engine: EngineHandles,
+    // Held for the arm's life: the engine binds these numbers after `start`
+    // has returned.
+    _ports: [PortClaim; 2],
+    dir: tempfile::TempDir,
 }
 
-fn sample_incident(updated_at_unix_nano: i64) -> Incident {
+impl Booted {
+    fn socket(&self) -> PathBuf {
+        self.dir.path().join("run").join("door").join("sock")
+    }
+
+    fn corpus(&self) -> Arc<dyn CorpusWriter> {
+        Arc::clone(
+            self.engine
+                .corpus_writer
+                .as_ref()
+                .expect("the corpus opened with the fake key backend"),
+        )
+    }
+}
+
+fn receiver_port(claim: &PortClaim) -> OtlpPort {
+    OtlpPort::try_from(claim.number).expect("a claimed port is a valid receiver port")
+}
+
+/// The console program's engine, booted in this process on its own data dir.
+async fn boot_console() -> Booted {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let ports = [claim_port(), claim_port()];
+    let engine = engine_boot::start(
+        EngineConfig {
+            data_dir: dir.path().to_path_buf(),
+            grpc_port: Some(receiver_port(&ports[0])),
+            http_port: Some(receiver_port(&ports[1])),
+            retention_seconds: 600,
+            door_resolve: ResolveWrite::On,
+        },
+        EngineInputs {
+            program: Program::Console,
+            key_backend: Arc::new(FakeKeychainBackend::new()),
+            hardware_profile: Arc::new(UnknownHardwareProfile),
+            interpretation: None,
+        },
+    );
+    let booted = Booted {
+        engine,
+        _ports: ports,
+        dir,
+    };
+    let deadline = tokio::time::Instant::now() + WAIT;
+    while tokio::net::UnixStream::connect(booted.socket())
+        .await
+        .is_err()
+    {
+        assert!(
+            tokio::time::Instant::now() < deadline,
+            "the door's socket takes a connection within {WAIT:?}"
+        );
+        tokio::time::sleep(Duration::from_millis(25)).await;
+    }
+    booted
+}
+
+fn tool_call(id: u64, name: &str, arguments: Value) -> Value {
+    json!({
+        "jsonrpc": "2.0",
+        "id": id,
+        "method": "tools/call",
+        "params": { "name": name, "arguments": arguments }
+    })
+}
+
+/// One request on a connection of its own, and its one answer line.
+async fn ask(socket: &Path, request: Value) -> Value {
+    let stream = tokio::net::UnixStream::connect(socket)
+        .await
+        .expect("the door's socket accepts a connection");
+    let (read_half, mut writer) = stream.into_split();
+    writer
+        .write_all(format!("{request}\n").as_bytes())
+        .await
+        .expect("write the request");
+    let mut line = String::new();
+    let read = tokio::time::timeout(WAIT, BufReader::new(read_half).read_line(&mut line))
+        .await
+        .expect("the door answers within the bound")
+        .expect("read the answer");
+    assert!(read > 0, "the door answered before it closed");
+    serde_json::from_str(&line).expect("an answer line is one JSON object")
+}
+
+fn sample_incident(workspace: &str, updated_at_unix_nano: i64) -> Incident {
     Incident {
         id: 0,
-        workspace: WS.to_string(),
+        workspace: workspace.to_string(),
         fingerprint: "0123456789abcdef0123456789abcdef".to_string(),
         title: "[r]".to_string(),
         detail: "[r]".to_string(),
@@ -78,20 +149,15 @@ fn sample_incident(updated_at_unix_nano: i64) -> Incident {
     }
 }
 
-/// Seed one incident into an on-disk corpus under `data_dir`, using the same
-/// backend + service id the sidecar uses. `None` = no credential store on this
-/// host, so the caller skips cleanly.
-fn seed_incident(data_dir: &std::path::Path, updated_at_unix_nano: i64) -> Option<i64> {
-    let corpus_dir = data_dir.join("corpus");
-    std::fs::create_dir_all(&corpus_dir).expect("corpus dir");
-    let keychain: Arc<dyn KeychainBackend> =
-        Arc::new(OsKeychainBackend::new("com.andromeda.pulse"));
-    let corpus = Corpus::open(corpus_dir.join("corpus.db"), keychain).ok()?;
-    let incident = sample_incident(updated_at_unix_nano);
+/// One active incident in the engine's own corpus, stamped `updated_at`.
+fn seed_incident(booted: &Booted, updated_at_unix_nano: i64) -> i64 {
+    let workspace = booted.engine.incident_workspace_key.clone();
+    let incident = sample_incident(&workspace, updated_at_unix_nano);
     let payload = bincode::serialize(&incident).expect("encode");
-    let id = corpus
+    booted
+        .corpus()
         .save_incident(
-            WS,
+            &workspace,
             "active",
             incident.opened_at_unix_nano,
             updated_at_unix_nano,
@@ -99,66 +165,32 @@ fn seed_incident(data_dir: &std::path::Path, updated_at_unix_nano: i64) -> Optio
             None,
             &payload,
         )
-        .expect("seed incident");
-    Some(id)
+        .expect("seed incident")
 }
 
-async fn call_tool(
-    data_dir: &std::path::Path,
-    request_id: u64,
-    tool_name: &str,
-    arguments: serde_json::Value,
-) -> serde_json::Value {
-    let mut child = Command::new(sidecar_binary_path())
-        .env("ANDROMEDA_PULSE_MCP_ENABLED", "true")
-        .env("ANDROMEDA_PULSE_DATA_DIR", data_dir)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .expect("spawn sidecar");
-
-    let mut stdin = child.stdin.take().expect("stdin handle");
-    let stdout = child.stdout.take().expect("stdout handle");
-    let mut lines = BufReader::new(stdout).lines();
-
-    let frame = serde_json::json!({
-        "jsonrpc": "2.0",
-        "id": request_id,
-        "method": "tools/call",
-        "params": { "name": tool_name, "arguments": arguments }
-    });
-    stdin
-        .write_all(&serde_json::to_vec(&frame).expect("frame"))
-        .await
-        .expect("write");
-    stdin.write_all(b"\n").await.expect("newline");
-    stdin.flush().await.expect("flush");
-
-    let line = tokio::time::timeout(Duration::from_secs(15), lines.next_line())
-        .await
-        .expect("response within 15s")
-        .expect("read")
-        .expect("line present");
-
-    let _ = child.kill().await;
-    serde_json::from_str(&line).expect("JSON-RPC envelope")
+fn listed_ids(answer: &Value) -> Vec<i64> {
+    answer["result"]["items"]
+        .as_array()
+        .unwrap_or_else(|| panic!("a result with items: {answer}"))
+        .iter()
+        .filter_map(|item| item["incident_id"].as_i64())
+        .collect()
 }
 
 /// The APPLIED arm: the tool reports the resolution it actually performed.
-#[tokio::test(flavor = "multi_thread")]
-async fn mark_incident_resolved_reports_the_applied_shape_cross_process() {
-    let tmp = tempfile::tempdir().expect("tempdir");
-    let Some(id) = seed_incident(tmp.path(), 1_000) else {
-        eprintln!("[skip] no OS credential store; cross-process corpus unavailable");
-        return;
-    };
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn mark_incident_resolved_reports_the_applied_shape_through_the_door() {
+    let booted = boot_console().await;
+    let id = seed_incident(&booted, 1_000);
+    let socket = booted.socket();
+    assert_eq!(
+        listed_ids(&ask(&socket, tool_call(899, "query_incident_list", json!({}))).await),
+        vec![id]
+    );
 
-    let parsed = call_tool(
-        tmp.path(),
-        900,
-        "mark_incident_resolved",
-        serde_json::json!({ "incident_id": id }),
+    let parsed = ask(
+        &socket,
+        tool_call(900, "mark_incident_resolved", json!({ "incident_id": id })),
     )
     .await;
 
@@ -166,47 +198,60 @@ async fn mark_incident_resolved_reports_the_applied_shape_cross_process() {
     assert_eq!(parsed["id"], 900);
     assert_eq!(
         parsed["result"]["resolved"], true,
-        "the applied arm must report `resolved: true` in the response BODY, \
-         not merely appear in tools/list"
+        "the applied arm reports `resolved: true` in the answer body: {parsed}"
     );
     assert_eq!(
         parsed["result"]["incident_id"], id,
-        "the response must name the incident it resolved"
+        "the answer names the incident it resolved"
+    );
+    let row = booted
+        .corpus()
+        .load_incident_by_id(id)
+        .expect("the corpus read")
+        .expect("the incident's row");
+    assert_eq!(row.status, "resolved");
+    assert!(
+        listed_ids(&ask(&socket, tool_call(901, "query_incident_list", json!({}))).await)
+            .is_empty(),
+        "a resolved incident is no longer listed"
     );
 }
 
-/// The DECLINED arm — the one a revert to the unconditional shape would break.
-/// A stored row NEWER than the sidecar's `now` loses the corpus monotonic
-/// guard, and the tool must say so rather than claim success.
-#[tokio::test(flavor = "multi_thread")]
-async fn mark_incident_resolved_reports_not_applied_when_the_guard_declines() {
-    let tmp = tempfile::tempdir().expect("tempdir");
-    // Far enough ahead that the sidecar's wall-clock `now` is necessarily older,
+/// The DECLINED arm, the one a revert to the unconditional shape would break:
+/// a stored row NEWER than the engine's `now` wins the corpus monotonic guard,
+/// and the tool must not claim success.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn mark_incident_resolved_reports_no_success_when_the_guard_declines() {
+    let booted = boot_console().await;
+    // Far enough ahead that the engine's wall-clock `now` is necessarily older,
     // so the bound `updated_unix_nano <= ?2` predicate matches no row.
-    let far_future = i64::MAX / 2;
-    let Some(id) = seed_incident(tmp.path(), far_future) else {
-        eprintln!("[skip] no OS credential store; cross-process corpus unavailable");
-        return;
-    };
+    let id = seed_incident(&booted, i64::MAX / 2);
+    let socket = booted.socket();
 
-    let parsed = call_tool(
-        tmp.path(),
-        901,
-        "mark_incident_resolved",
-        serde_json::json!({ "incident_id": id }),
+    let parsed = ask(
+        &socket,
+        tool_call(902, "mark_incident_resolved", json!({ "incident_id": id })),
     )
     .await;
 
+    assert_eq!(parsed["id"], 902);
     assert!(
         parsed["result"].is_null(),
-        "a declined resolution must NOT return a success result: {parsed}"
+        "a declined resolution returns no success result: {parsed}"
     );
-    let message = parsed["error"]["message"]
-        .as_str()
-        .unwrap_or_default()
-        .to_string();
     assert!(
-        message.contains("not applied"),
-        "the declined arm must report the resolution was not applied; got: {message}"
+        parsed["error"]["code"].is_i64(),
+        "an error answer: {parsed}"
+    );
+    let row = booted
+        .corpus()
+        .load_incident_by_id(id)
+        .expect("the corpus read")
+        .expect("the incident's row");
+    assert_eq!(row.status, "active", "the guard left the row as it was");
+    assert_eq!(
+        listed_ids(&ask(&socket, tool_call(903, "query_incident_list", json!({}))).await),
+        vec![id],
+        "the declined incident is still listed"
     );
 }

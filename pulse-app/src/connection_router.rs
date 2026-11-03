@@ -1,7 +1,7 @@
 //! Connection TauRPC router — chunk #59.
 //!
 //! `connection.current_state` resolver returning the live FSM state on
-//! demand. Mirrors the `mcp_router.rs` pattern: library crate
+//! demand. The library crate
 //! (`crates/ingest`) stays Tauri-free; the Tauri-aware router lives here at
 //! the binary boundary so taurpc + specta deps don't leak into the workspace
 //! crate per arch §Cross-cutting Patterns Module dependency direction.

@@ -12,36 +12,19 @@ tokio.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 tracing.workspace = true
-tracing-subscriber.workspace = true
-tracing-appender.workspace = true
-tracing-error.workspace = true
 chrono.workspace = true
 duckdb.workspace = true
 bincode.workspace = true
 buffer = { path = "../buffer" }
 viz = { path = "../viz" }
 snapshot = { path = "../snapshot" }
-# Chunk #94 — incident/report/telemetry tools read corpus.db cross-process.
+# Chunk #94 — incident/report/telemetry tools read the engine's corpus.
 # `interpretation::markdown::{assemble_report, serialize_report}` is the
 # P-038 single-source projection (shared with `incidents.get_report`);
 # `triage::contract::Incident` is the bincode-decoded corpus BLOB shape.
 corpus = { path = "../corpus" }
 triage = { path = "../triage" }
 interpretation = { path = "../interpretation" }
-# The incident workspace key is single-sourced here: the app publishes what
-# it stamps, the sidecar reads it. Importing pulse-app instead would be a
-# dependency cycle (pulse-app depends on this crate).
-workspace-detector = { path = "../workspace-detector" }
-rmcp = { workspace = true, optional = true }
-
-[features]
-default = []
-mcp-server = ["dep:rmcp"]
-
-[[bin]]
-name = "andromeda-pulse-mcp"
-path = "src/bin/andromeda-pulse-mcp.rs"
-required-features = ["mcp-server"]
 
 [dev-dependencies]
 tempfile.workspace = true

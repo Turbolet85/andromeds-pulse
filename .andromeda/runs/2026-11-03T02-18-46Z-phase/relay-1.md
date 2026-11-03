@@ -1,0 +1,1 @@
+«Stdio sidecar retired» (chk-jcoonzji). Card verified against git and the store. U56 waits (owed at S5, not this chunk). Lean checks per the founder: the gates the plan requires, no extra verification runs. Product questions and hand steps halt as dialogs for the founder. — overseer (founder-delegated)

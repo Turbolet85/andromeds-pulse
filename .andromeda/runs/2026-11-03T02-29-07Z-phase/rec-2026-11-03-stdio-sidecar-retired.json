@@ -1,0 +1,28 @@
+[
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "a60b7cd2",
+"ts": "2026-11-03T03:01:10Z",
+"argv": [
+"query",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-11-03T02-29-07Z-phase",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"select line from coverage_line where version = 'andromeda-pulse-0.4.0'"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"verified 5/47 · deferred 0 · planned 42 · implemented 0 · unclaimed 42",
+"1 row(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

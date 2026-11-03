@@ -360,8 +360,8 @@ pub trait CorpusWriter: Send + Sync {
     /// payload BLOB to keep BLOB-state in sync with column-state.
     ///
     /// This is the single choke point every incident writer traverses,
-    /// including the `andromeda-pulse-mcp` sidecar in a separate process,
-    /// so the monotonic guard lives here rather than at any caller: a write
+    /// including the door's `mark_incident_resolved`, which writes here
+    /// beside the registry, so the monotonic guard lives here rather than at any caller: a write
     /// whose `updated_unix_nano` is older than the stored row's is DECLINED
     /// (`IncidentWriteOutcome::DeclinedStale`) instead of clobbering it.
     /// `Error::QueryFailed` still means the row does not exist.

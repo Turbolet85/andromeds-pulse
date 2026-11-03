@@ -1,0 +1,106 @@
+{"for": "layouts.md", "address": "doc:layout-templates", "tx": 5, "page": 1, "of": 2, "bytes": 24596, "pin": 5}
+{"for": "design.md", "address": "doc:design-system", "tx": 5, "page": 1, "of": 3, "bytes": 24568, "pin": 5}
+{"for": "a11y.md", "address": "doc:a11y-plan", "tx": 5, "page": 1, "of": 4, "bytes": 23208, "pin": 5}
+{"for": "security.md", "address": "doc:security-plan", "tx": 5, "page": 1, "of": 10, "bytes": 24420, "pin": 5}
+{"for": "layouts.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "design.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "a11y.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "security.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 1, "of": 12, "bytes": 20712, "pin": 5}
+{"for": "arch.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "obs.md", "address": "doc:obs-plan", "tx": 5, "page": 1, "of": 9, "bytes": 24006, "pin": 5}
+{"for": "tests.md", "address": "doc:test-plan", "tx": 5, "page": 1, "of": 11, "bytes": 22199, "pin": 5}
+{"for": "obs.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "tests.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "layouts.md", "address": "doc:layout-templates", "tx": 5, "page": 2, "of": 2, "bytes": 18257, "pin": 5}
+{"for": "a11y.md", "address": "doc:a11y-plan", "tx": 5, "page": 2, "of": 4, "bytes": 23480, "pin": 5}
+{"for": "a11y.md", "address": "doc:a11y-plan", "tx": 5, "page": 3, "of": 4, "bytes": 24587, "pin": 5}
+{"for": "a11y.md", "address": "doc:a11y-plan", "tx": 5, "page": 4, "of": 4, "bytes": 4595, "pin": 5}
+{"for": "design.md", "address": "doc:design-system", "tx": 5, "page": 2, "of": 3, "bytes": 24618, "pin": 5}
+{"for": "design.md", "address": "doc:design-system", "tx": 5, "page": 3, "of": 3, "bytes": 3924, "pin": 5}
+{"for": "a11y.md", "address": "doc:a11y-plan/contracts/harness-wiring-conventions", "tx": 5, "page": 1, "of": 1, "bytes": 2686, "pin": 5}
+{"for": "a11y.md", "address": "doc:a11y-plan/contracts/ci-integration", "tx": 5, "page": 1, "of": 1, "bytes": 2918, "pin": 5}
+{"for": "security.md", "address": "doc:security-plan", "tx": 5, "page": 2, "of": 10, "bytes": 10983, "pin": 5}
+{"for": "security.md", "address": "doc:security-plan", "tx": 5, "page": 3, "of": 10, "bytes": 21077, "pin": 5}
+{"for": "security.md", "address": "doc:security-plan", "tx": 5, "page": 4, "of": 10, "bytes": 24351, "pin": 5}
+{"for": "security.md", "address": "doc:security-plan", "tx": 5, "page": 5, "of": 10, "bytes": 23864, "pin": 5}
+{"for": "security.md", "address": "doc:security-plan", "tx": 5, "page": 6, "of": 10, "bytes": 24384, "pin": 5}
+{"for": "obs.md", "address": "doc:obs-plan", "tx": 5, "page": 2, "of": 9, "bytes": 24598, "pin": 5}
+{"for": "security.md", "address": "doc:security-plan", "tx": 5, "page": 7, "of": 10, "bytes": 8013, "pin": 5}
+{"for": "obs.md", "address": "doc:obs-plan", "tx": 5, "page": 3, "of": 9, "bytes": 24667, "pin": 5}
+{"for": "security.md", "address": "doc:security-plan", "tx": 5, "page": 8, "of": 10, "bytes": 24171, "pin": 5}
+{"for": "obs.md", "address": "doc:obs-plan", "tx": 5, "page": 4, "of": 9, "bytes": 17494, "pin": 5}
+{"for": "security.md", "address": "doc:security-plan", "tx": 5, "page": 9, "of": 10, "bytes": 23946, "pin": 5}
+{"for": "obs.md", "address": "doc:obs-plan", "tx": 5, "page": 5, "of": 9, "bytes": 23981, "pin": 5}
+{"for": "security.md", "address": "doc:security-plan", "tx": 5, "page": 10, "of": 10, "bytes": 20435, "pin": 5}
+{"for": "obs.md", "address": "doc:obs-plan", "tx": 5, "page": 6, "of": 9, "bytes": 23321, "pin": 5}
+{"for": "obs.md", "address": "doc:obs-plan", "tx": 5, "page": 7, "of": 9, "bytes": 24313, "pin": 5}
+{"for": "obs.md", "address": "doc:obs-plan", "tx": 5, "page": 8, "of": 9, "bytes": 23420, "pin": 5}
+{"for": "obs.md", "address": "doc:obs-plan", "tx": 5, "page": 9, "of": 9, "bytes": 19457, "pin": 5}
+{"for": "tests.md", "address": "doc:test-plan", "tx": 5, "page": 2, "of": 11, "bytes": 24402, "pin": 5}
+{"for": "tests.md", "address": "doc:test-plan", "tx": 5, "page": 3, "of": 11, "bytes": 24109, "pin": 5}
+{"for": "tests.md", "address": "doc:test-plan", "tx": 5, "page": 4, "of": 11, "bytes": 24230, "pin": 5}
+{"for": "tests.md", "address": "doc:test-plan", "tx": 5, "page": 5, "of": 11, "bytes": 22513, "pin": 5}
+{"for": "tests.md", "address": "doc:test-plan", "tx": 5, "page": 6, "of": 11, "bytes": 24258, "pin": 5}
+{"for": "tests.md", "address": "doc:test-plan", "tx": 5, "page": 7, "of": 11, "bytes": 20619, "pin": 5}
+{"for": "tests.md", "address": "doc:test-plan", "tx": 5, "page": 8, "of": 11, "bytes": 24650, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 2, "of": 12, "bytes": 18075, "pin": 5}
+{"for": "tests.md", "address": "doc:test-plan", "tx": 5, "page": 9, "of": 11, "bytes": 18647, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 3, "of": 12, "bytes": 23649, "pin": 5}
+{"for": "tests.md", "address": "doc:test-plan", "tx": 5, "page": 10, "of": 11, "bytes": 24013, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 4, "of": 12, "bytes": 24237, "pin": 5}
+{"for": "tests.md", "address": "doc:test-plan", "tx": 5, "page": 11, "of": 11, "bytes": 24178, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 5, "of": 12, "bytes": 21424, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 6, "of": 12, "bytes": 10771, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 7, "of": 12, "bytes": 18971, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 8, "of": 12, "bytes": 23983, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 9, "of": 12, "bytes": 4858, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 10, "of": 12, "bytes": 24660, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 11, "of": 12, "bytes": 24438, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture", "tx": 5, "page": 12, "of": 12, "bytes": 17189, "pin": 5}
+{"for": "obs.md", "address": "doc:obs-plan/contracts/logging-stack", "tx": 5, "page": 1, "of": 1, "bytes": 2066}
+{"for": "obs.md", "address": "doc:obs-plan/contracts/snapshot-paste-to-ai-integration", "tx": 5, "page": 1, "of": 1, "bytes": 3308}
+{"for": "tests.md", "address": "doc:test-plan/contracts/per-chunk-gate-discipline", "tx": 5, "page": 1, "of": 2, "bytes": 23669, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture/contracts/ci-cd-approach", "tx": 5, "page": 1, "of": 1, "bytes": 10835}
+{"for": "arch.md", "address": "doc:architecture/contracts/deployment-model", "tx": 5, "page": 1, "of": 1, "bytes": 1478}
+{"for": "tests.md", "address": "doc:test-plan/contracts/per-chunk-gate-discipline", "tx": 5, "page": 2, "of": 2, "bytes": 19442, "pin": 5}
+{"for": "arch.md", "address": "doc:architecture/contracts/build-system", "tx": 5, "page": 1, "of": 1, "bytes": 623}
+{"for": "obs-history.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "tests-history.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "design-history.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "a11y-history.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "tests-history.md", "address": "doc:test-plan --amendments", "tx": 5, "page": 1, "of": 9, "bytes": 23532, "pin": 5}
+{"for": "obs-history.md", "address": "doc:obs-plan --amendments", "tx": 5, "page": 1, "of": 5, "bytes": 24409, "pin": 5}
+{"for": "design-history.md", "address": "doc:design-system --amendments", "tx": 5, "page": 1, "of": 1, "bytes": 20007, "pin": 5}
+{"for": "layouts-history.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "security-history.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "a11y-history.md", "address": "doc:a11y-plan --amendments", "tx": 5, "page": 1, "of": 1, "bytes": 18229, "pin": 5}
+{"for": "arch-history.md", "address": "doc:2026-11-03-stdio-sidecar-retired/scope", "tx": 5, "page": 1, "of": 1, "bytes": 8151}
+{"for": "layouts-history.md", "address": "doc:layout-templates --amendments", "tx": 5, "page": 1, "of": 1, "bytes": 16824, "pin": 5}
+{"for": "security-history.md", "address": "doc:security-plan --amendments", "tx": 5, "page": 1, "of": 7, "bytes": 23460, "pin": 5}
+{"for": "arch-history.md", "address": "doc:architecture --amendments", "tx": 5, "page": 1, "of": 8, "bytes": 24289, "pin": 5}
+{"for": "obs-history.md", "address": "doc:obs-plan --amendments", "tx": 5, "page": 2, "of": 5, "bytes": 24143, "pin": 5}
+{"for": "obs-history.md", "address": "doc:obs-plan --amendments", "tx": 5, "page": 3, "of": 5, "bytes": 24172, "pin": 5}
+{"for": "obs-history.md", "address": "doc:obs-plan --amendments", "tx": 5, "page": 4, "of": 5, "bytes": 22684, "pin": 5}
+{"for": "obs-history.md", "address": "doc:obs-plan --amendments", "tx": 5, "page": 5, "of": 5, "bytes": 14868, "pin": 5}
+{"for": "security-history.md", "address": "doc:security-plan --amendments", "tx": 5, "page": 2, "of": 7, "bytes": 24029, "pin": 5}
+{"for": "security-history.md", "address": "doc:security-plan --amendments", "tx": 5, "page": 3, "of": 7, "bytes": 24460, "pin": 5}
+{"for": "security-history.md", "address": "doc:security-plan --amendments", "tx": 5, "page": 4, "of": 7, "bytes": 24659, "pin": 5}
+{"for": "security-history.md", "address": "doc:security-plan --amendments", "tx": 5, "page": 5, "of": 7, "bytes": 23506, "pin": 5}
+{"for": "security-history.md", "address": "doc:security-plan --amendments", "tx": 5, "page": 6, "of": 7, "bytes": 23156, "pin": 5}
+{"for": "security-history.md", "address": "doc:security-plan --amendments", "tx": 5, "page": 7, "of": 7, "bytes": 16826, "pin": 5}
+{"for": "arch-history.md", "address": "doc:architecture --amendments", "tx": 5, "page": 2, "of": 8, "bytes": 24086, "pin": 5}
+{"for": "arch-history.md", "address": "doc:architecture --amendments", "tx": 5, "page": 3, "of": 8, "bytes": 24060, "pin": 5}
+{"for": "arch-history.md", "address": "doc:architecture --amendments", "tx": 5, "page": 4, "of": 8, "bytes": 23521, "pin": 5}
+{"for": "tests-history.md", "address": "doc:test-plan --amendments", "tx": 5, "page": 2, "of": 9, "bytes": 24120, "pin": 5}
+{"for": "arch-history.md", "address": "doc:architecture --amendments", "tx": 5, "page": 5, "of": 8, "bytes": 22723, "pin": 5}
+{"for": "tests-history.md", "address": "doc:test-plan --amendments", "tx": 5, "page": 3, "of": 9, "bytes": 24574, "pin": 5}
+{"for": "arch-history.md", "address": "doc:architecture --amendments", "tx": 5, "page": 6, "of": 8, "bytes": 24366, "pin": 5}
+{"for": "tests-history.md", "address": "doc:test-plan --amendments", "tx": 5, "page": 4, "of": 9, "bytes": 23106, "pin": 5}
+{"for": "arch-history.md", "address": "doc:architecture --amendments", "tx": 5, "page": 7, "of": 8, "bytes": 24188, "pin": 5}
+{"for": "tests-history.md", "address": "doc:test-plan --amendments", "tx": 5, "page": 5, "of": 9, "bytes": 24080, "pin": 5}
+{"for": "arch-history.md", "address": "doc:architecture --amendments", "tx": 5, "page": 8, "of": 8, "bytes": 24413, "pin": 5}
+{"for": "tests-history.md", "address": "doc:test-plan --amendments", "tx": 5, "page": 6, "of": 9, "bytes": 23119, "pin": 5}
+{"for": "tests-history.md", "address": "doc:test-plan --amendments", "tx": 5, "page": 7, "of": 9, "bytes": 23452, "pin": 5}
+{"for": "tests-history.md", "address": "doc:test-plan --amendments", "tx": 5, "page": 8, "of": 9, "bytes": 24437, "pin": 5}
+{"for": "tests-history.md", "address": "doc:test-plan --amendments", "tx": 5, "page": 9, "of": 9, "bytes": 449, "pin": 5}
