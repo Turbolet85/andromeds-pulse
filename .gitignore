@@ -136,3 +136,6 @@ andromeda-pulse-0.4.0-incubator/
 !.andromeda/db/moved
 !.andromeda/db/log/
 !.andromeda/db/sealed/
+
+# --- Every P2 agent's rendered prompt: fanout.py render's record, kept out of every commit (setup's U56).
+.andromeda/runs/*/prompts/
