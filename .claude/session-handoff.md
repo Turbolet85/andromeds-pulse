@@ -1,155 +1,57 @@
 # Session Handoff
 
-**Last Updated:** 2026-10-12T10:10:15Z
-**Branch:** build/andromeda-pulse-0.4.0 · 0 ahead of origin/build/andromeda-pulse-0.4.0 as read at this wrap's Setup (HEAD `2595b5cc`, the operator pass's pre-CI commit, pushed)
+**Last Updated:** 2026-11-03T05:01:09Z
+**Branch:** build/andromeda-pulse-0.4.0 · 0 ahead of origin as read at this wrap's Setup (HEAD `d6ee34f4`, the operator
+pass's pre-CI commit, pushed)
 **Status:** clean once this wrap's commit lands
-**Last Commit:** this wrap's commit — 2026-10-12-stdio-agent-reaches-the-door (after `2595b5cc`), made on the
-operator's word after the stop before the flip and the commit
+**Last Commit:** this wrap's commit — 2026-11-03-stdio-sidecar-retired (after `d6ee34f4`)
 
 ## Position
-- **Done:** `2026-10-12-stdio-agent-reaches-the-door`. A stdio agent reaches the door's nine tools with no sidecar:
-  `andromeda-pulse-engine door`, a third word of the console program, relays each standard-input line to
-  `{data dir}/run/door/sock` on a connection of its own and writes the door's answer unchanged to standard output.
-  It boots no engine and adds no file, listener, pid file, variable, log record or binary; an unreachable door is
-  exit 1 with one fixed standard-error line. The door's form is unchanged. Report:
-  `andromeda-pulse-0.4.0/chunks/2026-10-12-stdio-agent-reaches-the-door/report.md`.
-- **No capability claimed.** P-092 keeps its phase-P5 dated note and stays in the unclaimed pool.
-- **The verdict run is `ci#38227488889` on `2595b5cc`, green 7 of 7,** attempt 1 (`evidence/operator-pass.md`); the
-  `lint / test` job's `Door refuses another account` step printed both arms' sentences.
-- **Next:** `/andromeda-phase` — promote and plan `Stdio sidecar retired`, the first markerless entry of
-  `working-route.md`. The way it waited on now exists (its new CARRY names the masters' "until Stdio sidecar retired
-  lands" clauses it settles).
-
-## Work done
-- A split wrap on the operator's directive (inputs#I6, the founder's ruling F252 D2): the report in the first window,
-  everything else in the second, with the cascade's leaves in the WHOLE mode. Wrap run:
-  `.andromeda/runs/2026-10-12T09-33-13Z-wrap/`. The second window stopped three times on the directive: at the
-  widening halt (inputs#I7), at the route-resolve card (inputs#I8) and before the flip and the commit.
+- **Done:** `2026-11-03-stdio-sidecar-retired`. The stdio sidecar `andromeda-pulse-mcp` left whole: the binary, the
+  `mcp-server` feature, `rmcp`, `ANDROMEDA_PULSE_MCP_ENABLED` (the double gate), `dispatch_tool` and its `mcp.*`
+  records, the `run/workspace-key` publish, the window app's MCP side (procedures, tray toggle, setting, ready check,
+  Settings switch, Send to agent) and the `mcp-test` CI job. The engine has one way in besides telemetry: the door.
+  Report: `doc:2026-11-03-stdio-sidecar-retired/report`; implement outcome and operator pass under
+  `.andromeda/runs/2026-11-03T03-01-56Z-implement/` and `{work_dir}/evidence/operator-pass.md`.
+- **CI verdict:** `ci#41572801661` on `d6ee34f4`: every check success but `supply-chain`, red on `cargo audit` alone
+  (62 RUSTSEC ids, the P5 set) — met as planned, report-only (`inputs#I3`).
+- **No capability claimed.** P-092 stays in the pool.
+- **Next:** `/andromeda-phase` — the next markerless entry is the one minted at this wrap, «Advisories since 2026-10-12
+  closed» (`chk-yno3lncd`, directly after this one; `inputs#I3`, `inputs#I6`). It owns the 42 vulnerabilities and the
+  CI supply-chain steps 10–18 the audit red hides (`cargo deny`, the npm gate, the auditable build).
 
 ## Drift resolved
-- 45 amendments in four masters (architecture 18, security-plan 10, test-plan 7, obs-plan 10; five key files among
-  them) and 9 sidecar entries: 42 proposals from the detectors, 3 raised by the wrap (the one-engine-process wording),
-  none rejected. 43 escalated as Boundary widening and were answered by the operator as the founder's delegate at one
-  halt; 2 routine. Citations: 0 re-pointed, 0 changed, 0 stretched, `held 0`.
-- Leaves, whole mode: 17 groups, 78 findings — 57 applied by the tool, 18 written by hand on 7 lines, 3 declined (one
-  on the operator's standing word, two setup-template lines carried to the route). The whole mode caught staleness
-  with no cause in this chunk (a11y tool majors, design-token prose, the Settings modal, the Windows key store, the
-  `call_tool` dispatch), each applied against its source line.
-- One playbook rule appended on the operator's approval as delegate: a variable that switches a surface whose own
-  registration is a widening escalates with that widening.
-- Route: four CARRYs (`route-card.md`): on `Stdio sidecar retired` (the way exists; the clauses it settles), on `Other
-  operating systems retired from the code` (the `door` word's off-Unix branch), on `Records say what the product is`
-  (the unwritten "Using MCP with andromeda-pulse" guidance; the workflow leaf's three absent files). No reorder; no
-  epoch split.
+- 132 doc-agent proposals + 3 raised by main (security-plan `EXPECTED_PROCEDURES` 44 → 41, test-plan `unit_door.rs`
+  19 → 20 tests, obs-plan §9 four → six engine-spawning test binaries), all routine retirements; 0 escalations; 0
+  rejected. Landed: 117 records by the apply writers (TX 43–52), 3 by main (TX 53, 69), 15 facts retired by hand
+  (TX 54–68); 42 sidecar entries (TX 70–76), each read back as written. Masters −23.6 KB. Read-backs: `detail.py
+  check --all --growth` 0 defects / 0 flags; `classify.py check` PASS on all seven masters and seven key files (one
+  provenance FAIL on main's own edit fixed, TX 69). Citations: 0 re-pointed, 4 changed, 0 stretched, `held 0`.
+- Cascade: step-2 sweep 142 patterns, 34 rows (`cascade-dispositions.md`); leaves 17 groups / 32 leaves, 106
+  findings applied by the tool, 1 by hand.
 
 ## Notes
-- **PROVISIONAL, awaiting the founder's own word — the door's one item now also covers the console program's third
-  word `door` and the second arm of the step `Door refuses another account`** (the operator's answers at this chunk's
-  P4 and operator pass, and at this wrap's halt as the founder's delegate, 2026-10-12). The sentence stands once per
-  master — architecture §Occupied Resources → Network ports; security-plan §Threat Model Summary → Attack surface, the
-  door's vector; test-plan §9, the `lint-test` row; obs-plan §4 Scenario P3 — and every restating site points to it.
-  The playbook rule appended at this wrap rides the same PROVISIONAL batch.
-- **Stdio is no longer the sidecar's alone,** and the engine still has two ways in besides telemetry: the door (now
-  also reached over stdio through the relay) and the stdio sidecar, until `Stdio sidecar retired` lands. The sidecar's
-  double gate is the sidecar's alone.
-- **The door's form is a contract Conductor reads** (architecture §Standard Contracts → Engine door, which now holds a
-  Stdio clause; the socket form did not move). A chunk that changes it says so to the operator before it lands.
-- **The plan's step 6 was wrong on Linux and the build was accepted:** a connection the door refuses reads `EPIPE` or
-  `ECONNRESET` at the client, so another account's relay exits 1 with the fixed line (masters state it as built).
-- **Limits of this close:** one CI run read, attempt 1, on the pre-CI commit — this wrap's commit is covered by the
-  local light gate alone; the relay arm's 3 `door.refused` records were asserted by the arm and are in no kept
-  artifact; the run's seven artifacts were not downloaded and their ids not read; the `door` word off Unix is
-  unwitnessed (owned by `Other operating systems retired from the code`).
-- **Curation scope:** the first window's conversation was cleared before curation; only the second window and the
-  report's "Decisions & corrections" were scanned.
-- **For the main overseer:** no `REFUSED id:` in any trail of either window; the citation sweep read `held 0`.
-- **PROVISIONAL from before, unchanged:** the pre-push check's sixth stage starting `andromeda-pulse-engine` on
-  loopback 24317 / 24318 and opening the door's socket in its data dir; the dev-only edge to `test-support`; P-030,
-  P-040, P-048, P-050 claimed in a changed form; the 70 % branch threshold retired; the exit-witness arm and the
-  series' second read (every kept witness file is read whole); P-122…P-129 and the entries minted with them; in the
-  intent P-088 beyond its token and channel, P-093, P-107, who may read the engine's place (P-118), the named personal
-  data before the first send (P-101). P-101 waits on the founder naming the service.
-- **Operator rulings and readings, not the founder's word** (standing): a mandated factory nothing calls is retired
-  from the mandate; the fixtures exclusion of test-plan §10 stands; the readiness verb's read of bind records is
-  routine harness evidence; the console-engine harness is a member of the harness-only class; the command line's
-  `run` and `version` are a bounded input (`door` is not — it is part of the door's widening).
-- **The operator's word, not provisional:** for 0.4.0 one engine watches one product, incidents live in its one store
-  told apart by cue identity, nothing replaces the workspace key, and a sender token is not an incident key (P-105).
-- **The sidecar does not refuse an undeclared argument member;** only the door does. `Stdio sidecar retired` owns it.
-- **A stated exception to "a test-only host tool FAILS, never skips":** both other-account arms skip where `sudo -n
-  true` fails (this dev host, every run); the `lint-test` step turns either skip red.
-- **Pending rows** (test-plan §1): `door-timeout-interrupt-real-query-coverage` (owned by `Door admission lifecycle and
-  bounds`); the three sidecar rows (`Stdio sidecar retired`);
-  `engine-log-arm-mutation-and-engine-cycle-glue-coverage` and `pre-push-engine-cycle-stage-glue-coverage` (`Engine
-  end-to-end gate reachable`); `harness-cleanup-verdict-and-boot-spawn-shell-coverage` open on (c), (d), (e).
-- **Carried on the route** (unchanged from before, plus this wrap's four): see the CARRY blocks of the markerless
-  tail (`route.py pins`); this wrap's are listed under Drift resolved.
-- **The capability record:** its form is a contract with Conductor; the gate reads the working route — a
-  route-resolve that renames, retires or splits one of the ten entries the record names corrects the record in the
-  same wrap (this wrap touched none of the ten's titles). `Stdio sidecar retired` carries P-039's two webview proofs.
-- **Leaving owners:** `pulse-app/src/xlib_threads.rs` and its call and test at `Window retired`; what was built for
-  the boot job at `Window's gates retired`, the engine cycle and its upload excepted.
-- **Epoch 1 holds 21 entries** (6 markerless once this chunk's record flips); no split (the operator's word at the
-  card, again).
-- **Leaf statements seen and left:** `.claude/docs/services/ui-bridge.md` (the operator's standing word: `ui-bridge`
-  leaves with the window); the test-tool version numbers in the service notes; no service note for `test-support` or
-  for the door.
-- **`CLAUDE.md`'s 2026-05-20 learning** says "a leaf crate never depends on a sibling crate"; `buffer` names
-  `test-support` under `[dev-dependencies]`. Left until the founder's word on the carve-out.
-- **Stale line citations in preserve-verbatim homes, carried:** `rules/frontend.md:99`, `rules/security.md:174`,
-  `rules/observability.md:150` (the sweep prints its two `out-of-range` rows at every wrap; the entry dates them),
-  `docs/session-learnings.md:877`, `:1324`, `:1596`, `:1841`, `:1861`.
-- **Left on the host, all ignored by git:** `target/test-ports/`; the corpus-key lock file in the system temp dir;
-  `target/engine-cycle/` (each data dir with a door socket file); `target/boot-smoke/…`; `target/pre-push/`;
-  `pulse-app/ui/tests-a11y/regression-set.json`; under `target/`: `jammy-x11/`, `exit-witness/`,
-  `tmp/perf-budget-samples/`, `capability-matrix/report.json`. Node 24.21.0 is a user-level `mise` install.
-- **Artifacts:** of `ci#38227488889` — seven, ids not read, none downloaded; of `ci#38097928056`, each expiring
-  2026-10-25: `11687162979`, `11686728619`, `11687102486`, `11686558302`, `11686388506`, `11686792711`, `11686762648`;
-  earlier (2026-10-24, 2026-10-23) as listed in git history of this file.
-- **Sidecars past the whole-read bound** (120,000 B): `architecture-amendments.md` (189,402 B),
-  `test-plan-amendments.md` (188,897 B), `security-plan-amendments.md` (158,549 B); `obs-plan-amendments.md` at
-  109,035 B. A history read goes through the index.
-- **Host:** ports 4317/4318 are shared with conductor-builder (ask before binding them; the window smoke uses
-  14317/14318, the engine cycle and the pre-push sixth stage 24317/24318, port tests a claim from 20000 to 31999). No
-  passwordless second account (`sudo -n true` fails). A Unix socket path must be shorter than 108 bytes; a scratch
-  socket goes directly under the temp root. `diff.mnemonicPrefix` is set (pin `--src-prefix=a/ --dst-prefix=b/`). The
-  repository is `Turbolet85/andromeds-pulse`. A job log reads through `gh api --allow-escape-sequences
-  repos/{owner}/{repo}/actions/jobs/{id}/logs`. The cwd guard refuses a leading `cd` out of the project root and a
-  `cat` heredoc with a file target. `grep` is ugrep (no bounded repeats; use `git grep` or `/usr/bin/grep`).
-  `inputs.py snap` refuses a file under the temp dir. An unquoted YAML step name is cut at ` #`. A runner's boot record
-  carries the pull-request merge commit as `git.commit.sha`.
-- **Carried, not re-read this wrap** (the operator's word: it rides the handoff): `matrix.py`'s 0.3.0 `UNPARSED:
-  P-072`; `sidecar.py summary`'s `UNPARSED` blocks in two sidecars; the UNRESOLVED `Supersedes` in the test-plan and
-  a11y-plan sidecars; upgrade items U09, U10, U36; CLAUDE.md's pointer rows through section stub lines; obs-plan §8 has
-  no row for `interpretation.hardware.detect`; the `contract.jointly-contradictory-instructions` evolve record; the
-  `sidecar.py` Ref defect relayed to overseer1; the `.gitattributes` re-checkout (the founder's hand); the
-  `digest.corpus.retrieve` count; a critical advisory open at the first release (not ruled); `architecture.md:73`'s
-  future-sense "first live reading"; the boot-smoke artifact `11504892957` (expires 2026-10-21); `residuals.md`'s
-  `re-carried:0.4.0` lines; the design-system glow wording (`Window retired` owns it); the merge-base probe (about
-  thirty dependabot PRs open against `main`; a red goes to the operator before any push); 0.3.0's Epoch 4
-  epoch-to-date diagnosis; draft PR #40 stays a draft; `andromeda-pulse-0.4.0-incubator/` (gitignored).
-- **For the founder, carried by the operator:** the app as published before 2026-10-10-boot-smoke-s-self-end-closed
-  has the same defect on any host whose Xlib is older than 1.8. Not ruled.
+- **Carried, not done at this wrap (context bound):**
+  - P3 curation was not run: the candidates are the report's *Decisions & corrections* (a probe over a tree holding a
+    committed generated file fires before its regen; a `git diff` scope guard cannot read a recorded companion; a plan
+    step named a test mechanism the surface does not answer) and the 7 curation rows the cascade routed to P3 (Session
+    Additions / Tier 3 quoting the `--features mcp-server` regen and the "no-mcp shape": `rules/security.md:132`,
+    `:176`; `rules/testing.md:214`, `:258`; `docs/session-learnings.md:633`) — the next wrap's P3 reads them from the
+    report.
+  - Leaf `.claude/docs/commands.md` not re-derived: `cascade.py leaves --apply` refused its comparer file (`read:` 192
+    lines, the file 191) and `fanout.py render --respawn` has no path for it (HEADER passed; RULED has no judged check
+    for a leaf). Four headings left stale (`gotchas.md:46`, `:51`; `services/mcp-server.md:1`; `rules/security.md:39`).
+  - The leaf decisions rested on the dry-run rows and receipts; the 16 comparer files were not each re-read whole.
+  - The playbook's two bindings gate-order rules (`playbook.md:78`, `:122`, `:124`) state the "no-mcp shape" and the
+    `--features mcp-server` regen, whose subject left: proposed to the operator for supersession (propose → approve).
+- **Tool faults met at this wrap** (for the founder): `fanout.py check`'s `[DISPOSITION]` refused `claim false —
+  raised at Validate` on a `changed` row whose cited file the chunk deleted, which `citation-contract.md:101` allows;
+  ruled by the overseer with overseer1 (F407, `inputs#I7`): re-disposed «not a citation of the tree — no change»,
+  standing in for «the cited file was deleted by this chunk; the fact is corrected by its amendment». The entry
+  writers worded two single-line retirements as whole-block retirements (re-spawned with rows). `rec put` refuses a
+  list-marker renumber (`reshaped`): layout-templates' notification triggers read 1, 3, 4 in source.
+- **PROVISIONAL, unchanged:** the door's one item (every master's sentence, now with one carrier); the overseer's word
+  accepting `xtask/src/staged_gate.rs` as a companion for the scope guard (`inputs#I5`); the earlier PROVISIONAL list
+  of the previous handoff stands (git history of this file).
+- **Host:** as before (ports 4317/4318 shared; harness 14317/14318, 24317/24318; no passwordless second account).
 - **Last failed command:** none.
-
-## Deferred learnings
-- **This wrap:** three written at Tier 2 (`rules/testing.md`: a blank test input uses only bytes the code's own
-  whitespace predicate counts; a Unix socket path of 108 bytes or more is made by hard-linking; a pin that matches a
-  string constant in Rust source text breaks on a `\` line continuation). Log: `curation.md` in the wrap run dir.
-  No conflict, none deferred by the cap.
-- **Recurrences this wrap:** `recurrence-despite-learning: host leaf Session Additions 2026-10-05` (the Bash guard
-  refused a leading `cd` three times in the second window, each re-issued once with absolute paths);
-  `recurrence-despite-learning: host-linux.md, Transports` (a `cat` heredoc with a file target, first window).
-- **Deferred by the cap two wraps ago (1), on the operator's word it stays deferred:** "a mandated factory that
-  nothing calls is retired from the mandate, not kept as owed" (confidence 0.7).
-- **Still open from prior wraps:** `recurrence-despite-learning` on CLAUDE.md Tier 1 2026-05-31 (orphan-graph);
-  observability.md 2026-08-21 (negative grep before its control); testing.md 2026-05-13 / 05-17 (default-features run
-  rewrote the bindings); testing.md 2026-06-05 (long listing read through partial views); the evidence path-scan
-  sweep hazard; the selection-optimism reading; the plan-authoring operator-pass CHECK; the `producer | grep -q`
-  under pipefail CHECK; the scope guard omitting new files; mutation applied?; run-dir hygiene trip; bindings clobber;
-  a writer census at the wrong layer; targeted nextest `timeout` sizing; the implement report-step CHECK; the
-  bindings-regen PIPELINE half; macOS `SystemTime` µs ticks; Windows `.ico` vs palette PNG; the deferral-destination
-  generalization; `inject_demo --sustained` cannot form an incident.
-
-## Session End Status
-Completed normally at 2026-11-03 04:01:46

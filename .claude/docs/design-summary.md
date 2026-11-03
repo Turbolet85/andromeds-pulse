@@ -74,15 +74,15 @@ WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer
 ### desktop-webview (React 19 + Tailwind v4 + react-aria-components + WebGPU)
 - **Compact widget (primary surface):** quarter-screen, custom frameless titlebar, snap-to-corner (four positions per Settings, default top-right), always-on-top toggle, single-window. Esc minimizes to tray. Its unread badge opens the **Findings window** (a separate borderless always-on-top window docked below the widget, work-area clamped, sized to the incident count — ~8 rows, then the list scrolls — on `--color-raised-2`); selecting a findings row opens the **Report window** (the six-section Report in the `Modal` `fill` variant, edge-to-edge on `--color-base`, no backdrop, left of the findings window).
 - **Full dashboard:** resizable 2/3 to full screen, same custom titlebar, tab or sidebar nav (TBD downstream) — Traces / Metrics / Logs / Snapshots / Settings views.
-- **Settings modal:** theme (dark / light / auto) / widget snap position (four corners, default top-right) / retention seconds (300–600) / MCP toggle (visible only when the `mcp-server` feature is built).
+- **Settings modal:** theme (dark / light / auto) / widget snap position (four corners, default top-right) / retention seconds (300–600).
 - **Investigation modal:** triggered by the titlebar Investigate button (telescope glyph), a trace row click, or Enter on the keyboard-focused trace row (the in-row telescope button is `tabIndex={-1}`, not a Tab stop); Capture Collapse motion 350ms.
 - Dark mode default (`prefers-color-scheme: dark`); light + auto via Settings.
 - CSP: `script-src 'self'`; WOFF2 fonts bundled locally.
 
 ### desktop-native (Tauri tray icon + menu)
 - **Tray icon:** monochrome SVG glyph (constellation-star/aperture) at 16–22px platform-dependent. Halo State Pulse composited as secondary WebGPU canvas layer (or SVG-filter fallback ≥95% visual equivalence) — DEFERRED to the next version on its own ground (never probed; nothing renders it in 0.3.0).
-- **Tray menu (OS-native, flat hierarchy):** Open andromeda-pulse / read-only summary line / Generate Snapshot / Toggle MCP Server (when feature built) / Open Settings / Quit.
-- **OS notifications:** snapshot ready, MCP server state change, update available, and the close-to-tray signpost (P-063: every close that sends the app to the tray while `notifications_enabled` is true; the dashboard ✕ collapses to the widget and never signposts) — terse title ("Snapshot ready") + a body of 2 lines max ("2.5k tokens, 42 spans") via `tauri-plugin-notification`; opt-out `notifications_enabled` in `config.toml` (default true).
+- **Tray menu (OS-native, flat hierarchy):** Open andromeda-pulse / read-only summary line / Generate Snapshot / Open Settings / Quit.
+- **OS notifications:** snapshot ready, update available, and the close-to-tray signpost (P-063: every close that sends the app to the tray while `notifications_enabled` is true; the dashboard ✕ collapses to the widget and never signposts) — terse title ("Snapshot ready") + a body of 2 lines max ("2.5k tokens, 42 spans") via `tauri-plugin-notification`; opt-out `notifications_enabled` in `config.toml` (default true).
 - Per-platform conventions honored: macOS template-image flag + traffic-light buttons; Windows NotifyIcon + Action Center toast; Linux AppIndicator/StatusNotifier + libnotify.
 
 ## Self-Validation Protocol (run before presenting any UI)

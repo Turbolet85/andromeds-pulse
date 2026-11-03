@@ -1,0 +1,2566 @@
+[
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:07:32Z",
+"argv": [
+"put",
+"--root",
+".",
+"--doc",
+"report",
+"--owner",
+"chk:2026-11-03-stdio-sidecar-retired",
+"--file",
+".andromeda/cache/docs/2026-11-03-stdio-sidecar-retired/report.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 2026-11-03-stdio-sidecar-retired/report rev 1 · 70 new · 0 revised · 0 retired · 0 kept · tx 38"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:07:33Z",
+"argv": [
+"put",
+"--root",
+".",
+"--doc",
+"report",
+"--owner",
+"chk:2026-11-03-stdio-sidecar-retired",
+"--section-file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/new-text.md",
+"--heading",
+"## New text, by line",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 2026-11-03-stdio-sidecar-retired/report rev 2 · 64 new · 0 revised · 0 retired · 70 kept · tx 39"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:08:17Z",
+"argv": [
+"cites-land",
+"--root",
+".",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/cites-land-2026-11-03-stdio-sidecar-retired.ndjson",
+"--base",
+"3d2d94ffdd633e21f40a2bfea22db1de0052b0bb",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would land 0 fact(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:08:27Z",
+"argv": [
+"cites-land",
+"--root",
+".",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/cites-land-2026-11-03-stdio-sidecar-retired.ndjson",
+"--base",
+"3d2d94ffdd633e21f40a2bfea22db1de0052b0bb",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 0 fact(s) · 0 edge(s) · tx 41"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:33:54Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-a11y-plan.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-ggne23uy",
+"E2 · applied · fct-v344ogev",
+"E3 · applied · fct-btetkki6",
+"E4 · applied · fct-mwm27cak",
+"dry-run · would land 4 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:33:54Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-architecture.p1.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-wuyupllp",
+"E2 · applied · fct-bka6rc62",
+"E3 · applied · fct-rkbubyxp",
+"E4 · applied · fct-rsvfsams",
+"E5 · applied · fct-syp7tq5s",
+"E6 · applied · fct-3k7t2g4l",
+"E7 · applied · fct-qiuibtut",
+"E8 · applied · fct-22txvdxt",
+"E9 · applied · fct-rfsw56g3",
+"E10 · applied · fct-ob4ts4xm",
+"E11 · applied · fct-g7bqq44n",
+"E12 · applied · fct-hvcuzwfp",
+"E13 · applied · fct-dm325geu",
+"E14 · applied · fct-vg6rrokz",
+"E15 · applied · fct-exoqgaup",
+"E16 · applied · fct-qsvopkhj",
+"E17 · applied · fct-4nu3wh7b",
+"E18 · applied · fct-hgj34est",
+"E19 · applied · fct-cgszvbwl",
+"E20 · applied · fct-ulzkjofc",
+"E21 · applied · fct-n5rdzzzk",
+"E22 · applied · fct-ddrna4w3",
+"E23 · applied · fct-x56az6wm",
+"dry-run · would land 23 record(s) · 1 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:33:55Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-architecture.p2.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-z32zdd7c",
+"E2 · applied · fct-35cgfrz4",
+"E3 · applied · fct-ahat5ytg",
+"dry-run · would land 3 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:33:55Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-design-system.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-syzuo4in",
+"E2 · applied · fct-5yxgeqtw",
+"E3 · applied · fct-o6tiiqzk",
+"dry-run · would land 3 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:33:55Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-layout-templates.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-wwnwzbqm",
+"E2 · applied · fct-drj7tbkq",
+"E3 · applied · fct-qftsgrxw",
+"E4 · applied · fct-4he46uzc",
+"E5 · applied · fct-boykhivb",
+"E6 · applied · fct-fb5svsti",
+"E7 · applied · fct-jonk5unv",
+"E8 · applied · fct-yh3haupv",
+"E9 · applied · fct-z3fbkvvx",
+"dry-run · would land 9 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:33:56Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-obs-plan.p1.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-4vrfwv27",
+"E2 · applied · fct-5gsdjdy6",
+"E3 · applied · fct-4pvtx7no",
+"E4 · applied · fct-nunu6scu",
+"E5 · applied · fct-43wzevug",
+"E6 · applied · fct-rtszlvuo",
+"E7 · applied · fct-o4vhpvgv",
+"E8 · applied · fct-7woyixer",
+"E9 · applied · fct-sjvcbexl",
+"E10 · applied · fct-ohds4uw3",
+"E11 · applied · fct-dfxkc45d",
+"E12 · applied · fct-qk3ssznn",
+"E13 · applied · fct-gcfverax",
+"E14 · applied · fct-gejrrwfx",
+"E15 · applied · fct-6mzzyb6t",
+"E16 · applied · fct-avpvhn3k",
+"E17 · applied · fct-fzliht4o",
+"E18 · applied · fct-hbfmcroa",
+"E19 · applied · fct-d2dydmme",
+"E20 · applied · fct-anuozml7",
+"E21 · applied · fct-7uh57iiw",
+"dry-run · would land 21 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:33:56Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-obs-plan.p2.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-65zmgzbk",
+"E2 · applied · fct-mfvbrkak",
+"E3 · applied · fct-qnzkp4df",
+"doc:obs-plan/contracts/snapshot-paste-to-ai-integration · labels · External-OTLP snapshot, Path, Schema, Trigger, MCP tools (hand-rolled JSON-RPC 2.0 through the door), Self-observation paste-to-AI, Format, No separate snapshot needed",
+"dry-run · would land 4 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:33:56Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-security-plan.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-kmsyqgta",
+"E2 · applied · fct-3433tvtn",
+"E3 · applied · fct-w6v5n2bs",
+"E4 · applied · fct-6geshnvr",
+"E5 · applied · fct-cvhwrox6",
+"E6 · applied · fct-hjatqh7q",
+"E7 · applied · fct-ty7icrgc",
+"E8 · applied · fct-j4oj6ftt",
+"E9 · applied · fct-zjnqq4og",
+"E10 · applied · fct-ixrmtmoe",
+"E11 · applied · fct-tg5z4vbe",
+"E12 · applied · fct-bglfrqeg",
+"E13 · applied · fct-rofiv5jh",
+"E14 · applied · fct-ausvrcpe",
+"E15 · applied · fct-f2fvtxyp",
+"E16 · applied · fct-3pov4uwe",
+"E17 · applied · fct-chk2itue",
+"E18 · applied · fct-dspgzb7t",
+"E19 · applied · fct-odqor6ow",
+"E20 · applied · fct-y6svlsyp",
+"dry-run · would land 20 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:33:57Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-test-plan.p1.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-rjbmbvd5",
+"E2 · applied · fct-6c37jotm",
+"E3 · applied · fct-qlyoxiil",
+"E4 · applied · fct-dxqwgkbv",
+"E5 · applied · fct-ot5xbdcp",
+"E6 · applied · fct-ft7bwy6m",
+"E7 · applied · fct-7n6noty7",
+"E8 · applied · fct-o6sm757u",
+"E9 · applied · fct-6l7zuqld",
+"E10 · applied · fct-y4dwpurc",
+"E11 · applied · fct-c5f6426b",
+"E12 · applied · fct-erazkrzq",
+"E13 · applied · fct-m4xvcm7g",
+"E14 · applied · fct-nsjvxbz7",
+"E15 · applied · fct-js2thrtn",
+"E16 · applied · fct-i5odf4oq",
+"E17 · applied · fct-p2dhprbq",
+"E18 · applied · fct-5c3xpzsh",
+"E19 · applied · fct-rnb7vczj",
+"E20 · applied · fct-mbichyuo",
+"E21 · applied · fct-ep45valw",
+"E22 · applied · fct-p7fl7gmb",
+"E23 · applied · fct-b5tpgm6t",
+"E24 · applied · fct-gnnl6mzk",
+"E25 · applied · fct-n45lk2to",
+"E26 · applied · fct-mqmrzd2o",
+"dry-run · would land 26 record(s) · 1 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:33:57Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-test-plan.p2.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-7jzqlhyk",
+"E2 · applied · fct-2ilc4zyz",
+"E3 · applied · fct-m53lur54",
+"doc:test-plan/contracts/per-chunk-gate-discipline · labels · The merge-base probe (operator leg, directly before the push), Boot-smoke gate (conditional), Direct-binary smoke variant (accepted alternative form), Process-end witness form (integration tier), Spawned-program witness form (integration tier), Engine cycle gate form (runtime, console engine)",
+"dry-run · would land 4 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:34:04Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-a11y-plan.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-ggne23uy",
+"E2 · applied · fct-v344ogev",
+"E3 · applied · fct-btetkki6",
+"E4 · applied · fct-mwm27cak",
+"landed 4 record(s) · 0 edge(s) · tx 43"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:34:04Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-architecture.p1.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-wuyupllp",
+"E2 · applied · fct-bka6rc62",
+"E3 · applied · fct-rkbubyxp",
+"E4 · applied · fct-rsvfsams",
+"E5 · applied · fct-syp7tq5s",
+"E6 · applied · fct-3k7t2g4l",
+"E7 · applied · fct-qiuibtut",
+"E8 · applied · fct-22txvdxt",
+"E9 · applied · fct-rfsw56g3",
+"E10 · applied · fct-ob4ts4xm",
+"E11 · applied · fct-g7bqq44n",
+"E12 · applied · fct-hvcuzwfp",
+"E13 · applied · fct-dm325geu",
+"E14 · applied · fct-vg6rrokz",
+"E15 · applied · fct-exoqgaup",
+"E16 · applied · fct-qsvopkhj",
+"E17 · applied · fct-4nu3wh7b",
+"E18 · applied · fct-hgj34est",
+"E19 · applied · fct-cgszvbwl",
+"E20 · applied · fct-ulzkjofc",
+"E21 · applied · fct-n5rdzzzk",
+"E22 · applied · fct-ddrna4w3",
+"E23 · applied · fct-x56az6wm",
+"landed 23 record(s) · 1 edge(s) · tx 44"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:34:05Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-architecture.p2.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-z32zdd7c",
+"E2 · applied · fct-35cgfrz4",
+"E3 · applied · fct-ahat5ytg",
+"landed 3 record(s) · 0 edge(s) · tx 45"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:34:05Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-design-system.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-syzuo4in",
+"E2 · applied · fct-5yxgeqtw",
+"E3 · applied · fct-o6tiiqzk",
+"landed 3 record(s) · 0 edge(s) · tx 46"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:34:06Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-layout-templates.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-wwnwzbqm",
+"E2 · applied · fct-drj7tbkq",
+"E3 · applied · fct-qftsgrxw",
+"E4 · applied · fct-4he46uzc",
+"E5 · applied · fct-boykhivb",
+"E6 · applied · fct-fb5svsti",
+"E7 · applied · fct-jonk5unv",
+"E8 · applied · fct-yh3haupv",
+"E9 · applied · fct-z3fbkvvx",
+"landed 9 record(s) · 0 edge(s) · tx 47"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:34:06Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-obs-plan.p1.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-4vrfwv27",
+"E2 · applied · fct-5gsdjdy6",
+"E3 · applied · fct-4pvtx7no",
+"E4 · applied · fct-nunu6scu",
+"E5 · applied · fct-43wzevug",
+"E6 · applied · fct-rtszlvuo",
+"E7 · applied · fct-o4vhpvgv",
+"E8 · applied · fct-7woyixer",
+"E9 · applied · fct-sjvcbexl",
+"E10 · applied · fct-ohds4uw3",
+"E11 · applied · fct-dfxkc45d",
+"E12 · applied · fct-qk3ssznn",
+"E13 · applied · fct-gcfverax",
+"E14 · applied · fct-gejrrwfx",
+"E15 · applied · fct-6mzzyb6t",
+"E16 · applied · fct-avpvhn3k",
+"E17 · applied · fct-fzliht4o",
+"E18 · applied · fct-hbfmcroa",
+"E19 · applied · fct-d2dydmme",
+"E20 · applied · fct-anuozml7",
+"E21 · applied · fct-7uh57iiw",
+"landed 21 record(s) · 0 edge(s) · tx 48"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:34:07Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-obs-plan.p2.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-65zmgzbk",
+"E2 · applied · fct-mfvbrkak",
+"E3 · applied · fct-qnzkp4df",
+"doc:obs-plan/contracts/snapshot-paste-to-ai-integration · labels · External-OTLP snapshot, Path, Schema, Trigger, MCP tools (hand-rolled JSON-RPC 2.0 through the door), Self-observation paste-to-AI, Format, No separate snapshot needed",
+"landed 4 record(s) · 0 edge(s) · tx 49"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:34:07Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-security-plan.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-kmsyqgta",
+"E2 · applied · fct-3433tvtn",
+"E3 · applied · fct-w6v5n2bs",
+"E4 · applied · fct-6geshnvr",
+"E5 · applied · fct-cvhwrox6",
+"E6 · applied · fct-hjatqh7q",
+"E7 · applied · fct-ty7icrgc",
+"E8 · applied · fct-j4oj6ftt",
+"E9 · applied · fct-zjnqq4og",
+"E10 · applied · fct-ixrmtmoe",
+"E11 · applied · fct-tg5z4vbe",
+"E12 · applied · fct-bglfrqeg",
+"E13 · applied · fct-rofiv5jh",
+"E14 · applied · fct-ausvrcpe",
+"E15 · applied · fct-f2fvtxyp",
+"E16 · applied · fct-3pov4uwe",
+"E17 · applied · fct-chk2itue",
+"E18 · applied · fct-dspgzb7t",
+"E19 · applied · fct-odqor6ow",
+"E20 · applied · fct-y6svlsyp",
+"landed 20 record(s) · 0 edge(s) · tx 50"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:34:08Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-test-plan.p1.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-rjbmbvd5",
+"E2 · applied · fct-6c37jotm",
+"E3 · applied · fct-qlyoxiil",
+"E4 · applied · fct-dxqwgkbv",
+"E5 · applied · fct-ot5xbdcp",
+"E6 · applied · fct-ft7bwy6m",
+"E7 · applied · fct-7n6noty7",
+"E8 · applied · fct-o6sm757u",
+"E9 · applied · fct-6l7zuqld",
+"E10 · applied · fct-y4dwpurc",
+"E11 · applied · fct-c5f6426b",
+"E12 · applied · fct-erazkrzq",
+"E13 · applied · fct-m4xvcm7g",
+"E14 · applied · fct-nsjvxbz7",
+"E15 · applied · fct-js2thrtn",
+"E16 · applied · fct-i5odf4oq",
+"E17 · applied · fct-p2dhprbq",
+"E18 · applied · fct-5c3xpzsh",
+"E19 · applied · fct-rnb7vczj",
+"E20 · applied · fct-mbichyuo",
+"E21 · applied · fct-ep45valw",
+"E22 · applied · fct-p7fl7gmb",
+"E23 · applied · fct-b5tpgm6t",
+"E24 · applied · fct-gnnl6mzk",
+"E25 · applied · fct-n45lk2to",
+"E26 · applied · fct-mqmrzd2o",
+"landed 26 record(s) · 1 edge(s) · tx 51"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:34:08Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/apply-test-plan.p2.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-7jzqlhyk",
+"E2 · applied · fct-2ilc4zyz",
+"E3 · applied · fct-m53lur54",
+"doc:test-plan/contracts/per-chunk-gate-discipline · labels · The merge-base probe (operator leg, directly before the push), Boot-smoke gate (conditional), Direct-binary smoke variant (accepted alternative form), Process-end witness form (integration tier), Spawned-program witness form (integration tier), Engine cycle gate form (runtime, console engine)",
+"landed 4 record(s) · 0 edge(s) · tx 52"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:34:58Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/edits-main.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 2,
+"stdout": [],
+"stderr": "E1: `old:`/`new:` come in pairs, one line each — nothing written",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:30Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/edits-main.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 3,
+"stdout": [
+"E1 · applied · as n1",
+"E2 · applied · fct-udg32czu",
+"E3 · reshaped · the structural prefix changed",
+"E4 · reshaped · the structural prefix changed"
+],
+"stderr": "2 record(s) refused — nothing written",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:41Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/edits-main.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · as n1",
+"E2 · applied · fct-udg32czu",
+"dry-run · would land 2 record(s) · 1 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:42Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/edits-main.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · as n1",
+"E2 · applied · fct-udg32czu",
+"landed 2 record(s) · 1 edge(s) · tx 53"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:50Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-vqhoi5hb",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-vqhoi5hb"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:51Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-dzpd3ztt",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-dzpd3ztt"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:51Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-m5cqrktj",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-m5cqrktj"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:51Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-zrtafiai",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-zrtafiai"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:51Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-732ketbq",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-732ketbq"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:51Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-px726b3i",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-px726b3i"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:51Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-vxhgwrdg",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-vxhgwrdg"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:52Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-oodqyure",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-oodqyure"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:52Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-z6icbp7d",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-z6icbp7d"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:52Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-jektn265",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-jektn265"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:52Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-gs5dp5l3",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-gs5dp5l3"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:52Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-qvdy4zh6",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-qvdy4zh6"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:53Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-wea2m7cj",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-wea2m7cj"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:53Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-zvxze7ay",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-zvxze7ay"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:35:53Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-6e5kbvwq",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would retire fct-6e5kbvwq"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:01Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-vqhoi5hb",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 54"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:02Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-dzpd3ztt",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 55"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:02Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-m5cqrktj",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 56"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:02Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-zrtafiai",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 57"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:02Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-732ketbq",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 58"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:03Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-px726b3i",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 59"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:03Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-vxhgwrdg",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 60"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:03Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-oodqyure",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 61"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:04Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-z6icbp7d",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 62"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:04Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-jektn265",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 63"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:04Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-gs5dp5l3",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 64"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:04Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-qvdy4zh6",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 65"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:05Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-wea2m7cj",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 66"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:05Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-zvxze7ay",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 67"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:36:05Z",
+"argv": [
+"retire",
+"--root",
+".",
+"fct-6e5kbvwq",
+"--expect-rev",
+"1",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"retired 1 node(s) · 1 edge(s) · tx 68"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:37:24Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/edits-main-2.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-udg32czu",
+"dry-run · would land 1 record(s) · 0 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:37:24Z",
+"argv": [
+"put",
+"--root",
+".",
+"--section",
+"Edits",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/edits-main-2.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"E1 · applied · fct-udg32czu",
+"landed 1 record(s) · 0 edge(s) · tx 69"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:05Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"architecture",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/architecture-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the MCP surface: the door its one carrier, no rmcp · on-form · 2379 B · amd-wqv4acuh",
+"2026-11-03-stdio-sidecar-retired — the mcp-test CI job retired: ci.yml jobs 6 → 5 · on-form · 1513 B · amd-hsesjd6c",
+"2026-11-03-stdio-sidecar-retired — the corpus's seventh writer and its event reader: the d · on-form · 1279 B · amd-hnfx54xg",
+"2026-11-03-stdio-sidecar-retired — the window side: no mcp procedures, tray toggle or read · on-form · 1190 B · amd-ehpbdrgk",
+"2026-11-03-stdio-sidecar-retired — the mcp-server feature and its switch retired · on-form · 1840 B · amd-cwm4atiu",
+"2026-11-03-stdio-sidecar-retired — the door's contract with no sidecar beside it · on-form · 1474 B · amd-7rbq33sj",
+"2026-11-03-stdio-sidecar-retired — product binaries 3 → 2 · on-form · 1029 B · amd-7acsmtqn",
+"2026-11-03-stdio-sidecar-retired — the run/workspace-key publish retired; the lock file's  · on-form · 934 B · amd-6p2eihqj",
+"2026-11-03-stdio-sidecar-retired — smoke:external-resolve refuses at its precondition · on-form · 906 B · amd-2yxky7nv",
+"dry-run · would land 9 entr(ies) · 50 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:05Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"security-plan",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/security-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the engine's one way in besides telemetry, the door · on-form · 1637 B · amd-xeaeykdb",
+"2026-11-03-stdio-sidecar-retired — the tool inputs row: one carrier, `call_tool`, no `rmcp · on-form · 1804 B · amd-w6aelyq7",
+"2026-11-03-stdio-sidecar-retired — tool responses through the door alone, and the records  · on-form · 1646 B · amd-o4vs2fhq",
+"2026-11-03-stdio-sidecar-retired — product binaries three → two · on-form · 1496 B · amd-jkrgjmlw",
+"2026-11-03-stdio-sidecar-retired — the double gate and `ANDROMEDA_PULSE_MCP_ENABLED` retir · on-form · 1360 B · amd-h722z6nk",
+"2026-11-03-stdio-sidecar-retired — the `mcp.*` procedures and the Settings MCP flag · on-form · 805 B · amd-fb7ly57q",
+"2026-11-03-stdio-sidecar-retired — the published workspace key retired · on-form · 1272 B · amd-andoow6t",
+"2026-11-03-stdio-sidecar-retired — ci.yml jobs six → five · on-form · 439 B · amd-ajawsnnb",
+"dry-run · would land 8 entr(ies) · 49 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:05Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"design-system",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/design-system-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the tray menu without the MCP toggle · on-form · 1516 B · amd-es4ir4kn",
+"2026-11-03-stdio-sidecar-retired — the notification triggers lose the MCP status change · on-form · 638 B · amd-7xcrr3ro",
+"dry-run · would land 2 entr(ies) · 14 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:06Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"layout-templates",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/layout-templates-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the Settings MCP server toggle retired · on-form · 1118 B · amd-rvjugotu",
+"2026-11-03-stdio-sidecar-retired — the tray menu's MCP toggle retired · on-form · 1780 B · amd-msl6473d",
+"2026-11-03-stdio-sidecar-retired — the MCP server status notification, a wording correctio · on-form · 1088 B · amd-knzgdbuj",
+"dry-run · would land 3 entr(ies) · 25 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:06Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"test-plan",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/test-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the stdio sidecar retired; mcp-server the tools library · on-form · 2525 B · amd-z4lqultb",
+"2026-11-03-stdio-sidecar-retired — the run/workspace-key publish retired · on-form · 1334 B · amd-wulqq5d7",
+"2026-11-03-stdio-sidecar-retired — the door's unit tests and the pulse-app test file count · on-form · 781 B · amd-wnpmsb46",
+"2026-11-03-stdio-sidecar-retired — P3 driven through the console engine door · on-form · 1725 B · amd-uvytibjd",
+"2026-11-03-stdio-sidecar-retired — Vector 4's coverage carried by the door · on-form · 1732 B · amd-shfm7ndd",
+"2026-11-03-stdio-sidecar-retired — the incident tools' content tests read through the door · on-form · 1664 B · amd-q5t3m24g",
+"2026-11-03-stdio-sidecar-retired — ci.yml's five jobs, the mcp-test job retired · on-form · 1209 B · amd-hb3m6wji",
+"2026-11-03-stdio-sidecar-retired — the bindings regen with no feature · on-form · 1164 B · amd-ecfaqde5",
+"2026-11-03-stdio-sidecar-retired — smoke:external-resolve refuses at its precondition · on-form · 657 B · amd-6dnysztf",
+"dry-run · would land 9 entr(ies) · 51 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:06Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"obs-plan",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/obs-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — §1 scope: eight surfaces, the door the one tool surface · on-form · 2461 B · amd-ychsi6x3",
+"2026-11-03-stdio-sidecar-retired — the sidecar's stderr-JSON sink and its stdout ban · on-form · 1589 B · amd-vbphkqkr",
+"2026-11-03-stdio-sidecar-retired — the workspace-key publish and its record retired · on-form · 1112 B · amd-uprjieoo",
+"2026-11-03-stdio-sidecar-retired — §4 Scenario P3: the door the one carrier, door.call its · on-form · 2485 B · amd-umeomxn6",
+"2026-11-03-stdio-sidecar-retired — the double gate and the sidecar's mcp.* records retired · on-form · 1717 B · amd-pbncjsdf",
+"2026-11-03-stdio-sidecar-retired — §8 the reconciled-count writer · on-form · 855 B · amd-ohpf6q7z",
+"2026-11-03-stdio-sidecar-retired — §9 the test binaries that start the console program · on-form · 686 B · amd-mjfyxljr",
+"2026-11-03-stdio-sidecar-retired — §3 the sidecar's service identity retired · on-form · 557 B · amd-idompwkn",
+"2026-11-03-stdio-sidecar-retired — §3 the MCP tools through the door · on-form · 994 B · amd-6hi6zbiy",
+"dry-run · would land 9 entr(ies) · 51 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:06Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"a11y-plan",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/a11y-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the Settings modal without the MCP switch · on-form · 1621 B · amd-s4bifu63",
+"2026-11-03-stdio-sidecar-retired — the P3 path reaches the engine through the door, no UI  · on-form · 1215 B · amd-7mlyeuw6",
+"dry-run · would land 2 entr(ies) · 11 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:20Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"architecture",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/architecture-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the MCP surface: the door its one carrier, no rmcp · on-form · 2379 B · amd-vtl774nz",
+"2026-11-03-stdio-sidecar-retired — the mcp-test CI job retired: ci.yml jobs 6 → 5 · on-form · 1513 B · amd-qbpgdkza",
+"2026-11-03-stdio-sidecar-retired — the corpus's seventh writer and its event reader: the d · on-form · 1279 B · amd-mgbzvp6v",
+"2026-11-03-stdio-sidecar-retired — the window side: no mcp procedures, tray toggle or read · on-form · 1190 B · amd-mg25cmfl",
+"2026-11-03-stdio-sidecar-retired — the mcp-server feature and its switch retired · on-form · 1840 B · amd-lmhgs4jd",
+"2026-11-03-stdio-sidecar-retired — the door's contract with no sidecar beside it · on-form · 1474 B · amd-7blmvg6h",
+"2026-11-03-stdio-sidecar-retired — product binaries 3 → 2 · on-form · 1029 B · amd-6qxrpurc",
+"2026-11-03-stdio-sidecar-retired — the run/workspace-key publish retired; the lock file's  · on-form · 934 B · amd-55hrznmw",
+"2026-11-03-stdio-sidecar-retired — smoke:external-resolve refuses at its precondition · on-form · 906 B · amd-3ri7l3di",
+"landed 9 entr(ies) · 50 edge(s) · tx 70"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:20Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"security-plan",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/security-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the engine's one way in besides telemetry, the door · on-form · 1637 B · amd-yuqpfstd",
+"2026-11-03-stdio-sidecar-retired — the tool inputs row: one carrier, `call_tool`, no `rmcp · on-form · 1804 B · amd-xttwfouf",
+"2026-11-03-stdio-sidecar-retired — tool responses through the door alone, and the records  · on-form · 1646 B · amd-rwrvmfbr",
+"2026-11-03-stdio-sidecar-retired — product binaries three → two · on-form · 1496 B · amd-qx6pip3c",
+"2026-11-03-stdio-sidecar-retired — the double gate and `ANDROMEDA_PULSE_MCP_ENABLED` retir · on-form · 1360 B · amd-cuiwsrbs",
+"2026-11-03-stdio-sidecar-retired — the `mcp.*` procedures and the Settings MCP flag · on-form · 805 B · amd-cou4s6gb",
+"2026-11-03-stdio-sidecar-retired — the published workspace key retired · on-form · 1272 B · amd-anrwjttt",
+"2026-11-03-stdio-sidecar-retired — ci.yml jobs six → five · on-form · 439 B · amd-a7vnd4ds",
+"landed 8 entr(ies) · 49 edge(s) · tx 71"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:20Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"design-system",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/design-system-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the tray menu without the MCP toggle · on-form · 1516 B · amd-sjfve7ch",
+"2026-11-03-stdio-sidecar-retired — the notification triggers lose the MCP status change · on-form · 638 B · amd-setatkmd",
+"landed 2 entr(ies) · 14 edge(s) · tx 72"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:21Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"layout-templates",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/layout-templates-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the Settings MCP server toggle retired · on-form · 1118 B · amd-zyfpchry",
+"2026-11-03-stdio-sidecar-retired — the tray menu's MCP toggle retired · on-form · 1780 B · amd-uibpc7pz",
+"2026-11-03-stdio-sidecar-retired — the MCP server status notification, a wording correctio · on-form · 1088 B · amd-uapytqhg",
+"landed 3 entr(ies) · 25 edge(s) · tx 73"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:21Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"test-plan",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/test-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the stdio sidecar retired; mcp-server the tools library · on-form · 2525 B · amd-yzhjc45c",
+"2026-11-03-stdio-sidecar-retired — the run/workspace-key publish retired · on-form · 1334 B · amd-v2nuzgpb",
+"2026-11-03-stdio-sidecar-retired — the door's unit tests and the pulse-app test file count · on-form · 781 B · amd-tp4glt6t",
+"2026-11-03-stdio-sidecar-retired — P3 driven through the console engine door · on-form · 1725 B · amd-tg6hpybt",
+"2026-11-03-stdio-sidecar-retired — Vector 4's coverage carried by the door · on-form · 1732 B · amd-n5vttkge",
+"2026-11-03-stdio-sidecar-retired — the incident tools' content tests read through the door · on-form · 1664 B · amd-kpivoktn",
+"2026-11-03-stdio-sidecar-retired — ci.yml's five jobs, the mcp-test job retired · on-form · 1209 B · amd-iqijctsp",
+"2026-11-03-stdio-sidecar-retired — the bindings regen with no feature · on-form · 1164 B · amd-d4hmd6b6",
+"2026-11-03-stdio-sidecar-retired — smoke:external-resolve refuses at its precondition · on-form · 657 B · amd-cktvpesh",
+"landed 9 entr(ies) · 51 edge(s) · tx 74"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:21Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"obs-plan",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/obs-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — §1 scope: eight surfaces, the door the one tool surface · on-form · 2461 B · amd-yftqov3q",
+"2026-11-03-stdio-sidecar-retired — the sidecar's stderr-JSON sink and its stdout ban · on-form · 1589 B · amd-y2e2ckv6",
+"2026-11-03-stdio-sidecar-retired — the workspace-key publish and its record retired · on-form · 1112 B · amd-x4kbzsw2",
+"2026-11-03-stdio-sidecar-retired — §4 Scenario P3: the door the one carrier, door.call its · on-form · 2485 B · amd-way6miji",
+"2026-11-03-stdio-sidecar-retired — the double gate and the sidecar's mcp.* records retired · on-form · 1717 B · amd-tmrebj2o",
+"2026-11-03-stdio-sidecar-retired — §8 the reconciled-count writer · on-form · 855 B · amd-sxncuklb",
+"2026-11-03-stdio-sidecar-retired — §9 the test binaries that start the console program · on-form · 686 B · amd-hzi7ua4e",
+"2026-11-03-stdio-sidecar-retired — §3 the sidecar's service identity retired · on-form · 557 B · amd-hjvzbqha",
+"2026-11-03-stdio-sidecar-retired — §3 the MCP tools through the door · on-form · 994 B · amd-f3ohlezw",
+"landed 9 entr(ies) · 51 edge(s) · tx 75"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T04:50:22Z",
+"argv": [
+"amend",
+"--root",
+".",
+"--doc",
+"a11y-plan",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/a11y-plan-entries.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"2026-11-03-stdio-sidecar-retired — the Settings modal without the MCP switch · on-form · 1621 B · amd-yzeeq7wh",
+"2026-11-03-stdio-sidecar-retired — the P3 path reaches the engine through the door, no UI  · on-form · 1215 B · amd-g63fw5le",
+"landed 2 entr(ies) · 11 edge(s) · tx 76"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T05:00:46Z",
+"argv": [
+"put",
+"--root",
+".",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/route-insert.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would land 1 record(s) · 1 edge(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T05:00:53Z",
+"argv": [
+"put",
+"--root",
+".",
+"--file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/route-insert.md",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"landed 1 record(s) · 1 edge(s) · tx 77 · chk-yno3lncd … chk-yno3lncd"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T02-20-22-2026-11-03-stdio-sidecar-retired.ndjson",
+"./andromeda-pulse-0.4.0/working-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.10",
+"sha8": "28fff673",
+"ts": "2026-11-03T05:07:17Z",
+"argv": [
+"land",
+"--root",
+".",
+"--chunk",
+"2026-11-03-stdio-sidecar-retired",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"unchanged · 9 file(s) of 2026-11-03-stdio-sidecar-retired"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

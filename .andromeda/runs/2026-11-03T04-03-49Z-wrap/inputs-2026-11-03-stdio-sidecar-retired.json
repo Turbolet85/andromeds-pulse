@@ -1,0 +1,186 @@
+[
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "a657101d",
+"ts": "2026-11-03T04:04:11Z",
+"argv": [
+"snap",
+"--chunk",
+"2026-11-03-stdio-sidecar-retired",
+"--message-file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/relay-1.md",
+"--origin",
+"the overseer, founder-delegated, 2026-11-03T04:03Z",
+"--kind",
+"relay",
+"--why",
+"the wrap directive: run whole, mint the advisories owner entry after this one naming the hidden supply-chain steps 10-18, the card items",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I6 · copy message · message: the overseer, founder-delegated, 2026-11-03T04:03Z",
+"cite: inputs#I6"
+],
+"stderr": null,
+"wrote": [
+"inputs/I6-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I6",
+"kind": "relay",
+"repo": null,
+"path": "message: the overseer, founder-delegated, 2026-11-03T04:03Z",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "56d376d93fd3be8f118fec896cb76e56f3e27779dfcaf86dce59468b52751fd8",
+"copy": "I6-relay-1.md.txt",
+"link": false,
+"read_at": "2026-11-03T04:04:10Z",
+"step": "wrap",
+"why": "the wrap directive: run whole, mint the advisories owner entry after this one naming the hidden supply-chain steps 10-18, the card items"
+}
+},
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "a657101d",
+"ts": "2026-11-03T04:04:18Z",
+"argv": [
+"verify",
+"--chunk",
+"2026-11-03-stdio-sidecar-retired",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: the overseer, founder-delegated, the /andromeda-phase invocation, 2026-11-03",
+"I1 cited scope.md:7 · research.md:7 · plan.md:226 · plan.md:233 · plan.md:458 (in fence) · plan.md:497 · plan.md:506",
+"I2 n/a — a message has no live source · copy message · message: the overseer, founder-delegated, the P4 dialog, 2026-11-03",
+"I2 cited research.md:113 · plan.md:23 · plan.md:110 · plan.md:480 · plan.md:497 · plan.md:500 · plan.md:501 · plan.md:515",
+"I3 n/a — a message has no live source · copy message · message: the overseer, founder-delegated, the P5 dialog, 2026-11-03",
+"I3 cited plan.md:242 · plan.md:371 (in fence) · plan.md:372 (in fence) · plan.md:474 (in fence) · plan.md:481 · plan.md:492 · plan.md:521",
+"I4 n/a — a message has no live source · copy message · message: the operator, the P5 review prompt, 2026-11-03",
+"I4 UNCITED",
+"I5 n/a — a message has no live source · copy message · message: the overseer, founder-delegated, 2026-11-03T03:31Z",
+"I5 UNCITED",
+"I6 n/a — a message has no live source · copy message · message: the overseer, founder-delegated, 2026-11-03T04:03Z",
+"I6 UNCITED",
+"inputs: 6 entries — unchanged 0 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 6 · uncited 3 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 6,
+"counts": {
+"unchanged": 0,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 6
+},
+"uncited": 3,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "a657101d",
+"ts": "2026-11-03T04:13:46Z",
+"argv": [
+"snap",
+"--chunk",
+"2026-11-03-stdio-sidecar-retired",
+"--message-file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/relay-2.md",
+"--origin",
+"the overseer with overseer1, founder-delegated, 2026-11-03T04:16Z, the cite-row dialog (F407)",
+"--kind",
+"relay",
+"--why",
+"the ruling re-disposing test-plan fct-js2thrtn@c769 (a deleted file) as not a citation of the tree",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap"
+],
+"cwd": ".",
+"exit": 2,
+"stdout": [],
+"stderr": "--origin: 2026-11-03T04:16Z is 2 min ahead of the clock (04:13:46Z, 05:13 local) — for a time of now read the clock (date -u; date for a local time); for a past one take it from what holds it",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "inputs",
+"v": "1.5",
+"sha8": "a657101d",
+"ts": "2026-11-03T04:13:55Z",
+"argv": [
+"snap",
+"--chunk",
+"2026-11-03-stdio-sidecar-retired",
+"--message-file",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap/relay-2.md",
+"--origin",
+"the overseer with overseer1, founder-delegated, 2026-11-03T04:13Z, the cite-row dialog (F407)",
+"--kind",
+"relay",
+"--why",
+"the ruling re-disposing test-plan fct-js2thrtn@c769 (a deleted file) as not a citation of the tree",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-11-03T04-03-49Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I7 · copy message · message: the overseer with overseer1, founder-delegated, 2026-11-03T04:13Z, the cite-row dialog (F407)",
+"cite: inputs#I7"
+],
+"stderr": null,
+"wrote": [
+"inputs/I7-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I7",
+"kind": "relay",
+"repo": null,
+"path": "message: the overseer with overseer1, founder-delegated, 2026-11-03T04:13Z, the cite-row dialog (F407)",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "c55d17ca8d3fa5d1f4ef9f55caf5a2c73a4b4436461d05d268710eb8d33bf134",
+"copy": "I7-relay-2.md.txt",
+"link": false,
+"read_at": "2026-11-03T04:13:54Z",
+"step": "wrap",
+"why": "the ruling re-disposing test-plan fct-js2thrtn@c769 (a deleted file) as not a citation of the tree"
+}
+}
+]

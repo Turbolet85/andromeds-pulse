@@ -1933,5 +1933,150 @@
 },
 "indeterminate": 0
 }
+},
+{
+"tool": "gate",
+"v": "1.26",
+"sha8": "a063ef9f",
+"ts": "2026-11-03T04:02:32Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-11-03T03-01-56Z-implement",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base f2bb258f (the parent of the oldest pre-CI commit d6ee34f4)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"P1 .andromeda/cache/chunks/2026-11-03-stdio-sidecar-retired/evidence/operator-pass.md:36 ×2 · in-root,home",
+"in-root: a home path under the root in 1 files — respell: gate.py respell --file {path} (the root prefix dropped, never ~/)",
+"hygiene: refused 1 files — P1 1 · P2 0 · P3 0 · read 60 (runs 52 · evidence 1 · inputs 7) · trails 18 not read · copies 5 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [
+"P1 .andromeda/cache/chunks/2026-11-03-stdio-sidecar-retired/evidence/operator-pass.md:36 ×2 · in-root,home"
+],
+"counts": {
+"P1": 1,
+"P2": 0,
+"P3": 0,
+"runs": 52,
+"evidence": 1,
+"inputs": 7,
+"trails": 18,
+"copies": 5,
+"kept": 0,
+"binary": 0,
+"in_root": 1
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.26",
+"sha8": "a063ef9f",
+"ts": "2026-11-03T04:02:43Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-11-03T03-01-56Z-implement",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base f2bb258f (the parent of the oldest pre-CI commit d6ee34f4)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 60 (runs 52 · evidence 1 · inputs 7) · trails 18 not read · copies 5 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 52,
+"evidence": 1,
+"inputs": 7,
+"trails": 18,
+"copies": 5,
+"kept": 0,
+"binary": 0,
+"in_root": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.26",
+"sha8": "a063ef9f",
+"ts": "2026-11-03T04:02:50Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-11-03T03-01-56Z-implement",
+"--marker",
+"2026-11-03-stdio-sidecar-retired"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base f2bb258f (the parent of the oldest pre-CI commit d6ee34f4)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P1 in-root home · P1 in-root drive · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 60 (runs 52 · evidence 1 · inputs 7) · trails 18 not read · copies 5 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": ".",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 52,
+"evidence": 1,
+"inputs": 7,
+"trails": 18,
+"copies": 5,
+"kept": 0,
+"binary": 0,
+"in_root": 0
+},
+"indeterminate": 0
+}
 }
 ]

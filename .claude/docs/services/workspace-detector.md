@@ -1,7 +1,7 @@
 # `workspace-detector` — Host Project Context Detection
 
 ## Responsibility
-Detects host project context for telemetry correlation: `.andromeda/` marker + VCS metadata (the `.git` root and a short HEAD prefix) + a project name taken from the root's basename. Backs the one implemented procedure `workspace.detect` (resolver at `crates/ui-bridge/src/workspace_ipc.rs`; `workspace.list` is deferred — no runtime emitter). Used by the shared engine boot (`engine_boot::start` detects the host workspace and publishes `run/workspace-key` for both programs) and read cross-process by the `andromeda-pulse-mcp` sidecar.
+Detects host project context for telemetry correlation: `.andromeda/` marker + VCS metadata (the `.git` root and a short HEAD prefix) + a project name taken from the root's basename. Backs the one implemented procedure `workspace.detect` (resolver at `crates/ui-bridge/src/workspace_ipc.rs`; `workspace.list` is deferred — no runtime emitter). Used by the shared engine boot (`engine_boot::start` detects the host workspace for both programs); the door reads no `run/workspace-key` and runs the tools over the engine's own `incident_workspace_key`.
 
 ## Key integrations
 

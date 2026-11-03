@@ -1,0 +1,20 @@
+--- a/.andromeda/design-system.md
++++ b/.andromeda/design-system.md
+@@ -324,3 +324,2 @@
+   - "Generate Snapshot" (invokes `snapshot.generate` TauRPC, shows "Snapshot ready" notification on completion).
+-  - "Toggle MCP Server" (only when `--features mcp-server` is built; checkbox-marked if enabled; invokes `mcp.start` / `mcp.stop`).
+   - "Open Settings" (focuses the Settings panel in the app).
+@@ -329,6 +328,6 @@
+ - Keyboard: all menu items accessible via keyboard (arrow keys, Return to select).
+-- Tone: contemplative, observational voice. "Generate Snapshot" not "Export Data"; "Toggle MCP Server" not "Enable AI Integration".
++- Tone: contemplative, observational voice. "Generate Snapshot" not "Export Data".
+ 
+ **Notifications (OS-native):**
+-- Trigger: snapshot generation completion, MCP server status change, update available.
++- Trigger: snapshot generation completion, update available.
+ - Format: terse, 2 lines max. Example: "Snapshot ready | 2.5k tokens, 42 spans".
+@@ -345,3 +344,3 @@
+ 1. Click tray icon → focus/restore compact widget.
+-2. Right-click tray icon → menu: Generate Snapshot, Toggle MCP, Quit, etc.
++2. Right-click tray icon → menu: Generate Snapshot, Open Settings, Quit, etc.
+ 3. Notification action → app-initiated navigation (e.g., "View Snapshot" opens the snapshot viewer).

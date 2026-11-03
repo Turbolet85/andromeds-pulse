@@ -1,0 +1,85 @@
+[[pattern]]
+id = 'owner-title'
+fixed = 'Stdio sidecar retired'
+ignore_case = true
+
+[[pattern]]
+id = 'owner-generic'
+regex = 'owned by a (route entry|CARRY)'
+ignore_case = true
+
+[[pattern]]
+id = 'sidecar-bin'
+regex = 'andromeda-pulse-mcp|stdio sidecar|MCP sidecar|the sidecar'
+ignore_case = true
+
+[[pattern]]
+id = 'mcp-enabled'
+regex = 'ANDROMEDA_PULSE_MCP_ENABLED|double[- ]gate'
+ignore_case = true
+
+[[pattern]]
+id = 'two-ways'
+regex = 'two ways in|one way in besides telemetry|ways in besides telemetry'
+ignore_case = true
+
+[[pattern]]
+id = 'ws-key'
+regex = 'run/workspace-key|app\.boot\.workspace_key|publish_workspace_key_for_sidecar|workspace key publish'
+
+[[pattern]]
+id = 'mcp-setting'
+regex = 'mcp_server_enabled|MCP switch|MCP toggle|Toggle MCP'
+ignore_case = true
+
+[[pattern]]
+id = 'mcp-procs'
+regex = 'mcp\.\{status|mcp\.status|mcp\.start|mcp\.stop|mcp_router|McpApi'
+
+[[pattern]]
+id = 'rmcp'
+regex = '\brmcp\b'
+
+[[pattern]]
+id = 'mcp-feature'
+regex = 'features mcp-server|feature = "mcp-server"|mcp-server` feature|`mcp-server` cargo feature|feature-gated `mcp|--features mcp'
+
+[[pattern]]
+id = 'mcp-test-job'
+regex = 'mcp-test|six (parallel )?jobs|6 jobs'
+ignore_case = true
+
+[[pattern]]
+id = 'dispatch'
+regex = 'dispatch_tool|mcp\.tools\.call|metric\.mcp\.tool_call_duration_ms|mcp\.gate\.check'
+
+[[pattern]]
+id = 'send-agent'
+regex = 'Send to agent|SendToAgent|use-mcp-delivery|MCP delivery'
+ignore_case = true
+
+[[pattern]]
+id = 'status-notif'
+regex = 'MCP server status change'
+ignore_case = true
+
+[[pattern]]
+id = 'bin-count'
+regex = 'three product binaries|three product programs|all three product binaries|3 product binaries'
+ignore_case = true
+
+[[pattern]]
+id = 'tests-count'
+regex = '113 files|113 test files|pulse-app/tests/\*\.rs` \(113'
+
+[[pattern]]
+id = 'pending-rows'
+regex = 'workspace-key-cross-process-coverage|mcp-incident-read-back-cross-process-coverage|MCP response body redaction'
+
+[[pattern]]
+id = 'sidecar-sink'
+regex = 'tracing_setup|feature_gate\.rs|stderr forced JSON'
+
+[[pattern]]
+id = 'schemars'
+regex = 'schemars'

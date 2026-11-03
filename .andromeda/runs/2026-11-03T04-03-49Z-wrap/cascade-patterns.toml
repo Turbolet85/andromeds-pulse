@@ -1,0 +1,9 @@
+[[pattern]]
+id = 'main-01'
+regex = 'feature-gate MCP server without|MCP double-gate omission|gate state is a `tracing` field'
+ignore_case = true
+
+[[pattern]]
+id = 'main-02'
+regex = 'Toggle MCP Server'
+ignore_case = true

@@ -8,13 +8,13 @@ Owns the TauRPC bridge between Rust and webview. Hosts the cross-cutting envelop
 ### Consumes from
 - Router modules are mounted by the window app alone (`pulse-app/src/main.rs` builds the one `taurpc::Router`); the console program `andromeda-pulse-engine` mounts no TauRPC router — its state is read from its log records.
 - `health` reports the subsystems of arch §Standard Contracts: `otlp_grpc_receiver` / `otlp_http_receiver` / `buffer` / `ingest_channel`.
-- `ready` reports eight checks: duckdb_connection / ingest_mpsc_capacity_pct / broadcast_subscribers / plugins_loaded / mcp_server_enabled / rows_ingested / buffer_used_seconds / retention_seconds.
+- `ready` reports whether the app is ready to ingest and serve queries; when not, `ready` is `false` and any failing check is the offending reason string (e.g., `"duckdb_connection": "init_in_progress"`).
 
 ### Publishes to
 - TauRPC procedure surface (per arch §Occupied Resources Tauri IPC routes):
   - Top-level: `app_info`, `health`, `ready`, `get_settings`, `update_settings`
   - Own routers: `telemetry.frontend.*` (six methods, `telemetry.rs`), `workspace.detect` (`workspace_ipc.rs`)
-  - Routers mounted beside them by the window app: `traces.*`, `metrics.*`, `logs.*`, `streams.*`, `snapshot.generate`, `plugins.*`, `mcp.*` (feature-gated), `connection.*`, `services.*`, `storage.*`, `diagnostics.*`, `config.*`, `incidents.*`, `model.*`, `investigate.*` — Occupied Resources is the canonical list (`EXPECTED_PROCEDURES` 44)
+  - Routers mounted beside them by the window app: `traces.*`, `metrics.*`, `logs.*`, `streams.*`, `snapshot.generate`, `plugins.*`, `connection.*`, `services.*`, `storage.*`, `diagnostics.*`, `config.*`, `incidents.*`, `model.*`, `investigate.*` — Occupied Resources is the canonical list (`EXPECTED_PROCEDURES` 44)
 - Auto-generated TypeScript bindings: `pulse-app/ui/src/bindings/index.ts` (one tracked file for the whole procedure surface).
 
 ### Dependencies
@@ -51,7 +51,7 @@ Owns the TauRPC bridge between Rust and webview. Hosts the cross-cutting envelop
 - **Capability drift CI gate:** `cargo xtask capability-drift` diffs procedures (worktree + staged git-index bindings) vs `EXPECTED_PROCEDURES` and asserts the staged capability grants vs `staged_gate::EXPECTED_GRANTS`; fails on mismatch.
 
 ## Local development
-- **Regenerate TypeScript bindings:** a test run does it, not the build — the `emit_taurpc_bindings` test rewrites the tracked `pulse-app/ui/src/bindings/index.ts` (run it with `--features mcp-server` last, so the committed mcp shape stands).
+- **Regenerate TypeScript bindings:** a test run does it, not the build — the `emit_taurpc_bindings` test rewrites the tracked `pulse-app/ui/src/bindings/index.ts` (one shape in every build — there is no `mcp-server` feature).
 - **Inspect IPC traffic:** Tauri webview DevTools (Cmd+Opt+I macOS / F12 Windows / Ctrl+Shift+I Linux) shows all `invoke()` calls; backend log file `agent-latest.jsonl` shows handler spans.
 
 ## References
