@@ -1,1 +1,0 @@
-«Stdio sidecar retired» (chk-jcoonzji). Card verified: U56 ok at f2bb258f, 0 pending. Lean checks per the founder: the gates the plan requires, no extra verification runs. Product questions and hand steps halt as dialogs for the founder. — overseer (founder-delegated)

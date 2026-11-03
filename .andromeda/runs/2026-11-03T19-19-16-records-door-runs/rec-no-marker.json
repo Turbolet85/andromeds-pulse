@@ -1,0 +1,65 @@
+[
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T19:19:56Z",
+"argv": [
+"migrate",
+"--root",
+".",
+"--family",
+"runs",
+"--work",
+"~/.cache/andromeda-door/andromeda-pulse-runs-2026-11-03T19-19-16",
+"--stage",
+"--verify",
+"--run-dir",
+".andromeda/runs/2026-11-03T19-19-16-records-door-runs"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"runs 633 · loose 2 (2026-06-02-session-wrap-brief.md, code-graph-refresh.log) · rows 6035 · 50049439 B · ignored aside: prompts 83, other 0 · own 2026-11-03T19-19-16-records-door-runs left as files",
+"staged 2026-11-03T19-19-40-door-runs.ndjson · 634 node(s) · 0 edge(s) · 0 file(s) · HEAD 236f507c1392 · work ~/.cache/andromeda-door/andromeda-pulse-runs-2026-11-03T19-19-16",
+"proof: 634 Parquet(s), 6035 file(s) row-equal to HEAD's blobs and once each · a second seal byte-equal · each node's files and sha its rows' · controls: a row's byte · a row dropped · a mode bit · a node's sha",
+"verified: the proof holds"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T19:20:12Z",
+"argv": [
+"migrate",
+"--root",
+".",
+"--family",
+"runs",
+"--work",
+"~/.cache/andromeda-door/andromeda-pulse-runs-2026-11-03T19-19-16",
+"--apply",
+"--run-dir",
+".andromeda/runs/2026-11-03T19-19-16-records-door-runs"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"moved: runs · 634 line(s) · 9e014891 · 2026-11-03T19-19-40-door-runs.ndjson · nothing committed",
+"sealed: 634 Parquet(s) placed of 634 · 83 ignored set aside · git rm 6035 · 0 kept for the product row · nothing committed"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-19-40-door-runs.ndjson",
+"./.andromeda/db/moved",
+"./.gitattributes"
+],
+"before": null,
+"after": null
+}
+]

@@ -1,1 +1,0 @@
-Operator directive for this chunk: read ~/dev/projects/additional/pc-overseer/relays/pulse-phase-boot-smoke-early-exit-2026-10-09.md whole before Setup. The cause must be named from evidence a run produced; reproduce before you theorize. Stop at P5 for my yes.
