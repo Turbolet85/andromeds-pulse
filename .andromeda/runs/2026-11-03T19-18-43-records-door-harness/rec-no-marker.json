@@ -1,0 +1,66 @@
+[
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T19:18:44Z",
+"argv": [
+"migrate",
+"--root",
+".",
+"--family",
+"harness",
+"--work",
+"~/.cache/andromeda-door/andromeda-pulse-harness-2026-11-03T19-18-43",
+"--stage",
+"--verify",
+"--run-dir",
+".andromeda/runs/2026-11-03T19-18-43-records-door-harness"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"staged 2026-11-03T19-18-44-door-harness.ndjson · 3788 node(s) · 3753 edge(s) · 35 file(s) · HEAD 0693e7136cdb · work ~/.cache/andromeda-door/andromeda-pulse-harness-2026-11-03T19-18-43",
+"bytes: 1292564",
+"files: 35",
+"parts: 3122",
+"sections: 631",
+"proof: 35 file(s) back byte-equal to HEAD · 35 to the worktree · R7's region equal on 9 · controls: a part's byte · a part's edge gone · two sections' order",
+"verified: the proof holds"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T19:18:52Z",
+"argv": [
+"migrate",
+"--root",
+".",
+"--family",
+"harness",
+"--work",
+"~/.cache/andromeda-door/andromeda-pulse-harness-2026-11-03T19-18-43",
+"--apply",
+"--run-dir",
+".andromeda/runs/2026-11-03T19-18-43-records-door-harness"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"moved: harness · 3788 line(s) · 8492894a · 2026-11-03T19-18-44-door-harness.ndjson · nothing committed"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-18-44-door-harness.ndjson",
+"./.andromeda/db/moved"
+],
+"before": null,
+"after": null
+}
+]
