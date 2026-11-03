@@ -1,0 +1,33 @@
+## 2026-11-03-advisories-since-2026-10-12-closed — the engine door's one item ratified
+**Section:** §Occupied Resources (Network ports, the door; MCP stdio surface; Engine door surface; Console engine binary; the data dir's subpaths; `ANDROMEDA_PULSE_DOOR_RESOLVE`) · §Design Philosophy · §Stack and Technologies (MCP server, Message broker, Gate-script pins rows) · §Established Decisions ([MCP Server Surface], [API Style — MCP Server Surface 3], [Mobile / Message Broker / Push Notifications], [Corpus Write Arbitration]) · §Conventions (External wire — MCP server) · §Standard Contracts (Engine door) · §Project Intent (Product type) · §Inherited Defaults (API style — external MCP) · contracts/ci-cd-approach · contracts/deployment-model
+**Change:**
+- The door's item sentence (Network ports, the door): was «PROVISIONAL — a boundary widening, one item», resting on the operator's answers with the founder's own word owed and nothing of it ratified; now «A boundary widening, one item, ratified»: the endpoint, the owner check, the reach of the nine tools and of the one write, the write-switch variable, the workflow step that runs a client as a second account, and (since chunk 2026-10-12-stdio-agent-reaches-the-door) the console program's third word `door` (the stdio relay, one connection per request, no file, listener, pid file, variable or binary of its own; an unreachable door is exit 1 with one fixed standard-error line) and that step's second arm. The operator-answer provenance and both «owed / nothing of it is ratified» clauses left the body.
+- Every door pointer mark — «PROVISIONAL — §Occupied Resources → Network ports(, the door)» and «PROVISIONAL — §Network ports, the door» — dropped with its own separator in each section above, the CI/CD approach's `Door refuses another account` step and the Deployment model's `door` relay processes included; the rest of each statement unchanged, a parenthesis left holding only a pointer keeping it.
+**Why:** the founder confirmed the door's one item and the relay word `door` (shaping-0.4.0 items 27 and 28) on 2026-11-02, relayed by overseer1; the pc-overseer (founder-delegated) read the confirmation against the source by dialog at this wrap and ruled that every door PROVISIONAL mark drops. A ratified surface carries no PROVISIONAL pointer anywhere it is restated.
+**Kept:** «Every other statement of the door in this document rests on this one» stands; the other PROVISIONAL items (the pre-push sixth stage, the exit witness, the test-support edge, the branch threshold) are not touched by this ratification.
+**Ref:** .andromeda/runs/2026-11-03T21-56-11Z-wrap/
+
+## 2026-11-03-advisories-since-2026-10-12-closed — wasmtime 48.0.8 and the declared Rust floor
+**Section:** §Stack and Technologies (Plugin runtime row; Primary language / runtime row) · §Established Decisions ([Plugin Runtime]) · §Inherited Defaults (Plugin runtime)
+**Change:**
+- Plugin runtime row: was requirement `"48.0.4"`, lockfile-resolved 48.0.5 as of 2026-10-04 (Cranelift 0.135.5); now requirement `"48.0.8"`, lockfile-resolved 48.0.8 (Cranelift 0.135.8). The bump from 48.0.5 closed the wasmtime advisory ids open at 48.0.5 with no advisory ignore; the earlier bumps (from 48.0.3, closing RUSTSEC-2026-0325 / -0326 / -0327; from 46.0.3, closing RUSTSEC-2026-0316) and the 49.x-out-of-reach-at-1.95 clause stand.
+- [Plugin Runtime] and Inherited Defaults: was requirement `"48.0.4"`, lockfile-resolved 48.0.5 as of 2026-10-04; now requirement `"48.0.8"`, lockfile-resolved 48.0.8.
+- Primary language row: the 28 packages declaring `rust-version = "1.95.0"` now read as measured at chunk `2026-10-04-declared-rust-floor-matches-the-code` on wasmtime 48.0.5 / cranelift 0.135.5 / pulley 48.0.5, not re-read on the resolved wasmtime 48.0.8 / cranelift 0.135.8 / pulley 48.0.8, which the pinned 1.95.0 toolchain builds with `declared_floor_equals_the_pinned_channel` passing, as measured at `ci#41720832757` (was: the count named on 48.0.5 as the current graph).
+**Why:** the chunk restated the wasmtime requirement to `"48.0.8"` and moved wasmtime / pulley 48.0.5 → 48.0.8 and cranelift 0.135.5 → 0.135.8 in range, leaving `cargo audit` at 0 vulnerabilities with no wasmtime ignore; the toolchain stays 1.95.0. A count measured on an earlier resolved version keeps that version named until it is re-read.
+**Ref:** .andromeda/runs/2026-11-03T21-56-11Z-wrap/
+
+## 2026-11-03-advisories-since-2026-10-12-closed — DuckDB lockfile-resolved 1.10506.1
+**Section:** §Stack and Technologies (Storage engine row) · §Established Decisions ([Database]) · §Inherited Defaults (Database)
+**Change:**
+- Each of the three: was lockfile-resolved 1.10505.0 as of 2026-08-28; now lockfile-resolved 1.10506.1. The Cargo.toml requirement `1.10500` (caret) is unchanged and DuckDB stays on the 1.5.x line.
+**Why:** duckdb / libduckdb-sys moved 1.10505.0 → 1.10506.1 as a founder-ruled parent update (the founder's answers the chunk's plan carries), keeping the DuckDB 1.5.x line, to close the chunk's advisories.
+**Ref:** .andromeda/runs/2026-11-03T21-56-11Z-wrap/
+
+## 2026-11-03-advisories-since-2026-10-12-closed — Tauri 2.12.5: version-bound readings dated
+**Section:** §Stack and Technologies (Xlib thread initialisation row) · §Established Decisions ([License]) · §Occupied Resources (`telemetry.frontend.record_ipc_rejection`)
+**Change:**
+- Xlib row: was «no manifest or lockfile change; `tao` stays 0.35.0»; now «no manifest or lockfile change of its own; `tao` resolves at 0.37.2». Its Why clause: was the device-event thread of `tao` 0.35.0 (0.35.3 and 0.37.1 the same); now that thread's `XInitThreads` call off the start path as read on `tao` 0.35.0, 0.35.3 and 0.37.1, not read on the resolved 0.37.2, on which the boot series of 2 boots reads `all-settled` and CI's boot smoke on `ubuntu-22.04` reads green, as measured at `ci#41720832757`.
+- [License]: was «defaults to the Cargo value (tauri-utils 2.9.0)»; now «(as read at tauri-utils 2.9.0; not re-read at the resolved tauri-utils 2.10.2, no bundle built on it)».
+- IPC-rejection entry: was «Tauri 2.11 rejects a denied command … "not allowed", and NO runtime-side hook exists at that version»; now the same reading «as read at Tauri 2.11 …; not re-probed at the resolved Tauri 2.12.5».
+**Why:** the founder-ruled parent update tauri-plugin-updater 2.10.1 → 2.14.1 moved tauri 2.11.0 → 2.12.5, tao 0.35.0 → 0.37.2 and tauri-utils 2.9.0 → 2.10.2; none of the three behaviours was re-measured on the new versions. A behaviour read at one version stays named at that version, never generalized to the version that replaced it.
+**Ref:** .andromeda/runs/2026-11-03T21-56-11Z-wrap/

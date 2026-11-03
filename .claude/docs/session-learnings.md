@@ -1,6 +1,12 @@
 # Session Learnings
 
 
+## 2026-11-03 — A `git diff` scope guard cannot read a recorded companion
+
+A plan's scope-guard entry written as `git diff --name-only {base} -- {dirs}`, with research's file list as its exclusions, reads every changed file outside that list as out of scope — including one the operator recorded as a companion in the chunk's scope record, which the guard never reads. `gate.py scope` reads the scope record and is the authoritative scope read: a plan either excludes recorded companions from its guard or lets `gate.py scope` stand as the scope gate. Where it applies: any chunk whose scope record gains a companion after research listed the files.
+
+---
+
 ## 2026-10-10 — A gate entry that is wrong by its own text is corrected by an operator edit of the plan between runs
 
 When a plan's gate entry cannot read its subject for a reason in the entry itself (not in the tree), the run
@@ -630,7 +636,7 @@ When a chunk lands webview/UI changes and the user wants to *see* the app workin
 3. **Bound ports are the definitive "app works" proof.** `netstat -ano | grep 127.0.0.1:431[78]` showing both `:4317` + `:4318` LISTENING under the pulse-app PID confirms the OTLP receivers are live + loopback-bound — stronger than any stdout line (the app's JSON logs go to its file sink and are often buffered out of the piped stderr, so the dev logfile may show only the cargo `Running` line).
 4. **Capture ONLY the app window** (privacy — not the whole desktop) via PowerShell P/Invoke `GetWindowRect` on `(Get-Process pulse-app).MainWindowHandle` + `System.Drawing.Graphics.CopyFromScreen` → PNG, then Read the PNG to verify the render (dot color/position, footer absence, canvas reflow). The compact-widget is `visible:false` in config but `window.rs::w.show()` displays it at boot, so it is capturable.
 5. **Teardown cleanly:** `TaskStop` the watcher + dev launcher, then `Stop-Process pulse-app` (gentle, NOT `-Force` — a responsive GUI app, unlike the session-144 hung-llama no-force rule), verify ports released.
-6. **Regenerate `bindings.ts` after:** the dev binary rewrites `ui/src/bindings/index.ts` to the no-mcp shape at boot (default features), so re-run the mcp-server-feature `emit_taurpc_bindings` regen + verify `grep -c '"mcp":' >= 1` before commit (per testing.md 2026-05-17/25).
+6. **Regenerate `bindings.ts` after:** the dev binary rewrites `ui/src/bindings/index.ts` to the no-mcp shape at boot (default features), so re-run the mcp-server-feature `emit_taurpc_bindings` regen + verify `grep -c '"mcp":' >= 1` before commit (per testing.md 2026-05-17/25). **[corrected 2026-11-03: the `mcp-server` feature, its `mcp.*` router and the `andromeda-pulse-mcp` sidecar left at chunk `2026-11-03-stdio-sidecar-retired` — every regenerating op now writes the one bindings shape, so the no-mcp shape, the `--features mcp-server` regen and the `grep -c '"mcp":'` probe no longer exist; the order that stands is test-plan's per-chunk gate discipline (`capability-drift` before the workspace run, the featureless `emit_taurpc_bindings` regen last, `git diff --quiet {chunk-base} -- pulse-app/ui/src/bindings/index.ts` closing), green at chunk `2026-11-03-advisories-since-2026-10-12-closed`]**
 
 Write smoke artifacts under `target/` (gitignored) to avoid polluting `git status`. Recurs on remaining v0.2.0 GUI chunks (Halo refactor etc.).
 

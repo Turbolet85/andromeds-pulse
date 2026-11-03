@@ -16,7 +16,7 @@ Owns the in-memory DuckDB ring buffer (5–10 min retention, configurable) + Apa
 - `tracing` events at module boundaries (`duckdb.append`, `buffer.tick`, `buffer.eviction`).
 
 ### Dependencies
-- `duckdb` crate 1.10500.x (DuckDB 1.5.x bundled) — embedded columnar OLAP, in-memory `:memory:` connection.
+- `duckdb` crate — requirement `1.10500` (caret), lockfile-resolved 1.10506.1 (DuckDB 1.5.x bundled) — embedded columnar OLAP, in-memory `:memory:` connection.
 - `arrow-rs` 55.x — Arrow IPC + RecordBatch + `Appender::append_record_batch()` / `stream_arrow()`.
 
 ## Internal conventions

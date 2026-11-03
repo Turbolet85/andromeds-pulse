@@ -1,1 +1,0 @@
-Advisories since 2026-10-12 closed — cargo audit green by upgrade, no ignore where a safe upgrade is stated; the supply-chain job's hidden steps read

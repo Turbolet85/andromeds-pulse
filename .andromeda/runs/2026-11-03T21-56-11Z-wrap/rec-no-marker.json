@@ -1,0 +1,27 @@
+[
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T22:48:27Z",
+"argv": [
+"seal",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"sealed 2026-11-03T19-19-16-records-door-runs · 2 file(s) · 2026-11-03T19-19-16-records-door-runs.parquet · tx 158 · 2 removed · 0 set aside",
+"sealed 2026-11-03T19-32-14Z-phase · 30 file(s) · 2026-11-03T19-32-14Z-phase.parquet · tx 159 · 30 removed · 19 set aside",
+"sealed 2026-11-03T20-59-06Z-implement · 6 file(s) · 2026-11-03T20-59-06Z-implement.parquet · tx 160 · 6 removed · 0 set aside",
+"seal · 3 run(s) · own 2026-11-03T21-56-11Z-wrap left as files"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

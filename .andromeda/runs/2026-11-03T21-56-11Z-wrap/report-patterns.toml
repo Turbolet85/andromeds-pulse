@@ -1,0 +1,90 @@
+[[pattern]]
+id = 'owner-title'
+fixed = 'Advisories since 2026-10-12 closed'
+ignore_case = true
+
+[[pattern]]
+id = 'owner-generic'
+regex = 'owned by a (route entry|CARRY)'
+ignore_case = true
+
+[[pattern]]
+id = 'wasmtime-ver'
+regex = '48\.0\.[3458]|wasmtime 48|pulley[^.\n]{0,40}48\.'
+
+[[pattern]]
+id = 'cranelift-ver'
+regex = '0\.135\.[58]|cranelift[- ][^.\n]{0,20}0\.135'
+
+[[pattern]]
+id = 'duckdb-ver'
+regex = '1\.1050[56]|libduckdb-sys 1\.'
+
+[[pattern]]
+id = 'tauri-ver'
+regex = 'Tauri 2\.1[12]|tauri 2\.1[12]|tauri = "2\.11"|2\.11\.0|tauri-build 2\.[67]|tao 0\.3[57]|tauri-utils 2\.'
+
+[[pattern]]
+id = 'updater-ver'
+regex = 'tauri-plugin-updater 2\.1[04]|updater 2\.1[04]'
+
+[[pattern]]
+id = 'rustls-ver'
+regex = 'rustls 0\.23\.4[56]|quinn-proto 0\.11\.1[59]|rustls-webpki|webpki-root'
+
+[[pattern]]
+id = 'tokio-ver'
+regex = 'tokio 1\.5[24]|RUSTSEC-2026-0386|event-listener'
+
+[[pattern]]
+id = 'zip-graph'
+regex = '(?<![-.\w])zip(?![-\w])'
+
+[[pattern]]
+id = 'zstd-ver'
+regex = 'zstd'
+
+[[pattern]]
+id = 'gtk3-unic-ign'
+regex = 'RUSTSEC-2024-04(1[1-9]|20)|RUSTSEC-2025-0(075|080|081|098|100)|unic-|GTK3 (ignore|ID|id)|\b1[05] (GTK3|unic)'
+
+[[pattern]]
+id = 'zbus-ign'
+regex = 'RUSTSEC-2026-037[012]|zbus_names|zvariant|zbus [45]'
+
+[[pattern]]
+id = 'deny-skips'
+regex = 'unnecessary-skip|\bphf\b|png 0\.17|windows-link|\[bans\] skip'
+
+[[pattern]]
+id = 'npm-exc'
+regex = 'GHSA-g3hv|GHSA-3g3m|GHSA-mrhx|advisory_exceptions|extract-zip|minimatch|GHSA-scoped'
+
+[[pattern]]
+id = 'npm-pkgs'
+regex = 'vite 7|vitest 4|@vitest/mocker|undici|follow-redirects|seroval|ip-address'
+
+[[pattern]]
+id = 'notify-rust'
+regex = 'notify-rust|winrt-notification|tauri-plugin-notification 2\.'
+
+[[pattern]]
+id = 'adv-designred'
+regex = 'designed-red|designed red|cargo deny check advisories'
+ignore_case = true
+
+[[pattern]]
+id = 'audit-count'
+regex = '42 vulnerabilit|62 (distinct )?RUSTSEC|Loaded 1[234]\d\d|1273 advisories'
+
+[[pattern]]
+id = 'rand010'
+regex = 'chacha20|rand_pcg|rand 0\.10|rand_core 0\.10'
+
+[[pattern]]
+id = 'prov-i2'
+regex = 'serverInfo|undeclared argument|declared_only'
+
+[[pattern]]
+id = 'prov-i5'
+regex = 'staged_gate\.rs[^\n]{0,120}companion|companion[^\n]{0,120}staged_gate'

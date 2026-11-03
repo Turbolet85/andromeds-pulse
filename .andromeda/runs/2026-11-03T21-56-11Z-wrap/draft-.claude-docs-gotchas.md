@@ -1,0 +1,83 @@
+# Gotchas
+
+Component-specific known issues. Grows over time via `/wrap-session`. Read on demand.
+
+## Open reconciliations (carried from arch + security plan)
+
+### `tonic 0.14` vs `opentelemetry-otlp 0.31`
+`opentelemetry-otlp 0.31` still pins `tonic 0.13` in some feature combinations. The workspace targets `tonic 0.14.x` for the OTLP receiver server. **Resolution required before tagging v0.1.0** — `cargo deny check bans` (`multiple-versions = "deny"`) is the enforcement mechanism. If the duplicate cannot be resolved at lock time, the documented fallback is to downgrade Stack to `tonic 0.13.x` (matching `opentelemetry-otlp`) rather than fork or wait for upstream; the Stack/Decisions/Defaults rows are then re-pinned in the same iteration. Note: the receiver path doesn't actually use `opentelemetry-otlp` (we parse OTLP via `prost` + `opentelemetry-proto` directly), so the duplicate is purely transitive.
+
+### `rmcp` version reconciliation — CLOSED by measurement (2026-08-29)
+The old "rmcp 1.5.0 vs published 0.3.x" open question is resolved: the published line reached 3.x (chunk 2026-08-29-advisory-backlog). `rmcp` is no longer linked: no manifest and no `Cargo.lock` entry names it — the MCP protocol itself is the hand-rolled serde JSON-RPC 2.0 layer at `crates/mcp-server/src/jsonrpc.rs`.
+
+### `rust-toolchain.toml` pin — CLOSED (1.95.0)
+The toolchain is pinned to rustc 1.95.0 and the workspace declares `rust-version = "1.95"` once in `[workspace.package]`, equal to the pin and set by the resolved dependency graph (wasmtime and its internal crates, cranelift and pulley declare 1.95.0, as measured on wasmtime 48.0.5; not re-read on the resolved wasmtime 48.0.8, which the pinned 1.95.0 toolchain builds with `declared_floor_equals_the_pinned_channel` passing) — no toolchain below 1.95.0 builds the product, though the workspace's own code needs only rustc ≥ 1.89. The xtask test `declared_floor_equals_the_pinned_channel` holds the declared floor equal to the pin. Edition 2024 itself cannot parse below 1.85.0 (security-plan keeps that as the floor never to drift below); wasmtime 49.x is out of reach while the pin is 1.95 (it needs Rust 1.96).
+
+## DuckDB encryption
+- Do NOT enable DuckDB encryption-at-rest on the in-memory ring buffer — CVE-2025-64429 is documented against the encryption feature. The in-memory `:memory:` connection avoids the entire surface; an unnecessary feature flip would re-introduce it.
+
+## `wasmtime` Cranelift on x86_64 (April 2026 advisory)
+- Cranelift backend on x86_64 was the **unaffected configuration** for the two Critical sandbox escapes (CVE-2026-34941, CVE-2026-35195) per Bytecode Alliance advisory.
+- A future "use the experimental Winch backend" change would re-introduce the exposure. NEVER add a non-Cranelift wasmtime feature flag on x86_64 builds without re-checking the April 2026 advisory cluster.
+- wasi-http header field-size bound: canonical value is `MAX_WASM_HTTP_FIELDS_SIZE_BYTES` const in `crates/plugins/src/engine.rs` (chunk #45 substrate; CVE-2026-27572 anchor preserved). Actual enforcement attaches via `wasmtime_wasi_http::WasiHttpCtxBuilder::max_field_size` when wasi-http imports are introduced in chunks #46+. `Config::max_wasm_http_fields_size` is NOT a wasmtime::Config method (verified empirically at wasmtime 25 and 43 via E0599 compile error); per security-plan.md §Security Decisions Log 2026-05-11.
+
+## OTLP HTTP `:4318` "localhost is not a security boundary"
+- Loopback-only binding does NOT defend against DNS rebinding from arbitrary websites (browser `fetch('http://localhost:4318/v1/traces', ...)`).
+- Three-layer mitigation: Host-header allowlist middleware (`{127.0.0.1, localhost, [::1]}:configured-port`) + CORS deny-by-default (no `CorsLayer::permissive()`) + body-size cap (`DefaultBodyLimit::max(8 * 1024 * 1024)`).
+- Anchors: Coder Agent API CVE-2025-09-19; MCP TypeScript SDK CVE-2025-66414 (Dec 2025).
+
+## Self-observation recursion
+- Product IS the local OTLP observer. Pointing the product's own OTel exporter at `:4317`/`:4318` creates an infinite loop AND bypasses the loopback authorization model.
+- The chosen architecture eliminates this concern by construction: NO OTel SDK is linked into the self-observation runtime. `tracing` ecosystem only — the JSON log family `~/.andromeda-pulse/logs/agent-latest.jsonl*` (date-suffixed daily, `agent-latest.jsonl.YYYY-MM-DD`; a bare-name read finds nothing) IS the agent surface.
+- Any future `ANDROMEDA_OBSERVER_URL`-shaped variable MUST explicitly distinguish "outbound observer" (we ARE the observer — do not dial) from "inbound receivers" (the OTLP ports we listen on).
+
+## Tauri capability silent rejections
+- A missing Tauri CORE API / `core:window:*` grant produces a silent runtime rejection — hard-to-diagnose dead-affordance bug (per-procedure capability entries do NOT exist; TauRPC uses one invoke handler, measured 2026-08-21).
+- The `xtask capability-drift` check is the enforcement mechanism for the procedure pin — and since 2026-08-30 it also asserts the STAGED git-index copies (bindings + `capabilities/*.json` grants vs their pins) via the folded-in `check:staged-artifacts`, so a left-revoked or silently-added grant reds CI mechanically. Wire into CI on every PR.
+- `pulse:default` admits the webview to the IPC layer as a whole — it does NOT enumerate procedures (TauRPC uses one invoke handler; measured 2026-08-21). The per-procedure list that must stay in sync is `EXPECTED_PROCEDURES` in `xtask/src/main.rs` vs arch §Occupied Resources Tauri IPC routes.
+
+## Snapshot / clipboard / MCP tool response — OTLP attribute leakage
+- Telemetry can incidentally contain secrets, IDs, URLs, error messages, SQL fragments from the host application being instrumented. OTLP attributes are user-controlled content.
+- The plan does NOT mandate sanitization of OTLP attribute values themselves (data is what the user instrumented), but:
+  - Snapshot files at `~/.andromeda-pulse/snapshots/` MUST surface a user-facing warning (README + first-run UI hint).
+  - `snapshot.copy_to_clipboard` MUST emit a `pulse://stream/snapshot-progress` event at clipboard-write time so the UI can show a non-suppressible "X bytes copied" toast.
+  - MCP `query_*` and `generate_snapshot` tool responses are the indirect-prompt-injection surface that the calling LLM client must defend against — receiver app cannot fully sanitize OTLP-derived attribute values. Documented behavior, not a defect.
+
+## The door is the one way to the tools
+- Since chunk 2026-10-10-door-inside-the-engine-s-process the console engine serves the nine tools over an owner-only Unix-domain socket (`{data dir}/run/door/sock`), behind no feature gate: `pulse-app` links `mcp-server` in every build, and there is no stdio sidecar and no `rmcp`; since chunk 2026-10-12-stdio-agent-reaches-the-door a stdio agent reaches the nine by starting `andromeda-pulse-engine door`, a relay to the door — the one stdio way to the nine. The same unsanitized OTLP-derived answers leave through it to a caller of the engine's own account.
+- Root is not held by the socket's directory or file mode — only the door's account check refuses it. A test that runs its client as root reads the account check, not the modes.
+- A Unix socket path must be shorter than 108 bytes: a deep data dir boots with no door (`app.boot.door` `state` `path_too_long`, WARN) and the engine goes on.
+
+## The door relay's stdout
+- There is no `andromeda-pulse-mcp` stdio sidecar: a stdio MCP client starts `andromeda-pulse-engine door`, whose stdout carries only the door's answer lines, unchanged — the relay parses nothing and writes no answer of its own.
+- ANY accidental `println!` / `dbg!` / library stdout write corrupts the protocol and silently disconnects the MCP client.
+- The relay writes no log record and no file; a failure is exit 1 with the one fixed standard-error line `andromeda-pulse-engine door: the door cannot be reached` and nothing on stdout from the failed connection.
+
+## Tauri updater Minisign keypair rotation
+- No hot key rotation path without a transitional release.
+- If the private key is lost or leaked, every existing installed instance is locked out from updates.
+- Runbook required before v0.1.0 ships: emergency new-key generation, transitional release with both old and new public keys (Tauri updater accepts multiple via repeated `pubkey` entries — verify against current docs at rotation time), advisory communication, final rotation release dropping the old key.
+
+## Plugin signature verification deferred post-v1
+- Third-party plugins run unverified in v1.
+- Capability-scoped WIT + `wasmtime::ResourceLimiter` mitigate impact, NOT provenance.
+- Document the limitation in user-facing plugin install README.
+
+## Webview WebGPU vs native `wgpu`
+- v1 uses Webview WebGPU (`<canvas>` + `navigator.gpu`, WGSL) — WGSL shaders run unchanged across WebView2 (Windows) and WKWebView (macOS/Linux); Arrow data pushed into canvas via WebGPU compute shader, side-stepping VDOM diffing.
+- Native `wgpu` 25+ surface was rejected for v1 because Tauri 2 native-overlay flickering is documented (issue #9220).
+- **Documented upgrade path:** native `wgpu` 25+ surface for the compact widget if browser GC jank becomes a measured problem (hybrid Option C).
+
+## Tray icon Halo State Pulse fallback
+- Tray icon Halo implementation is mandatory per Brand Identity Coherence (signature presence in 3 places: full dashboard / compact widget / tray icon).
+- WebGPU canvas in a small click-through overlay window is the preferred path; SVG-filter fallback substitutes when WebGPU is unavailable in the tray context (visual equivalence ≥95% — blur radius envelope, LCH fidelity, opacity envelope).
+- If Phase 8 implementation cannot materialize Halo on tray, design provides a static halo color fallback (steady glow without rhythm) to satisfy signature presence.
+
+## CSP `'unsafe-inline'` on style-src
+- The `'unsafe-inline'` on `style-src` in the Tauri 2 CSP is a conscious risk acceptance (local-first first-party UI; no third-party style sources reachable) NOT a planned nonce/hash mitigation.
+- If a future scope adds dynamically generated styles from untrusted input, this MUST be replaced with `'nonce-{NONCE}'` + Tauri's CSP nonce-injection mechanism BEFORE that scope ships.
+- NEVER add `'unsafe-inline'` to `script-src`.
+
+---
+
+_Wrap-session appends new entries below as they emerge from implementation work._

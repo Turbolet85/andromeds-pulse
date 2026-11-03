@@ -1,0 +1,10 @@
+# main's own patterns for the step-2 sweep — the door's PROVISIONAL marks (Q1, inputs#I6) and the dates main removed
+
+[[pattern]]
+id = "main-01"
+regex = '''PROVISIONAL( —| with)[^.)]{0,80}(the door|door's item|door's vector|Network ports)'''
+
+[[pattern]]
+id = "main-02"
+regex = '''door('s)? (is )?PROVISIONAL|nothing of it is ratified|founder's own word is (still )?owed on the surface'''
+ignore_case = true

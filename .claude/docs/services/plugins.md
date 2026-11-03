@@ -15,7 +15,7 @@ Hosts the WASM Component Model plugin runtime via `wasmtime` 25+. Capability-sco
 - `tracing` events: `plugin.load.request`, `wasmtime.instantiate`, `plugin.capability.check`, `plugin.invoke.request`, `plugin.invoke.error`, `plugins.tick`.
 
 ### Dependencies
-- `wasmtime` 25+ family with `component-model` feature — Cargo.toml requirement `"48.0.4"`, lockfile-resolved 48.0.5 as of 2026-10-04; 49.x is out of reach while the toolchain is pinned at 1.95 (Cranelift backend on x86_64 — verified).
+- `wasmtime` 25+ family with `component-model` feature — Cargo.toml requirement `"48.0.8"`, lockfile-resolved 48.0.8 (Cranelift 0.135.8); 49.x is out of reach while the toolchain is pinned at 1.95 (Cranelift backend on x86_64 — verified).
 - `wit-bindgen` for guest binding generation (build-time).
 - `std` both-sides-canonicalize for plugin file path canonicalization (the `publish_workspace_key` precedent; `strict-path` dropped 2026-08-29, never used).
 - `tauri` capability `pulse:plugin-fs`.

@@ -1,0 +1,1 @@
+Run P1 only and stop (split wrap: this wrap also takes cry-rdhtyshr rev 3, the last wrap's skipped P3 curation, commands.md, four leaf headings, evolve checkpoints, the no-mcp playbook supersede and dropping the confirmed PROVISIONAL marks). CI green on 36a41022 (41720832757). P2 onward runs in a fresh window after my /clear. — overseer (founder-delegated)

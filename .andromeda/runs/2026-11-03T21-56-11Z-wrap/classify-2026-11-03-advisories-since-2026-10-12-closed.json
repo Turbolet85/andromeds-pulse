@@ -1,0 +1,322 @@
+[
+{
+"tool": "classify",
+"v": "1.5",
+"sha8": "03b34bc0",
+"ts": "2026-11-03T22:23:42Z",
+"argv": [
+"check",
+"--doc",
+"architecture",
+"--type",
+"architecture",
+"--mode",
+"standing",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"doc:architecture · architecture · standing · groups 0 · subjects used 0 · no subject line · added: 28 lines against 0e13e255, the parent of the oldest pre-CI commit 36a41022",
+"doc:architecture:20 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"doc:architecture:22 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"doc:architecture:54 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"doc:architecture:57 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"doc:architecture:296 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"doc:architecture:303 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"units 0 · groups 0 · subjects 0 · place — · absence — · provenance 6",
+"VERDICT: FAIL provenance"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "classify",
+"v": "1.5",
+"sha8": "03b34bc0",
+"ts": "2026-11-03T22:23:46Z",
+"argv": [
+"check",
+"--doc",
+"security-plan",
+"--type",
+"security-plan",
+"--mode",
+"standing",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"doc:security-plan · security-plan · standing · groups 0 · subjects used 0 · no subject line · added: 15 lines against 0e13e255, the parent of the oldest pre-CI commit 36a41022",
+"units 0 · groups 0 · subjects 0 · place — · absence — · provenance 0",
+"VERDICT: PASS"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "classify",
+"v": "1.5",
+"sha8": "03b34bc0",
+"ts": "2026-11-03T22:23:50Z",
+"argv": [
+"check",
+"--doc",
+"test-plan",
+"--type",
+"test-plan",
+"--mode",
+"standing",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"doc:test-plan · test-plan · standing · groups 0 · subjects used 0 · no subject line · added: 6 lines against 0e13e255, the parent of the oldest pre-CI commit 36a41022",
+"units 0 · groups 0 · subjects 0 · place — · absence — · provenance 0",
+"VERDICT: PASS"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "classify",
+"v": "1.5",
+"sha8": "03b34bc0",
+"ts": "2026-11-03T22:23:54Z",
+"argv": [
+"check",
+"--doc",
+"obs-plan",
+"--type",
+"obs-plan",
+"--mode",
+"standing",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"doc:obs-plan · obs-plan · standing · groups 0 · subjects used 0 · no subject line · added: 8 lines against 0e13e255, the parent of the oldest pre-CI commit 36a41022",
+"units 0 · groups 0 · subjects 0 · place — · absence — · provenance 0",
+"VERDICT: PASS"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "classify",
+"v": "1.5",
+"sha8": "03b34bc0",
+"ts": "2026-11-03T22:23:58Z",
+"argv": [
+"check",
+"--doc",
+"architecture/contracts/ci-cd-approach",
+"--type",
+"architecture",
+"--mode",
+"standing",
+"--subjects-from",
+"architecture",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"doc:architecture/contracts/ci-cd-approach · architecture · standing · groups 0 · subjects used 0 · no subject line · added: 1 lines against 0e13e255, the parent of the oldest pre-CI commit 36a41022",
+"units 0 · groups 0 · subjects 0 · place — · absence — · provenance 0",
+"VERDICT: PASS"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "classify",
+"v": "1.5",
+"sha8": "03b34bc0",
+"ts": "2026-11-03T22:24:02Z",
+"argv": [
+"check",
+"--doc",
+"architecture/contracts/deployment-model",
+"--type",
+"architecture",
+"--mode",
+"standing",
+"--subjects-from",
+"architecture",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"doc:architecture/contracts/deployment-model · architecture · standing · groups 0 · subjects used 0 · no subject line · added: 1 lines against 0e13e255, the parent of the oldest pre-CI commit 36a41022",
+"units 0 · groups 0 · subjects 0 · place — · absence — · provenance 0",
+"VERDICT: PASS"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "classify",
+"v": "1.5",
+"sha8": "03b34bc0",
+"ts": "2026-11-03T22:24:06Z",
+"argv": [
+"check",
+"--doc",
+"test-plan/contracts/per-chunk-gate-discipline",
+"--type",
+"test-plan",
+"--mode",
+"standing",
+"--subjects-from",
+"test-plan",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"doc:test-plan/contracts/per-chunk-gate-discipline · test-plan · standing · groups 0 · subjects used 0 · no subject line · added: 1 lines against 0e13e255, the parent of the oldest pre-CI commit 36a41022",
+"units 0 · groups 0 · subjects 0 · place — · absence — · provenance 0",
+"VERDICT: PASS"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "classify",
+"v": "1.5",
+"sha8": "03b34bc0",
+"ts": "2026-11-03T22:24:10Z",
+"argv": [
+"check",
+"--doc",
+"obs-plan/contracts/logging-stack",
+"--type",
+"obs-plan",
+"--mode",
+"standing",
+"--subjects-from",
+"obs-plan",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"doc:obs-plan/contracts/logging-stack · obs-plan · standing · groups 0 · subjects used 0 · no subject line · added: 1 lines against 0e13e255, the parent of the oldest pre-CI commit 36a41022",
+"units 0 · groups 0 · subjects 0 · place — · absence — · provenance 0",
+"VERDICT: PASS"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "classify",
+"v": "1.5",
+"sha8": "03b34bc0",
+"ts": "2026-11-03T22:24:43Z",
+"argv": [
+"check",
+"--doc",
+"architecture",
+"--type",
+"architecture",
+"--mode",
+"standing",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"doc:architecture · architecture · standing · groups 0 · subjects used 0 · no subject line · added: 28 lines against 0e13e255, the parent of the oldest pre-CI commit 36a41022",
+"doc:architecture:20 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"doc:architecture:22 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"doc:architecture:54 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"doc:architecture:57 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"doc:architecture:296 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"doc:architecture:303 · provenance · «2026-11-03» — a date new on this line (writing rule 7: the sidecar entry carries it)",
+"units 0 · groups 0 · subjects 0 · place — · absence — · provenance 6",
+"VERDICT: FAIL provenance"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "classify",
+"v": "1.5",
+"sha8": "03b34bc0",
+"ts": "2026-11-03T22:25:05Z",
+"argv": [
+"check",
+"--doc",
+"architecture",
+"--type",
+"architecture",
+"--mode",
+"standing",
+"--run-dir",
+".andromeda/runs/2026-11-03T21-56-11Z-wrap",
+"--marker",
+"2026-11-03-advisories-since-2026-10-12-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"doc:architecture · architecture · standing · groups 0 · subjects used 0 · no subject line · added: 28 lines against 0e13e255, the parent of the oldest pre-CI commit 36a41022",
+"units 0 · groups 0 · subjects 0 · place — · absence — · provenance 0",
+"VERDICT: PASS"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]
