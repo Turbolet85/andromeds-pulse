@@ -1,0 +1,65 @@
+[
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T19:17:37Z",
+"argv": [
+"migrate",
+"--root",
+".",
+"--family",
+"bases",
+"--work",
+"~/.cache/andromeda-door/andromeda-pulse-bases-2026-11-03T19-17-34",
+"--stage",
+"--verify",
+"--run-dir",
+".andromeda/runs/2026-11-03T19-17-34-records-door-bases"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"rows: carry 96 · detector 19 · doc 294 · fact 31996 · metric 1 · residual 15 · rule 28 · run 1 · section 3367 · lines: blank 209 · carried 96 · frozen-file 294 · header 7 · heading-bare 1 · heading-em 81 · heading-hyphen 15 · matched 1 · placed 224 · preamble 53 · prose 1 · schema 1 · section 7",
+"route-archive: 2 file(s), 1 block(s) the spine holds already · frozen: 294 file(s), 8740404 B (.andromeda/decisions/**, .andromeda/phases/**, .andromeda/route.md, .andromeda/scope-validation/**)",
+"staged 2026-11-03T19-17-35-door-bases.ndjson · 35817 node(s) · 35363 edge(s) · 301 file(s) · HEAD 6d9fc93db77d · work ~/.cache/andromeda-door/andromeda-pulse-bases-2026-11-03T19-17-34",
+"proof: 35817 row(s) and 35363 edge(s) placed again equal · every line of 7 file(s) accounted once · residual lines, detectors by master, metric records and the base equal · 2 archive(s) block for block · 294 frozen file(s) byte-equal · controls: a residual's byte · a detector gone · a metric's field · the base's count · an archived block's byte · a frozen part's byte",
+"verified: the proof holds"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "rec",
+"v": "1.13",
+"sha8": "cc38f294",
+"ts": "2026-11-03T19:18:08Z",
+"argv": [
+"migrate",
+"--root",
+".",
+"--family",
+"bases",
+"--work",
+"~/.cache/andromeda-door/andromeda-pulse-bases-2026-11-03T19-17-34",
+"--apply",
+"--run-dir",
+".andromeda/runs/2026-11-03T19-17-34-records-door-bases"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"moved: bases · 35817 line(s) · aedd0923 · 2026-11-03T19-17-35-door-bases.ndjson · nothing committed",
+"git rm: 301 file(s) of the family · nothing committed"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/db/log/2026-11-03T19-17-35-door-bases.ndjson",
+"./.andromeda/db/moved"
+],
+"before": null,
+"after": null
+}
+]

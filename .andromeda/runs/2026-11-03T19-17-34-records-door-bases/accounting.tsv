@@ -1,0 +1,1004 @@
+source	line	class
+.andromeda/code-metrics.ndjson	1	placed
+.andromeda/drift-base.md	1	preamble
+.andromeda/drift-base.md	2	blank
+.andromeda/drift-base.md	3	preamble
+.andromeda/drift-base.md	4	preamble
+.andromeda/drift-base.md	5	preamble
+.andromeda/drift-base.md	6	preamble
+.andromeda/drift-base.md	7	preamble
+.andromeda/drift-base.md	8	blank
+.andromeda/drift-base.md	9	preamble
+.andromeda/drift-base.md	10	preamble
+.andromeda/drift-base.md	11	preamble
+.andromeda/drift-base.md	12	preamble
+.andromeda/drift-base.md	13	preamble
+.andromeda/drift-base.md	14	preamble
+.andromeda/drift-base.md	15	preamble
+.andromeda/drift-base.md	16	preamble
+.andromeda/drift-base.md	17	blank
+.andromeda/drift-base.md	18	preamble
+.andromeda/drift-base.md	19	preamble
+.andromeda/drift-base.md	20	preamble
+.andromeda/drift-base.md	21	preamble
+.andromeda/drift-base.md	22	preamble
+.andromeda/drift-base.md	23	blank
+.andromeda/drift-base.md	24	preamble
+.andromeda/drift-base.md	25	blank
+.andromeda/drift-base.md	26	section
+.andromeda/drift-base.md	27	placed
+.andromeda/drift-base.md	28	placed
+.andromeda/drift-base.md	29	placed
+.andromeda/drift-base.md	30	placed
+.andromeda/drift-base.md	31	placed
+.andromeda/drift-base.md	32	blank
+.andromeda/drift-base.md	33	placed
+.andromeda/drift-base.md	34	placed
+.andromeda/drift-base.md	35	placed
+.andromeda/drift-base.md	36	placed
+.andromeda/drift-base.md	37	placed
+.andromeda/drift-base.md	38	blank
+.andromeda/drift-base.md	39	section
+.andromeda/drift-base.md	40	placed
+.andromeda/drift-base.md	41	placed
+.andromeda/drift-base.md	42	placed
+.andromeda/drift-base.md	43	placed
+.andromeda/drift-base.md	44	placed
+.andromeda/drift-base.md	45	blank
+.andromeda/drift-base.md	46	placed
+.andromeda/drift-base.md	47	placed
+.andromeda/drift-base.md	48	placed
+.andromeda/drift-base.md	49	placed
+.andromeda/drift-base.md	50	placed
+.andromeda/drift-base.md	51	blank
+.andromeda/drift-base.md	52	placed
+.andromeda/drift-base.md	53	placed
+.andromeda/drift-base.md	54	placed
+.andromeda/drift-base.md	55	placed
+.andromeda/drift-base.md	56	placed
+.andromeda/drift-base.md	57	blank
+.andromeda/drift-base.md	58	placed
+.andromeda/drift-base.md	59	placed
+.andromeda/drift-base.md	60	placed
+.andromeda/drift-base.md	61	placed
+.andromeda/drift-base.md	62	placed
+.andromeda/drift-base.md	63	placed
+.andromeda/drift-base.md	64	placed
+.andromeda/drift-base.md	65	placed
+.andromeda/drift-base.md	66	placed
+.andromeda/drift-base.md	67	placed
+.andromeda/drift-base.md	68	blank
+.andromeda/drift-base.md	69	section
+.andromeda/drift-base.md	70	placed
+.andromeda/drift-base.md	71	placed
+.andromeda/drift-base.md	72	placed
+.andromeda/drift-base.md	73	placed
+.andromeda/drift-base.md	74	placed
+.andromeda/drift-base.md	75	blank
+.andromeda/drift-base.md	76	placed
+.andromeda/drift-base.md	77	placed
+.andromeda/drift-base.md	78	placed
+.andromeda/drift-base.md	79	placed
+.andromeda/drift-base.md	80	placed
+.andromeda/drift-base.md	81	placed
+.andromeda/drift-base.md	82	placed
+.andromeda/drift-base.md	83	placed
+.andromeda/drift-base.md	84	placed
+.andromeda/drift-base.md	85	placed
+.andromeda/drift-base.md	86	placed
+.andromeda/drift-base.md	87	placed
+.andromeda/drift-base.md	88	placed
+.andromeda/drift-base.md	89	blank
+.andromeda/drift-base.md	90	section
+.andromeda/drift-base.md	91	placed
+.andromeda/drift-base.md	92	placed
+.andromeda/drift-base.md	93	placed
+.andromeda/drift-base.md	94	placed
+.andromeda/drift-base.md	95	placed
+.andromeda/drift-base.md	96	blank
+.andromeda/drift-base.md	97	placed
+.andromeda/drift-base.md	98	placed
+.andromeda/drift-base.md	99	placed
+.andromeda/drift-base.md	100	placed
+.andromeda/drift-base.md	101	placed
+.andromeda/drift-base.md	102	placed
+.andromeda/drift-base.md	103	placed
+.andromeda/drift-base.md	104	placed
+.andromeda/drift-base.md	105	blank
+.andromeda/drift-base.md	106	section
+.andromeda/drift-base.md	107	placed
+.andromeda/drift-base.md	108	placed
+.andromeda/drift-base.md	109	placed
+.andromeda/drift-base.md	110	placed
+.andromeda/drift-base.md	111	placed
+.andromeda/drift-base.md	112	blank
+.andromeda/drift-base.md	113	placed
+.andromeda/drift-base.md	114	placed
+.andromeda/drift-base.md	115	placed
+.andromeda/drift-base.md	116	placed
+.andromeda/drift-base.md	117	placed
+.andromeda/drift-base.md	118	blank
+.andromeda/drift-base.md	119	placed
+.andromeda/drift-base.md	120	placed
+.andromeda/drift-base.md	121	placed
+.andromeda/drift-base.md	122	placed
+.andromeda/drift-base.md	123	placed
+.andromeda/drift-base.md	124	blank
+.andromeda/drift-base.md	125	section
+.andromeda/drift-base.md	126	placed
+.andromeda/drift-base.md	127	placed
+.andromeda/drift-base.md	128	placed
+.andromeda/drift-base.md	129	placed
+.andromeda/drift-base.md	130	placed
+.andromeda/drift-base.md	131	blank
+.andromeda/drift-base.md	132	placed
+.andromeda/drift-base.md	133	placed
+.andromeda/drift-base.md	134	placed
+.andromeda/drift-base.md	135	placed
+.andromeda/drift-base.md	136	placed
+.andromeda/drift-base.md	137	blank
+.andromeda/drift-base.md	138	placed
+.andromeda/drift-base.md	139	placed
+.andromeda/drift-base.md	140	placed
+.andromeda/drift-base.md	141	placed
+.andromeda/drift-base.md	142	placed
+.andromeda/drift-base.md	143	placed
+.andromeda/drift-base.md	144	placed
+.andromeda/drift-base.md	145	placed
+.andromeda/drift-base.md	146	placed
+.andromeda/drift-base.md	147	placed
+.andromeda/drift-base.md	148	placed
+.andromeda/drift-base.md	149	placed
+.andromeda/drift-base.md	150	placed
+.andromeda/drift-base.md	151	placed
+.andromeda/drift-base.md	152	placed
+.andromeda/drift-base.md	153	placed
+.andromeda/drift-base.md	154	placed
+.andromeda/drift-base.md	155	placed
+.andromeda/drift-base.md	156	placed
+.andromeda/drift-base.md	157	placed
+.andromeda/drift-base.md	158	blank
+.andromeda/drift-base.md	159	section
+.andromeda/drift-base.md	160	placed
+.andromeda/drift-base.md	161	placed
+.andromeda/drift-base.md	162	placed
+.andromeda/drift-base.md	163	placed
+.andromeda/drift-base.md	164	placed
+.andromeda/drift-base.md	165	blank
+.andromeda/drift-base.md	166	placed
+.andromeda/drift-base.md	167	placed
+.andromeda/drift-base.md	168	placed
+.andromeda/drift-base.md	169	placed
+.andromeda/drift-base.md	170	placed
+.andromeda/playbook.md	1	preamble
+.andromeda/playbook.md	2	preamble
+.andromeda/playbook.md	3	preamble
+.andromeda/playbook.md	4	preamble
+.andromeda/playbook.md	5	preamble
+.andromeda/playbook.md	6	preamble
+.andromeda/playbook.md	7	preamble
+.andromeda/playbook.md	8	preamble
+.andromeda/playbook.md	9	preamble
+.andromeda/playbook.md	10	preamble
+.andromeda/playbook.md	11	preamble
+.andromeda/playbook.md	12	preamble
+.andromeda/playbook.md	13	preamble
+.andromeda/playbook.md	14	preamble
+.andromeda/playbook.md	15	preamble
+.andromeda/playbook.md	16	placed
+.andromeda/playbook.md	17	placed
+.andromeda/playbook.md	18	placed
+.andromeda/playbook.md	19	blank
+.andromeda/playbook.md	20	placed
+.andromeda/playbook.md	21	placed
+.andromeda/playbook.md	22	placed
+.andromeda/playbook.md	23	blank
+.andromeda/playbook.md	24	placed
+.andromeda/playbook.md	25	placed
+.andromeda/playbook.md	26	placed
+.andromeda/playbook.md	27	blank
+.andromeda/playbook.md	28	placed
+.andromeda/playbook.md	29	placed
+.andromeda/playbook.md	30	placed
+.andromeda/playbook.md	31	blank
+.andromeda/playbook.md	32	prose
+.andromeda/playbook.md	33	blank
+.andromeda/playbook.md	34	placed
+.andromeda/playbook.md	35	placed
+.andromeda/playbook.md	36	placed
+.andromeda/playbook.md	37	blank
+.andromeda/playbook.md	38	placed
+.andromeda/playbook.md	39	placed
+.andromeda/playbook.md	40	placed
+.andromeda/playbook.md	41	blank
+.andromeda/playbook.md	42	placed
+.andromeda/playbook.md	43	placed
+.andromeda/playbook.md	44	placed
+.andromeda/playbook.md	45	blank
+.andromeda/playbook.md	46	placed
+.andromeda/playbook.md	47	placed
+.andromeda/playbook.md	48	placed
+.andromeda/playbook.md	49	blank
+.andromeda/playbook.md	50	placed
+.andromeda/playbook.md	51	placed
+.andromeda/playbook.md	52	placed
+.andromeda/playbook.md	53	blank
+.andromeda/playbook.md	54	placed
+.andromeda/playbook.md	55	placed
+.andromeda/playbook.md	56	placed
+.andromeda/playbook.md	57	blank
+.andromeda/playbook.md	58	placed
+.andromeda/playbook.md	59	placed
+.andromeda/playbook.md	60	placed
+.andromeda/playbook.md	61	blank
+.andromeda/playbook.md	62	placed
+.andromeda/playbook.md	63	placed
+.andromeda/playbook.md	64	placed
+.andromeda/playbook.md	65	blank
+.andromeda/playbook.md	66	placed
+.andromeda/playbook.md	67	placed
+.andromeda/playbook.md	68	placed
+.andromeda/playbook.md	69	blank
+.andromeda/playbook.md	70	placed
+.andromeda/playbook.md	71	placed
+.andromeda/playbook.md	72	placed
+.andromeda/playbook.md	73	blank
+.andromeda/playbook.md	74	placed
+.andromeda/playbook.md	75	placed
+.andromeda/playbook.md	76	placed
+.andromeda/playbook.md	77	blank
+.andromeda/playbook.md	78	placed
+.andromeda/playbook.md	79	placed
+.andromeda/playbook.md	80	placed
+.andromeda/playbook.md	81	blank
+.andromeda/playbook.md	82	placed
+.andromeda/playbook.md	83	placed
+.andromeda/playbook.md	84	placed
+.andromeda/playbook.md	85	blank
+.andromeda/playbook.md	86	placed
+.andromeda/playbook.md	87	placed
+.andromeda/playbook.md	88	placed
+.andromeda/playbook.md	89	blank
+.andromeda/playbook.md	90	placed
+.andromeda/playbook.md	91	placed
+.andromeda/playbook.md	92	placed
+.andromeda/playbook.md	93	blank
+.andromeda/playbook.md	94	placed
+.andromeda/playbook.md	95	placed
+.andromeda/playbook.md	96	placed
+.andromeda/playbook.md	97	blank
+.andromeda/playbook.md	98	placed
+.andromeda/playbook.md	99	placed
+.andromeda/playbook.md	100	placed
+.andromeda/playbook.md	101	blank
+.andromeda/playbook.md	102	placed
+.andromeda/playbook.md	103	placed
+.andromeda/playbook.md	104	placed
+.andromeda/playbook.md	105	blank
+.andromeda/playbook.md	106	placed
+.andromeda/playbook.md	107	placed
+.andromeda/playbook.md	108	placed
+.andromeda/playbook.md	109	blank
+.andromeda/playbook.md	110	placed
+.andromeda/playbook.md	111	placed
+.andromeda/playbook.md	112	placed
+.andromeda/playbook.md	113	blank
+.andromeda/playbook.md	114	placed
+.andromeda/playbook.md	115	placed
+.andromeda/playbook.md	116	placed
+.andromeda/playbook.md	117	blank
+.andromeda/playbook.md	118	placed
+.andromeda/playbook.md	119	placed
+.andromeda/playbook.md	120	placed
+.andromeda/playbook.md	121	blank
+.andromeda/playbook.md	122	placed
+.andromeda/playbook.md	123	placed
+.andromeda/playbook.md	124	placed
+.andromeda/playbook.md	125	blank
+.andromeda/playbook.md	126	placed
+.andromeda/playbook.md	127	placed
+.andromeda/playbook.md	128	placed
+.andromeda/residuals.md	1	header
+.andromeda/residuals.md	2	header
+.andromeda/residuals.md	3	header
+.andromeda/residuals.md	4	header
+.andromeda/residuals.md	5	header
+.andromeda/residuals.md	6	header
+.andromeda/residuals.md	7	header
+.andromeda/residuals.md	8	blank
+.andromeda/residuals.md	9	placed
+.andromeda/residuals.md	10	blank
+.andromeda/residuals.md	11	placed
+.andromeda/residuals.md	12	blank
+.andromeda/residuals.md	13	placed
+.andromeda/residuals.md	14	blank
+.andromeda/residuals.md	15	placed
+.andromeda/residuals.md	16	blank
+.andromeda/residuals.md	17	placed
+.andromeda/residuals.md	18	blank
+.andromeda/residuals.md	19	placed
+.andromeda/residuals.md	20	blank
+.andromeda/residuals.md	21	placed
+.andromeda/residuals.md	22	blank
+.andromeda/residuals.md	23	placed
+.andromeda/residuals.md	24	blank
+.andromeda/residuals.md	25	placed
+.andromeda/residuals.md	26	blank
+.andromeda/residuals.md	27	placed
+.andromeda/residuals.md	28	blank
+.andromeda/residuals.md	29	placed
+.andromeda/residuals.md	30	blank
+.andromeda/residuals.md	31	placed
+.andromeda/residuals.md	32	blank
+.andromeda/residuals.md	33	placed
+.andromeda/residuals.md	34	blank
+.andromeda/residuals.md	35	placed
+.andromeda/residuals.md	36	blank
+.andromeda/residuals.md	37	placed
+.andromeda/state.yaml	1	schema
+.andromeda/state.yaml	2	placed
+.andromeda/state.yaml	3	placed
+.andromeda/state.yaml	4	placed
+andromeda-pulse-0.3.0/route-archive.md	1	preamble
+andromeda-pulse-0.3.0/route-archive.md	2	preamble
+andromeda-pulse-0.3.0/route-archive.md	3	preamble
+andromeda-pulse-0.3.0/route-archive.md	4	preamble
+andromeda-pulse-0.3.0/route-archive.md	5	preamble
+andromeda-pulse-0.3.0/route-archive.md	6	preamble
+andromeda-pulse-0.3.0/route-archive.md	7	preamble
+andromeda-pulse-0.3.0/route-archive.md	8	preamble
+andromeda-pulse-0.3.0/route-archive.md	9	preamble
+andromeda-pulse-0.3.0/route-archive.md	10	heading-em
+andromeda-pulse-0.3.0/route-archive.md	11	blank
+andromeda-pulse-0.3.0/route-archive.md	12	carried
+andromeda-pulse-0.3.0/route-archive.md	13	blank
+andromeda-pulse-0.3.0/route-archive.md	14	heading-em
+andromeda-pulse-0.3.0/route-archive.md	15	blank
+andromeda-pulse-0.3.0/route-archive.md	16	carried
+andromeda-pulse-0.3.0/route-archive.md	17	blank
+andromeda-pulse-0.3.0/route-archive.md	18	heading-em
+andromeda-pulse-0.3.0/route-archive.md	19	blank
+andromeda-pulse-0.3.0/route-archive.md	20	carried
+andromeda-pulse-0.3.0/route-archive.md	21	blank
+andromeda-pulse-0.3.0/route-archive.md	22	heading-em
+andromeda-pulse-0.3.0/route-archive.md	23	blank
+andromeda-pulse-0.3.0/route-archive.md	24	carried
+andromeda-pulse-0.3.0/route-archive.md	25	blank
+andromeda-pulse-0.3.0/route-archive.md	26	heading-em
+andromeda-pulse-0.3.0/route-archive.md	27	blank
+andromeda-pulse-0.3.0/route-archive.md	28	carried
+andromeda-pulse-0.3.0/route-archive.md	29	blank
+andromeda-pulse-0.3.0/route-archive.md	30	heading-em
+andromeda-pulse-0.3.0/route-archive.md	31	blank
+andromeda-pulse-0.3.0/route-archive.md	32	carried
+andromeda-pulse-0.3.0/route-archive.md	33	blank
+andromeda-pulse-0.3.0/route-archive.md	34	heading-em
+andromeda-pulse-0.3.0/route-archive.md	35	blank
+andromeda-pulse-0.3.0/route-archive.md	36	carried
+andromeda-pulse-0.3.0/route-archive.md	37	blank
+andromeda-pulse-0.3.0/route-archive.md	38	heading-em
+andromeda-pulse-0.3.0/route-archive.md	39	blank
+andromeda-pulse-0.3.0/route-archive.md	40	carried
+andromeda-pulse-0.3.0/route-archive.md	41	blank
+andromeda-pulse-0.3.0/route-archive.md	42	heading-em
+andromeda-pulse-0.3.0/route-archive.md	43	blank
+andromeda-pulse-0.3.0/route-archive.md	44	carried
+andromeda-pulse-0.3.0/route-archive.md	45	blank
+andromeda-pulse-0.3.0/route-archive.md	46	heading-em
+andromeda-pulse-0.3.0/route-archive.md	47	blank
+andromeda-pulse-0.3.0/route-archive.md	48	carried
+andromeda-pulse-0.3.0/route-archive.md	49	blank
+andromeda-pulse-0.3.0/route-archive.md	50	heading-em
+andromeda-pulse-0.3.0/route-archive.md	51	blank
+andromeda-pulse-0.3.0/route-archive.md	52	carried
+andromeda-pulse-0.3.0/route-archive.md	53	blank
+andromeda-pulse-0.3.0/route-archive.md	54	heading-em
+andromeda-pulse-0.3.0/route-archive.md	55	blank
+andromeda-pulse-0.3.0/route-archive.md	56	carried
+andromeda-pulse-0.3.0/route-archive.md	57	blank
+andromeda-pulse-0.3.0/route-archive.md	58	heading-em
+andromeda-pulse-0.3.0/route-archive.md	59	blank
+andromeda-pulse-0.3.0/route-archive.md	60	carried
+andromeda-pulse-0.3.0/route-archive.md	61	blank
+andromeda-pulse-0.3.0/route-archive.md	62	heading-em
+andromeda-pulse-0.3.0/route-archive.md	63	blank
+andromeda-pulse-0.3.0/route-archive.md	64	carried
+andromeda-pulse-0.3.0/route-archive.md	65	blank
+andromeda-pulse-0.3.0/route-archive.md	66	heading-em
+andromeda-pulse-0.3.0/route-archive.md	67	blank
+andromeda-pulse-0.3.0/route-archive.md	68	carried
+andromeda-pulse-0.3.0/route-archive.md	69	blank
+andromeda-pulse-0.3.0/route-archive.md	70	heading-em
+andromeda-pulse-0.3.0/route-archive.md	71	blank
+andromeda-pulse-0.3.0/route-archive.md	72	carried
+andromeda-pulse-0.3.0/route-archive.md	73	blank
+andromeda-pulse-0.3.0/route-archive.md	74	heading-em
+andromeda-pulse-0.3.0/route-archive.md	75	blank
+andromeda-pulse-0.3.0/route-archive.md	76	carried
+andromeda-pulse-0.3.0/route-archive.md	77	blank
+andromeda-pulse-0.3.0/route-archive.md	78	heading-em
+andromeda-pulse-0.3.0/route-archive.md	79	blank
+andromeda-pulse-0.3.0/route-archive.md	80	carried
+andromeda-pulse-0.3.0/route-archive.md	81	blank
+andromeda-pulse-0.3.0/route-archive.md	82	heading-em
+andromeda-pulse-0.3.0/route-archive.md	83	blank
+andromeda-pulse-0.3.0/route-archive.md	84	carried
+andromeda-pulse-0.3.0/route-archive.md	85	blank
+andromeda-pulse-0.3.0/route-archive.md	86	heading-em
+andromeda-pulse-0.3.0/route-archive.md	87	blank
+andromeda-pulse-0.3.0/route-archive.md	88	carried
+andromeda-pulse-0.3.0/route-archive.md	89	blank
+andromeda-pulse-0.3.0/route-archive.md	90	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	91	blank
+andromeda-pulse-0.3.0/route-archive.md	92	carried
+andromeda-pulse-0.3.0/route-archive.md	93	blank
+andromeda-pulse-0.3.0/route-archive.md	94	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	95	blank
+andromeda-pulse-0.3.0/route-archive.md	96	carried
+andromeda-pulse-0.3.0/route-archive.md	97	blank
+andromeda-pulse-0.3.0/route-archive.md	98	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	99	blank
+andromeda-pulse-0.3.0/route-archive.md	100	carried
+andromeda-pulse-0.3.0/route-archive.md	101	blank
+andromeda-pulse-0.3.0/route-archive.md	102	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	103	blank
+andromeda-pulse-0.3.0/route-archive.md	104	carried
+andromeda-pulse-0.3.0/route-archive.md	105	blank
+andromeda-pulse-0.3.0/route-archive.md	106	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	107	blank
+andromeda-pulse-0.3.0/route-archive.md	108	carried
+andromeda-pulse-0.3.0/route-archive.md	109	blank
+andromeda-pulse-0.3.0/route-archive.md	110	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	111	blank
+andromeda-pulse-0.3.0/route-archive.md	112	carried
+andromeda-pulse-0.3.0/route-archive.md	113	blank
+andromeda-pulse-0.3.0/route-archive.md	114	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	115	blank
+andromeda-pulse-0.3.0/route-archive.md	116	carried
+andromeda-pulse-0.3.0/route-archive.md	117	blank
+andromeda-pulse-0.3.0/route-archive.md	118	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	119	blank
+andromeda-pulse-0.3.0/route-archive.md	120	carried
+andromeda-pulse-0.3.0/route-archive.md	121	blank
+andromeda-pulse-0.3.0/route-archive.md	122	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	123	blank
+andromeda-pulse-0.3.0/route-archive.md	124	carried
+andromeda-pulse-0.3.0/route-archive.md	125	blank
+andromeda-pulse-0.3.0/route-archive.md	126	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	127	blank
+andromeda-pulse-0.3.0/route-archive.md	128	carried
+andromeda-pulse-0.3.0/route-archive.md	129	blank
+andromeda-pulse-0.3.0/route-archive.md	130	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	131	blank
+andromeda-pulse-0.3.0/route-archive.md	132	carried
+andromeda-pulse-0.3.0/route-archive.md	133	blank
+andromeda-pulse-0.3.0/route-archive.md	134	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	135	blank
+andromeda-pulse-0.3.0/route-archive.md	136	carried
+andromeda-pulse-0.3.0/route-archive.md	137	blank
+andromeda-pulse-0.3.0/route-archive.md	138	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	139	blank
+andromeda-pulse-0.3.0/route-archive.md	140	carried
+andromeda-pulse-0.3.0/route-archive.md	141	blank
+andromeda-pulse-0.3.0/route-archive.md	142	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	143	blank
+andromeda-pulse-0.3.0/route-archive.md	144	carried
+andromeda-pulse-0.3.0/route-archive.md	145	blank
+andromeda-pulse-0.3.0/route-archive.md	146	heading-hyphen
+andromeda-pulse-0.3.0/route-archive.md	147	blank
+andromeda-pulse-0.3.0/route-archive.md	148	carried
+andromeda-pulse-0.3.0/route-archive.md	149	blank
+andromeda-pulse-0.3.0/route-archive.md	150	heading-bare
+andromeda-pulse-0.3.0/route-archive.md	151	carried
+andromeda-pulse-0.3.0/route-archive.md	152	blank
+andromeda-pulse-0.3.0/route-archive.md	153	heading-em
+andromeda-pulse-0.3.0/route-archive.md	154	blank
+andromeda-pulse-0.3.0/route-archive.md	155	carried
+andromeda-pulse-0.3.0/route-archive.md	156	blank
+andromeda-pulse-0.3.0/route-archive.md	157	heading-em
+andromeda-pulse-0.3.0/route-archive.md	158	blank
+andromeda-pulse-0.3.0/route-archive.md	159	carried
+andromeda-pulse-0.3.0/route-archive.md	160	blank
+andromeda-pulse-0.3.0/route-archive.md	161	heading-em
+andromeda-pulse-0.3.0/route-archive.md	162	blank
+andromeda-pulse-0.3.0/route-archive.md	163	carried
+andromeda-pulse-0.3.0/route-archive.md	164	blank
+andromeda-pulse-0.3.0/route-archive.md	165	heading-em
+andromeda-pulse-0.3.0/route-archive.md	166	blank
+andromeda-pulse-0.3.0/route-archive.md	167	carried
+andromeda-pulse-0.3.0/route-archive.md	168	blank
+andromeda-pulse-0.3.0/route-archive.md	169	heading-em
+andromeda-pulse-0.3.0/route-archive.md	170	blank
+andromeda-pulse-0.3.0/route-archive.md	171	carried
+andromeda-pulse-0.3.0/route-archive.md	172	blank
+andromeda-pulse-0.3.0/route-archive.md	173	heading-em
+andromeda-pulse-0.3.0/route-archive.md	174	carried
+andromeda-pulse-0.3.0/route-archive.md	175	blank
+andromeda-pulse-0.3.0/route-archive.md	176	heading-em
+andromeda-pulse-0.3.0/route-archive.md	177	blank
+andromeda-pulse-0.3.0/route-archive.md	178	carried
+andromeda-pulse-0.3.0/route-archive.md	179	blank
+andromeda-pulse-0.3.0/route-archive.md	180	heading-em
+andromeda-pulse-0.3.0/route-archive.md	181	blank
+andromeda-pulse-0.3.0/route-archive.md	182	carried
+andromeda-pulse-0.3.0/route-archive.md	183	blank
+andromeda-pulse-0.3.0/route-archive.md	184	heading-em
+andromeda-pulse-0.3.0/route-archive.md	185	blank
+andromeda-pulse-0.3.0/route-archive.md	186	carried
+andromeda-pulse-0.3.0/route-archive.md	187	blank
+andromeda-pulse-0.3.0/route-archive.md	188	heading-em
+andromeda-pulse-0.3.0/route-archive.md	189	blank
+andromeda-pulse-0.3.0/route-archive.md	190	carried
+andromeda-pulse-0.3.0/route-archive.md	191	blank
+andromeda-pulse-0.3.0/route-archive.md	192	heading-em
+andromeda-pulse-0.3.0/route-archive.md	193	blank
+andromeda-pulse-0.3.0/route-archive.md	194	carried
+andromeda-pulse-0.3.0/route-archive.md	195	blank
+andromeda-pulse-0.3.0/route-archive.md	196	heading-em
+andromeda-pulse-0.3.0/route-archive.md	197	blank
+andromeda-pulse-0.3.0/route-archive.md	198	carried
+andromeda-pulse-0.3.0/route-archive.md	199	blank
+andromeda-pulse-0.3.0/route-archive.md	200	heading-em
+andromeda-pulse-0.3.0/route-archive.md	201	blank
+andromeda-pulse-0.3.0/route-archive.md	202	carried
+andromeda-pulse-0.3.0/route-archive.md	203	blank
+andromeda-pulse-0.3.0/route-archive.md	204	heading-em
+andromeda-pulse-0.3.0/route-archive.md	205	carried
+andromeda-pulse-0.3.0/route-archive.md	206	blank
+andromeda-pulse-0.3.0/route-archive.md	207	heading-em
+andromeda-pulse-0.3.0/route-archive.md	208	carried
+andromeda-pulse-0.3.0/route-archive.md	209	blank
+andromeda-pulse-0.3.0/route-archive.md	210	heading-em
+andromeda-pulse-0.3.0/route-archive.md	211	carried
+andromeda-pulse-0.3.0/route-archive.md	212	blank
+andromeda-pulse-0.3.0/route-archive.md	213	heading-em
+andromeda-pulse-0.3.0/route-archive.md	214	carried
+andromeda-pulse-0.3.0/route-archive.md	215	blank
+andromeda-pulse-0.3.0/route-archive.md	216	heading-em
+andromeda-pulse-0.3.0/route-archive.md	217	carried
+andromeda-pulse-0.3.0/route-archive.md	218	blank
+andromeda-pulse-0.3.0/route-archive.md	219	heading-em
+andromeda-pulse-0.3.0/route-archive.md	220	carried
+andromeda-pulse-0.3.0/route-archive.md	221	blank
+andromeda-pulse-0.3.0/route-archive.md	222	heading-em
+andromeda-pulse-0.3.0/route-archive.md	223	blank
+andromeda-pulse-0.3.0/route-archive.md	224	carried
+andromeda-pulse-0.3.0/route-archive.md	225	blank
+andromeda-pulse-0.3.0/route-archive.md	226	heading-em
+andromeda-pulse-0.3.0/route-archive.md	227	blank
+andromeda-pulse-0.3.0/route-archive.md	228	carried
+andromeda-pulse-0.3.0/route-archive.md	229	blank
+andromeda-pulse-0.3.0/route-archive.md	230	heading-em
+andromeda-pulse-0.3.0/route-archive.md	231	carried
+andromeda-pulse-0.3.0/route-archive.md	232	blank
+andromeda-pulse-0.3.0/route-archive.md	233	heading-em
+andromeda-pulse-0.3.0/route-archive.md	234	carried
+andromeda-pulse-0.3.0/route-archive.md	235	blank
+andromeda-pulse-0.3.0/route-archive.md	236	heading-em
+andromeda-pulse-0.3.0/route-archive.md	237	carried
+andromeda-pulse-0.3.0/route-archive.md	238	blank
+andromeda-pulse-0.3.0/route-archive.md	239	heading-em
+andromeda-pulse-0.3.0/route-archive.md	240	carried
+andromeda-pulse-0.3.0/route-archive.md	241	blank
+andromeda-pulse-0.3.0/route-archive.md	242	heading-em
+andromeda-pulse-0.3.0/route-archive.md	243	carried
+andromeda-pulse-0.3.0/route-archive.md	244	blank
+andromeda-pulse-0.3.0/route-archive.md	245	heading-em
+andromeda-pulse-0.3.0/route-archive.md	246	carried
+andromeda-pulse-0.3.0/route-archive.md	247	blank
+andromeda-pulse-0.3.0/route-archive.md	248	heading-em
+andromeda-pulse-0.3.0/route-archive.md	249	carried
+andromeda-pulse-0.3.0/route-archive.md	250	blank
+andromeda-pulse-0.3.0/route-archive.md	251	heading-em
+andromeda-pulse-0.3.0/route-archive.md	252	carried
+andromeda-pulse-0.3.0/route-archive.md	253	blank
+andromeda-pulse-0.3.0/route-archive.md	254	heading-em
+andromeda-pulse-0.3.0/route-archive.md	255	carried
+andromeda-pulse-0.3.0/route-archive.md	256	blank
+andromeda-pulse-0.3.0/route-archive.md	257	heading-em
+andromeda-pulse-0.3.0/route-archive.md	258	carried
+andromeda-pulse-0.3.0/route-archive.md	259	blank
+andromeda-pulse-0.3.0/route-archive.md	260	heading-em
+andromeda-pulse-0.3.0/route-archive.md	261	carried
+andromeda-pulse-0.3.0/route-archive.md	262	blank
+andromeda-pulse-0.3.0/route-archive.md	263	heading-em
+andromeda-pulse-0.3.0/route-archive.md	264	carried
+andromeda-pulse-0.3.0/route-archive.md	265	blank
+andromeda-pulse-0.3.0/route-archive.md	266	heading-em
+andromeda-pulse-0.3.0/route-archive.md	267	carried
+andromeda-pulse-0.3.0/route-archive.md	268	blank
+andromeda-pulse-0.3.0/route-archive.md	269	heading-em
+andromeda-pulse-0.3.0/route-archive.md	270	carried
+andromeda-pulse-0.3.0/route-archive.md	271	blank
+andromeda-pulse-0.3.0/route-archive.md	272	heading-em
+andromeda-pulse-0.3.0/route-archive.md	273	carried
+andromeda-pulse-0.3.0/route-archive.md	274	blank
+andromeda-pulse-0.3.0/route-archive.md	275	heading-em
+andromeda-pulse-0.3.0/route-archive.md	276	carried
+andromeda-pulse-0.3.0/route-archive.md	277	blank
+andromeda-pulse-0.3.0/route-archive.md	278	heading-em
+andromeda-pulse-0.3.0/route-archive.md	279	carried
+andromeda-pulse-0.3.0/route-archive.md	280	blank
+andromeda-pulse-0.3.0/route-archive.md	281	heading-em
+andromeda-pulse-0.3.0/route-archive.md	282	carried
+andromeda-pulse-0.3.0/route-archive.md	283	blank
+andromeda-pulse-0.3.0/route-archive.md	284	heading-em
+andromeda-pulse-0.3.0/route-archive.md	285	carried
+andromeda-pulse-0.3.0/route-archive.md	286	blank
+andromeda-pulse-0.3.0/route-archive.md	287	heading-em
+andromeda-pulse-0.3.0/route-archive.md	288	carried
+andromeda-pulse-0.3.0/route-archive.md	289	blank
+andromeda-pulse-0.3.0/route-archive.md	290	heading-em
+andromeda-pulse-0.3.0/route-archive.md	291	carried
+andromeda-pulse-0.3.0/route-archive.md	292	blank
+andromeda-pulse-0.3.0/route-archive.md	293	heading-em
+andromeda-pulse-0.3.0/route-archive.md	294	carried
+andromeda-pulse-0.3.0/route-archive.md	295	blank
+andromeda-pulse-0.3.0/route-archive.md	296	heading-em
+andromeda-pulse-0.3.0/route-archive.md	297	carried
+andromeda-pulse-0.3.0/route-archive.md	298	blank
+andromeda-pulse-0.3.0/route-archive.md	299	heading-em
+andromeda-pulse-0.3.0/route-archive.md	300	carried
+andromeda-pulse-0.3.0/route-archive.md	301	blank
+andromeda-pulse-0.3.0/route-archive.md	302	heading-em
+andromeda-pulse-0.3.0/route-archive.md	303	carried
+andromeda-pulse-0.3.0/route-archive.md	304	blank
+andromeda-pulse-0.3.0/route-archive.md	305	heading-em
+andromeda-pulse-0.3.0/route-archive.md	306	carried
+andromeda-pulse-0.4.0/route-archive.md	1	preamble
+andromeda-pulse-0.4.0/route-archive.md	2	preamble
+andromeda-pulse-0.4.0/route-archive.md	3	preamble
+andromeda-pulse-0.4.0/route-archive.md	4	preamble
+andromeda-pulse-0.4.0/route-archive.md	5	preamble
+andromeda-pulse-0.4.0/route-archive.md	6	preamble
+andromeda-pulse-0.4.0/route-archive.md	7	preamble
+andromeda-pulse-0.4.0/route-archive.md	8	preamble
+andromeda-pulse-0.4.0/route-archive.md	9	preamble
+andromeda-pulse-0.4.0/route-archive.md	10	heading-em
+andromeda-pulse-0.4.0/route-archive.md	11	carried
+andromeda-pulse-0.4.0/route-archive.md	12	blank
+andromeda-pulse-0.4.0/route-archive.md	13	heading-em
+andromeda-pulse-0.4.0/route-archive.md	14	carried
+andromeda-pulse-0.4.0/route-archive.md	15	blank
+andromeda-pulse-0.4.0/route-archive.md	16	heading-em
+andromeda-pulse-0.4.0/route-archive.md	17	carried
+andromeda-pulse-0.4.0/route-archive.md	18	blank
+andromeda-pulse-0.4.0/route-archive.md	19	heading-em
+andromeda-pulse-0.4.0/route-archive.md	20	carried
+andromeda-pulse-0.4.0/route-archive.md	21	blank
+andromeda-pulse-0.4.0/route-archive.md	22	heading-em
+andromeda-pulse-0.4.0/route-archive.md	23	carried
+andromeda-pulse-0.4.0/route-archive.md	24	blank
+andromeda-pulse-0.4.0/route-archive.md	25	heading-em
+andromeda-pulse-0.4.0/route-archive.md	26	carried
+andromeda-pulse-0.4.0/route-archive.md	27	blank
+andromeda-pulse-0.4.0/route-archive.md	28	heading-em
+andromeda-pulse-0.4.0/route-archive.md	29	carried
+andromeda-pulse-0.4.0/route-archive.md	30	blank
+andromeda-pulse-0.4.0/route-archive.md	31	heading-em
+andromeda-pulse-0.4.0/route-archive.md	32	carried
+andromeda-pulse-0.4.0/route-archive.md	33	blank
+andromeda-pulse-0.4.0/route-archive.md	34	heading-em
+andromeda-pulse-0.4.0/route-archive.md	35	carried
+andromeda-pulse-0.4.0/route-archive.md	36	blank
+andromeda-pulse-0.4.0/route-archive.md	37	heading-em
+andromeda-pulse-0.4.0/route-archive.md	38	carried
+andromeda-pulse-0.4.0/route-archive.md	39	blank
+andromeda-pulse-0.4.0/route-archive.md	40	heading-em
+andromeda-pulse-0.4.0/route-archive.md	41	carried
+andromeda-pulse-0.4.0/route-archive.md	42	blank
+andromeda-pulse-0.4.0/route-archive.md	43	heading-em
+andromeda-pulse-0.4.0/route-archive.md	44	carried
+andromeda-pulse-0.4.0/route-archive.md	45	blank
+andromeda-pulse-0.4.0/route-archive.md	46	heading-em
+andromeda-pulse-0.4.0/route-archive.md	47	carried
+andromeda-pulse-0.4.0/route-archive.md	48	blank
+andromeda-pulse-0.4.0/route-archive.md	49	heading-em
+andromeda-pulse-0.4.0/route-archive.md	50	matched
+.andromeda/decisions/pre-d2-drain-spike.md	-	frozen	12401
+.andromeda/phases/phase-1/combined.md	-	frozen	43093
+.andromeda/phases/phase-1/plan.md	-	frozen	29829
+.andromeda/phases/phase-1/research.md	-	frozen	14375
+.andromeda/phases/phase-10/combined.md	-	frozen	34289
+.andromeda/phases/phase-10/plan.md	-	frozen	23393
+.andromeda/phases/phase-10/research.md	-	frozen	12273
+.andromeda/phases/phase-11/combined.md	-	frozen	39816
+.andromeda/phases/phase-11/plan.md	-	frozen	28875
+.andromeda/phases/phase-11/research.md	-	frozen	13281
+.andromeda/phases/phase-12/combined.md	-	frozen	47450
+.andromeda/phases/phase-12/plan.md	-	frozen	27968
+.andromeda/phases/phase-12/research.md	-	frozen	18003
+.andromeda/phases/phase-13/combined.md	-	frozen	37971
+.andromeda/phases/phase-13/plan.md	-	frozen	31496
+.andromeda/phases/phase-13/research.md	-	frozen	17692
+.andromeda/phases/phase-14/combined.md	-	frozen	34615
+.andromeda/phases/phase-14/plan.md	-	frozen	32632
+.andromeda/phases/phase-14/research.md	-	frozen	25784
+.andromeda/phases/phase-15/combined.md	-	frozen	34862
+.andromeda/phases/phase-15/plan.md	-	frozen	33081
+.andromeda/phases/phase-15/research.md	-	frozen	22497
+.andromeda/phases/phase-16/combined.md	-	frozen	27231
+.andromeda/phases/phase-16/plan.md	-	frozen	28536
+.andromeda/phases/phase-16/research.md	-	frozen	22647
+.andromeda/phases/phase-17/combined.md	-	frozen	39791
+.andromeda/phases/phase-17/plan.md	-	frozen	43296
+.andromeda/phases/phase-17/research.md	-	frozen	26057
+.andromeda/phases/phase-18/combined.md	-	frozen	38463
+.andromeda/phases/phase-18/plan.md	-	frozen	30582
+.andromeda/phases/phase-18/research.md	-	frozen	23528
+.andromeda/phases/phase-19/combined.md	-	frozen	34262
+.andromeda/phases/phase-19/plan.md	-	frozen	37995
+.andromeda/phases/phase-19/research.md	-	frozen	24702
+.andromeda/phases/phase-2/combined.md	-	frozen	29404
+.andromeda/phases/phase-2/plan.md	-	frozen	24484
+.andromeda/phases/phase-2/research.md	-	frozen	13434
+.andromeda/phases/phase-20/combined.md	-	frozen	45359
+.andromeda/phases/phase-20/plan.md	-	frozen	27966
+.andromeda/phases/phase-20/research.md	-	frozen	19902
+.andromeda/phases/phase-21/combined.md	-	frozen	44421
+.andromeda/phases/phase-21/plan.md	-	frozen	31618
+.andromeda/phases/phase-21/research.md	-	frozen	18029
+.andromeda/phases/phase-22/combined.md	-	frozen	31279
+.andromeda/phases/phase-22/plan.md	-	frozen	32053
+.andromeda/phases/phase-22/research.md	-	frozen	20141
+.andromeda/phases/phase-23/combined.md	-	frozen	34328
+.andromeda/phases/phase-23/plan.md	-	frozen	27520
+.andromeda/phases/phase-23/research.md	-	frozen	15901
+.andromeda/phases/phase-24/combined.md	-	frozen	32627
+.andromeda/phases/phase-24/plan.md	-	frozen	31767
+.andromeda/phases/phase-24/research.md	-	frozen	18433
+.andromeda/phases/phase-25/combined.md	-	frozen	40434
+.andromeda/phases/phase-25/plan.md	-	frozen	33204
+.andromeda/phases/phase-25/research.md	-	frozen	18515
+.andromeda/phases/phase-26/combined.md	-	frozen	47776
+.andromeda/phases/phase-26/plan.md	-	frozen	29940
+.andromeda/phases/phase-26/research.md	-	frozen	23882
+.andromeda/phases/phase-27/combined.md	-	frozen	36035
+.andromeda/phases/phase-27/plan.md	-	frozen	26882
+.andromeda/phases/phase-27/research.md	-	frozen	17873
+.andromeda/phases/phase-28/combined.md	-	frozen	50974
+.andromeda/phases/phase-28/plan.md	-	frozen	34898
+.andromeda/phases/phase-28/research.md	-	frozen	20732
+.andromeda/phases/phase-29/combined.md	-	frozen	41475
+.andromeda/phases/phase-29/plan.md	-	frozen	46788
+.andromeda/phases/phase-29/research.md	-	frozen	17659
+.andromeda/phases/phase-3/combined.md	-	frozen	21443
+.andromeda/phases/phase-3/plan.md	-	frozen	26364
+.andromeda/phases/phase-3/research.md	-	frozen	14978
+.andromeda/phases/phase-30/combined.md	-	frozen	43582
+.andromeda/phases/phase-30/plan.md	-	frozen	30418
+.andromeda/phases/phase-30/research.md	-	frozen	23125
+.andromeda/phases/phase-31/combined.md	-	frozen	50395
+.andromeda/phases/phase-31/plan.md	-	frozen	33837
+.andromeda/phases/phase-31/research.md	-	frozen	16984
+.andromeda/phases/phase-32/combined.md	-	frozen	42586
+.andromeda/phases/phase-32/plan.md	-	frozen	33846
+.andromeda/phases/phase-32/research.md	-	frozen	21933
+.andromeda/phases/phase-33/combined.md	-	frozen	46640
+.andromeda/phases/phase-33/plan.md	-	frozen	23290
+.andromeda/phases/phase-33/research.md	-	frozen	22588
+.andromeda/phases/phase-34/combined.md	-	frozen	43212
+.andromeda/phases/phase-34/plan.md	-	frozen	27680
+.andromeda/phases/phase-34/research.md	-	frozen	16927
+.andromeda/phases/phase-35/combined.md	-	frozen	34627
+.andromeda/phases/phase-35/plan.md	-	frozen	31334
+.andromeda/phases/phase-35/research.md	-	frozen	18490
+.andromeda/phases/phase-36/combined.md	-	frozen	38637
+.andromeda/phases/phase-36/plan.md	-	frozen	31246
+.andromeda/phases/phase-36/research.md	-	frozen	21543
+.andromeda/phases/phase-37/combined.md	-	frozen	27446
+.andromeda/phases/phase-37/plan.md	-	frozen	26335
+.andromeda/phases/phase-37/research.md	-	frozen	19113
+.andromeda/phases/phase-38/combined.md	-	frozen	47843
+.andromeda/phases/phase-38/plan.md	-	frozen	32944
+.andromeda/phases/phase-38/research.md	-	frozen	16188
+.andromeda/phases/phase-39/combined.md	-	frozen	50159
+.andromeda/phases/phase-39/plan.md	-	frozen	38746
+.andromeda/phases/phase-39/research.md	-	frozen	24469
+.andromeda/phases/phase-4/combined.md	-	frozen	44127
+.andromeda/phases/phase-4/plan.md	-	frozen	31730
+.andromeda/phases/phase-4/research.md	-	frozen	19750
+.andromeda/phases/phase-40/combined.md	-	frozen	56943
+.andromeda/phases/phase-40/plan.md	-	frozen	42113
+.andromeda/phases/phase-40/research.md	-	frozen	27061
+.andromeda/phases/phase-41/combined.md	-	frozen	59262
+.andromeda/phases/phase-41/plan.md	-	frozen	40336
+.andromeda/phases/phase-41/research.md	-	frozen	29486
+.andromeda/phases/phase-42/combined.md	-	frozen	32490
+.andromeda/phases/phase-42/plan.md	-	frozen	34224
+.andromeda/phases/phase-42/research.md	-	frozen	20126
+.andromeda/phases/phase-43/combined.md	-	frozen	31805
+.andromeda/phases/phase-43/plan.md	-	frozen	29966
+.andromeda/phases/phase-43/research.md	-	frozen	19276
+.andromeda/phases/phase-44/combined.md	-	frozen	41514
+.andromeda/phases/phase-44/plan.md	-	frozen	44591
+.andromeda/phases/phase-44/research.md	-	frozen	26651
+.andromeda/phases/phase-45/combined.md	-	frozen	26828
+.andromeda/phases/phase-45/plan.md	-	frozen	33186
+.andromeda/phases/phase-45/research.md	-	frozen	20256
+.andromeda/phases/phase-46/combined.md	-	frozen	53698
+.andromeda/phases/phase-46/plan.md	-	frozen	39793
+.andromeda/phases/phase-46/research.md	-	frozen	30534
+.andromeda/phases/phase-47/combined.md	-	frozen	41368
+.andromeda/phases/phase-47/plan.md	-	frozen	44857
+.andromeda/phases/phase-47/research.md	-	frozen	25571
+.andromeda/phases/phase-48/combined.md	-	frozen	40074
+.andromeda/phases/phase-48/plan.md	-	frozen	34351
+.andromeda/phases/phase-48/research.md	-	frozen	18209
+.andromeda/phases/phase-49/combined.md	-	frozen	23650
+.andromeda/phases/phase-49/plan.md	-	frozen	30785
+.andromeda/phases/phase-49/research.md	-	frozen	14326
+.andromeda/phases/phase-5/combined.md	-	frozen	51531
+.andromeda/phases/phase-5/plan.md	-	frozen	34926
+.andromeda/phases/phase-5/research.md	-	frozen	17801
+.andromeda/phases/phase-50/combined.md	-	frozen	25708
+.andromeda/phases/phase-50/plan.md	-	frozen	26297
+.andromeda/phases/phase-50/research.md	-	frozen	16902
+.andromeda/phases/phase-51/combined.md	-	frozen	42459
+.andromeda/phases/phase-51/plan.md	-	frozen	32996
+.andromeda/phases/phase-51/research.md	-	frozen	22976
+.andromeda/phases/phase-52/combined.md	-	frozen	41112
+.andromeda/phases/phase-52/plan.md	-	frozen	33453
+.andromeda/phases/phase-52/research.md	-	frozen	14552
+.andromeda/phases/phase-53/combined.md	-	frozen	24076
+.andromeda/phases/phase-53/plan.md	-	frozen	23124
+.andromeda/phases/phase-53/research.md	-	frozen	12581
+.andromeda/phases/phase-54/combined.md	-	frozen	26400
+.andromeda/phases/phase-54/plan.md	-	frozen	30418
+.andromeda/phases/phase-54/research.md	-	frozen	20856
+.andromeda/phases/phase-55/combined.md	-	frozen	44339
+.andromeda/phases/phase-55/plan.md	-	frozen	38870
+.andromeda/phases/phase-55/research.md	-	frozen	21800
+.andromeda/phases/phase-56/combined.md	-	frozen	32962
+.andromeda/phases/phase-56/plan.md	-	frozen	28176
+.andromeda/phases/phase-56/research.md	-	frozen	16940
+.andromeda/phases/phase-57/combined.md	-	frozen	30550
+.andromeda/phases/phase-57/plan.md	-	frozen	35042
+.andromeda/phases/phase-57/research.md	-	frozen	20299
+.andromeda/phases/phase-58/combined.md	-	frozen	40815
+.andromeda/phases/phase-58/plan.md	-	frozen	49284
+.andromeda/phases/phase-58/research.md	-	frozen	27896
+.andromeda/phases/phase-59/combined.md	-	frozen	33471
+.andromeda/phases/phase-59/plan.md	-	frozen	40548
+.andromeda/phases/phase-59/research.md	-	frozen	26718
+.andromeda/phases/phase-6/combined.md	-	frozen	32170
+.andromeda/phases/phase-6/plan.md	-	frozen	25383
+.andromeda/phases/phase-6/research.md	-	frozen	16645
+.andromeda/phases/phase-60/combined.md	-	frozen	40418
+.andromeda/phases/phase-60/plan.md	-	frozen	41274
+.andromeda/phases/phase-60/research.md	-	frozen	25774
+.andromeda/phases/phase-61/combined.md	-	frozen	35888
+.andromeda/phases/phase-61/plan.md	-	frozen	33247
+.andromeda/phases/phase-61/research.md	-	frozen	17705
+.andromeda/phases/phase-62/combined.md	-	frozen	40831
+.andromeda/phases/phase-62/plan.md	-	frozen	50094
+.andromeda/phases/phase-62/research.md	-	frozen	25939
+.andromeda/phases/phase-63/combined.md	-	frozen	36022
+.andromeda/phases/phase-63/plan.md	-	frozen	39582
+.andromeda/phases/phase-63/research.md	-	frozen	21952
+.andromeda/phases/phase-64/combined.md	-	frozen	45532
+.andromeda/phases/phase-64/plan.md	-	frozen	41571
+.andromeda/phases/phase-64/research.md	-	frozen	25494
+.andromeda/phases/phase-65/combined.md	-	frozen	27000
+.andromeda/phases/phase-65/plan.md	-	frozen	24520
+.andromeda/phases/phase-65/research.md	-	frozen	13826
+.andromeda/phases/phase-66/combined.md	-	frozen	41916
+.andromeda/phases/phase-66/plan.md	-	frozen	55328
+.andromeda/phases/phase-66/research.md	-	frozen	35272
+.andromeda/phases/phase-67/combined.md	-	frozen	35548
+.andromeda/phases/phase-67/plan.md	-	frozen	39444
+.andromeda/phases/phase-67/research.md	-	frozen	24267
+.andromeda/phases/phase-68/combined.md	-	frozen	38478
+.andromeda/phases/phase-68/plan.md	-	frozen	53542
+.andromeda/phases/phase-68/research.md	-	frozen	31962
+.andromeda/phases/phase-69/combined.md	-	frozen	33516
+.andromeda/phases/phase-69/plan.md	-	frozen	32685
+.andromeda/phases/phase-69/research.md	-	frozen	22640
+.andromeda/phases/phase-7/combined.md	-	frozen	30426
+.andromeda/phases/phase-7/plan.md	-	frozen	26314
+.andromeda/phases/phase-7/research.md	-	frozen	12445
+.andromeda/phases/phase-70/combined.md	-	frozen	34172
+.andromeda/phases/phase-70/plan.md	-	frozen	34951
+.andromeda/phases/phase-70/research.md	-	frozen	20402
+.andromeda/phases/phase-71/combined.md	-	frozen	26581
+.andromeda/phases/phase-71/plan.md	-	frozen	31017
+.andromeda/phases/phase-71/research.md	-	frozen	16866
+.andromeda/phases/phase-72/combined.md	-	frozen	16447
+.andromeda/phases/phase-72/plan.md	-	frozen	26114
+.andromeda/phases/phase-72/research.md	-	frozen	13354
+.andromeda/phases/phase-73/combined.md	-	frozen	15159
+.andromeda/phases/phase-73/plan.md	-	frozen	32482
+.andromeda/phases/phase-73/research.md	-	frozen	18445
+.andromeda/phases/phase-74/combined.md	-	frozen	37221
+.andromeda/phases/phase-74/plan.md	-	frozen	31227
+.andromeda/phases/phase-74/research.md	-	frozen	30816
+.andromeda/phases/phase-75/combined.md	-	frozen	27870
+.andromeda/phases/phase-75/plan.md	-	frozen	47519
+.andromeda/phases/phase-75/research.md	-	frozen	25687
+.andromeda/phases/phase-76/combined.md	-	frozen	19470
+.andromeda/phases/phase-76/plan.md	-	frozen	22088
+.andromeda/phases/phase-76/research.md	-	frozen	16844
+.andromeda/phases/phase-77/combined.md	-	frozen	33060
+.andromeda/phases/phase-77/plan.md	-	frozen	40200
+.andromeda/phases/phase-77/research.md	-	frozen	19192
+.andromeda/phases/phase-78/combined.md	-	frozen	32211
+.andromeda/phases/phase-78/plan.md	-	frozen	46115
+.andromeda/phases/phase-78/research.md	-	frozen	27459
+.andromeda/phases/phase-79/combined.md	-	frozen	25964
+.andromeda/phases/phase-79/plan.md	-	frozen	34754
+.andromeda/phases/phase-79/research.md	-	frozen	23191
+.andromeda/phases/phase-8/combined.md	-	frozen	44406
+.andromeda/phases/phase-8/plan.md	-	frozen	32540
+.andromeda/phases/phase-8/research.md	-	frozen	20865
+.andromeda/phases/phase-80/combined.md	-	frozen	31438
+.andromeda/phases/phase-80/plan.md	-	frozen	45198
+.andromeda/phases/phase-80/research.md	-	frozen	22964
+.andromeda/phases/phase-81/combined.md	-	frozen	30567
+.andromeda/phases/phase-81/plan.md	-	frozen	39637
+.andromeda/phases/phase-81/research.md	-	frozen	29898
+.andromeda/phases/phase-82/combined.md	-	frozen	33650
+.andromeda/phases/phase-82/plan.md	-	frozen	33251
+.andromeda/phases/phase-82/research.md	-	frozen	18627
+.andromeda/phases/phase-83/combined.md	-	frozen	46718
+.andromeda/phases/phase-83/plan.md	-	frozen	47679
+.andromeda/phases/phase-83/research.md	-	frozen	23760
+.andromeda/phases/phase-84/combined.md	-	frozen	36358
+.andromeda/phases/phase-84/plan.md	-	frozen	34895
+.andromeda/phases/phase-84/research.md	-	frozen	28003
+.andromeda/phases/phase-85/combined.md	-	frozen	46339
+.andromeda/phases/phase-85/plan.md	-	frozen	47398
+.andromeda/phases/phase-85/research.md	-	frozen	23274
+.andromeda/phases/phase-86/combined.md	-	frozen	27716
+.andromeda/phases/phase-86/plan.md	-	frozen	18247
+.andromeda/phases/phase-86/research.md	-	frozen	13771
+.andromeda/phases/phase-87/combined.md	-	frozen	20073
+.andromeda/phases/phase-87/plan.md	-	frozen	22327
+.andromeda/phases/phase-87/research.md	-	frozen	13260
+.andromeda/phases/phase-88/combined.md	-	frozen	29487
+.andromeda/phases/phase-88/plan.md	-	frozen	25412
+.andromeda/phases/phase-88/research.md	-	frozen	15210
+.andromeda/phases/phase-89/combined.md	-	frozen	26871
+.andromeda/phases/phase-89/plan.md	-	frozen	21994
+.andromeda/phases/phase-89/research.md	-	frozen	13128
+.andromeda/phases/phase-9/combined.md	-	frozen	34257
+.andromeda/phases/phase-9/plan.md	-	frozen	25895
+.andromeda/phases/phase-9/research.md	-	frozen	14851
+.andromeda/phases/phase-90/combined.md	-	frozen	16360
+.andromeda/phases/phase-90/plan.md	-	frozen	16406
+.andromeda/phases/phase-90/research.md	-	frozen	12422
+.andromeda/phases/phase-91/combined.md	-	frozen	21719
+.andromeda/phases/phase-91/plan.md	-	frozen	25099
+.andromeda/phases/phase-91/research.md	-	frozen	17846
+.andromeda/phases/phase-92/combined.md	-	frozen	21050
+.andromeda/phases/phase-92/plan.md	-	frozen	24259
+.andromeda/phases/phase-92/research.md	-	frozen	18188
+.andromeda/phases/phase-93/combined.md	-	frozen	20448
+.andromeda/phases/phase-93/plan.md	-	frozen	28432
+.andromeda/phases/phase-93/research.md	-	frozen	15556
+.andromeda/phases/phase-94/combined.md	-	frozen	27690
+.andromeda/phases/phase-94/plan.md	-	frozen	22561
+.andromeda/phases/phase-94/research.md	-	frozen	12479
+.andromeda/phases/phase-95/combined.md	-	frozen	18582
+.andromeda/phases/phase-95/plan.md	-	frozen	22269
+.andromeda/phases/phase-95/research.md	-	frozen	14758
+.andromeda/phases/phase-96/combined.md	-	frozen	37913
+.andromeda/phases/phase-96/plan.md	-	frozen	24670
+.andromeda/phases/phase-96/research.md	-	frozen	17016
+.andromeda/phases/phase-97/combined.md	-	frozen	31197
+.andromeda/phases/phase-97/plan.md	-	frozen	30238
+.andromeda/phases/phase-97/research.md	-	frozen	19942
+.andromeda/route.md	-	frozen	64659
+.andromeda/scope-validation/widget-state-validation-report-2026-05-14.md	-	frozen	44891
+#blank	209
+#carried	96
+#frozen-file	294
+#header	7
+#heading-bare	1
+#heading-em	81
+#heading-hyphen	15
+#matched	1
+#placed	224
+#preamble	53
+#prose	1
+#schema	1
+#section	7
