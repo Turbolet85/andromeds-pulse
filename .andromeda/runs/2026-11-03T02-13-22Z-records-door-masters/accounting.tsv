@@ -1,0 +1,77 @@
+source	class	bytes
+.andromeda/a11y-plan-amendments-archive.md	placed	30461
+.andromeda/a11y-plan-amendments.md	placed	17991
+.andromeda/a11y-plan.md	placed	69239
+.andromeda/architecture-amendments-archive.md	placed	74788
+.andromeda/architecture-amendments.md	placed	189402
+.andromeda/architecture.md	placed	229958
+.andromeda/design-system-amendments-archive.md	placed	14520
+.andromeda/design-system-amendments.md	placed	19769
+.andromeda/design-system.md	placed	48089
+.andromeda/input.md	placed	18011
+.andromeda/layout-templates-amendments-archive.md	placed	18553
+.andromeda/layout-templates-amendments.md	placed	16603
+.andromeda/layout-templates.md	placed	38807
+.andromeda/obs-plan-amendments-archive.md	placed	66125
+.andromeda/obs-plan-amendments.md	placed	109035
+.andromeda/obs-plan.md	placed	197435
+.andromeda/registries/a11y-plan-contracts.toml	placed	2267
+.andromeda/registries/architecture-contracts.toml	placed	605
+.andromeda/registries/contracts/a11y-plan/a11y-testing-tool-pick.md	placed	804
+.andromeda/registries/contracts/a11y-plan/bootstrap-phases-derive-for-route-setup-project.md	placed	1982
+.andromeda/registries/contracts/a11y-plan/ci-integration.md	placed	2782
+.andromeda/registries/contracts/a11y-plan/contrast-verification-harness.md	placed	1385
+.andromeda/registries/contracts/a11y-plan/focus-management-test-harness.md	placed	729
+.andromeda/registries/contracts/a11y-plan/harness-wiring-conventions.md	placed	2601
+.andromeda/registries/contracts/a11y-plan/keyboard-test-harness.md	placed	690
+.andromeda/registries/contracts/a11y-plan/screen-reader-test-pattern.md	placed	647
+.andromeda/registries/contracts/a11y-plan/structured-violation-json-schema.md	placed	652
+.andromeda/registries/contracts/a11y-plan/wcag-criteria-mapping.md	placed	660
+.andromeda/registries/contracts/architecture/build-system.md	placed	494
+.andromeda/registries/contracts/architecture/ci-cd-approach.md	placed	10689
+.andromeda/registries/contracts/architecture/deployment-model.md	placed	1366
+.andromeda/registries/contracts/architecture/project-directory-structure.md	placed	3227
+.andromeda/registries/contracts/obs-plan/heartbeat-ticks.md	placed	3085
+.andromeda/registries/contracts/obs-plan/log-file-location.md	placed	655
+.andromeda/registries/contracts/obs-plan/log-format-json-schema.md	placed	1103
+.andromeda/registries/contracts/obs-plan/logging-stack.md	placed	1981
+.andromeda/registries/contracts/obs-plan/service-identity.md	placed	780
+.andromeda/registries/contracts/obs-plan/snapshot-paste-to-ai-integration.md	placed	3104
+.andromeda/registries/contracts/obs-plan/trace-context-propagation.md	placed	1373
+.andromeda/registries/contracts/obs-plan/tracing-init.md	placed	2948
+.andromeda/registries/contracts/test-plan/5-command-implementation.md	placed	22368
+.andromeda/registries/contracts/test-plan/bootstrap-phases.md	placed	3019
+.andromeda/registries/contracts/test-plan/log-format.md	placed	968
+.andromeda/registries/contracts/test-plan/per-chunk-gate-discipline.md	placed	42754
+.andromeda/registries/contracts/test-plan/pid-file.md	placed	2670
+.andromeda/registries/contracts/test-plan/status-endpoint-shape.md	placed	1248
+.andromeda/registries/contracts/test-plan/test-data-bootstrap.md	placed	1553
+.andromeda/registries/obs-plan-contracts.toml	placed	1798
+.andromeda/registries/test-plan-contracts.toml	placed	1535
+.andromeda/security-plan-amendments-archive.md	placed	64248
+.andromeda/security-plan-amendments.md	placed	158549
+.andromeda/security-plan.md	placed	200731
+.andromeda/test-plan-amendments-archive.md	placed	122578
+.andromeda/test-plan-amendments.md	placed	188897
+.andromeda/test-plan.md	placed	246236
+#amendment	706
+#archive-entry	206
+#archive-h1	14
+#archive-unparsed	33
+#doc	37
+#edge:by	378
+#edge:cites	22
+#edge:contains	3373
+#entry-no-chunk	62
+#fact	2396
+#last_by:U35	162
+#last_by:chunk	464
+#last_by:door	0
+#last_by:greenfield	0
+#last_by:none	0
+#last_by:other	69
+#last_by:setup	1701
+#section	242
+#sidecar-entry	440
+#sidecar-h1	7
+#sidecar-unparsed	6
